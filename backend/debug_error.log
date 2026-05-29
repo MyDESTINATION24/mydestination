@@ -1,0 +1,6 @@
+Error: Unauthorized
+    at HttpCommand.handleError (D:\companyfolder\My_DESTINATION\backend\node_modules\@phonepe-pg\pg-sdk-node\dist\common\http\HttpCommand.js:79:23)
+    at HttpCommand.<anonymous> (D:\companyfolder\My_DESTINATION\backend\node_modules\@phonepe-pg\pg-sdk-node\dist\common\http\HttpCommand.js:60:33)
+    at Generator.throw (<anonymous>)
+    at rejected (D:\companyfolder\My_DESTINATION\backend\node_modules\@phonepe-pg\pg-sdk-node\dist\common\http\HttpCommand.js:21:65)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)

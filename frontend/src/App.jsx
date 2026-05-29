@@ -197,6 +197,7 @@ const WeddingVendorWallet = React.lazy(() => import('./modules/wedding-integrate
 const WeddingVendorAuthLogin = React.lazy(() => import('./modules/wedding-integrated/vendor/auth/views/VendorLogin'));
 const WeddingVendorAuthSignup = React.lazy(() => import('./modules/wedding-integrated/vendor/auth/views/VendorSignup'));
 const WeddingVendorSubscription = React.lazy(() => import('./modules/wedding-integrated/vendor/panel/views/VendorSubscription'));
+const WeddingPaymentStatus = React.lazy(() => import('./modules/wedding-integrated/views/PaymentStatusPage'));
 const TaxiApp = React.lazy(() => import('./modules/taxi/TaxiApp'));
 
 // Loading Fallback Component
@@ -834,7 +835,8 @@ function App() {
                 <Route path="bookings/:bookingId" element={<WeddingBookingDetailPage />} />
                 <Route path="saved" element={<WeddingSavedDestinationsPage />} />
                 <Route path="my-enquiries" element={<WeddingMyEnquiriesPage />} />
-                <Route path="settings" element={<WeddingAccountSettingsPage />} />
+                <Route path="account" element={<WeddingAccountSettingsPage />} />
+                <Route path="payment/status" element={<WeddingPaymentStatus />} />
               </Route>
 
               <Route path="real-weddings/by-location/:destinationId" element={<WeddingRealWeddingsByLocation />} />
@@ -896,6 +898,9 @@ function App() {
                   <Route path="subscription" element={<WeddingVendorSubscription />} />
                 </Route>
               </Route>
+
+              {/* Payment Status — OUTSIDE protected route so PhonePe redirect always works */}
+              <Route path="/wedding/vendor/payment/status" element={<WeddingPaymentStatus />} />
             </Route>
 
 

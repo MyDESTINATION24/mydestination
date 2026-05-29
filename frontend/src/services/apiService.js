@@ -998,6 +998,14 @@ export const weddingEnquiryService = {
     } catch (error) {
       throw error.response?.data || error.message;
     }
+  },
+  payAndBookEnquiry: async (enquiryId) => {
+    try {
+      const response = await api.post(`/wedding/payment/booking/${enquiryId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
   }
 };
 
@@ -1053,7 +1061,7 @@ export const faqService = {
 export const platformSettingsService = {
   getSettings: async () => {
     try {
-      const response = await api.get('/wedding/admin/settings/financial');
+      const response = await api.get('/wedding/settings/financial');
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

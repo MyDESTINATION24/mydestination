@@ -77,19 +77,24 @@ const MyEnquiriesPage = () => {
     }
     
     setProcessing(true);
-    const toastId = toast.loading("Processing Payment & Confirming Booking...", { duration: 10000 });
+    const toastId = toast.loading("Initiating Payment...", { duration: 10000 });
     
     try {
-      await new Promise(r => setTimeout(r, 1500)); // Simulate gateway UI delay
-      const payload = platformSettings?.platformFeeType === 'percentage' ? { bookingAmount: Number(bookingAmount) } : {};
-      const res = await weddingEnquiryService.confirmBooking(selectedEnquiry._id, payload);
-      if(res.success) {
-        toast.success("Payment Successful! Booking Confirmed.", { id: toastId });
-        setEnquiries(enquiries.map(e => e._id === selectedEnquiry._id ? { ...e, status: 'Booked', paymentStatus: 'Paid' } : e));
-        closePaymentModal();
+      // First optionally save the bookingAmount using existing API if needed
+      if (platformSettings?.platformFeeType === 'percentage') {
+         await weddingEnquiryService.confirmBooking(selectedEnquiry._id, { bookingAmount: Number(bookingAmount) });
+      }
+
+      // Initiate PhonePe Payment
+      const res = await weddingEnquiryService.payAndBookEnquiry(selectedEnquiry._id);
+      
+      if (res.success && res.url) {
+        window.location.href = res.url; // Redirect to PhonePe
+      } else {
+        throw new Error("Invalid payment URL received.");
       }
     } catch (error) {
-      toast.error(error.message || "Failed to confirm booking.", { id: toastId });
+      toast.error(error.message || "Failed to initiate payment.", { id: toastId });
       setProcessing(false);
     }
   };

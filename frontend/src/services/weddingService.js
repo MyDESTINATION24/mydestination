@@ -483,9 +483,9 @@ export const weddingService = {
     }
   },
 
-  purchaseSubscription: async (planId, paymentId) => {
+  purchaseSubscription: async (data) => {
     try {
-      const response = await api.post('/wedding/vendor/subscriptions/purchase', { planId, paymentId });
+      const response = await api.post('/wedding/payment/subscription', data);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
@@ -502,9 +502,18 @@ export const weddingService = {
     }
   },
 
-  addMoneyToWallet: async (amount, paymentId) => {
+  addMoneyToWallet: async (amount) => {
     try {
-      const response = await api.post('/wedding/vendor/wallet/add', { amount, paymentId });
+      const response = await api.post('/wedding/payment/wallet-topup', { amount });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
+  payAndBookEnquiry: async (enquiryId) => {
+    try {
+      const response = await api.post(`/wedding/payment/booking/${enquiryId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

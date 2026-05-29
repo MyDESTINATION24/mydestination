@@ -97,6 +97,14 @@ import { getSettings, updateSettings } from '../controllers/weddingPlatformSetti
 import { getWallet, addMoney } from '../controllers/vendorWalletController.js';
 import { protect, authorizedRoles, optionalProtect } from '../../../middlewares/authMiddleware.js';
 
+import {
+  initiateBookingPayment,
+  initiateSubscriptionPayment,
+  initiateWalletTopup,
+  paymentCallback,
+  verifyPaymentStatus
+} from '../controllers/weddingPaymentController.js';
+
 const router = express.Router();
 
 // Public Routes
@@ -220,5 +228,14 @@ router.post('/admin/subscriptions', protect, authorizedRoles('admin', 'superadmi
 router.get('/admin/subscriptions', protect, authorizedRoles('admin', 'superadmin'), getAllPlans);
 router.patch('/admin/subscriptions/:id', protect, authorizedRoles('admin', 'superadmin'), updatePlan);
 router.delete('/admin/subscriptions/:id', protect, authorizedRoles('admin', 'superadmin'), deletePlan);
+
+// Payment Routes
+router.post('/payment/booking/:id', protect, initiateBookingPayment); // User Booking Payment
+router.post('/payment/subscription', protect, authorizedRoles('vendor'), initiateSubscriptionPayment); // Vendor Subscription
+router.post('/payment/wallet-topup', protect, authorizedRoles('vendor'), initiateWalletTopup); // Vendor Wallet Topup
+
+// Webhook & Verification (Public & Secure)
+router.post('/payment/callback', paymentCallback);
+router.get('/payment/status/:orderId', verifyPaymentStatus);
 
 export default router;

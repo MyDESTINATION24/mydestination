@@ -77,17 +77,23 @@ const VendorSubscription = () => {
   const handlePurchase = async (planId) => {
     try {
       setPurchasing(planId);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const response = await weddingService.purchaseSubscription(planId, 'pay_mock_' + Date.now());
-      if (response.success) {
-        toast.success(hasActiveSub ? 'Plan upgraded successfully! Your remaining balance has been carried forward.' : 'Subscription purchased successfully!');
-        const updatedUser = { ...user, ...response.user };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        window.location.href = '/wedding/vendor/dashboard';
+      const plan = plans.find(p => p._id === planId);
+      const response = await weddingService.purchaseSubscription({
+        planId,
+        amount: plan.price,
+        validityMonths: plan.validityMonths,
+        validityType: plan.validityType || (plan.validityMonths > 1 ? 'months' : 'month')
+      });
+      
+      if (response.success && response.url) {
+        // Store orderId so PaymentStatusPage can verify payment after redirect
+        if (response.orderId) {
+          localStorage.setItem('phonepe_order_id', response.orderId);
+        }
+        window.location.href = response.url; // Redirect to PhonePe
       }
     } catch (error) {
       toast.error(error.message || 'Payment failed. Please try again.');
-    } finally {
       setPurchasing(null);
     }
   };
