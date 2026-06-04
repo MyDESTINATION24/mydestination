@@ -24,7 +24,7 @@ import { useAuth } from "../../context/AuthContext";
 import { weddingVendorService } from "../../../../../services/apiService";
 import VendorLayout from "../layouts/VendorLayout";
 import toast from "react-hot-toast";
-import { registerWeddingFcmToken } from "../../services/weddingFcmService";
+import { registerWeddingFcmToken } from "../../../services/weddingFcmService";
 
 const VendorSettings = () => {
   const navigate = useNavigate();
