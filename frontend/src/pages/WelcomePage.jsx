@@ -34,7 +34,7 @@ const slides = [
     subtitle: "Taxi Service",
     description: "Travel in comfort with our elite fleet of premium vehicles.",
     image: taxiImg,
-    path: "http://localhost:5173/",
+    path: "/taxi/user",
     theme: "from-amber-600/20 to-transparent",
     btnColor: "bg-yellow-100 hover:bg-yellow-200 text-yellow-950"
   }
