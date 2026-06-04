@@ -24,7 +24,7 @@ const slides = [
     subtitle: "Wedding Dreams",
     description: "Craft your dream celebration with elegance and breathtaking views.",
     image: weddingImg,
-    path: "/wedding",
+    path: "/wedding/login",
     theme: "from-rose-600/20 to-transparent",
     btnColor: "bg-pink-100 hover:bg-pink-200 text-pink-950"
   },
@@ -114,12 +114,8 @@ const WelcomePage = () => {
       return;
     }
 
-    if (!token) {
-      // User choice made, now redirect to login
-      navigate('/login', { state: { from: { pathname: targetPath } } });
-    } else {
-      navigate(targetPath);
-    }
+    // Direct navigation without forcing login
+    navigate(targetPath);
   };
 
   return (
