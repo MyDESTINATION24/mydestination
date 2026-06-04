@@ -68,7 +68,13 @@ const VendorDetailPage = () => {
   const [shortlisted, setShortlisted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({ name: "", phone: "", email: "", date: "", message: "", packageType: "Base Package" });
+  const [formData, setFormData] = useState({ 
+    name: "", phone: "", email: "", date: "", message: "", 
+    packageType: "Base Package",
+    guestCount: "",
+    destination: "",
+    services: []
+  });
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -160,10 +166,13 @@ const VendorDetailPage = () => {
       if (calculatedBudget) {
         payload.budget = calculatedBudget;
       }
+      if (formData.guestCount)   payload.guestCount   = formData.guestCount;
+      if (formData.destination)  payload.destination  = formData.destination;
+      if (formData.services?.length) payload.services = formData.services;
 
       await weddingEnquiryService.createEnquiry(payload);
       toast.success("Enquiry sent!");
-      setFormData({ name: "", phone: "", email: "", date: "", message: "", packageType: "Base Package" });
+      setFormData({ name: "", phone: "", email: "", date: "", message: "", packageType: "Base Package", guestCount: "", destination: "", services: [] });
     } catch (err) {
       toast.error(err.message || "Failed to send");
     } finally {
@@ -396,6 +405,35 @@ const VendorDetailPage = () => {
                   </div>
                 )}
               </div>
+
+              {/* Guest Count */}
+              <input 
+                type="number" 
+                placeholder="Number of Guests (e.g. 200)" 
+                min="1"
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-primary" 
+                value={formData.guestCount} 
+                onChange={e => setFormData({...formData, guestCount: e.target.value})} 
+              />
+
+              {/* Destination */}
+              <input 
+                type="text" 
+                placeholder="Preferred Destination (e.g. Goa, Jaipur)" 
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-primary" 
+                value={formData.destination} 
+                onChange={e => setFormData({...formData, destination: e.target.value})} 
+              />
+
+              {/* Services Description */}
+              <textarea
+                placeholder="Describe the services you need (e.g. Photography, Catering, Decoration, DJ...)"
+                rows={3}
+                className="w-full px-4 py-3 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-primary resize-none placeholder:text-slate-400"
+                value={formData.message}
+                onChange={e => setFormData({...formData, message: e.target.value})}
+              />
+
               <button type="submit" disabled={submitting} className="w-full py-4 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all disabled:opacity-50">
                 {submitting ? "Sending..." : "Send Message"}
               </button>

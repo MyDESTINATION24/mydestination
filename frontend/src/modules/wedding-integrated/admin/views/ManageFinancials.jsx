@@ -128,7 +128,7 @@ const ManageFinancials = () => {
                      <tr className="border-b border-[hsl(353,45%,35%)]/10">
                         <th className="pb-4 font-bold text-gray-400 text-[10px] uppercase tracking-widest">Transaction / Date</th>
                         <th className="pb-4 font-bold text-gray-400 text-[10px] uppercase tracking-widest">Vendor & Client</th>
-                        <th className="pb-4 font-bold text-gray-400 text-[10px] uppercase tracking-widest">Amount</th>
+                        <th className="pb-4 font-bold text-gray-400 text-[10px] uppercase tracking-widest">Deal Amount / Fee</th>
                         <th className="pb-4 font-bold text-gray-400 text-[10px] uppercase tracking-widest text-right">Status</th>
                      </tr>
                   </thead>
@@ -136,7 +136,7 @@ const ManageFinancials = () => {
                      {financials.recentTransactions.length > 0 ? financials.recentTransactions.map((txn) => (
                        <tr key={txn.id} className="group hover:bg-white/40 transition-all duration-300">
                           <td className="py-5">
-                             <p className="font-bold text-sm text-[hsl(353,20%,15%)]">{txn.id.substring(0, 8)}...</p>
+                             <p className="font-bold text-sm text-[hsl(353,20%,15%)]">{txn.id}</p>
                              <p className="text-xs text-gray-400">{txn.date}</p>
                           </td>
                           <td className="py-5">
@@ -145,7 +145,7 @@ const ManageFinancials = () => {
                           </td>
                           <td className="py-5">
                              <p className="font-black text-sm text-gray-800">{txn.amount}</p>
-                             <p className="text-[10px] text-green-600 font-bold">+{txn.commission} Comm.</p>
+                             <p className="text-[10px] text-teal-600 font-bold">+{txn.platformFee} Platform Fee.</p>
                           </td>
                           <td className="py-5 text-right">
                              <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
@@ -189,7 +189,7 @@ const ManageFinancials = () => {
                      {financials.recentSubscriptions?.length > 0 ? financials.recentSubscriptions.map((sub) => (
                        <tr key={sub.id} className="group hover:bg-white/40 transition-all duration-300">
                           <td className="py-5">
-                             <p className="font-bold text-sm text-[hsl(353,20%,15%)]">{sub.id.substring(0, 8)}...</p>
+                             <p className="font-bold text-sm text-[hsl(353,20%,15%)]">{sub.id}</p>
                              <p className="text-xs text-gray-400">{sub.date}</p>
                           </td>
                           <td className="py-5">

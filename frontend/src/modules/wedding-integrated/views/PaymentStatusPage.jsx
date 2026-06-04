@@ -8,6 +8,7 @@ const PaymentStatusPage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState('loading');
   const [details, setDetails] = useState(null);
+  const [orderType, setOrderType] = useState('SUBSCRIPTION');
 
   useEffect(() => {
     handlePaymentVerification();
@@ -18,6 +19,12 @@ const PaymentStatusPage = () => {
     // Hum us orderId se backend verify karte hain
     const orderId = localStorage.getItem('phonepe_order_id');
     const code = searchParams.get('code');
+
+    if (orderId) {
+      if (orderId.startsWith('BOOKING_')) setOrderType('BOOKING');
+      else if (orderId.startsWith('WALLET_')) setOrderType('WALLET');
+      else setOrderType('SUBSCRIPTION');
+    }
 
     if (!orderId) {
       // No orderId found — check URL params as fallback
@@ -90,7 +97,11 @@ const PaymentStatusPage = () => {
             </div>
             <h1 className="text-3xl font-black text-gray-900 mb-2">Payment Successful!</h1>
             <p className="text-gray-500 mb-8">
-              Your transaction has been completed. Subscription benefits have been activated.
+              {orderType === 'BOOKING' 
+                ? "Your transaction has been completed. Your booking is now confirmed." 
+                : orderType === 'WALLET' 
+                  ? "Your transaction has been completed. Your wallet balance has been updated."
+                  : "Your transaction has been completed. Subscription benefits have been activated."}
             </p>
 
             {details?.amount && (
@@ -101,10 +112,14 @@ const PaymentStatusPage = () => {
             )}
 
             <button
-              onClick={() => navigate('/wedding/vendor/subscription')}
+              onClick={() => {
+                if (orderType === 'BOOKING') navigate('/wedding/my-enquiries');
+                else if (orderType === 'WALLET') navigate('/wedding/vendor/wallet');
+                else navigate('/wedding/vendor/subscription');
+              }}
               className="w-full flex items-center justify-center gap-2 py-4 bg-[hsl(353,45%,35%)] text-white rounded-xl font-bold hover:bg-[hsl(353,45%,28%)] transition-colors"
             >
-              View My Plan <ArrowRight size={18} />
+              {orderType === 'BOOKING' ? 'View My Bookings' : orderType === 'WALLET' ? 'Go to Wallet' : 'View My Plan'} <ArrowRight size={18} />
             </button>
           </div>
         )}
@@ -120,16 +135,23 @@ const PaymentStatusPage = () => {
             </p>
             <div className="flex gap-4">
               <button
-                onClick={() => navigate('/wedding/vendor/subscription')}
+                onClick={() => {
+                  if (orderType === 'BOOKING') navigate('/wedding/my-enquiries');
+                  else if (orderType === 'WALLET') navigate('/wedding/vendor/wallet');
+                  else navigate('/wedding/vendor/subscription');
+                }}
                 className="flex-1 py-4 bg-[hsl(353,45%,35%)] text-white rounded-xl font-bold hover:bg-[hsl(353,45%,28%)] transition-colors"
               >
                 Try Again
               </button>
               <button
-                onClick={() => navigate('/wedding/vendor/dashboard')}
+                onClick={() => {
+                  if (orderType === 'BOOKING') navigate('/wedding');
+                  else navigate('/wedding/vendor/dashboard');
+                }}
                 className="flex-1 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition-colors"
               >
-                Dashboard
+                {orderType === 'BOOKING' ? 'Home' : 'Dashboard'}
               </button>
             </div>
           </div>

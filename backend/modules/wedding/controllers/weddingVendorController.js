@@ -3,6 +3,7 @@ import WeddingVendor from '../models/WeddingVendor.js';
 import WeddingVenue from '../models/WeddingVenue.js';
 import WeddingEnquiry from '../models/WeddingEnquiry.js';
 import WeddingReview from '../models/WeddingReview.js';
+import WeddingPlatformSettings from '../models/WeddingPlatformSettings.js';
 
 /**
  * @desc    Get vendor dashboard stats
@@ -225,9 +226,32 @@ export const updateVendorProfile = async (req, res) => {
       ? 'approved' 
       : (currentUser?.partnerApprovalStatus || 'pending');
 
+    // Check for Promotional Trial
+    const settings = await WeddingPlatformSettings.findOne();
+    const isNewVendor = !vendor;
+    const now = new Date();
+    
+    let trialData = {};
+    if (isNewVendor && settings && settings.freeTrialEnabled) {
+      if (
+        (!settings.freeTrialStartDate || now >= new Date(settings.freeTrialStartDate)) &&
+        (!settings.freeTrialEndDate || now <= new Date(settings.freeTrialEndDate))
+      ) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + (settings.freeTrialDays || 30));
+        
+        trialData = {
+          hasActiveSubscription: true,
+          leadsRemaining: settings.freeTrialLeads || 50,
+          subscriptionExpiryDate: expiryDate
+        };
+      }
+    }
+
     await User.findByIdAndUpdate(req.user._id, {
       role: 'vendor',
       partnerApprovalStatus: newApprovalStatus,
+      ...trialData,
       category: profileData.category,
       location: profileData.location,
       experience: profileData.experience,
@@ -281,6 +305,26 @@ export const applyAsVendor = async (req, res) => {
 
     let user;
     
+    const settings = await WeddingPlatformSettings.findOne();
+    const now = new Date();
+    let trialData = {};
+    
+    if (settings && settings.freeTrialEnabled) {
+      if (
+        (!settings.freeTrialStartDate || now >= new Date(settings.freeTrialStartDate)) &&
+        (!settings.freeTrialEndDate || now <= new Date(settings.freeTrialEndDate))
+      ) {
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + (settings.freeTrialDays || 30));
+        
+        trialData = {
+          hasActiveSubscription: true,
+          leadsRemaining: settings.freeTrialLeads || 50,
+          subscriptionExpiryDate: expiryDate
+        };
+      }
+    }
+    
     if (existingUser) {
       // Update existing user's vendor application
       user = existingUser;
@@ -288,9 +332,13 @@ export const applyAsVendor = async (req, res) => {
         ? 'approved' 
         : (existingUser.partnerApprovalStatus || 'pending');
 
+      // Only assign trial if they don't already have a subscription
+      const applyTrial = (!existingUser.hasActiveSubscription) ? trialData : {};
+
       await User.findByIdAndUpdate(user._id, {
         name: basicInfo.name,
         partnerApprovalStatus: newApprovalStatus,
+        ...applyTrial,
         category: basicInfo.category,
         location: basicInfo.location,
         experience: basicInfo.experience,
@@ -315,6 +363,7 @@ export const applyAsVendor = async (req, res) => {
         category: basicInfo.category,
         location: basicInfo.location,
         experience: basicInfo.experience,
+        ...trialData,
         basicPackage: pricing?.basePrice,
         premiumPackage: pricing?.premiumPrice,
         services: services?.filter(s => s.name?.trim()) || [],

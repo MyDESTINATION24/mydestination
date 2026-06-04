@@ -7,9 +7,9 @@ import WeddingSubscriptionTransaction from '../models/WeddingSubscriptionTransac
 // @access  Private (Admin)
 export const createPlan = async (req, res) => {
   try {
-    const { planName, price, validityMonths, numberOfLeads, features, isActive } = req.body;
+    const { planName, price, validityMonths, validityType, numberOfLeads, features, isActive } = req.body;
     const plan = await WeddingSubscriptionPlan.create({
-      planName, price, validityMonths, numberOfLeads, features, isActive
+      planName, price, validityMonths, validityType, numberOfLeads, features, isActive
     });
     res.status(201).json({ success: true, data: plan });
   } catch (error) {

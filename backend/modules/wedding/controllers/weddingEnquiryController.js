@@ -4,7 +4,7 @@ import WeddingVenue from '../models/WeddingVenue.js';
 import VendorWallet from '../models/VendorWallet.js';
 import WeddingPlatformSettings from '../models/WeddingPlatformSettings.js';
 import User from '../../user/models/User.js';
-import { createNotification } from '../../notification/controllers/notificationController.js';
+import { sendWeddingNotification, sendWeddingNotificationToAdmins } from '../../../services/weddingNotificationService.js';
 
 /**
  * @desc    Create a new enquiry (User Side)
@@ -51,7 +51,7 @@ export const createEnquiry = async (req, res) => {
       user: req.user ? req.user._id : null
     });
 
-    // Create Notification for Vendor
+    // Push Notifications: Vendor ko naya enquiry aaya, Admin ko bhi batao
     if (targetId) {
       let vendorUserId = null;
       if (targetType === 'Venue' || targetType === 'venue') {
@@ -62,17 +62,28 @@ export const createEnquiry = async (req, res) => {
         if (vendor) vendorUserId = vendor.user;
       }
 
+      // Notify Vendor: Naya enquiry mila
       if (vendorUserId) {
-        await createNotification({
-          recipient: vendorUserId,
-          sender: req.user?._id,
-          title: 'New Wedding Enquiry',
-          message: `You have received a new enquiry from ${name}.`,
-          type: 'enquiry',
-          link: '/wedding/vendor/leads'
-        });
+        sendWeddingNotification(
+          vendorUserId,
+          'vendor',
+          {
+            title: '💍 New Wedding Enquiry!',
+            body: `New enquiry from ${name} for ${weddingDate ? new Date(weddingDate).toLocaleDateString('en-IN') : 'your wedding services'}.`
+          },
+          { type: 'enquiry', url: '/wedding/vendor/leads', enquiryId: String(enquiry._id) }
+        ).catch(e => console.error('[WeddingFCM] Vendor notify error:', e.message));
       }
     }
+
+    // Notify all Admins: Naya enquiry system mein aaya
+    sendWeddingNotificationToAdmins(
+      {
+        title: '📋 New Wedding Enquiry',
+        body: `${name} ne enquiry submit ki — ${guestCount || ''} guests, Budget: ${budget || budgetRange || 'N/A'}`
+      },
+      { type: 'enquiry', url: '/wedding/admin/enquiries', enquiryId: String(enquiry._id) }
+    ).catch(e => console.error('[WeddingFCM] Admin notify error:', e.message));
 
     res.status(201).json({ success: true, enquiry });
   } catch (error) {
@@ -121,7 +132,6 @@ export const getMyEnquiries = async (req, res) => {
  */
 export const getVendorLeads = async (req, res) => {
   try {
-    // 1. Find the vendor profile(s) for this user
     const vendorProfile = await WeddingVendor.findOne({ user: req.user._id });
     const venueProfile = await WeddingVenue.findOne({ vendor: req.user._id });
 
@@ -133,12 +143,37 @@ export const getVendorLeads = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    // 2. Find enquiries targeting these profiles
     const enquiries = await WeddingEnquiry.find({ 
       targetId: { $in: targetIds } 
     }).sort({ createdAt: -1 });
 
     res.status(200).json(enquiries);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Get a single lead by ID (Vendor Side)
+ */
+export const getLeadById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const enquiry = await WeddingEnquiry.findById(id);
+    if (!enquiry) return res.status(404).json({ message: 'Lead not found' });
+
+    // Verify ownership
+    const vendorProfile = await WeddingVendor.findOne({ user: req.user._id });
+    const venueProfile = await WeddingVenue.findOne({ vendor: req.user._id });
+
+    const isOwner = (vendorProfile && enquiry.targetId?.equals(vendorProfile._id)) ||
+                    (venueProfile && enquiry.targetId?.equals(venueProfile._id));
+
+    if (!isOwner) {
+      return res.status(403).json({ message: 'Not authorized to view this lead' });
+    }
+
+    res.status(200).json(enquiry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -167,8 +202,29 @@ export const updateLeadStatus = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to update this lead' });
     }
 
+    const previousStatus = enquiry.status;
     enquiry.status = status;
     await enquiry.save();
+
+    // Push Notification: User ko batao uski enquiry ka status change hua
+    if (enquiry.user && previousStatus !== status) {
+      const statusMessages = {
+        Contacted:  { title: '📞 Vendor Ne Contact Kiya!', body: 'Your wedding enquiry vendor ne review ki aur jald aapse contact karega.' },
+        Accepted:   { title: '✅ Enquiry Accepted!',       body: 'Badhai ho! Vendor ne aapki wedding enquiry accept kar li. Ab aap booking complete kar sakte hain.' },
+        Booked:     { title: '🎉 Booking Confirmed!',     body: 'Aapki wedding booking confirm ho gayi! Payment complete karein.' },
+        Completed:  { title: '💍 Wedding Complete!',      body: 'Aapki wedding service successfully complete ho gayi. Please ek review zaroor den!' },
+        Lost:       { title: 'Enquiry Closed',            body: 'Aapki enquiry close ho gayi. Agar koi sawaal ho to support se contact karein.' },
+      };
+      const notif = statusMessages[status];
+      if (notif) {
+        sendWeddingNotification(
+          enquiry.user,
+          'user',
+          notif,
+          { type: 'enquiry_status', url: '/wedding/my-enquiries', enquiryId: String(enquiry._id), newStatus: status }
+        ).catch(e => console.error('[WeddingFCM] User status notify error:', e.message));
+      }
+    }
     
     res.status(200).json({ success: true, enquiry });
   } catch (error) {
@@ -198,9 +254,25 @@ export const updateEnquiryStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+
+    const oldEnquiry = await WeddingEnquiry.findById(id);
+    if (!oldEnquiry) return res.status(404).json({ message: 'Enquiry not found' });
+
+    const previousStatus = oldEnquiry.status;
     const enquiry = await WeddingEnquiry.findByIdAndUpdate(id, { status }, { new: true });
-    if (!enquiry) return res.status(404).json({ message: 'Enquiry not found' });
+
+    // Admin status update → Notify user about status change
+    if (enquiry.user && previousStatus !== status) {
+      sendWeddingNotification(
+        enquiry.user,
+        'user',
+        {
+          title: '📋 Enquiry Status Updated',
+          body: `Aapki wedding enquiry ka status admin ne '${status}' kar diya hai.`
+        },
+        { type: 'enquiry_status', url: '/wedding/my-enquiries', enquiryId: String(enquiry._id), newStatus: status }
+      ).catch(e => console.error('[WeddingFCM] Admin status notify error:', e.message));
+    }
     
     res.status(200).json({ success: true, enquiry });
   } catch (error) {
@@ -312,6 +384,25 @@ export const markVendorPaymentReceived = async (req, res) => {
     enquiry.bookingAmount = parsedBookingAmount;
     
     await enquiry.save();
+
+    // Push Notifications: Booking confirm hone ke baad vendor aur admin ko batao
+    sendWeddingNotification(
+      vendorUserId,
+      'vendor',
+      {
+        title: '🎉 Booking Confirmed!',
+        body: `${enquiry.name} ki booking confirm ho gayi! Commission: ₹${calculatedVendorCommission}`
+      },
+      { type: 'booking_confirmed', url: '/wedding/vendor/leads', enquiryId: String(enquiry._id) }
+    ).catch(() => {});
+
+    sendWeddingNotificationToAdmins(
+      {
+        title: '💰 Booking & Payment Complete',
+        body: `${enquiry.name} ki booking confirmed. Platform fee: ₹${calculatedPlatformFee}, Commission: ₹${calculatedVendorCommission}`
+      },
+      { type: 'booking_confirmed', url: '/wedding/admin/enquiries', enquiryId: String(enquiry._id) }
+    ).catch(() => {});
 
     res.status(200).json({ success: true, message: 'Booking confirmed and commission deducted!', enquiry });
 

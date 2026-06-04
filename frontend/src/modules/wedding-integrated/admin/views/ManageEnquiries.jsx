@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminStyles } from '../theme/themeConfig';
-import { Filter, Search, ArrowUpRight, CheckCircle2, Circle, Trash2, Eye, X } from 'lucide-react';
+import { Filter, Search, CheckCircle2, Circle, Trash2, Eye, X } from 'lucide-react';
 import { weddingService } from '../../../../services/weddingService';
 
 const formatMessage = (msg, isModal = false) => {
   if (!msg) return <span className="text-gray-400 italic">No details provided</span>;
-  const match = msg.match(/\[Interested In: (.*?)\](.*)/);
+  const match = msg.match(/\[Interested In: (.*?)\]([\s\S]*)/);
   if (match) {
     const packageInfo = match[1].trim();
     const userMsg = match[2].trim();
@@ -19,33 +20,64 @@ const formatMessage = (msg, isModal = false) => {
   return <p className={`${isModal ? 'text-base whitespace-pre-wrap' : 'text-xs line-clamp-2 whitespace-normal'} text-gray-600 leading-snug`}>{msg}</p>;
 };
 
+const TABS = [
+  { label: 'ALL', value: 'All' },
+  { label: 'NEW ENQUIRIES', value: 'New' },
+  { label: 'CONTACTED', value: 'Contacted' },
+  { label: 'ACCEPTED', value: 'Accepted' },
+  { label: 'BOOKED', value: 'Booked' },
+  { label: 'COMPLETED', value: 'Completed' },
+  { label: 'LOST', value: 'Lost' },
+];
+
 const ManageEnquiries = () => {
-  const [statusFilter, setStatusFilter] = useState('New'); // "New" or "Contacted"
-  const [enquiries, setEnquiries] = useState([]);
+  const [searchParams] = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [allEnquiries, setAllEnquiries] = useState([]);  // Full dataset — fetched once
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
 
+  // Fetch ALL enquiries only once on mount
   useEffect(() => {
     fetchEnquiries();
-  }, [statusFilter]);
+  }, []);
+
+  // Auto-open enquiry if ?id=... is passed from dashboard
+  useEffect(() => {
+    const enquiryId = searchParams.get('id');
+    if (enquiryId && allEnquiries.length > 0) {
+      const found = allEnquiries.find(e => e._id === enquiryId);
+      if (found) setSelectedEnquiry(found);
+    }
+  }, [searchParams, allEnquiries]);
 
   const fetchEnquiries = async () => {
     try {
       setLoading(true);
-      const data = await weddingService.getAdminEnquiries({ status: statusFilter });
-      setEnquiries(data);
+      // Always fetch all — tabs filter client-side (no reload on tab click)
+      const data = await weddingService.getAdminEnquiries({});
+      setAllEnquiries(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching enquiries:', error);
+      setAllEnquiries([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Client-side filter — no API call on tab switch
+  const enquiries = statusFilter === 'All'
+    ? allEnquiries
+    : allEnquiries.filter(e => e.status === statusFilter);
+
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       await weddingService.updateEnquiryStatus(id, newStatus);
-      fetchEnquiries();
+      // Update locally — no full reload, no flicker
+      setAllEnquiries(prev =>
+        prev.map(e => e._id === id ? { ...e, status: newStatus } : e)
+      );
     } catch (error) {
       alert('Failed to update status');
     }
@@ -55,7 +87,8 @@ const ManageEnquiries = () => {
     if (!window.confirm('Are you sure you want to delete this enquiry?')) return;
     try {
       await weddingService.deleteEnquiry(id);
-      fetchEnquiries();
+      // Remove locally — no full reload, no flicker
+      setAllEnquiries(prev => prev.filter(e => e._id !== id));
     } catch (error) {
       alert('Failed to delete enquiry');
     }
@@ -97,31 +130,24 @@ const ManageEnquiries = () => {
           </div>
         </div>
 
-        {/* Toggle / Switch for status */}
-        <div className="flex items-center gap-2 p-1.5 bg-white/30 backdrop-blur-md border border-white/40 rounded-2xl w-fit">
-          <button 
-            onClick={() => setStatusFilter('New')}
-            className={`flex items-center gap-2 px-8 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
-              statusFilter === 'New' 
-              ? 'bg-[hsl(353,45%,35%)] text-white shadow-lg shadow-[hsl(353,45%,35%)]/20' 
-              : 'text-gray-500 hover:bg-white/40'
-            }`}
-          >
-            {statusFilter === 'New' ? <Circle size={14} className="fill-white" /> : <Circle size={14} />}
-            NEW ENQUIRIES
-          </button>
-          
-          <button 
-            onClick={() => setStatusFilter('Contacted')}
-            className={`flex items-center gap-2 px-8 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
-              statusFilter === 'Contacted' 
-              ? 'bg-[hsl(353,45%,35%)] text-white shadow-lg shadow-[hsl(353,45%,35%)]/20' 
-              : 'text-gray-500 hover:bg-white/40'
-            }`}
-          >
-            {statusFilter === 'Contacted' ? <CheckCircle2 size={16} /> : <CheckCircle2 size={16} className="opacity-50" />}
-            CONTACTED
-          </button>
+        {/* Tab Filter */}
+        <div className="flex items-center gap-2 p-1.5 bg-white/30 backdrop-blur-md border border-white/40 rounded-2xl w-fit flex-wrap">
+          {TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                statusFilter === tab.value
+                  ? 'bg-[hsl(353,45%,35%)] text-white shadow-lg shadow-[hsl(353,45%,35%)]/20'
+                  : 'text-gray-500 hover:bg-white/40'
+              }`}
+            >
+              {statusFilter === tab.value
+                ? <CheckCircle2 size={14} />
+                : <Circle size={14} className="opacity-40" />}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -246,26 +272,33 @@ const ManageEnquiries = () => {
                   <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Destination</p>
                   <p className="text-gray-800 font-medium">{selectedEnquiry.destination || 'Not Specified'}</p>
                 </div>
-                <div className="md:col-span-2">
-                  <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-2">Services Needed</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedEnquiry.services && selectedEnquiry.services.length > 0 ? (
-                      selectedEnquiry.services.map((service, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-[hsl(353,45%,35%)]/10 text-[hsl(353,45%,35%)] text-xs font-bold rounded-full">
-                          {service}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-gray-500 text-sm">None specified</span>
-                    )}
-                  </div>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Additional Notes / Message</p>
-                  <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    {formatMessage(selectedEnquiry.message, true)}
-                  </div>
-                </div>
+              {(() => {
+                  const msg = selectedEnquiry.message || '';
+                  const match = msg.match(/\[Interested In: (.*?)\]([\s\S]*)/);
+                  const packageName = match ? match[1].trim() : null;
+                  const descriptionText = match ? match[2].trim() : msg.trim();
+                  return (
+                    <>
+                      {/* Package Selected — shown in grid */}
+                      {packageName && (
+                        <div>
+                          <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Package Selected</p>
+                          <span className="inline-block px-3 py-1 bg-[hsl(353,45%,35%)]/10 text-[hsl(353,45%,35%)] text-xs font-bold rounded-full uppercase tracking-wider">
+                            {packageName}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Description / Services */}
+                      <div className="md:col-span-2">
+                        <p className="text-xs text-gray-400 font-bold tracking-widest uppercase mb-1">Description / Services</p>
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+                          {descriptionText || <span className="text-gray-400 italic">No description provided</span>}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end">

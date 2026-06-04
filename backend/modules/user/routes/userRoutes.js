@@ -7,7 +7,7 @@ const router = express.Router();
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.delete('/profile', protect, deleteUserAccount);
-router.put('/fcm-token', protect, updateFcmToken);
+router.post('/fcm-token', protect, updateFcmToken);
 
 // Wishlist Routes
 router.get('/saved-hotels', protect, getSavedHotels);

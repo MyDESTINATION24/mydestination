@@ -237,6 +237,16 @@ export const weddingService = {
     }
   },
 
+  // Fetch a single vendor with full KYC docs — called only when admin opens detail modal
+  getAdminVendorById: async (id) => {
+    try {
+      const response = await api.get(`/wedding/admin/vendors/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   updateVendorStatus: async (id, status) => {
     try {
       const response = await api.patch(`/wedding/admin/vendors/${id}/status`, { status });

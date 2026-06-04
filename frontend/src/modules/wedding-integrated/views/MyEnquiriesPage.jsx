@@ -85,10 +85,10 @@ const MyEnquiriesPage = () => {
          await weddingEnquiryService.confirmBooking(selectedEnquiry._id, { bookingAmount: Number(bookingAmount) });
       }
 
-      // Initiate PhonePe Payment
       const res = await weddingEnquiryService.payAndBookEnquiry(selectedEnquiry._id);
       
       if (res.success && res.url) {
+        if (res.orderId) localStorage.setItem('phonepe_order_id', res.orderId);
         window.location.href = res.url; // Redirect to PhonePe
       } else {
         throw new Error("Invalid payment URL received.");
@@ -217,16 +217,47 @@ const MyEnquiriesPage = () => {
                       </p>
                     </div>
                     
-                    {enq.status !== 'Booked' && enq.paymentStatus !== 'Paid' && (
-                      <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-slate-100 flex justify-end">
-                        <button 
-                          onClick={() => openPaymentModal(enq)}
-                          className="px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-md hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm"
-                        >
-                           Confirm & Pay Platform Fee
-                        </button>
-                      </div>
-                    )}
+                    {/* Status-based action messages */}
+                    <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-slate-100">
+                      {enq.status === 'New' && (
+                        <p className="text-xs text-amber-600 font-semibold bg-amber-50 px-3 py-2 rounded-xl border border-amber-100">
+                          ⏳ Your enquiry has been received — waiting for the vendor to contact you...
+                        </p>
+                      )}
+                      {enq.status === 'Contacted' && (
+                        <p className="text-xs text-blue-600 font-semibold bg-blue-50 px-3 py-2 rounded-xl border border-blue-100">
+                          📞 Vendor has contacted you — waiting for deal confirmation...
+                        </p>
+                      )}
+                      {enq.status === 'Accepted' && enq.paymentStatus !== 'Paid' && (
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                          <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 flex-1">
+                            🤝 Vendor has accepted your deal! Pay the platform fee to confirm your booking.
+                          </p>
+                          <button
+                            onClick={() => openPaymentModal(enq)}
+                            className="shrink-0 px-6 py-3 bg-primary text-white rounded-xl font-bold shadow-md hover:bg-primary/90 transition-colors flex items-center gap-2 text-sm"
+                          >
+                            Confirm & Pay Platform Fee
+                          </button>
+                        </div>
+                      )}
+                      {enq.status === 'Booked' && (
+                        <p className="text-xs text-purple-600 font-semibold bg-purple-50 px-3 py-2 rounded-xl border border-purple-100">
+                          ✅ Booking confirmed! Your wedding is all planned.
+                        </p>
+                      )}
+                      {enq.status === 'Completed' && (
+                        <p className="text-xs text-teal-600 font-semibold bg-teal-50 px-3 py-2 rounded-xl border border-teal-100">
+                          🎉 Event successfully completed!
+                        </p>
+                      )}
+                      {enq.status === 'Lost' && (
+                        <p className="text-xs text-rose-600 font-semibold bg-rose-50 px-3 py-2 rounded-xl border border-rose-100">
+                          ❌ This enquiry was not taken forward.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </ScrollReveal>

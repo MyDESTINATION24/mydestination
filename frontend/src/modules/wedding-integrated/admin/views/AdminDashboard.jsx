@@ -13,7 +13,7 @@ import { weddingService } from '../../../../services/weddingService';
 
 const formatRequirement = (msg) => {
   if (!msg) return <span className="text-gray-400 italic">No details provided</span>;
-  const match = msg.match(/\[Interested In: (.*?)\](.*)/);
+  const match = msg.match(/\[Interested In: (.*?)\]([\s\S]*)/);
   if (match) {
     const packageInfo = match[1].trim();
     const userMsg = match[2].trim();
@@ -152,7 +152,7 @@ const AdminDashboard = () => {
                     </td>
                     <td className="py-6 text-right">
                       <button 
-                        onClick={() => navigate('/wedding/admin/enquiries')}
+                        onClick={() => navigate(`/wedding/admin/enquiries?id=${enq._id}`)}
                         className="p-3 bg-[hsl(353,45%,35%)]/5 hover:bg-[hsl(353,45%,35%)] hover:text-white text-[hsl(353,45%,35%)] rounded-2xl shadow-sm transition-all duration-300 transform group-hover:scale-105"
                       >
                         <ArrowUpRight size={20} />

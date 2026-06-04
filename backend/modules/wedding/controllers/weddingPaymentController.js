@@ -6,6 +6,10 @@ import WeddingSubscriptionTransaction from '../models/WeddingSubscriptionTransac
 import VendorWallet from '../models/VendorWallet.js';
 import User from '../../user/models/User.js';
 import WeddingSubscriptionPlan from '../models/WeddingSubscriptionPlan.js';
+import WeddingVenue from '../models/WeddingVenue.js';
+import WeddingVendor from '../models/WeddingVendor.js';
+import WeddingPlatformSettings from '../models/WeddingPlatformSettings.js';
+import { sendWeddingNotification, sendWeddingNotificationToAdmins } from '../../../services/weddingNotificationService.js';
 
 const getClient = () => {
   if (!phonepeClient) {
@@ -24,7 +28,16 @@ export const initiateBookingPayment = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
     }
 
-    const amount = (enquiry.bookingAmount || enquiry.platformFee || 499) * 100; // in paise
+    // Always fetch LIVE platform fee from admin settings
+    const settings = await WeddingPlatformSettings.findOne();
+    let platformFee = settings?.platformFee ?? enquiry.platformFee ?? 499;
+
+    // If percentage type, calculate against bookingAmount
+    if (settings?.platformFeeType === 'percentage' && enquiry.bookingAmount) {
+      platformFee = Math.round(Number(enquiry.bookingAmount) * (platformFee / 100));
+    }
+
+    const amount = platformFee * 100; // convert to paise
     const merchantOrderId = `BOOKING_${id}_${randomUUID().substring(0, 8)}`;
     const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/wedding/payment/status`;
 
@@ -125,6 +138,98 @@ export const initiateWalletTopup = async (req, res) => {
   }
 };
 
+// --- HELPER: COMPLETE BOOKING ---
+const completeBookingPayment = async (enquiryId, orderId, paidAmount) => {
+  const enquiry = await WeddingEnquiry.findById(enquiryId);
+  if (!enquiry || enquiry.paymentStatus === 'Paid') return;
+
+  let vendorUserId = null;
+  if (enquiry.targetType === 'Venue' || enquiry.targetType === 'venue') {
+    const venue = await WeddingVenue.findById(enquiry.targetId);
+    if (venue) vendorUserId = venue.vendor;
+  } else {
+    const vendor = await WeddingVendor.findById(enquiry.targetId);
+    if (vendor) vendorUserId = vendor.user;
+  }
+
+  const settings = await WeddingPlatformSettings.findOne() || { 
+    vendorCommission: 499, platformFee: 499,
+    platformFeeType: 'fixed', vendorCommissionType: 'fixed'
+  };
+  
+  const parsedBookingAmount = Number(enquiry.bookingAmount) || 0;
+
+  let calculatedVendorCommission = settings.vendorCommission;
+  if (settings.vendorCommissionType === 'percentage') {
+    calculatedVendorCommission = Math.round(parsedBookingAmount * (settings.vendorCommission / 100));
+  }
+
+  if (vendorUserId) {
+    let wallet = await VendorWallet.findOne({ vendorUser: vendorUserId });
+    if (!wallet) {
+      wallet = await VendorWallet.create({
+        vendorUser: vendorUserId,
+        balance: 0,
+        transactions: []
+      });
+    }
+
+    wallet.balance -= Number(calculatedVendorCommission);
+    wallet.transactions.push({
+      type: 'debit',
+      amount: Number(calculatedVendorCommission),
+      description: `Commission for Booking Enquiry ID: ${enquiry._id}`,
+      date: new Date()
+    });
+    
+    await wallet.save();
+  }
+
+  const updatedEnquiry = await WeddingEnquiry.findByIdAndUpdate(enquiryId, {
+    paymentStatus: 'Paid',
+    status: 'Booked',
+    transactionId: orderId,
+    actualAmount: parsedBookingAmount,
+    platformFee: paidAmount,
+    commissionAmount: calculatedVendorCommission
+  }, { new: true });
+
+  // Push: User ko booking confirmation
+  if (updatedEnquiry?.user) {
+    sendWeddingNotification(
+      updatedEnquiry.user,
+      'user',
+      {
+        title: '🎉 Booking Confirmed!',
+        body: `Aapki wedding booking confirm ho gayi! Platform fee ₹${paidAmount} paid. Vendor jald contact karega.`
+      },
+      { type: 'booking_paid', url: '/wedding/my-enquiries', enquiryId: String(enquiryId) }
+    ).catch(() => {});
+  }
+
+  // Push: Vendor ko commission deduction alert
+  if (vendorUserId) {
+    sendWeddingNotification(
+      vendorUserId,
+      'vendor',
+      {
+        title: '💰 New Booking Payment Received',
+        body: `Client ne platform fee pay kar di. Commission ₹${calculatedVendorCommission} wallet se deduct hogi.`
+      },
+      { type: 'booking_paid', url: '/wedding/vendor/leads', enquiryId: String(enquiryId) }
+    ).catch(() => {});
+  }
+
+  // Push: Admins ko revenue alert
+  sendWeddingNotificationToAdmins(
+    {
+      title: '💵 Payment Received',
+      body: `Wedding booking payment received — ₹${paidAmount} platform fee. Commission: ₹${calculatedVendorCommission}`
+    },
+    { type: 'booking_paid', url: '/wedding/admin/enquiries', enquiryId: String(enquiryId) }
+  ).catch(() => {});
+};
+
 // --- WEBHOOK CALLBACK ---
 export const paymentCallback = async (req, res) => {
   try {
@@ -156,10 +261,9 @@ export const paymentCallback = async (req, res) => {
     if (state === 'COMPLETED') {
       if (originalMerchantOrderId?.startsWith('BOOKING_')) {
         const enquiryId = originalMerchantOrderId.split('_')[1];
-        await WeddingEnquiry.findByIdAndUpdate(enquiryId, {
-          paymentStatus: 'Paid',
-          status: 'Booked'
-        });
+        const enquiry = await WeddingEnquiry.findById(enquiryId);
+        const paidAmount = payload?.amount ? payload.amount / 100 : (enquiry ? enquiry.platformFee : 499);
+        await completeBookingPayment(enquiryId, originalMerchantOrderId, paidAmount);
 
       } else if (originalMerchantOrderId?.startsWith('SUBSCRIPTION_')) {
         const vendorId = originalMerchantOrderId.split('_')[1];
@@ -299,10 +403,9 @@ export const verifyPaymentStatus = async (req, res) => {
       } else if (orderId.startsWith('BOOKING_')) {
         // Format: BOOKING_{enquiryId}_{uuid}
         const enquiryId = orderId.split('_')[1];
-        await WeddingEnquiry.findByIdAndUpdate(enquiryId, {
-          paymentStatus: 'Paid',
-          status: 'Booked'
-        });
+        const enquiry = await WeddingEnquiry.findById(enquiryId);
+        const paidAmount = response?.amount ? response.amount / 100 : (enquiry ? enquiry.platformFee : 499);
+        await completeBookingPayment(enquiryId, orderId, paidAmount);
 
       } else if (orderId.startsWith('WALLET_')) {
         // Format: WALLET_{vendorId}_{uuid}

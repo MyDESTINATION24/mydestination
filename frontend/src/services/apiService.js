@@ -993,7 +993,27 @@ export const weddingEnquiryService = {
       throw error.response?.data || error.message;
     }
   },
-  confirmBooking: async (id, payload = {}) => { try { const response = await api.post(`/wedding/enquiries/${id}/pay-and-book`, payload);
+  // Vendor: get single lead by ID
+  getLeadById: async (id) => {
+    try {
+      const response = await api.get(`/wedding/vendor/leads/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  // Vendor: update lead status (New→Contacted→Accepted→Booked→Completed)
+  updateLeadStatus: async (id, status) => {
+    try {
+      const response = await api.patch(`/wedding/vendor/leads/${id}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+  confirmBooking: async (id, payload = {}) => {
+    try {
+      const response = await api.post(`/wedding/enquiries/${id}/pay-and-book`, payload);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

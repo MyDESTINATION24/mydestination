@@ -6,6 +6,7 @@ import User from '../../user/models/User.js';
 import Admin from '../../admin/models/Admin.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { sendWeddingNotification } from '../../../services/weddingNotificationService.js';
 
 /**
  * @desc    Wedding Admin Login
@@ -94,20 +95,24 @@ export const seedWeddingAdmin = async (req, res) => {
 
 export const getAdminStats = async (req, res) => {
   try {
-    const totalVenues = await WeddingVenue.countDocuments();
-    const pendingVenues = await WeddingVenue.countDocuments({ status: 'pending' });
-    const totalEnquiries = await WeddingEnquiry.countDocuments();
-    const pendingEnquiries = await WeddingEnquiry.countDocuments({ status: 'New' });
-    const totalVendors = await User.countDocuments({ role: 'vendor' });
-    const pendingVendors = await User.countDocuments({ role: 'vendor', partnerApprovalStatus: 'pending' });
+    // Run all count queries in parallel for faster response
+    const [
+      totalVenues, pendingVenues,
+      totalEnquiries, pendingEnquiries,
+      totalVendors, pendingVendors
+    ] = await Promise.all([
+      WeddingVenue.countDocuments(),
+      WeddingVenue.countDocuments({ status: 'pending' }),
+      WeddingEnquiry.countDocuments(),
+      WeddingEnquiry.countDocuments({ status: 'New' }),
+      User.countDocuments({ role: 'vendor' }),
+      User.countDocuments({ role: 'vendor', partnerApprovalStatus: 'pending' })
+    ]);
 
     res.status(200).json({
-      totalVenues,
-      pendingVenues,
-      totalEnquiries,
-      pendingEnquiries,
-      totalVendors,
-      pendingVendors
+      totalVenues, pendingVenues,
+      totalEnquiries, pendingEnquiries,
+      totalVendors, pendingVendors
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -165,9 +170,27 @@ export const deleteCustomer = async (req, res) => {
 
 export const getAdminVendors = async (req, res) => {
   try {
+    // Select only required fields — exclude heavy base64 KYC images from list view
+    // KYC images are fetched separately only when admin opens a vendor's detail modal
     const items = await User.find({ role: 'vendor' })
-      .sort({ createdAt: -1 });
+      .select('name email phone category location experience basicPackage premiumPackage partnerApprovalStatus kycStatus services createdAt isBlocked')
+      .sort({ createdAt: -1 })
+      .lean(); // .lean() returns plain JS objects — faster than Mongoose documents
     res.status(200).json(items);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// New endpoint: fetch a single vendor with full KYC documents (called when admin opens detail modal)
+export const getAdminVendorById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const vendor = await User.findOne({ _id: id, role: 'vendor' })
+      .select('name email phone category location experience basicPackage premiumPackage partnerApprovalStatus kycStatus services createdAt profileImage aadhaarFront panCardImage')
+      .lean();
+    if (!vendor) return res.status(404).json({ message: 'Vendor not found' });
+    res.status(200).json(vendor);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -198,6 +221,31 @@ export const updateVendorStatus = async (req, res) => {
     // Also update WeddingVendor profile status
     const weddingStatus = status === 'approved' ? 'active' : (status === 'rejected' ? 'inactive' : 'pending');
     await WeddingVendor.findOneAndUpdate({ user: id }, { status: weddingStatus });
+
+    // Push Notification: Vendor ko unka approval status batao
+    const notifMap = {
+      approved: {
+        title: '🎉 Vendor Account Approved!',
+        body: 'Badhai ho! Aapka My Destination vendor account approve ho gaya. Ab aap leads receive kar sakte hain.'
+      },
+      rejected: {
+        title: '❌ Vendor Application Rejected',
+        body: 'Aapka vendor application reject ho gaya. Agar koi sawaal ho to support se contact karein.'
+      },
+      pending: {
+        title: '⏳ Vendor Account Under Review',
+        body: 'Aapka vendor account review ke liye pending hai. Jald hi update milegi.'
+      }
+    };
+    const notif = notifMap[status];
+    if (notif) {
+      sendWeddingNotification(
+        id,
+        'vendor',
+        notif,
+        { type: 'vendor_status', url: '/wedding/vendor/dashboard', newStatus: status }
+      ).catch(e => console.error('[WeddingFCM] Vendor status notify error:', e.message));
+    }
     
     res.status(200).json({ success: true, item });
   } catch (error) {
@@ -238,18 +286,18 @@ export const getAdminFinancials = async (req, res) => {
     }
 
     const recentTransactions = bookedEnquiries.map(enq => ({
-      id: enq._id,
+      id: enq.transactionId || enq._id,
       vendor: enq.targetInfo?.propertyName || enq.targetInfo?.name || 'N/A',
       client: enq.name || enq.user?.name || 'N/A',
       amount: `₹${enq.actualAmount?.toLocaleString('en-IN')}`,
-      commission: `₹${enq.commissionAmount?.toLocaleString('en-IN')}`,
+      platformFee: `₹${enq.platformFee?.toLocaleString('en-IN')}`,
       date: new Date(enq.updatedAt).toLocaleDateString(),
       status: 'Paid',
       type: 'Booking Fee'
     }));
 
     const recentSubscriptions = subscriptionTransactions.map(sub => ({
-      id: sub._id,
+      id: sub.paymentId || sub._id,
       vendor: sub.vendor?.name || 'N/A',
       plan: sub.plan?.planName || 'N/A',
       amount: `₹${sub.amount?.toLocaleString('en-IN')}`,

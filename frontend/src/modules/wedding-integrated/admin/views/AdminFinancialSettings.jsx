@@ -9,7 +9,12 @@ const AdminFinancialSettings = () => {
     platformFeeType: 'fixed',
     vendorCommission: 499,
     vendorCommissionType: 'fixed',
-    currency: 'INR'
+    currency: 'INR',
+    freeTrialEnabled: false,
+    freeTrialStartDate: '',
+    freeTrialEndDate: '',
+    freeTrialDays: 30,
+    freeTrialLeads: 50
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -28,7 +33,12 @@ const AdminFinancialSettings = () => {
           platformFeeType: data.platformFeeType || 'fixed',
           vendorCommission: data.vendorCommission || 499,
           vendorCommissionType: data.vendorCommissionType || 'fixed',
-          currency: data.currency || 'INR'
+          currency: data.currency || 'INR',
+          freeTrialEnabled: data.freeTrialEnabled || false,
+          freeTrialStartDate: data.freeTrialStartDate ? data.freeTrialStartDate.split('T')[0] : '',
+          freeTrialEndDate: data.freeTrialEndDate ? data.freeTrialEndDate.split('T')[0] : '',
+          freeTrialDays: data.freeTrialDays || 30,
+          freeTrialLeads: data.freeTrialLeads || 50
         });
       }
     } catch (error) {
@@ -63,7 +73,12 @@ const AdminFinancialSettings = () => {
         platformFee: settings.platformFee,
         platformFeeType: settings.platformFeeType,
         vendorCommission: settings.vendorCommission,
-        vendorCommissionType: settings.vendorCommissionType
+        vendorCommissionType: settings.vendorCommissionType,
+        freeTrialEnabled: settings.freeTrialEnabled,
+        freeTrialStartDate: settings.freeTrialStartDate || null,
+        freeTrialEndDate: settings.freeTrialEndDate || null,
+        freeTrialDays: settings.freeTrialDays,
+        freeTrialLeads: settings.freeTrialLeads
       });
       toast.success("Settings saved successfully!", { id: toastId });
     } catch (error) {
@@ -163,6 +178,74 @@ const AdminFinancialSettings = () => {
                 </select>
               </div>
             </div>
+          </div>
+          
+          {/* Promotional Free Trial Setting */}
+          <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mt-8">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-bold text-slate-800">Promotional Free Trial for New Vendors</h3>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={settings.freeTrialEnabled}
+                  onChange={(e) => setSettings(prev => ({ ...prev, freeTrialEnabled: e.target.checked }))}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
+            </div>
+            <p className="text-sm text-slate-500 mb-6">
+              If enabled, vendors registering within the specified date range will automatically receive a free subscription.
+            </p>
+            
+            {settings.freeTrialEnabled && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 animate-in fade-in duration-300">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700">Start Date</label>
+                  <input
+                    type="date"
+                    name="freeTrialStartDate"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={settings.freeTrialStartDate}
+                    onChange={(e) => setSettings(prev => ({ ...prev, freeTrialStartDate: e.target.value }))}
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700">End Date</label>
+                  <input
+                    type="date"
+                    name="freeTrialEndDate"
+                    min={settings.freeTrialStartDate || new Date().toISOString().split("T")[0]}
+                    value={settings.freeTrialEndDate}
+                    onChange={(e) => setSettings(prev => ({ ...prev, freeTrialEndDate: e.target.value }))}
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700">Free Trial Validity (Days)</label>
+                  <input
+                    type="number"
+                    name="freeTrialDays"
+                    value={settings.freeTrialDays}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="e.g. 30"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-bold text-slate-700">Free Leads Quota</label>
+                  <input
+                    type="number"
+                    name="freeTrialLeads"
+                    value={settings.freeTrialLeads}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="e.g. 50"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

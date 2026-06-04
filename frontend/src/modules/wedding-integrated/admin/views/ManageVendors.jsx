@@ -24,6 +24,7 @@ const ManageVendors = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVendor, setSelectedVendor] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false); // for lazy KYC load
 
   // Filters State
   const [showFilters, setShowFilters] = useState(false);
@@ -44,16 +45,30 @@ const ManageVendors = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [vendorData, categoryData] = await Promise.all([
-        weddingService.getAdminVendors(),
-        weddingService.getCategories()
-      ]);
+      // Only fetch vendors list — no KYC images in this call (fast)
+      const vendorData = await weddingService.getAdminVendors();
       setVendors(vendorData || []);
-      setCategories(categoryData?.categories || categoryData || []);
+      // Derive categories from vendor data — no extra API call needed
+      const cats = Array.from(new Set((vendorData || []).map(v => v.category).filter(Boolean)));
+      setCategories(cats.map(c => ({ name: c })));
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Lazy load: fetch full vendor (with KYC images) only when modal opens
+  const openVendorModal = async (vendor) => {
+    setSelectedVendor(vendor); // show modal immediately with basic info
+    setModalLoading(true);
+    try {
+      const fullData = await weddingService.getAdminVendorById(vendor._id);
+      setSelectedVendor(fullData); // replace with full data once loaded
+    } catch (e) {
+      console.error('Failed to load vendor details:', e);
+    } finally {
+      setModalLoading(false);
     }
   };
 
@@ -283,7 +298,7 @@ const ManageVendors = () => {
                         )}
                         <div className="flex gap-2">
                           <button
-                            onClick={() => setSelectedVendor(vendor)}
+                            onClick={() => openVendorModal(vendor)}
                             className="p-2 text-slate-400 hover:text-[hsl(353,45%,35%)] hover:bg-[hsl(353,45%,35%)]/5 rounded-xl transition-all"
                             title="View Details"
                           >
@@ -355,124 +370,126 @@ const ManageVendors = () => {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="p-8 space-y-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
-              <div className="grid grid-cols-2 gap-8">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experience</p>
-                  <p className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-[#B06A6C]" /> {selectedVendor.experience ? `${selectedVendor.experience} Years` : 'Not Specified'}
-                  </p>
+            </div>            <div className="p-8 space-y-8 overflow-y-auto max-h-[60vh] custom-scrollbar">
+              {modalLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[hsl(353,45%,35%)]"></div>
+                  <span className="ml-3 text-sm text-slate-400">Loading details...</span>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing Packages</p>
-                  <div className="flex flex-col gap-1 text-slate-800">
-                    <p className="text-sm font-bold flex items-center gap-1">
-                      <span className="text-slate-400 font-semibold text-xs w-16">Base:</span>
-                      <span className="text-emerald-600 flex items-center gap-1 font-extrabold"><IndianRupee className="w-3.5 h-3.5" />{selectedVendor.basicPackage ? selectedVendor.basicPackage.toLocaleString('en-IN') : 'On Request'}</span>
-                    </p>
-                    {selectedVendor.premiumPackage && (
-                      <p className="text-sm font-bold flex items-center gap-1">
-                        <span className="text-slate-400 font-semibold text-xs w-16">Premium:</span>
-                        <span className="text-emerald-700 flex items-center gap-1 font-extrabold"><IndianRupee className="w-3.5 h-3.5" />{selectedVendor.premiumPackage.toLocaleString('en-IN')}</span>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experience</p>
+                      <p className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-[#B06A6C]" /> {selectedVendor.experience ? `${selectedVendor.experience} Years` : 'Not Specified'}
                       </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Information</p>
-                  <p className="text-sm font-bold text-slate-800">{selectedVendor.email}</p>
-                  <p className="text-xs text-slate-500">{selectedVendor.phone}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Verification Status</p>
-                  <div className="flex items-center gap-1.5 text-blue-600 font-bold text-sm">
-                    <ShieldCheck className="w-5 h-5" /> {selectedVendor.kycStatus || 'Pending Verification'}
-                  </div>
-                </div>
-              </div>
-
-              {selectedVendor.services?.length > 0 && (
-                <div className="space-y-4">
-                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <PackageCheck className="w-4 h-4" /> Offered Services
-                  </h5>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedVendor.services.map((service, i) => (
-                      <span key={i} className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600">
-                        {service.name} {service.price ? `(₹${service.price})` : ''}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* KYC Verification Documents */}
-              {(selectedVendor.aadhaarFront || selectedVendor.panCardImage || selectedVendor.profileImage) && (
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#B06A6C]" /> Verification Documents (KYC)
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Aadhar Card */}
-                    {selectedVendor.aadhaarFront && (
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Aadhar Card</span>
-                        {selectedVendor.aadhaarFront.startsWith('data:image/') || selectedVendor.aadhaarFront.startsWith('http') ? (
-                          <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.aadhaarFront, '_blank')}>
-                            <img src={selectedVendor.aadhaarFront} alt="Aadhar Card" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
-                              <Eye className="w-4 h-4" /> View Full
-                            </div>
-                          </div>
-                        ) : (
-                          <a href={selectedVendor.aadhaarFront} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
-                            <Download className="w-3.5 h-3.5" /> Download File
-                          </a>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pricing Packages</p>
+                      <div className="flex flex-col gap-1 text-slate-800">
+                        <p className="text-sm font-bold flex items-center gap-1">
+                          <span className="text-slate-400 font-semibold text-xs w-16">Base:</span>
+                          <span className="text-emerald-600 flex items-center gap-1 font-extrabold"><IndianRupee className="w-3.5 h-3.5" />{selectedVendor.basicPackage ? selectedVendor.basicPackage.toLocaleString('en-IN') : 'On Request'}</span>
+                        </p>
+                        {selectedVendor.premiumPackage && (
+                          <p className="text-sm font-bold flex items-center gap-1">
+                            <span className="text-slate-400 font-semibold text-xs w-16">Premium:</span>
+                            <span className="text-emerald-700 flex items-center gap-1 font-extrabold"><IndianRupee className="w-3.5 h-3.5" />{selectedVendor.premiumPackage.toLocaleString('en-IN')}</span>
+                          </p>
                         )}
                       </div>
-                    )}
-
-                    {/* PAN Card */}
-                    {selectedVendor.panCardImage && (
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">PAN Card</span>
-                        {selectedVendor.panCardImage.startsWith('data:image/') || selectedVendor.panCardImage.startsWith('http') ? (
-                          <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.panCardImage, '_blank')}>
-                            <img src={selectedVendor.panCardImage} alt="PAN Card" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
-                              <Eye className="w-4 h-4" /> View Full
-                            </div>
-                          </div>
-                        ) : (
-                          <a href={selectedVendor.panCardImage} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
-                            <Download className="w-3.5 h-3.5" /> Download File
-                          </a>
-                        )}
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Information</p>
+                      <p className="text-sm font-bold text-slate-800">{selectedVendor.email}</p>
+                      <p className="text-xs text-slate-500">{selectedVendor.phone}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Verification Status</p>
+                      <div className="flex items-center gap-1.5 text-blue-600 font-bold text-sm">
+                        <ShieldCheck className="w-5 h-5" /> {selectedVendor.kycStatus || 'Pending Verification'}
                       </div>
-                    )}
-
-                    {/* Vendor Photo */}
-                    {selectedVendor.profileImage && (
-                      <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Vendor Photo</span>
-                        {selectedVendor.profileImage.startsWith('data:image/') || selectedVendor.profileImage.startsWith('http') ? (
-                          <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.profileImage, '_blank')}>
-                            <img src={selectedVendor.profileImage} alt="Vendor Photo" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
-                              <Eye className="w-4 h-4" /> View Full
-                            </div>
-                          </div>
-                        ) : (
-                          <a href={selectedVendor.profileImage} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
-                            <Download className="w-3.5 h-3.5" /> Download File
-                          </a>
-                        )}
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+
+                  {selectedVendor.services?.length > 0 && (
+                    <div className="space-y-4">
+                      <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <PackageCheck className="w-4 h-4" /> Offered Services
+                      </h5>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedVendor.services.map((service, i) => (
+                          <span key={i} className="px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold text-slate-600">
+                            {service.name} {service.price ? `(₹${service.price})` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* KYC Verification Documents */}
+                  {(selectedVendor.aadhaarFront || selectedVendor.panCardImage || selectedVendor.profileImage) && (
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                      <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-[#B06A6C]" /> Verification Documents (KYC)
+                      </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {selectedVendor.aadhaarFront && (
+                          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Aadhar Card</span>
+                            {selectedVendor.aadhaarFront.startsWith('data:image/') || selectedVendor.aadhaarFront.startsWith('http') ? (
+                              <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.aadhaarFront, '_blank')}>
+                                <img src={selectedVendor.aadhaarFront} alt="Aadhar Card" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                                  <Eye className="w-4 h-4" /> View Full
+                                </div>
+                              </div>
+                            ) : (
+                              <a href={selectedVendor.aadhaarFront} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                                <Download className="w-3.5 h-3.5" /> Download File
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {selectedVendor.panCardImage && (
+                          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">PAN Card</span>
+                            {selectedVendor.panCardImage.startsWith('data:image/') || selectedVendor.panCardImage.startsWith('http') ? (
+                              <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.panCardImage, '_blank')}>
+                                <img src={selectedVendor.panCardImage} alt="PAN Card" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                                  <Eye className="w-4 h-4" /> View Full
+                                </div>
+                              </div>
+                            ) : (
+                              <a href={selectedVendor.panCardImage} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                                <Download className="w-3.5 h-3.5" /> Download File
+                              </a>
+                            )}
+                          </div>
+                        )}
+                        {selectedVendor.profileImage && (
+                          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col items-center justify-center text-center gap-2">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase">Vendor Photo</span>
+                            {selectedVendor.profileImage.startsWith('data:image/') || selectedVendor.profileImage.startsWith('http') ? (
+                              <div className="w-full h-24 rounded-xl overflow-hidden border border-slate-200 bg-white relative group cursor-pointer" onClick={() => window.open(selectedVendor.profileImage, '_blank')}>
+                                <img src={selectedVendor.profileImage} alt="Vendor Photo" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                                  <Eye className="w-4 h-4" /> View Full
+                                </div>
+                              </div>
+                            ) : (
+                              <a href={selectedVendor.profileImage} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-[#B06A6C] hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                                <Download className="w-3.5 h-3.5" /> Download File
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

@@ -24,6 +24,27 @@ const platformSettingsSchema = new mongoose.Schema({
   currency: {
     type: String,
     default: 'INR'
+  },
+  // Promotional Trial Configuration for New Vendors
+  freeTrialEnabled: {
+    type: Boolean,
+    default: false
+  },
+  freeTrialStartDate: {
+    type: Date,
+    default: null
+  },
+  freeTrialEndDate: {
+    type: Date,
+    default: null
+  },
+  freeTrialDays: {
+    type: Number,
+    default: 30
+  },
+  freeTrialLeads: {
+    type: Number,
+    default: 50
   }
 }, { timestamps: true });
 

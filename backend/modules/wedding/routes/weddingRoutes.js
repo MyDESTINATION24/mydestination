@@ -41,6 +41,7 @@ import {
   updateEnquiryStatus, 
   deleteEnquiry,
   getVendorLeads,
+  getLeadById,
   updateLeadStatus,
   getMyEnquiries,
   confirmBooking,
@@ -81,6 +82,7 @@ import {
   getAdminStats,
   getAdminCustomers,
   getAdminVendors,
+  getAdminVendorById,
   updateVendorStatus,
   getAdminFinancials,
   updateCustomerBlockStatus,
@@ -105,7 +107,43 @@ import {
   verifyPaymentStatus
 } from '../controllers/weddingPaymentController.js';
 
+// FCM Token Update (inline handler — no separate controller needed)
+import User from '../../user/models/User.js';
+
 const router = express.Router();
+
+// Wedding FCM Token Registration endpoint
+// Vendor aur User dono isko call karenge login ke baad
+router.put('/fcm-token', protect, async (req, res) => {
+  try {
+    const { fcmToken, platform } = req.body;
+    if (!fcmToken) {
+      return res.status(400).json({ success: false, message: 'FCM token required' });
+    }
+
+    const targetPlatform = platform === 'app' ? 'app' : 'web';
+    const tokenField = `fcmTokens.${targetPlatform}`;
+
+    // Remove this token from any other user to prevent duplicate delivery
+    await User.updateMany(
+      { [tokenField]: fcmToken, _id: { $ne: req.user._id } },
+      { $set: { [tokenField]: null } }
+    );
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (!user.fcmTokens) user.fcmTokens = { app: null, web: null };
+    user.fcmTokens[targetPlatform] = fcmToken;
+    await user.save();
+
+    console.log(`[WeddingFCM] ${user.role} ${user._id} FCM token saved (${targetPlatform}).`);
+    res.json({ success: true, message: `FCM token saved for ${targetPlatform}` });
+  } catch (error) {
+    console.error('[WeddingFCM] FCM token update error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Public Routes
 router.get('/categories', getCategories);
@@ -153,6 +191,7 @@ router.delete('/vendor/venues/:id', protect, authorizedRoles('vendor'), deleteVe
 
 // Vendor Lead Routes (Protected)
 router.get('/vendor/leads', protect, authorizedRoles('vendor'), getVendorLeads);
+router.get('/vendor/leads/:id', protect, authorizedRoles('vendor'), getLeadById);
 router.patch('/vendor/leads/:id/status', protect, authorizedRoles('vendor'), updateLeadStatus);
 router.patch('/vendor/leads/:id/payment-status', protect, authorizedRoles('vendor'), markVendorPaymentReceived);
 
@@ -192,6 +231,7 @@ router.patch('/admin/venues/:id/status', protect, authorizedRoles('admin', 'supe
 
 // Admin Vendor Routes
 router.get('/admin/vendors', protect, authorizedRoles('admin', 'superadmin'), getAdminVendors);
+router.get('/admin/vendors/:id', protect, authorizedRoles('admin', 'superadmin'), getAdminVendorById);
 router.patch('/admin/vendors/:id/status', protect, authorizedRoles('admin', 'superadmin'), updateVendorStatus);
 router.get('/admin/financials', protect, authorizedRoles('admin', 'superadmin'), getAdminFinancials);
 

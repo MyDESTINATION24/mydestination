@@ -96,8 +96,8 @@ const LandingPage = () => {
         {/* Navbar */}
         <nav className="relative z-50 flex items-center justify-between px-2 sm:px-4 md:px-20 py-4">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="MyDestionation" className="h-12 w-auto object-contain" />
-            <span className="text-white font-bold text-2xl tracking-tight">MyDestionation</span>
+            <img src={logo} alt="MyDESTINATION" className="h-12 w-auto object-contain" />
+            <span className="text-white font-bold text-2xl tracking-tight">MyDESTINATION</span>
           </div>
           
           {/* Desktop Menu */}
@@ -481,7 +481,7 @@ const LandingPage = () => {
           <div className="relative z-10 max-w-2xl space-y-4 md:space-y-6">
             <h2 className="text-2xl md:text-4xl font-black tracking-widest">{cmsData?.staff?.sectionTitle || "OUR STAFF"}</h2>
             <p className="text-xs md:text-sm opacity-80 leading-relaxed">
-              {cmsData?.staff?.description || "Our team of dedicated travel experts is here to ensure your journey is smooth, safe, and unforgettable. Meet the people who make MyDestionation the best in the business."}
+              {cmsData?.staff?.description || "Our team of dedicated travel experts is here to ensure your journey is smooth, safe, and unforgettable. Meet the people who make MyDESTINATION the best in the business."}
             </p>
             <button 
               onClick={() => setIsJoinModalOpen(true)}
@@ -524,8 +524,8 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <img src={logo} alt="MyDestionation" className="h-10 w-auto brightness-0 invert" />
-              <span className="font-bold text-xl">{cmsData?.footer?.companyName || "MyDestionation"}</span>
+              <img src={logo} alt="MyDESTINATION" className="h-10 w-auto brightness-0 invert" />
+              <span className="font-bold text-xl">{cmsData?.footer?.companyName || "MyDESTINATION"}</span>
             </div>
             <p className="text-xs text-gray-400">
               {cmsData?.footer?.companyDescription || "Your ultimate companion for unforgettable journeys. We provide premium travel services, personalized itineraries, and the best deals for your next adventure."}
@@ -556,7 +556,7 @@ const LandingPage = () => {
           </div>
         </div>
         <div className="text-center border-t border-gray-800 pt-8 text-xs text-gray-500">
-          {cmsData?.footer?.copyrightText || `© ${new Date().getFullYear()} MyDestionation. All rights reserved.`}
+          {cmsData?.footer?.copyrightText || `© ${new Date().getFullYear()} MyDESTINATION. All rights reserved.`}
         </div>
       </footer>
     </div>

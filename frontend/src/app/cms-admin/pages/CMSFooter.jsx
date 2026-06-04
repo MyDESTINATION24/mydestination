@@ -73,7 +73,7 @@ const FieldMessage = ({ error, value, maxLen }) => {
 // ─── Main Component ──────────────────────────────────────────────────────────
 const CMSFooter = () => {
   const [footerData, setFooterData] = useState({
-    companyName: 'MyDestionation',
+    companyName: 'MyDESTINATION',
     companyDescription: 'Your ultimate companion for unforgettable journeys. We provide premium travel services, personalized itineraries, and the best deals for your next adventure.',
     address: '1 My Address, My Street, New York City, NY, USA',
     phone: '',
@@ -195,7 +195,7 @@ const CMSFooter = () => {
                 value={footerData.companyName || ''}
                 onChange={(e) => handleChange('companyName', e.target.value)}
                 onBlur={() => handleBlur('companyName')}
-                placeholder="MyDestionation"
+                placeholder="MyDESTINATION"
                 className={inputClass('companyName')}
               />
               <FieldMessage error={touched.companyName && errors.companyName} value={footerData.companyName} maxLen={RULES.companyName.maxLen} />
@@ -314,7 +314,7 @@ const CMSFooter = () => {
                 value={footerData.copyrightText || ''}
                 onChange={(e) => handleChange('copyrightText', e.target.value)}
                 onBlur={() => handleBlur('copyrightText')}
-                placeholder={`© ${new Date().getFullYear()} MyDestionation. All rights reserved.`}
+                placeholder={`© ${new Date().getFullYear()} MyDESTINATION. All rights reserved.`}
                 className={inputClass('copyrightText')}
               />
               <FieldMessage error={touched.copyrightText && errors.copyrightText} value={footerData.copyrightText} maxLen={RULES.copyrightText.maxLen} />

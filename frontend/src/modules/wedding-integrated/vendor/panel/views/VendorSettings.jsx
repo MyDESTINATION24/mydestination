@@ -24,11 +24,17 @@ import { useAuth } from "../../context/AuthContext";
 import { weddingVendorService } from "../../../../../services/apiService";
 import VendorLayout from "../layouts/VendorLayout";
 import toast from "react-hot-toast";
+import { registerWeddingFcmToken } from "../../services/weddingFcmService";
 
 const VendorSettings = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
+  const [notifPermission, setNotifPermission] = useState(
+    typeof Notification !== 'undefined' ? Notification.permission : 'default'
+  );
+  const [enablingNotif, setEnablingNotif] = useState(false);
+
   const [settings, setSettings] = useState({
     name: "",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop",
@@ -134,6 +140,26 @@ const VendorSettings = () => {
     }
   };
 
+  const handleEnablePushNotifications = async () => {
+    setEnablingNotif(true);
+    try {
+      const result = await registerWeddingFcmToken({ interactive: true });
+      if (result.ok) {
+        setNotifPermission('granted');
+        toast.success('Push notifications enabled! Aapko ab new leads ka alert milega.');
+      } else if (result.reason === 'permission-denied' || result.reason === 'permission-denied-by-user') {
+        setNotifPermission('denied');
+        toast.error('Notifications blocked. Browser settings mein allow karein.');
+      } else {
+        toast.error('Notifications enable nahi ho sakin. Baad mein try karein.');
+      }
+    } catch (e) {
+      toast.error('Something went wrong.');
+    } finally {
+      setEnablingNotif(false);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate('/wedding/vendor/login');
@@ -226,6 +252,32 @@ const VendorSettings = () => {
                       </div>
                    </div>
                  ))}
+
+                 {/* Browser Push Notification Enable Button */}
+                 <div className='pt-4 border-t border-[#F3E9E2]'>
+                   <p className='text-[10px] font-black text-[#8E7E77] uppercase tracking-widest mb-3'>
+                     Browser Push Notifications
+                   </p>
+                   {notifPermission === 'granted' ? (
+                     <div className='flex items-center gap-2 text-emerald-600 font-bold text-sm'>
+                       <CheckCircle2 className='w-4 h-4' />
+                       Push notifications enabled!
+                     </div>
+                   ) : notifPermission === 'denied' ? (
+                     <p className='text-[11px] text-rose-500 font-medium'>
+                       Notifications blocked. Browser address bar mein lock icon click karke allow karein.
+                     </p>
+                   ) : (
+                     <button
+                       onClick={handleEnablePushNotifications}
+                       disabled={enablingNotif}
+                       className='flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#81313A] text-white font-black text-[10px] uppercase tracking-widest hover:bg-[#6a2730] transition-all disabled:opacity-50'
+                     >
+                       <Bell className='w-3.5 h-3.5' />
+                       {enablingNotif ? 'Enabling...' : 'Enable Push Notifications'}
+                     </button>
+                   )}
+                 </div>
               </div>
            </div>
 

@@ -117,7 +117,8 @@ const ManageCategories = () => {
             setFormData({ name: '', slug: '', description: '', icon: '', type: 'primary', parentCategory: '' });
             setShowAddForm(!showAddForm);
           }}
-          className={`${adminStyles.button} px-4 py-2 flex items-center gap-2`}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
+          style={{ background: showAddForm ? '#6b7280' : 'hsl(353, 45%, 35%)' }}
         >
           {showAddForm ? <X size={18} /> : <Plus size={18} />}
           <span>{showAddForm ? 'Cancel' : 'Add Category'}</span>
@@ -126,59 +127,79 @@ const ManageCategories = () => {
 
       {/* Add/Edit Form */}
       {showAddForm && (
-        <div className="bg-white rounded-2xl border border-[hsl(353,45%,35%)]/10 p-6 shadow-sm animate-in slide-in-from-top-4 duration-300">
-          <h3 className="text-lg font-bold text-[hsl(353,20%,15%)] mb-4">
-            {editingCat ? 'Edit Category' : 'Create New Category'}
+        <div className="bg-white rounded-2xl p-6 shadow-md" style={{ border: '1px solid hsl(353,45%,88%)' }}>
+          <h3 className="text-lg font-bold mb-5" style={{ color: 'hsl(353,20%,20%)' }}>
+            {editingCat ? '✏️ Edit Category' : '➕ Create New Category'}
           </h3>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Category Name</label>
-                <input 
-                  type="text" 
-                  name="name" 
-                  value={formData.name} 
-                  onChange={handleInputChange} 
-                  className={adminStyles.input}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              {/* Category Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Category Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   placeholder="e.g. Photographers"
-                  required 
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition-all"
+                  style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
+                  onFocus={e => { e.target.style.border = '1.5px solid hsl(353,45%,60%)'; e.target.style.background = '#fff'; }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e5e7eb'; e.target.style.background = '#f9fafb'; }}
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Slug (URL)</label>
-                <input 
-                  type="text" 
-                  name="slug" 
-                  value={formData.slug} 
-                  onChange={handleInputChange} 
-                  className={adminStyles.input}
+
+              {/* Slug */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                  Slug (URL) <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleInputChange}
                   placeholder="e.g. photographers"
-                  required 
+                  required
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition-all"
+                  style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
+                  onFocus={e => { e.target.style.border = '1.5px solid hsl(353,45%,60%)'; e.target.style.background = '#fff'; }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e5e7eb'; e.target.style.background = '#f9fafb'; }}
                 />
               </div>
-              
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Type</label>
-                <select 
-                  name="type" 
-                  value={formData.type} 
-                  onChange={handleInputChange} 
-                  className={adminStyles.input}
+
+              {/* Type */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Type</label>
+                <select
+                  name="type"
+                  value={formData.type}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 outline-none transition-all"
+                  style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
                 >
                   <option value="primary">Primary (Parent)</option>
                   <option value="sub">Sub Category</option>
                 </select>
               </div>
 
+              {/* Parent Category */}
               {formData.type === 'sub' && (
-                <div className="space-y-1 animate-in fade-in zoom-in duration-300">
-                  <label className="text-sm font-medium text-gray-700">Parent Category</label>
-                  <select 
-                    name="parentCategory" 
-                    value={formData.parentCategory} 
-                    onChange={handleInputChange} 
-                    className={adminStyles.input}
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    Parent Category <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="parentCategory"
+                    value={formData.parentCategory}
+                    onChange={handleInputChange}
                     required={formData.type === 'sub'}
+                    className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 outline-none transition-all"
+                    style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
                   >
                     <option value="">Select Parent...</option>
                     {primaryCategories.map(p => (
@@ -188,33 +209,47 @@ const ManageCategories = () => {
                 </div>
               )}
 
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Icon / Emoji</label>
-                <input 
-                  type="text" 
-                  name="icon" 
-                  value={formData.icon} 
-                  onChange={handleInputChange} 
-                  className={adminStyles.input}
+              {/* Icon / Emoji */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Icon / Emoji</label>
+                <input
+                  type="text"
+                  name="icon"
+                  value={formData.icon}
+                  onChange={handleInputChange}
                   placeholder="e.g. 📷"
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition-all"
+                  style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
+                  onFocus={e => { e.target.style.border = '1.5px solid hsl(353,45%,60%)'; e.target.style.background = '#fff'; }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e5e7eb'; e.target.style.background = '#f9fafb'; }}
                 />
               </div>
-              
-              <div className="space-y-1 md:col-span-2">
-                <label className="text-sm font-medium text-gray-700">Description</label>
-                <textarea 
-                  name="description" 
-                  value={formData.description} 
-                  onChange={handleInputChange} 
-                  className={adminStyles.input}
-                  placeholder="Short description"
-                  rows={2}
+
+              {/* Description — full width */}
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Short description about this category..."
+                  rows={3}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none transition-all resize-none"
+                  style={{ border: '1.5px solid #e5e7eb', background: '#f9fafb' }}
+                  onFocus={e => { e.target.style.border = '1.5px solid hsl(353,45%,60%)'; e.target.style.background = '#fff'; }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e5e7eb'; e.target.style.background = '#f9fafb'; }}
                 />
               </div>
+
             </div>
-            
-            <div className="flex justify-end pt-2">
-              <button type="submit" className={`${adminStyles.button} px-6 py-2`}>
+
+            {/* Submit */}
+            <div className="flex justify-end pt-1">
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl text-white text-sm font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all duration-200"
+                style={{ background: 'hsl(353, 45%, 35%)' }}
+              >
                 {editingCat ? 'Save Changes' : 'Create Category'}
               </button>
             </div>

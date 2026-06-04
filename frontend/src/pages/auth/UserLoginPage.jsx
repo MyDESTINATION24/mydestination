@@ -34,7 +34,7 @@ const UserLoginPage = ({ theme = 'hotel' }) => {
               resendBtn: 'text-[#81313A]',
               signupBtn: 'text-[#81313A]',
               icon: <Heart size={28} className="text-white" />,
-              brand: 'MyDestination Weddings',
+              brand: 'MyDESTINATION Weddings',
               brandSub: 'Plan your dream celebration',
               heading: 'Welcome Back',
               subHeading: 'Login to explore wedding destinations',
@@ -56,7 +56,7 @@ const UserLoginPage = ({ theme = 'hotel' }) => {
               resendBtn: 'text-sky-600',
               signupBtn: 'text-sky-600',
               icon: <Hotel size={28} className="text-white" />,
-              brand: 'MyDestination Hotels',
+              brand: 'MyDESTINATION Hotels',
               brandSub: 'Find your perfect stay',
               heading: 'Welcome Back',
               subHeading: 'Login to continue your journey',
@@ -288,7 +288,7 @@ const UserLoginPage = ({ theme = 'hotel' }) => {
             {/* Footer */}
             <div className="mt-8 text-center relative z-10">
                 <p className="text-white/60 text-sm">
-                    New to {isWedding ? 'MyDestination Weddings' : 'MyDestination'}?{' '}
+                    New to {isWedding ? 'MyDESTINATION Weddings' : 'MyDESTINATION'}?{' '}
                     <button onClick={() => navigate(T.signupPath)} className="text-white font-bold hover:underline">
                         Create Account
                     </button>

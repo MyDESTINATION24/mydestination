@@ -33,6 +33,8 @@ export const ADMIN_THEME = {
 export const adminStyles = {
   glassCard: "bg-background border border-border shadow-sm hover:shadow-md transition-all duration-300",
   primaryButton: "bg-primary text-white hover:opacity-90 transition-all",
+  button: "inline-flex items-center gap-2 bg-[hsl(353,45%,35%)] text-white font-semibold rounded-xl hover:bg-[hsl(353,45%,28%)] transition-all duration-200 shadow-sm hover:shadow-md active:scale-95",
+  input: "w-full px-4 py-2.5 rounded-xl border border-[hsl(353,45%,35%)]/20 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[hsl(353,45%,35%)]/30 focus:border-[hsl(353,45%,35%)]/50 transition-all",
   heading: "font-serif text-primary",
   sidebarItem: "flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-primary/10 text-foreground",
   sidebarItemActive: "bg-primary text-white shadow-md active-sidebar-item"

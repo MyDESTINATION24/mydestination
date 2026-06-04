@@ -167,7 +167,7 @@ const WeddingHomePage = () => {
                 <ScrollReveal
                   key={dest._id || dest.id}
                   delay={i * 100}
-                  className="min-w-[280px] sm:min-w-[320px] snap-start"
+                  className="min-w-[240px] sm:min-w-[280px] snap-start"
                 >
                   <DestinationCard destination={dest} />
                 </ScrollReveal>

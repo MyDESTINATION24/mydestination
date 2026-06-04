@@ -4,7 +4,7 @@ import Property from '../../hotel/models/Property.js';
 
 /**
  * @desc    Update FCM Token for Partner
- * @route   PUT /api/partners/fcm-token
+ * @route   POST /api/partners/fcm-token
  * @access  Private (Partners only — this endpoint is ONLY for the Partner model)
  *
  * The partner Flutter app wraps the partner web URL and sends the FCM token here.

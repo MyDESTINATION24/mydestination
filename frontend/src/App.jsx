@@ -445,7 +445,7 @@ const WeddingVendorProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const vendorUserRaw = localStorage.getItem('vendor_user');
-  const user = userRaw ? JSON.parse(userRaw) : (vendorUserRaw ? JSON.parse(vendorUserRaw) : null);
+  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : (userRaw ? JSON.parse(userRaw) : null);
   const location = useLocation();
 
   if (!token || !user) {
@@ -542,7 +542,7 @@ const WeddingVendorPublicRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const vendorUserRaw = localStorage.getItem('vendor_user');
-  const user = userRaw ? JSON.parse(userRaw) : (vendorUserRaw ? JSON.parse(vendorUserRaw) : null);
+  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : (userRaw ? JSON.parse(userRaw) : null);
   if (token && user?.role === 'vendor') {
     return <Navigate to="/wedding/vendor/dashboard" replace />;
   }

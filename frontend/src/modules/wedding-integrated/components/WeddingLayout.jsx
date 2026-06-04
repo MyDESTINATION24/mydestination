@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import logoImg from "../assets/logo.png";
 import { weddingService } from "../../../services/weddingService";
 import { weddingEnquiryService } from "../../../services/apiService";
+import { installWeddingFcmRegistration, onWeddingMessage, registerWeddingFcmToken } from "../services/weddingFcmService";
 
 const navLinks = [
   { to: "/wedding", label: "Home", icon: Home },
@@ -48,6 +49,45 @@ const WeddingLayout = () => {
       setUser(null);
     }
   }, [location.pathname]);
+
+  // ── Wedding FCM Setup ────────────────────────────────────────────────────────
+  useEffect(() => {
+    // Install auto-registration (retries on focus/pageshow)
+    installWeddingFcmRegistration();
+
+    // Listen for foreground (in-app) push notifications
+    onWeddingMessage((payload) => {
+      const title = payload.notification?.title || 'My Destination';
+      const body  = payload.notification?.body  || '';
+      const url   = payload.data?.url;
+
+      // Show a nice toast notification for foreground messages
+      toast(
+        (t) => (
+          <div
+            onClick={() => {
+              if (url) window.location.href = url.startsWith('http') ? url : url;
+              toast.dismiss(t.id);
+            }}
+            style={{ cursor: url ? 'pointer' : 'default' }}
+          >
+            <strong style={{ display: 'block', marginBottom: 4 }}>{title}</strong>
+            <span style={{ fontSize: 13, color: '#555' }}>{body}</span>
+          </div>
+        ),
+        {
+          duration: 6000,
+          icon: '💍',
+          style: {
+            borderLeft: '4px solid #81313A',
+            background: '#fff',
+            color: '#333',
+            maxWidth: 360
+          }
+        }
+      );
+    });
+  }, []); // Run once on mount
 
   const handleLogout = () => {
     localStorage.removeItem("token");

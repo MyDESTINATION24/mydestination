@@ -495,7 +495,7 @@ const AdminLogin = () => {
         </div>
 
         <p className="text-center text-white/70 text-xs mt-6 font-medium tracking-wide drop-shadow-md">
-          &copy; {new Date().getFullYear()} MyDestination. All rights reserved.
+          &copy; {new Date().getFullYear()} MyDESTINATION. All rights reserved.
         </p>
       </motion.div>
     </div>

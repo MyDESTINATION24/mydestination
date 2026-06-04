@@ -20,7 +20,7 @@ router.get('/notifications', getPartnerNotifications);
 router.put('/notifications/read-all', markAllNotificationsRead);
 router.put('/notifications/:id/read', markNotificationRead);
 router.delete('/notifications', deleteNotifications);
-router.put('/fcm-token', updateFcmToken);
+router.post('/fcm-token', updateFcmToken);
 
 export default router;
 

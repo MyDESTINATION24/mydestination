@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Partner from '../../partner/models/Partner.js';
+import Admin from '../../admin/models/Admin.js';
 import bcrypt from 'bcryptjs';
 
 // @desc    Get user profile
@@ -187,8 +188,9 @@ export const toggleSavedHotel = async (req, res) => {
 };
 
 // @desc    Update FCM Token
-// @route   PUT /api/users/fcm-token
-// @access  Private (Users only — this endpoint is ONLY for the User model)
+// @desc    Update FCM Token (Universal for User, Vendor, Admin, Partner)
+// @route   POST /api/users/fcm-token
+// @access  Private
 export const updateFcmToken = async (req, res) => {
   try {
     const { fcmToken, platform } = req.body;
@@ -200,32 +202,40 @@ export const updateFcmToken = async (req, res) => {
     const targetPlatform = platform === 'app' ? 'app' : 'web';
     const tokenField = `fcmTokens.${targetPlatform}`;
 
-    // 1. DEDUPLICATION: Clear this token from any OTHER User document
-    // NOTE: We ONLY clear within the User model. Users, Partners, and Admins are
-    // separate auth systems — a user token should never exist in Partner/Admin collections.
-    await User.updateMany(
+    // Select the correct Mongoose Model based on user role
+    let TargetModel;
+    if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+      TargetModel = Admin;
+    } else if (req.user.role === 'partner') {
+      TargetModel = Partner;
+    } else {
+      TargetModel = User; // Handles 'user', 'vendor', etc.
+    }
+
+    // 1. DEDUPLICATION: Clear this token from any OTHER document in the same collection
+    await TargetModel.updateMany(
       { [tokenField]: fcmToken, _id: { $ne: req.user._id } },
       { $set: { [tokenField]: null } }
     );
 
     // 2. Update the token for the current user
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const userDoc = await TargetModel.findById(req.user._id);
+    if (!userDoc) return res.status(404).json({ message: `${req.user.role || 'User'} not found` });
 
-    if (!user.fcmTokens) user.fcmTokens = { app: null, web: null };
-    user.fcmTokens[targetPlatform] = fcmToken;
-    await user.save();
+    if (!userDoc.fcmTokens) userDoc.fcmTokens = { app: null, web: null };
+    userDoc.fcmTokens[targetPlatform] = fcmToken;
+    await userDoc.save();
 
-    console.log(`[FCM] User ${user._id} ${targetPlatform} token updated.`);
+    console.log(`[FCM Universal] ${req.user.role || 'User'} ${userDoc._id} ${targetPlatform} token updated.`);
 
     res.json({
       success: true,
-      message: `User FCM token updated successfully for ${targetPlatform} platform`,
-      data: { platform: targetPlatform, tokenUpdated: true }
+      message: `FCM token updated successfully for ${targetPlatform} platform`,
+      data: { platform: targetPlatform, tokenUpdated: true, role: req.user.role }
     });
 
   } catch (error) {
-    console.error('Update User FCM Token Error:', error);
+    console.error('Update Universal FCM Token Error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

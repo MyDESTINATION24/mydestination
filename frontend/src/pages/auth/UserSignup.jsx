@@ -131,7 +131,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
             const userRaw = localStorage.getItem('user');
             const user = userRaw ? JSON.parse(userRaw) : null;
             
-            let defaultRedirect = '/home';
+            let defaultRedirect = isWedding ? '/wedding' : '/home';
             if (user?.role === 'partner') {
                 defaultRedirect = '/hotel/dashboard';
             } else if (user?.role === 'vendor') {
