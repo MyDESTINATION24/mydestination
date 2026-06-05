@@ -70,8 +70,8 @@ class WalletService {
   /**
    * Create Add Money Order
    */
-  async addMoney(amount) {
-    const response = await apiService.post('/wallet/add-money', { amount });
+  async addMoney(amount, options = {}) {
+    const response = await apiService.post('/wallet/add-money', { amount, ...options });
     return response.data;
   }
 

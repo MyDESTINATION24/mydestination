@@ -13,6 +13,7 @@ import notificationService from '../../../services/notificationService.js';
 import smsService from '../../../utils/smsService.js';
 import whatsappService from '../../../utils/whatsappService.js';
 import referralService from '../../../services/referralService.js';
+import { phonepeClient } from '../../wedding/services/phonepeClient.js';
 
 // Initialize Razorpay
 let razorpay;
@@ -107,17 +108,47 @@ export const createPaymentOrder = async (req, res) => {
  */
 export const verifyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId, phonepe_txn_id } = req.body;
 
-    // 1. Verify Signature
-    const sign = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSign = crypto
-      .createHmac('sha256', PaymentConfig.razorpayKeySecret)
-      .update(sign.toString())
-      .digest('hex');
+    let paymentMethodToUpdate = 'razorpay';
+    let paymentIdToUpdate = razorpay_payment_id;
+    let paymentVerified = false;
+    let merchantOrderId = null;
 
-    if (razorpay_signature !== expectedSign) {
-      return res.status(400).json({ message: 'Invalid payment signature' });
+    if (phonepe_txn_id) {
+      // --- PHONEPE VERIFICATION ---
+      merchantOrderId = phonepe_txn_id;
+      if (!phonepeClient) {
+        return res.status(500).json({ message: 'PhonePe Client not initialized' });
+      }
+
+      const response = await phonepeClient.getOrderStatus(phonepe_txn_id);
+      
+      if (response && response.state === 'COMPLETED') {
+        paymentVerified = true;
+        paymentMethodToUpdate = 'phonepe';
+        paymentIdToUpdate = response.paymentDetails?.[0]?.transactionId || phonepe_txn_id;
+      } else {
+        return res.status(400).json({ message: 'Payment verification failed', details: response });
+      }
+    } else if (razorpay_order_id && razorpay_payment_id) {
+      // 1. Verify Razorpay Signature
+      const sign = razorpay_order_id + '|' + razorpay_payment_id;
+      const expectedSign = crypto
+        .createHmac('sha256', PaymentConfig.razorpayKeySecret)
+        .update(sign.toString())
+        .digest('hex');
+
+      if (razorpay_signature !== expectedSign) {
+        return res.status(400).json({ message: 'Invalid payment signature' });
+      }
+      paymentVerified = true;
+    } else {
+      return res.status(400).json({ message: 'Invalid payment verification request' });
+    }
+
+    if (!paymentVerified) {
+       return res.status(400).json({ message: 'Payment not verified' });
     }
 
     let booking;
@@ -129,7 +160,7 @@ export const verifyPayment = async (req, res) => {
 
       if (booking.paymentMethod !== 'prepaid') {
         booking.paymentStatus = 'paid';
-        booking.paymentMethod = 'razorpay'; // Only overwrite if not prepaid
+        booking.paymentMethod = paymentMethodToUpdate; // Only overwrite if not prepaid
         booking.amountPaid = booking.totalAmount;
         booking.remainingAmount = 0;
       } else {
@@ -137,7 +168,7 @@ export const verifyPayment = async (req, res) => {
         // For prepaid, amountPaid and remainingAmount are already set correctly in createBooking
       }
       booking.bookingStatus = 'confirmed';
-      booking.paymentId = razorpay_payment_id;
+      booking.paymentId = paymentIdToUpdate;
       await booking.save();
 
     } else {

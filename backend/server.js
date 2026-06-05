@@ -5,6 +5,11 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import morgan from 'morgan';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Firebase
 import { initializeFirebase } from './config/firebase.js';
@@ -73,8 +78,9 @@ const io = new Server(server, {
       'https://rukkoo.in',
       'https://www.rukkoo.in',
       'https://rukkoo-project.vercel.app',
-      'https://my-destination-nu.vercel.app'
-
+      'https://my-destination-nu.vercel.app',
+      'https://mydestination.in',
+      'https://www.mydestination.in'
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
@@ -111,6 +117,9 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Robust CORS Middleware
 app.use(cors({
   origin: function (origin, callback) {
@@ -126,7 +135,10 @@ app.use(cors({
       'https://rukkoo.in',
       'https://www.rukkoo.in',
       'https://rukkoo-project.vercel.app',
-      'https://rukooin-ijcelh2vj-appzetos-projects-73814664.vercel.app'
+      'https://rukooin-ijcelh2vj-appzetos-projects-73814664.vercel.app',
+      'https://my-destination-nu.vercel.app',
+      'https://mydestination.in',
+      'https://www.mydestination.in'
     ];
 
     if (process.env.FRONTEND_URL) {

@@ -5,14 +5,16 @@ import Withdrawal from '../models/Withdrawal.js';
 import Property from '../../hotel/models/Property.js';
 import Booking from '../../hotel/models/Booking.js';
 import PaymentConfig from '../../../config/payment.config.js';
-import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import axios from 'axios';
 import Joi from 'joi';
+import Razorpay from 'razorpay';
 import notificationService from '../../../services/notificationService.js';
 import emailService from '../../../services/emailService.js';
+import { phonepeClient } from '../../wedding/services/phonepeClient.js';
+import { StandardCheckoutPayRequest } from '@phonepe-pg/pg-sdk-node';
 
-// Initialize Razorpay
+// Initialize Razorpay (keep for backwards compat if needed for other endpoints)
 let razorpay;
 try {
   console.log("Razorpay Keys Debug:", {
@@ -762,38 +764,39 @@ export const getWalletStats = async (req, res) => {
 };
 
 /**
- * @desc    Create Add Money Order (Razorpay)
+ * @desc    Create Add Money Order (PhonePe)
  * @route   POST /api/wallet/add-money
- * @access  Private (Partner)
+ * @access  Private (Partner/User)
  */
 export const createAddMoneyOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, viewAs, redirectPath } = req.body;
 
     if (!amount || amount < 10) { // Minimum 10rs
       return res.status(400).json({ message: 'Minimum amount is ₹10' });
     }
 
-    const options = {
-      amount: Math.round(amount * 100), // in paise
-      currency: PaymentConfig.currency,
-      notes: {
-        userId: req.user._id.toString(),
-        type: 'wallet_topup',
-        role: req.user.role // Add role to notes for potential debugging or hooks
-      }
-    };
+    if (!phonepeClient) {
+      return res.status(500).json({ message: 'PhonePe Client not initialized' });
+    }
 
-    const order = await razorpay.orders.create(options);
+    const merchantOrderId = `WALLET_${req.user._id.toString()}_${Date.now()}`;
+    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const path = redirectPath || (viewAs === 'partner' ? '/hotel/wallet' : '/wallet');
+    const redirectUrl = `${baseUrl}${path}?phonepe_wallet_txn=${merchantOrderId}&amount=${amount}&viewAs=${viewAs || 'user'}`;
+
+    const request = StandardCheckoutPayRequest.builder()
+      .merchantOrderId(merchantOrderId)
+      .amount(Math.round(amount * 100))
+      .redirectUrl(redirectUrl)
+      .build();
+
+    const response = await phonepeClient.pay(request);
 
     res.json({
       success: true,
-      order: {
-        id: order.id,
-        amount: order.amount,
-        currency: order.currency,
-        key: PaymentConfig.razorpayKeyId
-      }
+      url: response.redirectUrl,
+      orderId: merchantOrderId
     });
 
   } catch (error) {
@@ -805,22 +808,23 @@ export const createAddMoneyOrder = async (req, res) => {
 /**
  * @desc    Verify Add Money Payment
  * @route   POST /api/wallet/verify-add-money
- * @access  Private (Partner)
+ * @access  Private (Partner/User)
  */
 export const verifyAddMoneyPayment = async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, viewAs } = req.body;
+    const { phonepe_txn_id, amount, viewAs } = req.body;
     const role = getWalletRole(req, viewAs);
 
-    const sign = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSign = crypto
-      .createHmac('sha256', PaymentConfig.razorpayKeySecret)
-      .update(sign.toString())
-      .digest('hex');
-
-    if (razorpay_signature !== expectedSign) {
-      return res.status(400).json({ message: 'Invalid payment signature' });
+    if (!phonepe_txn_id) {
+       return res.status(400).json({ message: 'Missing phonepe transaction ID' });
     }
+
+    const response = await phonepeClient.getOrderStatus(phonepe_txn_id);
+    if (!response || response.state !== 'COMPLETED') {
+       return res.status(400).json({ message: 'Payment verification failed', details: response });
+    }
+
+    const razorpay_payment_id = response.paymentDetails?.[0]?.transactionId || phonepe_txn_id;
 
     // Determine whose wallet to credit: ownerId (if admin) or current user
     const userRole = req.user.role?.toLowerCase();

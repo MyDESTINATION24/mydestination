@@ -68,6 +68,7 @@ const CMSPromoBanner = React.lazy(() => import('./app/cms-admin/pages/CMSPromoBa
 const CMSServices = React.lazy(() => import('./app/cms-admin/pages/CMSServices'));
 const CMSStaff = React.lazy(() => import('./app/cms-admin/pages/CMSStaff'));
 const CMSFooter = React.lazy(() => import('./app/cms-admin/pages/CMSFooter'));
+const CMSCareerApplications = React.lazy(() => import('./app/cms-admin/pages/CMSCareerApplications'));
 
 // Lazy Imports - Admin Pages
 const AdminLogin = React.lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
@@ -755,6 +756,7 @@ function App() {
               <Route path="services" element={<CMSServices />} />
               <Route path="staff" element={<CMSStaff />} />
               <Route path="footer" element={<CMSFooter />} />
+              <Route path="applications" element={<CMSCareerApplications />} />
             </Route>
 
             {/* Admin Auth Routes */}

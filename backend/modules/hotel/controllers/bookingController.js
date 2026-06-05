@@ -8,6 +8,8 @@ import AvailabilityLedger from '../models/AvailabilityLedger.js';
 import Wallet from '../../user/models/Wallet.js';
 import Transaction from '../../user/models/Transaction.js';
 import Razorpay from 'razorpay';
+import { phonepeClient } from '../../wedding/services/phonepeClient.js';
+import { StandardCheckoutPayRequest } from '@phonepe-pg/pg-sdk-node';
 import PaymentConfig from '../../../config/payment.config.js';
 import mongoose from 'mongoose';
 import emailService from '../../../services/emailService.js';
@@ -396,9 +398,10 @@ export const createBooking = async (req, res) => {
       }
     }
 
-    // Handle Online Payment (Razorpay)
-    let razorpayOrder = null;
-    if (['razorpay', 'online', 'prepaid'].includes(paymentMethod)) {
+    // Handle Online Payment (PhonePe)
+    let phonepeOrder = null;
+    let phonepeUrl = null;
+    if (['razorpay', 'online', 'prepaid', 'phonepe'].includes(paymentMethod)) {
       if (paymentDetails && paymentDetails.paymentId) {
         // Already paid (Legacy check)
         booking.paymentStatus = paymentMethod === 'prepaid' ? 'partial' : 'paid';
@@ -414,43 +417,29 @@ export const createBooking = async (req, res) => {
 
         if (amountToPay > 0) {
           try {
-            const instance = new Razorpay({
-              key_id: PaymentConfig.razorpayKeyId,
-              key_secret: PaymentConfig.razorpayKeySecret,
-            });
+            if (!phonepeClient) {
+              throw new Error('PhonePe Client is not initialized properly.');
+            }
 
-            const options = {
-              amount: Math.round(amountToPay * 100), // amount in paisa
-              currency: PaymentConfig.currency || "INR",
-              receipt: bookingId,
-              notes: {
-                bookingId: booking._id.toString(),
-                userId: req.user._id.toString(),
-                propertyId: propertyId.toString(),
-                roomTypeId: roomTypeId.toString(),
-                bookingUnit: (bookingUnit || 'room').toString(),
-                rooms: units.toString(), // Pass rooms count for ledger
-                // Store financial info for verification consistency
-                adminCommission: adminCommission.toString(),
-                partnerPayout: partnerPayout.toString(),
-                taxes: taxes.toString(),
-                discount: discountAmount.toString(),
-                totalAmount: totalAmount.toString(),
-                prepaidDiscountAmount: prepaidDiscountAmount.toString(),
-                advanceAmount: advanceAmount.toString(),
-                remainingAmount: remainingAmount.toString(),
-                paymentMethod: paymentMethod, // Pass method to safely handle in verify
-                type: 'booking_init'
-              }
-            };
+            const merchantOrderId = `BK_${booking._id.toString()}_${Date.now()}`;
+            // Provide a redirect URL back to the checkout page with query params to handle verification
+            const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/checkout?bookingId=${booking._id}&phonepe_txn=${merchantOrderId}`;
 
-            razorpayOrder = await instance.orders.create(options);
+            const request = StandardCheckoutPayRequest.builder()
+              .merchantOrderId(merchantOrderId)
+              .amount(Math.round(amountToPay * 100))
+              .redirectUrl(redirectUrl)
+              .build();
+
+            const response = await phonepeClient.pay(request);
+            phonepeOrder = merchantOrderId;
+            phonepeUrl = response.redirectUrl;
 
             // Set status to awaiting_payment so it doesn't show in user's list until paid
             booking.bookingStatus = 'awaiting_payment';
             booking.paymentStatus = 'pending';
           } catch (error) {
-            console.error("Razorpay Order Creation Failed:", error);
+            console.error("PhonePe Order Creation Failed:", error);
             return res.status(500).json({ message: "Failed to initiate payment gateway" });
           }
         } else {
@@ -501,9 +490,9 @@ export const createBooking = async (req, res) => {
     res.status(201).json({
       success: true,
       booking: populatedBooking,
-      paymentRequired: !!razorpayOrder,
-      order: razorpayOrder,
-      key: PaymentConfig.razorpayKeyId
+      paymentRequired: !!phonepeOrder,
+      url: phonepeUrl,
+      order: phonepeOrder
     });
   } catch (error) {
     console.error('Create Booking Error:', error);

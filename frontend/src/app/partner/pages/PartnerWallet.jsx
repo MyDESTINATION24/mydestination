@@ -5,8 +5,8 @@ import {
 } from 'lucide-react';
 import walletService from '../../../services/walletService';
 import { toast } from 'react-hot-toast';
-import { useRazorpay } from 'react-razorpay';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 // --- Transaction Item (Compact) ---
 const TransactionItem = ({ txn }) => {
@@ -44,7 +44,8 @@ const TransactionItem = ({ txn }) => {
 };
 
 const PartnerWallet = () => {
-    const { Razorpay } = useRazorpay();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [wallet, setWallet] = useState(null);
     const [stats, setStats] = useState(null);
     const [transactions, setTransactions] = useState([]);
@@ -89,7 +90,34 @@ const PartnerWallet = () => {
 
     useEffect(() => {
         fetchWalletData();
-    }, []);
+
+        // PhonePe Verification Logic
+        const queryParams = new URLSearchParams(location.search);
+        const phonepeTxnId = queryParams.get('phonepe_wallet_txn');
+        const amount = queryParams.get('amount');
+        const viewAs = queryParams.get('viewAs');
+
+        if (phonepeTxnId) {
+            const verifyPayment = async () => {
+                try {
+                    await walletService.verifyAddMoney({
+                        phonepe_txn_id: phonepeTxnId,
+                        amount: amount,
+                        viewAs: viewAs || 'partner'
+                    });
+                    toast.success('Wallet recharged successfully!');
+                    fetchWalletData();
+                } catch (error) {
+                    console.error('Wallet recharge verification failed:', error);
+                    toast.error('Wallet recharge verification failed. Please check your transaction history.');
+                } finally {
+                    // Clean up URL
+                    navigate(location.pathname, { replace: true });
+                }
+            };
+            verifyPayment();
+        }
+    }, [location.search, navigate]);
 
     const handleTransaction = async () => {
         try {
@@ -145,58 +173,14 @@ const PartnerWallet = () => {
                     return;
                 }
 
-                // 1. Create Order
-                const { order } = await walletService.addMoney(amount);
-
-                // 2. Open Razorpay
-                const options = {
-                    key: order.key,
-                    amount: order.amount,
-                    currency: order.currency,
-                    name: "My DESTINATION Partner",
-                    description: "Wallet Top-up",
-                    order_id: order.id,
-                    handler: async (response) => {
-                        try {
-                            // 3. Verify Payment
-                            await walletService.verifyAddMoney({
-                                ...response,
-                                amount, // Pass amount for reference
-                                viewAs: 'partner'
-                            });
-                            toast.success('Money added successfully!');
-                            setActiveModal(null);
-                            setAmountInput('');
-                            fetchWalletData();
-                        } catch (err) {
-                            toast.error('Payment verification failed. Please try again.');
-                            console.error(err);
-                            // Close modal so error message is visible (z-index fixed)
-                            setActiveModal(null);
-                            setAmountInput('');
-                        }
-                    },
-                    prefill: {
-                        name: "Partner",
-                        contact: "",
-                    },
-                    theme: {
-                        color: "var(--color-surface)",
-                    },
-                };
-
-                const razorpayInstance = new Razorpay({
-                    ...options,
-                    modal: {
-                        ondismiss: () => {
-                            // User closed Razorpay modal without payment
-                            // Keep the add money modal open so they can try again
-                            console.log('Razorpay payment cancelled by user');
-                        }
-                    }
-                });
-                razorpayInstance.open();
-                return; // Don't close modal immediately, let handler do it
+                // 1. Create Order and Redirect
+                const res = await walletService.addMoney(amount, { viewAs: 'partner' });
+                if (res.url) {
+                    window.location.href = res.url;
+                } else {
+                    toast.error('Failed to initiate payment');
+                }
+                return; // Let the browser redirect
             }
 
             setActiveModal(null);

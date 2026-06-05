@@ -10,11 +10,7 @@ import walletService from '../../services/walletService';
 
 const loadRazorpay = () => {
   return new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
+    resolve(true); // Mocking Razorpay load since we use PhonePe
   });
 };
 
@@ -38,15 +34,6 @@ const BookingCheckoutPage = () => {
   const [walletBalance, setWalletBalance] = useState(0);
   const [useWallet, setUseWallet] = useState(false);
 
-  useEffect(() => {
-    if (!property || !dates) {
-      toast.error("Invalid booking details");
-      navigate('/');
-      return;
-    }
-    fetchWalletBalance();
-  }, [property, dates, navigate]);
-
   const fetchWalletBalance = async () => {
     try {
       const data = await walletService.getWallet({ viewAs: 'user' });
@@ -57,6 +44,63 @@ const BookingCheckoutPage = () => {
       console.error("Failed to fetch wallet:", error);
     }
   };
+
+  const verifyPhonePePayment = async (txnId, bookingId) => {
+    setLoading(true);
+    try {
+      const verifyRes = await paymentService.verifyPayment({
+        phonepe_txn_id: txnId,
+        bookingId: bookingId
+      });
+      if (verifyRes.success) {
+        toast.success("Payment Successful!");
+        navigate(`/booking/${verifyRes.booking?._id || bookingId}`, { state: { booking: verifyRes.booking, animate: true } });
+      } else {
+        toast.error(verifyRes.message || "Payment Verification Failed");
+        navigate('/');
+      }
+    } catch (err) {
+      console.error("Payment Verification Error:", err);
+      toast.error("Payment verification failed.");
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const phonepeTxn = urlParams.get('phonepe_txn');
+    const bookingId = urlParams.get('bookingId');
+    
+    if (phonepeTxn && bookingId) {
+      verifyPhonePePayment(phonepeTxn, bookingId);
+      return;
+    }
+
+    if (!property || !dates) {
+      toast.error("Invalid booking details");
+      navigate('/');
+      return;
+    }
+    fetchWalletBalance();
+  }, [property, dates, navigate]);
+
+
+
+  // If verifying payment, show a loading screen instead of crashing or returning null
+  const urlParams = new URLSearchParams(window.location.search);
+  const isVerifying = urlParams.get('phonepe_txn');
+
+  if (isVerifying) {
+    return (
+      <div className="min-h-screen bg-[var(--color-hotel-bg)] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 border-4 border-surface border-t-transparent rounded-full animate-spin mb-4"></div>
+        <h2 className="text-xl font-bold text-surface mb-2">Verifying Payment...</h2>
+        <p className="text-gray-500 text-sm">Please do not close or refresh this page.</p>
+      </div>
+    );
+  }
 
   if (!property || !dates) return null;
 
@@ -144,86 +188,18 @@ const BookingCheckoutPage = () => {
           }
         }
 
-        // Case B: Razorpay (with or without Wallet)
-        const isLoaded = await loadRazorpay();
-        if (!isLoaded) throw new Error("Razorpay SDK failed to load.");
-
+        // Case B: PhonePe (with or without Wallet)
         // Create Order (Backend will deduct wallet amount from order amount)
         const bookingRes = await bookingService.create(payload);
 
         if (!bookingRes.success) throw new Error(bookingRes.message || "Failed to initialize booking");
 
-        if (bookingRes.paymentRequired && bookingRes.order) {
-          const { order, key } = bookingRes;
-
-          const options = {
-            key: key,
-            amount: order.amount, // Net amount after wallet deduction
-            currency: order.currency,
-            name: "My DESTINATION",
-            description: `Booking Payment`,
-            order_id: order.id,
-            handler: async function (response) {
-              try {
-                const verifyPayload = {
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  bookingId: bookingRes.booking._id // Booking created in previous step
-                };
-                const verifyRes = await paymentService.verifyPayment(verifyPayload);
-                if (verifyRes.success) {
-                  toast.success("Payment Successful!");
-                  navigate(`/booking/${verifyRes.booking._id}`, { state: { booking: verifyRes.booking, animate: true } });
-                } else {
-                  toast.error("Payment Verification Failed");
-                }
-              } catch (err) {
-                console.error("Payment Verification Error:", err);
-                toast.error("Payment verification failed.");
-              }
-            },
-            prefill: {
-              name: user?.name || '',
-              email: user?.email || '',
-              contact: user?.phone || ''
-            },
-            theme: { color: "#000000" },
-            // Enhanced Configuration for UPI Intent & App Redirects
-            config: {
-              display: {
-                blocks: {
-                  head: {
-                    name: "Pay via UPI / Apps",
-                    instruments: [
-                      { method: "upi" }, // Prioritize UPI Intent (GPay, PhonePe, etc.)
-                      { method: "wallet", wallets: ["paytm", "phonepe"] }
-                    ]
-                  },
-                  cards: {
-                    name: "Cards & Netbanking",
-                    instruments: [
-                      { method: "card" },
-                      { method: "netbanking" }
-                    ]
-                  }
-                },
-                sequence: ["block.head", "block.cards"],
-                preferences: {
-                  show_default_blocks: true
-                }
-              }
-            },
-            retry: {
-              enabled: true
-            }
-          };
-
-          const rzp = new window.Razorpay(options);
-          rzp.on('payment.failed', function (response) {
-            toast.error(response.error.description || "Payment Failed");
-          });
-          rzp.open();
+        if (bookingRes.paymentRequired && bookingRes.url) {
+          // Redirect to PhonePe
+          window.location.href = bookingRes.url;
+          return;
+        } else if (bookingRes.success) {
+           navigate(`/booking/${bookingRes.booking._id}`, { state: { booking: bookingRes.booking, animate: true } });
         }
       }
     } catch (error) {

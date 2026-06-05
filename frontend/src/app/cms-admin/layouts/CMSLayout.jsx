@@ -67,6 +67,15 @@ const CMSLayout = () => {
                 <span className="text-sm font-medium">Footer Settings</span>
               </Link>
             </li>
+            <div className="pt-4 pb-2 px-3">
+              <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Forms & Submissions</span>
+            </div>
+            <li>
+              <Link to="/cms-admin/applications" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Users size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">Job Applications</span>
+              </Link>
+            </li>
           </ul>
         </nav>
         

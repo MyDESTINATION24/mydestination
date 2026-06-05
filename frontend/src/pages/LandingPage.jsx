@@ -14,6 +14,8 @@ import hotelImg from '../assets/landing/hotel.webp';
 import weddingImg from '../assets/landing/wedding.jpg';
 import tourImg from '../assets/landing/tour.jpg';
 import { Facebook, Twitter, Instagram, Menu, X } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { api } from '../services/apiService';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -21,6 +23,16 @@ const LandingPage = () => {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [cmsData, setCmsData] = useState(null);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    role: 'Travel Specialist'
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     import('../services/apiService').then(({ api }) => {
@@ -82,6 +94,44 @@ const LandingPage = () => {
       document.documentElement.style.overflow = 'unset';
     };
   }, [isContactModalOpen, isJoinModalOpen]);
+
+  const handleJoinSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const submitData = new FormData();
+      submitData.append('firstName', formData.firstName);
+      submitData.append('lastName', formData.lastName);
+      submitData.append('email', formData.email);
+      submitData.append('role', formData.role);
+      if (imageFile) {
+        submitData.append('image', imageFile);
+      }
+
+      const res = await api.post('/cms/career/apply', submitData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.data.success) {
+        toast.success('Application submitted successfully!');
+        setIsJoinModalOpen(false);
+        setFormData({ firstName: '', lastName: '', email: '', role: 'Travel Specialist' });
+        setImageFile(null);
+      } else {
+        toast.error(res.data.message || 'Failed to submit application');
+      }
+    } catch (error) {
+      console.error('Submit Application Error:', error);
+      toast.error('Failed to submit application. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white font-['Inter',sans-serif]">
@@ -223,36 +273,46 @@ const LandingPage = () => {
                   Become a part of our global travel community. Tell us a bit about yourself and your passion for travel.
                 </p>
 
-                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <form className="space-y-6" onSubmit={handleJoinSubmit}>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">First Name</label>
+                      <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">First Name *</label>
                       <input 
                         type="text" 
                         placeholder="John" 
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                         className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500 transition"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Last Name</label>
+                      <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Last Name *</label>
                       <input 
                         type="text" 
                         placeholder="Doe" 
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                         className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500 transition"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Email Address</label>
+                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Email Address *</label>
                     <input 
                       type="email" 
                       placeholder="john@example.com" 
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
                       className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-emerald-500 transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Role of Interest</label>
-                    <select className="w-full bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:border-emerald-500 transition appearance-none cursor-pointer">
+                    <select 
+                      value={formData.role}
+                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      className="w-full bg-white/5 border border-white/10 p-4 text-white focus:outline-none focus:border-emerald-500 transition appearance-none cursor-pointer"
+                    >
                       <option className="bg-emerald-950">Travel Specialist</option>
                       <option className="bg-emerald-950">Customer Care</option>
                       <option className="bg-emerald-950">Tour Guide</option>
@@ -260,8 +320,22 @@ const LandingPage = () => {
                     </select>
                   </div>
                   
-                  <button className="w-full bg-white text-emerald-950 py-4 font-black tracking-widest uppercase hover:bg-emerald-50 transition shadow-xl">
-                    Submit Application
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Profile Image / Resume</label>
+                    <input 
+                      type="file" 
+                      accept="image/*,.pdf"
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                      className="w-full bg-white/5 border border-white/10 py-2.5 px-3 text-sm text-white focus:outline-none focus:border-emerald-500 transition file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 cursor-pointer"
+                    />
+                  </div>
+                  
+                  <button 
+                    disabled={isSubmitting}
+                    type="submit"
+                    className="w-full bg-white text-emerald-950 py-4 font-black tracking-widest uppercase hover:bg-emerald-50 transition shadow-xl disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Application'}
                   </button>
                 </form>
               </div>
