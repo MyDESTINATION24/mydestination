@@ -56,24 +56,24 @@ const HelpSupportPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface md:pt-32 pt-24 pb-20">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <div className="min-h-screen bg-transparent md:pt-12 pt-3 pb-8">
+      <div className="container mx-auto px-4 max-w-5xl">
         
         {/* Header Section */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-6 md:mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary mb-2"
           >
-            <HelpCircle size={18} />
-            <span className="text-sm font-bold uppercase tracking-widest">Help & Support</span>
+            <HelpCircle size={14} />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Help & Support</span>
           </motion.div>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-serif text-slate-800 mb-6 leading-tight"
+            className="text-xl md:text-3xl font-bold text-slate-800 mb-2 leading-tight"
           >
             How can we <span className="text-primary italic">help you?</span>
           </motion.h1>
@@ -81,40 +81,40 @@ const HelpSupportPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-slate-500 text-lg"
+            className="text-slate-500 text-[11px] md:text-sm max-w-xl mx-auto"
           >
             Have a question or facing an issue? Raise a ticket below and our support team will get back to you as soon as possible.
           </motion.p>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-12">
+        <div className="grid lg:grid-cols-5 gap-4 md:gap-6">
           {/* Contact Info */}
           <motion.div 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="lg:col-span-2 space-y-6"
+            className="lg:col-span-2 space-y-3"
           >
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-              <div className="h-12 w-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6">
-                <Mail size={24} />
+            <div className="bg-white/70 backdrop-blur-md p-4 md:p-5 rounded-[1.25rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-slate-100/50 relative overflow-hidden group hover:shadow-[0_15px_40px_-15px_rgba(157,49,61,0.12)] hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
+              <div className="h-9 w-9 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-3">
+                <Mail size={18} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Email Us</h3>
-              <p className="text-slate-500 mb-4">For general queries and support</p>
-              <a href="mailto:support@mydestination.com" className="text-lg font-bold text-primary hover:underline">
+              <h3 className="text-base font-bold text-slate-800 mb-0.5">Email Us</h3>
+              <p className="text-[11px] text-slate-500 mb-2">For general queries and support</p>
+              <a href="mailto:support@mydestination.com" className="text-sm font-bold text-primary hover:underline">
                 support@mydestination.com
               </a>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-10 -mt-10 transition-transform group-hover:scale-110"></div>
-              <div className="h-12 w-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-6">
-                <Phone size={24} />
+            <div className="bg-white/70 backdrop-blur-md p-4 md:p-5 rounded-[1.25rem] shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] border border-slate-100/50 relative overflow-hidden group hover:shadow-[0_15px_40px_-15px_rgba(157,49,61,0.12)] hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-bl-full -mr-6 -mt-6 transition-transform group-hover:scale-110"></div>
+              <div className="h-9 w-9 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-3">
+                <Phone size={18} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Call Us</h3>
-              <p className="text-slate-500 mb-4">Mon-Fri from 9am to 6pm</p>
-              <a href="tel:+919876543210" className="text-lg font-bold text-primary hover:underline">
+              <h3 className="text-base font-bold text-slate-800 mb-0.5">Call Us</h3>
+              <p className="text-[11px] text-slate-500 mb-2">Mon-Fri from 9am to 6pm</p>
+              <a href="tel:+919876543210" className="text-sm font-bold text-primary hover:underline">
                 +91 98765 43210
               </a>
             </div>
@@ -125,35 +125,35 @@ const HelpSupportPage = () => {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="lg:col-span-3 bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100"
+            className="lg:col-span-3 bg-white/80 backdrop-blur-md p-4 md:p-6 rounded-[1.5rem] shadow-[0_10px_30px_-15px_rgba(157,49,61,0.08)] border border-slate-100/50"
           >
-            <div className="flex items-center gap-3 mb-8">
-              <MessageSquare className="text-primary" size={28} />
-              <h2 className="text-2xl font-bold text-slate-800">Raise a Ticket</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="text-primary" size={20} />
+              <h2 className="text-lg font-bold text-slate-800">Raise a Ticket</h2>
             </div>
 
             {submittedTicket ? (
-              <div className="bg-green-50 border border-green-200 rounded-3xl p-8 text-center animate-in zoom-in-95 duration-300">
-                <div className="mx-auto w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-                  <CheckCircle2 size={32} />
+              <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-center animate-in zoom-in-95 duration-300">
+                <div className="mx-auto w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2">
+                  <CheckCircle2 size={20} />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 mb-2">Ticket Submitted!</h3>
-                <p className="text-slate-600 mb-6">We have received your request. Please save your Ticket ID to track its status.</p>
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 inline-block mb-8">
-                  <p className="text-sm text-slate-500 font-bold mb-1 uppercase tracking-widest">Your Ticket ID</p>
-                  <p className="text-3xl font-black text-primary font-mono">{submittedTicket.ticketId}</p>
+                <h3 className="text-lg font-bold text-slate-800 mb-0.5">Ticket Submitted!</h3>
+                <p className="text-[11px] text-slate-600 mb-3">We have received your request. Please save your Ticket ID to track its status.</p>
+                <div className="bg-white p-2.5 rounded-lg border border-slate-200 inline-block mb-4">
+                  <p className="text-[9px] text-slate-500 font-bold mb-0.5 uppercase tracking-widest">Your Ticket ID</p>
+                  <p className="text-xl font-black text-primary font-mono">{submittedTicket.ticketId}</p>
                 </div>
                 <button
                   onClick={() => setSubmittedTicket(null)}
-                  className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold text-lg hover:bg-slate-900 transition-all active:scale-[0.98]"
+                  className="w-full py-2.5 bg-slate-800 text-white rounded-lg font-bold text-sm hover:bg-slate-900 transition-all active:scale-[0.98]"
                 >
                   Submit Another Ticket
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Your Name</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Your Name</label>
                   <input
                     type="text"
                     placeholder="Enter your full name"
@@ -164,26 +164,26 @@ const HelpSupportPage = () => {
                         setFormData({...formData, user: val});
                       }
                     }}
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Issue / Message</label>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Issue / Message</label>
                   <textarea
                     placeholder="Describe your issue in detail..."
-                    rows="5"
+                    rows="3"
                     value={formData.subject}
                     onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none text-xs"
                     required
                   ></textarea>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">Priority Level</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Priority Level</label>
+                  <div className="grid grid-cols-3 gap-2">
                     {[
                       { val: 3, label: 'Low', activeClass: 'bg-green-700 border-green-700 text-white shadow-md shadow-green-200' },
                       { val: 2, label: 'Normal', activeClass: 'bg-[#81313A] border-[#81313A] text-white shadow-md shadow-[#81313A]/20' },
@@ -193,7 +193,7 @@ const HelpSupportPage = () => {
                         key={p.val}
                         type="button"
                         onClick={() => setFormData({...formData, priority: p.val})}
-                        className={`py-3 rounded-xl font-bold text-sm transition-all duration-200 border-2 ${
+                        className={`py-1.5 rounded-lg font-bold text-[10px] transition-all duration-200 border-2 ${
                           formData.priority === p.val
                             ? p.activeClass
                             : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:border-slate-300'
@@ -205,23 +205,23 @@ const HelpSupportPage = () => {
                   </div>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-1.5">
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-4 bg-primary text-white rounded-2xl font-bold text-lg hover:bg-primary-dark transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-70"
+                    className="w-full py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:bg-primary-dark transition-all active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-70"
                   >
                     {loading ? (
-                      <div className="h-6 w-6 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                      <div className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                     ) : (
                       <>
-                        <Send size={20} />
+                        <Send size={14} />
                         Submit Ticket
                       </>
                     )}
                   </button>
-                  <p className="text-center text-xs text-slate-400 mt-4 flex items-center justify-center gap-1">
-                    <AlertCircle size={12} /> Our team usually responds within 24 hours.
+                  <p className="text-center text-[9px] text-slate-400 mt-2 flex items-center justify-center gap-0.5">
+                    <AlertCircle size={9} /> Our team usually responds within 24 hours.
                   </p>
                 </div>
               </form>
