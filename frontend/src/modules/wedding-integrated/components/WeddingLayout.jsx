@@ -202,7 +202,7 @@ const WeddingLayout = () => {
                   <Menu className="w-6 h-6" />
                 </button>
                 <Link to="/wedding" className="flex items-center gap-2">
-                  <img src={logoImg} alt="Weddings Logo" className="h-10 md:h-14 w-auto object-contain md:scale-110 transition-transform duration-300" />
+                  <img src={logoImg} alt="Weddings Logo" className="h-8 md:h-11 w-auto object-contain transition-transform duration-300" />
                 </Link>
               </div>
 
@@ -412,7 +412,7 @@ const WeddingLayout = () => {
                   </div>
                 </>
               ) : (
-                <img src={logoImg} alt="Logo" className="h-10 object-contain" />
+                <img src={logoImg} alt="Logo" className="h-8 object-contain" />
               )}
             </div>
             <button onClick={() => setMobileSidebarOpen(false)} className="p-2 text-slate-400 bg-slate-50 rounded-full hover:text-[#81313A] hover:bg-[#81313A]/10">
@@ -568,14 +568,14 @@ const WeddingLayout = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-y-6 md:gap-8">
               <div>
-                <p className="text-sm opacity-70 mt-2">
+                <p className="text-xs opacity-70 mt-2">
                   Creating unforgettable destination wedding experiences across
                   India's most beautiful locations.
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider">Destinations</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm opacity-70">
+                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">My DESTINATIONS</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs opacity-70">
                   {(footerDestinations.length > 0 ? footerDestinations : [{ name: "Goa" }, { name: "Jaipur" }, { name: "Udaipur" }, { name: "Kerala" }, { name: "Rishikesh" }]).map((d) => (
                     <Link key={d._id || d.name} to={`/wedding/destinations/${d._id || d.name.toLowerCase()}`} className="block hover:opacity-100 transition-opacity">
                       {d.name}
@@ -584,8 +584,8 @@ const WeddingLayout = () => {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider">Services</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm opacity-70">
+                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">Services</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs opacity-70">
                   {(footerCategories.length > 0 ? footerCategories : [{ name: "Full Planning" }, { name: "Decor & Design" }, { name: "Photography" }, { name: "Catering" }, { name: "Entertainment" }]).map((s) => (
                     <Link 
                       key={s._id || s.name} 
@@ -598,13 +598,13 @@ const WeddingLayout = () => {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider">Get in Touch</h4>
-                <p className="text-sm opacity-70 mb-2">hello@weddings.example.com</p>
-                <p className="text-sm opacity-70">+91 98765 43210</p>
+                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">Get in Touch</h4>
+                <p className="text-xs opacity-70 mb-2">hello@weddings.example.com</p>
+                <p className="text-xs opacity-70">+91 98765 43210</p>
               </div>
             </div>
-            <div className="border-t border-white/20 mt-8 pt-6 text-center text-sm opacity-50">
-              © 2026 Weddings. Crafted with love.
+            <div className="border-t border-white/20 mt-8 pt-6 text-center text-[11px] opacity-50">
+              © 2026 My DESTINATION™. All rights reserved.
             </div>
           </div>
         </footer>

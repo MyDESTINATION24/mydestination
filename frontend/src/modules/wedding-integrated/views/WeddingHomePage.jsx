@@ -130,7 +130,7 @@ const WeddingHomePage = () => {
                 Simple Process
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 How It Works
@@ -153,7 +153,7 @@ const WeddingHomePage = () => {
                 Dream Locations
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 Popular Destinations
@@ -167,18 +167,12 @@ const WeddingHomePage = () => {
                 <ScrollReveal
                   key={dest._id || dest.id}
                   delay={i * 100}
-                  className="min-w-[240px] sm:min-w-[280px] snap-start"
+                  className="min-w-[270px] sm:min-w-[320px] snap-start"
                 >
                   <DestinationCard destination={dest} />
                 </ScrollReveal>
               ))}
-              
-              {/* Mobile Scroll Indicator Arrow */}
-              <div className="flex sm:hidden items-center justify-center min-w-[60px] pr-4">
-                <div className="w-10 h-10 rounded-full bg-white/80 border border-primary/20 flex items-center justify-center text-primary shadow-sm animate-pulse">
-                  <ChevronRight className="w-6 h-6" />
-                </div>
-              </div>
+
             </div>
           </div>
 
@@ -203,7 +197,7 @@ const WeddingHomePage = () => {
                   Expert Guidance
                 </p>
                 <h2
-                  className="text-3xl md:text-5xl font-bold"
+                  className="text-2xl md:text-4xl font-bold"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   Recommended Planners
@@ -232,7 +226,7 @@ const WeddingHomePage = () => {
       )}
 
       {/* Why Choose Us */}
-      <section className="pt-0 pb-6 px-4">
+      <section className="pt-10 md:pt-16 pb-6 px-4">
         <div className="max-w-6xl mx-auto">
           <ScrollReveal>
             <div className="text-center mb-10">
@@ -240,7 +234,7 @@ const WeddingHomePage = () => {
                 Our Promise
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 Why Choose Us
@@ -278,7 +272,7 @@ const WeddingHomePage = () => {
                 Inspiration
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 Real Weddings
@@ -332,7 +326,7 @@ const WeddingHomePage = () => {
                 Love Stories
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 What Couples Say
@@ -368,7 +362,7 @@ const WeddingHomePage = () => {
                 For Every Budget
               </p>
               <h2
-                className="text-3xl md:text-5xl font-bold"
+                className="text-2xl md:text-4xl font-bold"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 Find Your Perfect Range

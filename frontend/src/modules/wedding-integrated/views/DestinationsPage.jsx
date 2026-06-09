@@ -92,7 +92,7 @@ const DestinationsPage = () => {
       {/* Filters + Grid */}
       <section className="py-4 md:py-8 px-3 md:px-4 min-h-[400px]">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-nowrap overflow-x-auto md:flex-wrap md:justify-center gap-2 md:gap-3 mb-5 pb-2 md:pb-0 px-2 scrollbar-none">
+          <div className="flex flex-nowrap overflow-x-auto md:flex-wrap md:justify-center gap-2 md:gap-3 mb-5 pb-2 md:pb-0 px-2 no-scrollbar">
             {categories.map((cat) => (
               <button
                 key={cat}

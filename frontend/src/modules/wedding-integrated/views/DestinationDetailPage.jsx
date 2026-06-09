@@ -176,7 +176,7 @@ const DestinationDetailPage = () => {
         <div className="max-w-6xl mx-auto">
           <ScrollReveal>
             <h2
-              className="text-3xl font-bold mb-6 md:mb-10 text-center"
+              className="text-2xl md:text-4xl font-bold mb-6 md:mb-10 text-center"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Recommended Venues
@@ -227,7 +227,7 @@ const DestinationDetailPage = () => {
         <div className="max-w-6xl mx-auto">
           <ScrollReveal>
             <h2
-              className="text-3xl font-bold mb-6 md:mb-10 text-center"
+              className="text-2xl md:text-4xl font-bold mb-6 md:mb-10 text-center"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Recommended Planners
@@ -255,7 +255,7 @@ const DestinationDetailPage = () => {
       <section className="pt-16 pb-40 md:pb-32 px-4 wedding-gradient -mb-24 md:-mb-16">
         <div className="max-w-3xl mx-auto text-center">
           <h2
-            className="text-3xl font-bold text-background mb-4"
+            className="text-2xl md:text-4xl font-bold text-background mb-4"
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Plan Your {dest.name} Wedding

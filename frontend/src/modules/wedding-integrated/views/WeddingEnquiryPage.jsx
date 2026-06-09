@@ -91,7 +91,7 @@ const WeddingEnquiryPage = () => {
     <div className="w-full">
       <section className="pt-4 md:pt-20 pb-4 px-4 text-center leading-tight">
         <h1
-          className="text-2xl md:text-5xl font-bold"
+          className="text-2xl md:text-4xl font-bold"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
           Plan Your Dream Wedding
