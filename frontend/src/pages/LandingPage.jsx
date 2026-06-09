@@ -34,6 +34,24 @@ const LandingPage = () => {
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Hotel Search State
+  const [searchParams, setSearchParams] = useState({
+    destination: '',
+    checkIn: '',
+    checkOut: ''
+  });
+
+  const handleHotelSearch = (e) => {
+    e.preventDefault();
+    const query = new URLSearchParams();
+    if (searchParams.destination) query.append('search', searchParams.destination);
+    if (searchParams.checkIn) query.append('startDate', searchParams.checkIn);
+    if (searchParams.checkOut) query.append('endDate', searchParams.checkOut);
+    
+    const targetPath = `/search?${query.toString()}`;
+    navigate(targetPath);
+  };
+
   useEffect(() => {
     import('../services/apiService').then(({ api }) => {
       api.get('/cms/landing-page').then(res => {
@@ -395,7 +413,53 @@ const LandingPage = () => {
           </div>
       </section>
 
-      {/* 2. Search & Features (Removed as requested) */}
+      {/* 2. Hotel Search Bar */}
+      <section className="relative z-40 -mt-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        <div className="bg-white rounded-sm shadow-2xl p-4 md:p-6">
+          <form onSubmit={handleHotelSearch} className="flex flex-col md:flex-row gap-4 items-end">
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Destination / Hotel</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                <input 
+                  type="text" 
+                  placeholder="Where are you going?" 
+                  value={searchParams.destination}
+                  onChange={(e) => setSearchParams({...searchParams, destination: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                />
+              </div>
+            </div>
+            
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Check In</label>
+              <input 
+                type="date" 
+                value={searchParams.checkIn}
+                onChange={(e) => setSearchParams({...searchParams, checkIn: e.target.value})}
+                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              />
+            </div>
+            
+            <div className="flex-1 w-full">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Check Out</label>
+              <input 
+                type="date" 
+                value={searchParams.checkOut}
+                onChange={(e) => setSearchParams({...searchParams, checkOut: e.target.value})}
+                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="w-full md:w-auto bg-emerald-950 text-white px-8 py-3 text-sm font-black uppercase tracking-widest hover:bg-emerald-800 transition shadow-lg h-[46px]"
+            >
+              Search
+            </button>
+          </form>
+        </div>
+      </section>
 
       {/* 3. Top Destinations */}
       <section className="pt-4 md:pt-8 pb-10 md:pb-20 max-w-6xl mx-auto px-4 text-center">
