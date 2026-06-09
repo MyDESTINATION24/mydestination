@@ -114,6 +114,10 @@ const UserPoolingConfirm = lazy(() => import('./user/pages/pooling/PoolingConfir
 const AirwaysHome = lazy(() => import('./user/pages/airways/AirwaysHome'));
 const AirwaysRouteBooking = lazy(() => import('./user/pages/airways/AirwaysRouteBooking'));
 const AirwaysConfirmation = lazy(() => import('./user/pages/airways/AirwaysConfirmation'));
+const UserToursHome = lazy(() => import('./user/pages/tours/ToursHome'));
+const UserTourDetails = lazy(() => import('./user/pages/tours/TourDetails'));
+const UserTourBooking = lazy(() => import('./user/pages/tours/TourBooking'));
+const UserTourConfirmation = lazy(() => import('./user/pages/tours/TourConfirmation'));
 
 // Profile Settings Sub-pages
 const ProfileSettings = lazy(() => import('./user/pages/profile/ProfileSettings'));
@@ -247,6 +251,8 @@ const AdminBusCommissionManager = lazy(() => import('./admin/pages/bus-service/B
 const AdminAirwaysManager = lazy(() => import('./admin/pages/airways/AirwaysManager'));
 const AdminAirwaysRouteManager = lazy(() => import('./admin/pages/airways/AirwaysRouteManager'));
 const AdminAirwaysBookingManager = lazy(() => import('./admin/pages/airways/AirwaysBookingManager'));
+const AdminTourManager = lazy(() => import('./admin/pages/tours/TourManager'));
+const AdminTourBookingManager = lazy(() => import('./admin/pages/tours/TourBookingManager'));
 const AdminPricingPlaceholder = ({ title }) => (
   <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10">
     <MapPin size={60} strokeWidth={1} className="mb-6 opacity-20" />
@@ -894,6 +900,10 @@ function App() {
                 <Route path="user/airways" element={<AirwaysHome />} />
                 <Route path="user/airways/routes/:routeId" element={<AirwaysRouteBooking />} />
                 <Route path="user/airways/confirmation/:bookingId" element={<AirwaysConfirmation />} />
+                <Route path="user/tours" element={<UserToursHome />} />
+                <Route path="user/tours/:id" element={<UserTourDetails />} />
+                <Route path="user/tours/book/:id" element={<UserTourBooking />} />
+                <Route path="user/tours/confirmation/:bookingId" element={<UserTourConfirmation />} />
                 <Route path="user/rental" element={<BikeRentalHome />} />
               <Route
                 path="user/rental/vehicle"
@@ -1160,6 +1170,10 @@ function App() {
                 <Route path="airways/routes/create" element={<AdminAirwaysRouteManager mode="create" />} />
                 <Route path="airways/routes/edit/:id" element={<AdminAirwaysRouteManager mode="edit" />} />
                 <Route path="airways/bookings" element={<AdminAirwaysBookingManager />} />
+                <Route path="tours" element={<AdminTourManager />} />
+                <Route path="tours/create" element={<AdminTourManager mode="create" />} />
+                <Route path="tours/edit/:id" element={<AdminTourManager mode="edit" />} />
+                <Route path="tours/bookings" element={<AdminTourBookingManager />} />
                 <Route path="pooling" element={<Navigate to="/taxi/admin/pooling/routes" replace />} />
                 <Route path="pooling/routes" element={<AdminPoolingManager />} />
                 <Route

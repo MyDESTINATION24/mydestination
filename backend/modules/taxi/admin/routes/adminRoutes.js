@@ -228,6 +228,15 @@ import {
   updateAirwayBookingStatus,
   updateAirwayRoute,
 } from '../controllers/airwaysController.js';
+import {
+  getTours,
+  createTour,
+  updateTour,
+  deleteTour,
+  getTourBookings,
+  createTourBooking,
+  updateTourBookingStatus,
+} from '../controllers/toursController.js';
 import { promotionsRouter } from '../promotions/routes/index.js';
 import { listSafetyAlerts, resolveSafetyAlert } from '../../safety/controllers/safetyController.js';
 
@@ -363,6 +372,14 @@ adminRouter.patch('/admin/airway-routes/:id', updateAirwayRoute);
 adminRouter.delete('/admin/airway-routes/:id', deleteAirwayRoute);
 adminRouter.get('/admin/airway-bookings', getAirwayBookings);
 adminRouter.patch('/admin/airway-bookings/:id/status', updateAirwayBookingStatus);
+
+adminRouter.get('/admin/tours', getTours);
+adminRouter.post('/admin/tours', createTour);
+adminRouter.patch('/admin/tours/:id', updateTour);
+adminRouter.delete('/admin/tours/:id', deleteTour);
+adminRouter.get('/admin/tour-bookings', getTourBookings);
+adminRouter.post('/admin/tour-bookings', createTourBooking);
+adminRouter.patch('/admin/tour-bookings/:id/status', updateTourBookingStatus);
 
 adminRouter.post('/admin/upload-image', uploadImage);
 adminRouter.get('/admin/rental-booking-requests', getRentalBookingRequests);

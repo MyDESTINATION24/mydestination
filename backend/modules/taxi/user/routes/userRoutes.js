@@ -69,6 +69,13 @@ import {
   getMyAirwayBooking,
   searchAirwayRoutes,
 } from '../controllers/airwaysController.js';
+import {
+  getUserTours,
+  getUserTourById,
+  createUserTourBooking,
+  listMyTourBookings,
+  getMyTourBooking,
+} from '../controllers/toursController.js';
 import { getAppModules, getGoodsTypes, getPublicRentalVehicleCatalog, getPublicVehicleTypeCatalog } from '../../admin/controllers/adminController.js';
 import { triggerUserSosAlert } from '../../safety/controllers/safetyController.js';
 
@@ -143,3 +150,9 @@ userRouter.post('/airways/bookings/verify', authenticateOrResolveUser(['user']),
 userRouter.get('/airways/bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyAirwayBookings));
 userRouter.post('/airways/bookings', authenticateOrResolveUser(['user']), asyncHandler(createAirwayBooking));
 userRouter.get('/airways/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyAirwayBooking));
+
+userRouter.get('/tours', asyncHandler(getUserTours));
+userRouter.get('/tours/:id', asyncHandler(getUserTourById));
+userRouter.post('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(createUserTourBooking));
+userRouter.get('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyTourBookings));
+userRouter.get('/tours/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyTourBooking));

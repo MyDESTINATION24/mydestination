@@ -37,6 +37,7 @@ export const ADMIN_PERMISSION_GROUPS = [
       { key: 'rental.view', label: 'Rental Modules' },
       { key: 'bus_service.view', label: 'Bus Service' },
       { key: 'airways.view', label: 'Airways' },
+      { key: 'tours.view', label: 'Tours' },
       { key: 'pooling.view', label: 'Pooling' },
       { key: 'geofencing.view', label: 'Geofencing' },
     ],

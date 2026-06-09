@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Compass,
   FileText,
   Globe,
   Home,
@@ -794,6 +795,14 @@ const AdminLayout = () => {
               { label: 'Airway Manager', path: '/admin/airways', permission: 'airways.view' },
               { label: 'Airway Routes', path: '/admin/airways/routes', permission: 'airways.view' },
               { label: 'Airway Bookings', path: '/admin/airways/bookings', permission: 'airways.view' },
+            ],
+          },
+          {
+            icon: Compass,
+            label: 'Tours',
+            subItems: [
+              { label: 'Tour Manager', path: '/admin/tours', permission: 'tours.view' },
+              { label: 'Tour Bookings', path: '/admin/tours/bookings', permission: 'tours.view' },
             ],
           },
           {

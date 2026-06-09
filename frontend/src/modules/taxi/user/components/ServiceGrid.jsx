@@ -102,6 +102,14 @@ const ServiceGrid = () => {
           accentClass: getAccent(idx)
         }));
         
+        mapped.push({
+          icon: 'https://res.cloudinary.com/dpohb4czb/image/upload/v1778481215/appzeto-taxi/app-modules/content-app-modules-1778481191998.webp',
+          label: 'Tours',
+          description: 'Explore Pilgrim & Helicopter Tours',
+          path: '/taxi/user/tours',
+          accentClass: 'bg-[linear-gradient(135deg,#ECFDF5_0%,#A7F3D0_100%)]'
+        });
+        
         setServices(mapped);
       } catch (err) {
         console.error('Failed to load services:', err);
