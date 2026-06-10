@@ -248,7 +248,7 @@ const ProfileEdit = () => {
       await userService.deleteAccount();
       authService.logout();
       toast.success('Account deleted successfully');
-      navigate('/', { replace: true });
+      navigate('/login', { replace: true });
     } catch (error) {
       toast.error(error.message || 'Failed to delete account');
     } finally {
@@ -477,7 +477,7 @@ const ProfileEdit = () => {
             type="button"
             onClick={() => {
               authService.logout();
-              navigate('/', { replace: true });
+              navigate('/login', { replace: true });
               toast.success('Logged out successfully');
             }}
             className="w-full flex items-center justify-center gap-2 text-surface font-black text-xs py-4 bg-[var(--color-hotel-bg)] rounded-2xl hover:bg-gray-50 transition-colors uppercase tracking-widest border border-surface/5"
