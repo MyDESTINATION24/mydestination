@@ -4,6 +4,10 @@ import { Phone, Mail, ArrowRight, Loader2, Shield, User, Gift } from 'lucide-rea
 import { useNavigate, useLocation } from 'react-router-dom';
 import leafBg from '../../assets/leaf_background.png';
 import weddingBg from '../../assets/wedding_login_bg.png';
+import hotelWebp from '../../assets/landing/hotel.webp';
+import destLisbon from '../../assets/landing/dest_lisbon.png';
+import wedding2 from '../../assets/landing/wedding.jpg';
+import destExuma from '../../assets/landing/dest_exuma.png';
 import logo from '../../assets/rokologin-removebg-preview.png';
 import { authService } from '../../services/apiService';
 import toast from 'react-hot-toast';
@@ -13,7 +17,9 @@ const UserSignup = ({ theme = 'hotel' }) => {
     const primary   = isWedding ? '#81313A' : '#39593f';
     const light     = isWedding ? '#A3716A' : '#A3B18A';
     const faint     = isWedding ? '#DAC9C9' : '#DAD7CD';
-    const bgImage   = isWedding ? weddingBg : leafBg;
+    const HOTEL_IMAGES = [leafBg, hotelWebp, destLisbon];
+    const WEDDING_IMAGES = [weddingBg, wedding2, destExuma];
+    const images = isWedding ? WEDDING_IMAGES : HOTEL_IMAGES;
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -29,6 +35,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);
     const [canResend, setCanResend] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     useEffect(() => {
         if (location.state?.phone) {
@@ -39,6 +46,13 @@ const UserSignup = ({ theme = 'hotel' }) => {
             setFormData(prev => ({ ...prev, referralCode: storedCode }));
         }
     }, [location]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % images.length);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [images.length]);
 
     useEffect(() => {
         let interval;
@@ -148,19 +162,35 @@ const UserSignup = ({ theme = 'hotel' }) => {
 
     return (
         <div className="min-h-screen bg-[#F8F9F5] flex flex-col font-sans selection:bg-[#39593f] selection:text-white overflow-hidden relative">
-            {/* Top Nature/Wedding Plate */}
-            <div className="relative h-[45dvh] w-full overflow-hidden">
-                <img
-                    src={bgImage}
-                    alt={isWedding ? 'Wedding' : 'Nature'}
-                    className="w-full h-full object-cover"
-                />
-                {isWedding && (
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent" />
-                )}
+            {/* Top Image Plate */}
+            <div className="relative h-[45dvh] w-full overflow-hidden bg-slate-900">
+                <AnimatePresence mode="popLayout">
+                    <motion.img
+                        key={currentImageIndex}
+                        src={images[currentImageIndex]}
+                        alt={isWedding ? 'Wedding' : 'Nature'}
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: 'easeInOut' }}
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                </AnimatePresence>
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+                {/* Dots indicator */}
+                <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                    {images.map((_, idx) => (
+                        <div
+                            key={idx}
+                            className={`h-1.5 rounded-full transition-all duration-500 shadow-sm ${idx === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/60'}`}
+                        />
+                    ))}
                 </div>
+
+                {/* Dark overlay for wedding image readability */}
+                {isWedding && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-transparent z-[5]" />
+                )}
             </div>
 
             {/* Curvy Form Card */}

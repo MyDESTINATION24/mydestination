@@ -76,20 +76,22 @@ const HeroSection = () => {
 
             {/* 1. Header Row (Hides on Scroll) */}
             <div className={`flex md:hidden items-center justify-between relative h-16 px-5 -mt-4 -mx-5 bg-surface shadow-sm transition-all duration-300 ${isSticky ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-2'}`}>
-                {/* Menu Button */}
-                <button
-                    onClick={() => setIsMenuOpen(true)}
-                    className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition shadow-sm"
-                >
-                    <Menu size={18} className="text-white" />
-                </button>
+                
+                {/* Left Section: Menu & Logo */}
+                <div className="flex items-center gap-2">
+                    {/* Menu Button */}
+                    <button
+                        onClick={() => setIsMenuOpen(true)}
+                        className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition shadow-sm"
+                    >
+                        <Menu size={18} className="text-white" />
+                    </button>
 
-                {/* Logo */}
-                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-0.5">
+                    {/* Logo */}
                     <img
                         src={logo}
                         alt="My DESTINATION Logo"
-                        className="h-10 object-contain"
+                        className="h-10 object-contain ml-1"
                     />
                 </div>
 

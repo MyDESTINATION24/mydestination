@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { createDefaultAdminState } from '../data/defaultAdminState.js';
 import { Admin } from '../models/Admin.js';
-import { User } from '../../user/models/User.js';
+import User from '../../../user/models/User.js';
 import { UserWallet } from '../../user/models/UserWallet.js';
 import { WalletTransaction } from '../../driver/models/WalletTransaction.js';
 import { AdminBusinessSetting } from '../models/AdminBusinessSetting.js';

@@ -12,7 +12,7 @@ import { applyDriverWalletAdjustment, ensureDriverWalletCanAcceptRide, settleCom
 import { Delivery } from '../user/models/Delivery.js';
 import { RideBid } from '../user/models/RideBid.js';
 import { Ride } from '../user/models/Ride.js';
-import { User } from '../user/models/User.js';
+import User from '../../user/models/User.js';
 import { UserWallet } from '../user/models/UserWallet.js';
 import { consumeUserSubscriptionRide, resolveApplicableUserSubscription } from '../user/services/subscriptionService.js';
 import { applyPromoToRideInTransaction } from './promoService.js';

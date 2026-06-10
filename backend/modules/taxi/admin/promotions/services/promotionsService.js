@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { ApiError } from '../../../../../utils/ApiError.js';
 import { ServiceLocation } from '../../models/ServiceLocation.js';
 import { ensureAdminState } from '../../services/adminService.js';
-import { User } from '../../../user/models/User.js';
+import User from '../../../../user/models/User.js';
 import { Banner } from '../models/Banner.js';
 import { Notification } from '../models/Notification.js';
 import { PromoCode } from '../models/PromoCode.js';

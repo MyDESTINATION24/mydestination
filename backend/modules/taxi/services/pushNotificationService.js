@@ -1,6 +1,6 @@
 import { getFirebaseMessaging } from '../../../config/firebase.js';
 import { Driver } from '../driver/models/Driver.js';
-import { User } from '../user/models/User.js';
+import User from '../../user/models/User.js';
 import { listEntityPushTokens } from './pushTokenService.js';
 
 const INVALID_TOKEN_CODES = new Set([

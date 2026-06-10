@@ -136,7 +136,7 @@ const customerBiometricProfileSchema = new mongoose.Schema(
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "TaxiUser",
+      ref: 'User',
       default: null,
       index: true,
     },

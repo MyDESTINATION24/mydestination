@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, ArrowRight, Loader2 } from 'lucide-react';
+import { Phone, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import leafBg from '../../assets/leaf_background.png';
 import weddingBg from '../../assets/wedding_login_bg.png';
+import hotelWebp from '../../assets/landing/hotel.webp';
+import destLisbon from '../../assets/landing/dest_lisbon.png';
+import wedding2 from '../../assets/landing/wedding.jpg';
+import destExuma from '../../assets/landing/dest_exuma.png';
 import { authService } from '../../services/apiService';
 import toast from 'react-hot-toast';
 
@@ -13,7 +17,9 @@ const UserLogin = ({ theme = 'hotel' }) => {
     const primary   = isWedding ? '#81313A' : '#39593f';
     const light     = isWedding ? '#A3716A' : '#A3B18A';
     const faint     = isWedding ? '#DAC9C9' : '#DAD7CD';
-    const bgImage   = isWedding ? weddingBg : leafBg;
+    const HOTEL_IMAGES = [leafBg, hotelWebp, destLisbon];
+    const WEDDING_IMAGES = [weddingBg, wedding2, destExuma];
+    const images = isWedding ? WEDDING_IMAGES : HOTEL_IMAGES;
     const navigate = useNavigate();
     const location = useLocation();
     const [step, setStep] = useState(1);
@@ -23,12 +29,25 @@ const UserLogin = ({ theme = 'hotel' }) => {
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);
     const [canResend, setCanResend] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isWebView, setIsWebView] = useState(false);
+
+    useEffect(() => {
+        setIsWebView(/wv|WebView/i.test(navigator.userAgent) || window.flutter_inappwebview !== undefined);
+    }, []);
 
     useEffect(() => {
         if (location.state?.phone) {
             setPhone(location.state.phone);
         }
     }, [location]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % images.length);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, [images.length]);
 
     useEffect(() => {
         let interval;
@@ -190,18 +209,47 @@ const UserLogin = ({ theme = 'hotel' }) => {
     return (
         <div className="min-h-screen bg-[#F8F9F5] flex flex-col font-sans overflow-hidden relative"
             style={{ selection: undefined }}>
+            
+            {/* Back Button (Hidden in WebApp/WebView) */}
+            {!isWebView && (
+                <button
+                    onClick={() => navigate('/')}
+                    className="absolute top-6 left-6 z-[100] w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full transition-all border border-white/30 shadow-lg"
+                    title="Back to Home"
+                >
+                    <ArrowLeft size={20} />
+                </button>
+            )}
+
             {/* Top Image Plate */}
-            <div className="relative h-[45dvh] w-full overflow-hidden">
-                <img
-                    src={bgImage}
-                    alt={isWedding ? 'Wedding' : 'Nature'}
-                    className="w-full h-full object-cover"
-                />
+            <div className="relative h-[45dvh] w-full overflow-hidden bg-slate-900">
+                <AnimatePresence mode="popLayout">
+                    <motion.img
+                        key={currentImageIndex}
+                        src={images[currentImageIndex]}
+                        alt={isWedding ? 'Wedding' : 'Nature'}
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 1.5, ease: 'easeInOut' }}
+                        className="absolute inset-0 w-full h-full object-cover"
+                    />
+                </AnimatePresence>
+
+                {/* Dots indicator */}
+                <div className="absolute bottom-[20%] left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                    {images.map((_, idx) => (
+                        <div
+                            key={idx}
+                            className={`h-1.5 rounded-full transition-all duration-500 shadow-sm ${idx === currentImageIndex ? 'w-6 bg-white' : 'w-2 bg-white/60'}`}
+                        />
+                    ))}
+                </div>
+
                 {/* Dark overlay for wedding image readability */}
                 {isWedding && (
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-transparent z-[5]" />
                 )}
-
             </div>
 
             {/* Curvy Form Card */}

@@ -3,7 +3,7 @@ import { SafetyAlert } from '../../common/models/SafetyAlert.js';
 import { Driver } from '../../driver/models/Driver.js';
 import { Delivery } from '../../user/models/Delivery.js';
 import { Ride } from '../../user/models/Ride.js';
-import { User } from '../../user/models/User.js';
+import User from '../../../user/models/User.js';
 import { emitToAdmins } from '../../services/dispatchService.js';
 
 const cleanString = (value = '') => String(value || '').trim();

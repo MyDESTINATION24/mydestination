@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'partner', 'vendor'],
+    enum: ['user', 'USER', 'partner', 'vendor'],
     default: 'user'
   },
   isPartner: {
@@ -127,7 +127,45 @@ const userSchema = new mongoose.Schema({
   hasActiveSubscription: { type: Boolean, default: false },
   subscriptionPlanId: { type: mongoose.Schema.Types.ObjectId, ref: 'WeddingSubscriptionPlan' },
   leadsRemaining: { type: Number, default: 0 },
-  subscriptionExpiryDate: { type: Date }
+  subscriptionExpiryDate: { type: Date },
+
+  // --- Taxi Specific Fields ---
+  countryCode: { type: String, default: '+91', trim: true },
+  dateOfBirth: { type: Date, default: null },
+  anniversary: { type: Date, default: null },
+  gender: { type: String, enum: ['male', 'female', 'other', 'prefer-not-to-say', ''], default: '' },
+  referralCode: { type: String, default: '', trim: true },
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
+  referralCount: { type: Number, default: 0, min: 0 },
+  referredRideCompletionCount: { type: Number, default: 0, min: 0 },
+  referralRewardGrantedAt: { type: Date, default: null },
+  isActive: { type: Boolean, default: true, index: true },
+  active: { type: Boolean, default: true },
+  deletedAt: { type: Date, default: null },
+  deletion_reason: { type: String, default: '', trim: true },
+  deletionRequest: {
+    status: { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none', index: true },
+    reason: { type: String, default: '', trim: true },
+    requestedAt: { type: Date, default: null },
+    reviewedAt: { type: Date, default: null },
+    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', default: null },
+    adminNote: { type: String, default: '', trim: true }
+  },
+  currentRideId: { type: mongoose.Schema.Types.ObjectId, ref: 'TaxiRide', default: null },
+  addresses: [{
+    label: { type: String, enum: ['Home', 'Office', 'Other'], default: 'Home' },
+    street: { type: String, trim: true },
+    additionalDetails: { type: String, default: '', trim: true },
+    city: { type: String, trim: true },
+    state: { type: String, trim: true },
+    zipCode: { type: String, default: '', trim: true },
+    phone: { type: String, default: '', trim: true },
+    location: {
+      type: { type: String, enum: ['Point'], default: 'Point' },
+      coordinates: { type: [Number] }
+    },
+    isDefault: { type: Boolean, default: false }
+  }]
 }, { timestamps: true });
 
 // Compound indexes to allow same phone/email for different roles

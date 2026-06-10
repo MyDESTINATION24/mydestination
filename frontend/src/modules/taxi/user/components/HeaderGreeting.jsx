@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Search, Wallet } from 'lucide-react';
 import { DEFAULT_LOCATION_LABEL, getSavedLocationLabel, LOCATION_UPDATED_EVENT } from '../services/locationStore';
 
+
 const fallingCoins = [
   { id: 1, left: '24%', delay: 0 },
   { id: 2, left: '50%', delay: 0.65 },
@@ -38,33 +39,7 @@ const HeaderGreeting = () => {
     <div className="px-5 pt-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.94 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-            className="relative inline-flex items-center rounded-full border border-white/80 bg-white/90 px-2.5 py-1.5 shadow-[0_12px_30px_rgba(15,23,42,0.06)] backdrop-blur-md"
-          >
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-x-3 inset-y-1.5 rounded-full bg-emerald-100/70 blur-md"
-              animate={{ opacity: [0.3, 0.75, 0.3], scale: [0.92, 1.06, 0.92] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            {appLogo ? (
-              <motion.img
-                key={appLogo}
-                src={appLogo}
-                alt={appName}
-                className="relative z-10 h-10 object-contain drop-shadow-sm"
-                animate={{ y: [0, -2, 0], scale: [1, 1.02, 1] }}
-                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-              />
-            ) : (
-              <div className="relative z-10 flex h-10 min-w-[40px] items-center justify-center rounded-full bg-slate-900 px-3 text-[10px] font-black uppercase tracking-[0.18em] text-white">
-                {appName.slice(0, 2)}
-              </div>
-            )}
-          </motion.div>
+
 
           <motion.button
             type="button"

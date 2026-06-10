@@ -1,60 +1,57 @@
 import React from 'react';
-import { Home, Briefcase, Navigation, User } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Home, Briefcase, Navigation, User, Building2, Car, Heart, LayoutGrid } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { propertyService } from '../../services/propertyService';
-import { toast } from 'react-hot-toast';
 
 const BottomNavbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const navItems = [
+    const isSuperApp = location.pathname === '/' || location.pathname === '/home';
+
+    const superAppNavItems = [
         { name: 'Home', icon: Home, route: '/home' },
-        { name: 'Bookings', icon: Briefcase, route: '/bookings' },
-        { name: 'Near By', icon: Navigation, route: null, handler: 'nearBy' },
+        { name: 'Hotels', icon: Building2, route: '/hotels' },
+        { name: 'Taxi', icon: Car, route: '/taxi' },
+        { name: 'Wedding', icon: Heart, route: '/wedding' },
         { name: 'Profile', icon: User, route: '/profile/edit' },
     ];
 
+    const hotelNavItems = [
+        { name: 'Services', icon: LayoutGrid, route: '/home' },
+        { name: 'Home', icon: Home, route: '/hotels' },
+        { name: 'Bookings', icon: Briefcase, route: '/bookings' },
+        { name: 'Near By', icon: Navigation, route: '/search' },
+        { name: 'Profile', icon: User, route: '/profile/edit' },
+    ];
+
+    const navItems = isSuperApp ? superAppNavItems : hotelNavItems;
+
     const getActiveTab = (path) => {
-        if (path === '/' || path === '/home') return 'Home';
-        if (path.includes('bookings')) return 'Bookings';
-        if (path.includes('search') && new URLSearchParams(location.search).get('lat')) return 'Near By';
-        if (path.includes('profile')) return 'Profile';
-        return 'Home';
+        if (isSuperApp) {
+            if (path === '/' || path === '/home') return 'Home';
+            if (path.startsWith('/hotels') || path.includes('property')) return 'Hotels';
+            if (path.startsWith('/taxi')) return 'Taxi';
+            if (path.startsWith('/wedding')) return 'Wedding';
+            if (path.includes('profile') || path.includes('bookings') || path.includes('wallet') || path.includes('settings')) return 'Profile';
+            return 'Home';
+        } else {
+            if (path === '/' || path === '/home' || path.startsWith('/hotels')) return 'Home';
+            if (path.startsWith('/bookings')) return 'Bookings';
+            if (path.includes('search') || path.includes('property')) return 'Near By';
+            if (path.includes('profile') || path.includes('wallet') || path.includes('settings')) return 'Profile';
+            return 'Home';
+        }
     };
 
     const activeTab = getActiveTab(location.pathname);
 
-    const handleNearBy = async () => {
-        try {
-            toast.loading('Getting your location...');
-            const loc = await propertyService.getCurrentLocation();
-            toast.dismiss();
-            navigate(`/search?lat=${loc.lat}&lng=${loc.lng}&radius=50&sort=distance`);
-        } catch (error) {
-            toast.dismiss();
-            toast.error('Could not get location. Please enable permissions.');
-        }
-    };
-
     const handleNavClick = (item) => {
-        if (item.handler === 'nearBy') {
-            handleNearBy();
-        } else {
-            navigate(item.route);
-        }
+        navigate(item.route);
     };
 
     return (
-        <div className="md:hidden fixed bottom-4 left-4 right-4 z-50 print:hidden">
-            <div className="
-        bg-white/95 backdrop-blur-2xl 
-        border border-white/40 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)]
-        rounded-[24px]
-        flex justify-between items-center 
-        px-3 py-3
-      ">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-safe print:hidden">
+            <div className="flex items-center justify-around py-2.5 px-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.name;
@@ -63,27 +60,15 @@ const BottomNavbar = () => {
                         <button
                             key={item.name}
                             onClick={() => handleNavClick(item)}
-                            className="relative flex flex-col items-center justify-center w-full gap-1 p-1"
+                            className={`flex flex-col items-center gap-1 min-w-[70px] transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"}`}
                         >
-                            {isActive && (
-                                <motion.div
-                                    layoutId="active-pill"
-                                    className="absolute inset-x-2 inset-y-0 bg-accent/15 rounded-xl -z-10"
-                                    initial={false}
-                                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                />
-                            )}
-
-                            <Icon
-                                size={22}
-                                className={`transition-all duration-300 ${isActive
-                                        ? 'text-surface fill-surface/20 filter drop-shadow-[0_2px_4px_rgba(57,89,63,0.4)] scale-110 translate-y-[-2px]'
-                                        : 'text-surface/40 grayscale-[0.5]'
-                                    }`}
-                                strokeWidth={isActive ? 2.5 : 2}
-                            />
-
-                            <span className={`text-[9px] font-black tracking-wide transition-all duration-300 ${isActive ? 'text-surface scale-105' : 'text-surface/50'}`}>
+                            <div className={`w-12 h-11 rounded-[1.25rem] flex items-center justify-center transition-all duration-500 ${isActive
+                                    ? "bg-[#39593F]/10 text-[#39593F]" 
+                                    : "text-slate-400"
+                                }`}>
+                                <Icon className={`w-5.5 h-5.5 ${isActive ? "stroke-[2.5px]" : "stroke-[1.8px]"}`} />
+                            </div>
+                            <span className={`text-[9px] font-black uppercase tracking-[0.12em] ${isActive ? "text-[#39593F]" : "text-slate-400"}`}>
                                 {item.name}
                             </span>
                         </button>

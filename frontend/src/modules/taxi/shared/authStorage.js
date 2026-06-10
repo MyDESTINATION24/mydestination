@@ -1,6 +1,6 @@
-const TAXI_USER_TOKEN_KEY = 'taxiUserToken';
+const TAXI_USER_TOKEN_KEY = 'token';
 const TAXI_ADMIN_TOKEN_KEY = 'taxiAdminToken';
-const TAXI_USER_INFO_KEY = 'taxiUserInfo';
+const TAXI_USER_INFO_KEY = 'user';
 const TAXI_ADMIN_INFO_KEY = 'taxiAdminInfo';
 
 const decodeBase64Url = (value) => {
@@ -29,7 +29,7 @@ export const getTokenPayload = (token) => {
 
 const isScopedToken = (token, allowedRoles = []) => {
   const payload = getTokenPayload(token);
-  if (!payload?.sub) {
+  if (!payload?.sub && !payload?.id && !payload?._id) {
     return false;
   }
 

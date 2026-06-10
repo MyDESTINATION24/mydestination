@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { env } from '../../../../config/env.js';
 import { UserAuthSession } from '../models/UserAuthSession.js';
-import { User } from '../models/User.js';
+import User from '../../../user/models/User.js';
 import { signAccessToken } from './authService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 

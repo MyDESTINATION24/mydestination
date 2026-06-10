@@ -26,6 +26,7 @@ import { initAppMode, isWebView } from './utils/deviceDetect';
 initAppMode();
 
 // Lazy Imports - User Pages
+const SuperAppDashboard = React.lazy(() => import('./app/shared/pages/SuperAppDashboard'));
 const Home = React.lazy(() => import('./pages/user/Home'));
 const UserPropertyDetailsPage = React.lazy(() => import('./pages/user/PropertyDetailsPage'));
 const UserLogin = React.lazy(() => import('./pages/auth/UserLogin'));
@@ -270,22 +271,32 @@ const Layout = ({ children }) => {
 
   // 1. GLOBAL HIDE: Auth pages, Admin, and Property Wizard
   const globalHideRoutes = ['/login', '/signup', '/register', '/admin', '/cms-admin', '/hotel/join', '/welcome'];
+  
+  // Only hide for Vendor/Admin routes inside Wedding and Taxi
+  const isWeddingHiddenRoute = location.pathname.startsWith('/wedding/admin') || location.pathname.startsWith('/wedding/vendor');
+  const isTaxiHiddenRoute = location.pathname.startsWith('/taxi/admin') || location.pathname.startsWith('/taxi/owner') || location.pathname.startsWith('/taxi/driver') || location.pathname.startsWith('/taxi/user-import') || location.pathname.startsWith('/taxi/driver-import');
+  
   const isWeddingRoute = location.pathname.startsWith('/wedding');
   const isTaxiRoute = location.pathname.startsWith('/taxi');
-  const shouldGlobalHide = location.pathname === '/' || globalHideRoutes.some(route => location.pathname.includes(route)) || isWeddingRoute || isTaxiRoute;
+  
+  const shouldGlobalHide = location.pathname === '/' || globalHideRoutes.some(route => location.pathname.includes(route)) || isWeddingHiddenRoute || isTaxiHiddenRoute;
 
   if (shouldGlobalHide) {
-    return <>{children}</>;
+    return (
+      <>
+        {children}
+      </>
+    );
   }
 
   const isUserHotelDetail = /^\/hotel\/[0-9a-fA-F]{24}(\/(amenities|reviews|offers))?$/.test(location.pathname);
-  const isPartnerApp = location.pathname.startsWith('/hotel') && !isUserHotelDetail;
+  const isPartnerApp = (location.pathname === '/hotel' || location.pathname.startsWith('/hotel/')) && !isUserHotelDetail;
 
   // 3. NAVBAR VISIBILITY
   const showUserNavs = !isPartnerApp;
 
   // Specific user pages where BottomNav is hidden
-  const hideUserBottomNavOn = ['/booking-confirmation', '/payment', '/support', '/refer', '/hotel/', '/legal', '/terms', '/privacy'];
+  const hideUserBottomNavOn = ['/booking-confirmation', '/payment', '/support', '/refer', '/hotel/', '/legal', '/terms', '/privacy', '/taxi'];
   const showUserBottomNav = showUserNavs && !hideUserBottomNavOn.some(r => location.pathname.includes(r)) && !hideNavsDueToSlider;
 
   // Partner Bottom Nav should show in Partner App (authenticated pages)
@@ -691,9 +702,9 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/taxi/*" element={<TaxiApp />} />
             <Route path="/login" element={<UserPublicRoute redirectTo="/home"><UserLogin /></UserPublicRoute>} />
-            <Route path="/wedding/login" element={<UserPublicRoute redirectTo="/wedding"><UserLogin theme="wedding" /></UserPublicRoute>} />
+            <Route path="/wedding/login" element={<Navigate to="/login" replace />} />
             <Route path="/signup" element={<UserPublicRoute redirectTo="/home"><UserSignup /></UserPublicRoute>} />
-            <Route path="/wedding/signup" element={<UserPublicRoute redirectTo="/wedding"><UserSignup theme="wedding" /></UserPublicRoute>} />
+            <Route path="/wedding/signup" element={<Navigate to="/signup" replace />} />
             <Route path="/r/:referralCode" element={<ReferralHandler />} />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/terms" element={<TermsPage />} />
@@ -791,7 +802,8 @@ function App() {
                 PROTECTED USER ROUTES (ENTRY FLOW)
             ────────────────────────────────────── */}
             <Route element={<UserProtectedRoute />}>
-              <Route path="/home" element={<Home />} />
+              <Route path="/home" element={<SuperAppDashboard />} />
+              <Route path="/hotels" element={<Home />} />
             </Route>
 
             {/* ──────────────────────────────────────

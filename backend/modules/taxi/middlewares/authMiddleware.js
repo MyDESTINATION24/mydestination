@@ -7,7 +7,7 @@ import { RentalBookingRequest } from '../admin/models/RentalBookingRequest.js';
 import { ApiError } from '../../../utils/ApiError.js';
 import { Driver } from '../driver/models/Driver.js';
 import { BusDriver } from '../driver/models/BusDriver.js';
-import { User } from '../user/models/User.js';
+import User from '../../user/models/User.js';
 import { verifyAccessToken } from '../services/tokenService.js';
 import {
   normalizeAdminPermissions,

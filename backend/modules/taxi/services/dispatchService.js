@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { Ride } from '../user/models/Ride.js';
-import { User } from '../user/models/User.js';
+import User from '../../user/models/User.js';
 import { UserWallet } from '../user/models/UserWallet.js';
 import { Driver } from '../driver/models/Driver.js';
 import { WalletTransaction } from '../driver/models/WalletTransaction.js';

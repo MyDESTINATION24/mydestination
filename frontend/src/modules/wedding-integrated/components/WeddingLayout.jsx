@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock } from "lucide-react";
+import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
@@ -8,7 +8,9 @@ import { weddingService } from "../../../services/weddingService";
 import { weddingEnquiryService } from "../../../services/apiService";
 import { installWeddingFcmRegistration, onWeddingMessage, registerWeddingFcmToken } from "../services/weddingFcmService";
 
+
 const navLinks = [
+  { to: "/home", label: "Services", icon: LayoutGrid },
   { to: "/wedding", label: "Home", icon: Home },
   { to: "/wedding/destinations", label: "Destinations", icon: MapPin },
   { to: "/wedding/vendors", label: "Vendors", icon: Users },
@@ -128,6 +130,13 @@ const WeddingLayout = () => {
     };
   }, [mobileSidebarOpen]);
 
+  // Listen for custom event from TopNavbar to open sidebar on desktop
+  useEffect(() => {
+    const handleOpenSidebar = () => setMobileSidebarOpen(true);
+    window.addEventListener('openWeddingSidebar', handleOpenSidebar);
+    return () => window.removeEventListener('openWeddingSidebar', handleOpenSidebar);
+  }, []);
+
   useEffect(() => {
     const fetchFooterData = async () => {
       try {
@@ -204,6 +213,11 @@ const WeddingLayout = () => {
                 <Link to="/wedding" className="flex items-center gap-2">
                   <img src={logoImg} alt="Weddings Logo" className="h-8 md:h-11 w-auto object-contain transition-transform duration-300" />
                 </Link>
+                <div className="hidden md:block">
+                  <Link to="/home" className="text-gray-600 font-bold text-sm hover:text-[#81313A] transition">
+                    Services
+                  </Link>
+                </div>
               </div>
 
               {/* Brand Text (Watermark Style) */}
@@ -406,9 +420,6 @@ const WeddingLayout = () => {
                   </div>
                   <div>
                     <h2 className="text-lg font-black text-slate-800" style={{ fontFamily: "'Playfair Display', serif" }}>{user.name}</h2>
-                    <Link to="/wedding/settings" onClick={() => setMobileSidebarOpen(false)} className="text-[10px] font-bold text-slate-500 hover:text-[#81313A] uppercase tracking-widest flex items-center gap-1 mt-1">
-                      View profile <ChevronRight className="w-3 h-3" />
-                    </Link>
                   </div>
                 </>
               ) : (
@@ -496,18 +507,8 @@ const WeddingLayout = () => {
               </Link>
             ))}
           </div>
-          <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
-            {user ? (
-              <button 
-                className="w-full flex items-center gap-3 p-3 rounded-2xl text-red-500 hover:bg-red-50 transition-all font-bold border border-transparent hover:border-red-100"
-                onClick={handleLogout}
-              >
-                <div className="p-2 rounded-xl bg-red-50 text-red-500 shadow-sm">
-                  <LogOut className="w-4 h-4" />
-                </div>
-                <span className="text-sm">Log out</span>
-              </button>
-            ) : (
+          {!user && (
+            <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
               <Link 
                 to="/wedding/login"
                 onClick={() => setMobileSidebarOpen(false)}
@@ -518,8 +519,21 @@ const WeddingLayout = () => {
                 </div>
                 <span className="text-sm">Log In / Sign Up</span>
               </Link>
-            )}
-          </div>
+            </div>
+          )}
+          {user && (
+            <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
+              <button 
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-3 p-3 rounded-2xl text-slate-600 bg-white border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all font-bold shadow-sm group"
+              >
+                <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-rose-100 group-hover:text-rose-600 transition-colors">
+                  <LogOut className="w-4 h-4" />
+                </div>
+                <span className="text-sm">Log Out</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>, document.body)}
 
@@ -564,7 +578,7 @@ const WeddingLayout = () => {
 
       {/* Footer */}
       {(location.pathname === "/wedding" || location.pathname === "/wedding/") && (
-        <footer className="bg-[hsl(353,20%,15%)] text-white pt-6 pb-28 md:pt-10 md:pb-16">
+        <footer className="hidden md:block bg-[hsl(353,20%,15%)] text-white pt-6 pb-28 md:pt-10 md:pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-y-6 md:gap-8">
               <div>

@@ -1,5 +1,5 @@
 import { ApiError } from '../../../../utils/ApiError.js';
-import { User } from '../../user/models/User.js';
+import User from '../../../user/models/User.js';
 import { verifyAccessToken } from '../../services/tokenService.js';
 
 export const getIdentityFromSocket = (socket) => {

@@ -5,7 +5,7 @@ import { isWebView } from '../../utils/deviceDetect';
 
 const Footer = () => {
     return (
-        <footer className="bg-black text-white pt-4 md:pt-16 pb-24 md:pb-8 px-8 md:px-16 lg:px-24">
+        <footer className="hidden md:block bg-black text-white pt-4 md:pt-16 pb-24 md:pb-8 px-8 md:px-16 lg:px-24">
             <div className="hidden md:grid max-w-7xl mx-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8">
 
 

@@ -432,17 +432,16 @@ const UserProtectedRoute = () => {
   const location = useLocation();
 
   if (!getLocalUserToken()) {
-    const loginPath = location.pathname.startsWith('/taxi/user') ? '/taxi/user/login' : '/taxi/login';
-    return <Navigate to={loginPath} replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;
 };
 
-const UserHomeRoute = ({ taxiPrefixed = false }) => (
+const UserHomeRoute = () => (
   getLocalUserToken()
     ? <UserHome />
-    : <Navigate to={taxiPrefixed ? '/taxi/user/login' : '/taxi/login'} replace />
+    : <Navigate to="/login" replace />
 );
 
 const AdminLegacyRedirect = () => {
@@ -688,22 +687,9 @@ const DriverEntryRedirect = () => {
 function App() {
   const location = useLocation();
 
-  useEffect(() => {
-    const scopedUserToken = getTaxiUserToken();
-    const genericToken = localStorage.getItem('token') || '';
-
-    if (scopedUserToken && genericToken && scopedUserToken === genericToken) {
-      localStorage.removeItem('token');
-    }
-  }, []);
 
   const pathname = String(location.pathname || '');
-  const isUserAuthRoute =
-    pathname === '/taxi/login' ||
-    pathname === '/taxi/signup' ||
-    pathname === '/taxi/user/login' ||
-    pathname === '/taxi/user/signup' ||
-    pathname === '/taxi/user/verify-otp';
+  const isUserAuthRoute = false; // We don't render user auth routes in TaxiApp anymore
 
   return (
     
@@ -723,7 +709,7 @@ function App() {
             <Toaster position="top-right" />
             <Routes>
               {/* Static / Public routes */}
-              <Route index element={<LandingPage />} />
+              <Route index element={<Navigate to="/taxi/home" replace />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="faq" element={<FaqPage />} />
@@ -736,10 +722,13 @@ function App() {
               <Route path="privacy-policy" element={<LegalPage />} />
               <Route path="refund" element={<LegalPage />} />
               <Route path="cancellation" element={<LegalPage />} />
-              <Route path="login" element={<Login />} />
-              <Route path="onboarding" element={<Onboarding />} />
-              <Route path="verify-otp" element={<VerifyOTP />} />
-              <Route path="signup" element={<Signup />} />
+              {/* Centralized Login Redirects */}
+              <Route path="login" element={<Navigate to="/login" replace />} />
+              <Route path="signup" element={<Navigate to="/signup" replace />} />
+              <Route path="verify-otp" element={<Navigate to="/login" replace />} />
+              <Route path="user/login" element={<Navigate to="/login" replace />} />
+              <Route path="user/signup" element={<Navigate to="/signup" replace />} />
+              
               <Route path="home" element={<UserHomeRoute />} />
 
               <Route element={<UserProtectedRoute />}>

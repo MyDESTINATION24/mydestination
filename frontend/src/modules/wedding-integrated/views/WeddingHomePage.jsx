@@ -397,7 +397,7 @@ const WeddingHomePage = () => {
       </section>
 
       {/* CTA Strip */}
-      <section className="py-12 px-4 wedding-gradient">
+      <section className="pt-12 pb-28 md:py-12 px-4 wedding-gradient">
         <div className="max-w-3xl mx-auto text-center">
           <h2
             className="text-3xl md:text-4xl font-bold text-background mb-4"
