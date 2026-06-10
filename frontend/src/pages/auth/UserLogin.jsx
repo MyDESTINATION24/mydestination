@@ -214,7 +214,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
             {!isWebView && (
                 <button
                     onClick={() => navigate('/')}
-                    className="absolute top-6 left-6 z-[100] w-10 h-10 flex items-center justify-center bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full transition-all border border-white/30 shadow-lg"
+                    className="absolute top-6 left-6 z-[100] w-10 h-10 hidden md:flex items-center justify-center bg-white/20 backdrop-blur-md hover:bg-white/40 text-white rounded-full transition-all border border-white/30 shadow-lg"
                     title="Back to Home"
                 >
                     <ArrowLeft size={20} />
