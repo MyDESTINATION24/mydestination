@@ -237,6 +237,12 @@ const adminService = {
   updateWithdrawalStatus: async (id, payload) => {
     const response = await axiosInstance.put(`/admin/withdrawals/${id}/status`, payload);
     return response.data;
+  },
+
+  // User Wallet Recharges
+  getUserWalletRecharges: async (params) => {
+    const response = await axiosInstance.get('/admin/user-wallet-recharges', { params });
+    return response.data;
   }
 };
 

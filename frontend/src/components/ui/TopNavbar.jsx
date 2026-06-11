@@ -19,6 +19,9 @@ const TopNavbar = () => {
     const isWeddingModule = location.pathname.startsWith('/wedding');
     const isTaxiModule = location.pathname.startsWith('/taxi');
     const isHotelModule = !isSuperApp && !isGlobalModule && !isWeddingModule && !isTaxiModule;
+    
+    // Fallback to show default links (Hotel links) on global pages like Wallet so header doesn't look broken
+    const showDefaultLinks = isHotelModule || isGlobalModule;
 
     if (isSuperApp) {
         return null;
@@ -69,8 +72,8 @@ const TopNavbar = () => {
                     Home
                 </Link>
                 
-                {/* Hotel Specific Links */}
-                {isHotelModule && (
+                {/* Default / Hotel Specific Links */}
+                {showDefaultLinks && (
                     <>
                         <Link to="/listings" className="text-gray-600 font-bold text-sm hover:text-surface transition">
                             Search

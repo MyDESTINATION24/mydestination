@@ -43,7 +43,15 @@ const SenderReceiverDetails = lazy(() => import('./user/pages/parcel/SenderRecei
 // Profile & History
 const Activity = lazy(() => import('./user/pages/Activity'));
 const Profile = lazy(() => import('./user/pages/Profile'));
-const Wallet = lazy(() => import('./user/pages/Wallet'));
+const Wallet = lazy(() => import('../../pages/user/WalletPage'));
+
+import TaxiUserBottomNav from './user/components/BottomNavbar';
+const TaxiWalletWrapper = () => (
+  <>
+    <Wallet />
+    <TaxiUserBottomNav />
+  </>
+);
 
 // Coming Soon placeholder (for /tours and any unbuilt routes)
 const ComingSoon = lazy(() => import('./shared/pages/ComingSoon'));
@@ -799,7 +807,7 @@ function App() {
 
               <Route path="activity" element={<Activity />} />
               <Route path="profile" element={<Profile />} />
-              <Route path="wallet" element={<Wallet />} />
+              <Route path="wallet" element={<TaxiWalletWrapper />} />
               <Route path="notifications" element={<UserNotifications />} />
               <Route path="promo" element={<PromoCodes />} />
               <Route path="referral" element={<UserReferral />} />

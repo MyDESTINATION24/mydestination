@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -22,7 +22,7 @@ const AdminHeader = ({ title = "Dashboard" }) => {
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
     toast.success("Successfully logged out");
-    navigate("/wedding/admin/login");
+    navigate("/admin/login");
   };
 
   // Close dropdown when clicking outside

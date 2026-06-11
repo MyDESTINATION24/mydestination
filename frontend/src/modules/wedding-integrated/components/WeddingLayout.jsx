@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid } from "lucide-react";
+import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid, Wallet, Edit3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-hot-toast";
@@ -220,39 +220,6 @@ const WeddingLayout = () => {
                 </div>
               </div>
 
-              {/* Brand Text (Watermark Style) */}
-              <div className="flex items-center opacity-30 hover:opacity-50 transition-opacity duration-500 cursor-default grayscale mix-blend-multiply">
-                <div className="flex flex-col items-center select-none">
-                  <span style={{
-                    fontFamily: "'Playfair Display', serif",
-                    color: "#81313A",
-                    fontSize: "15px",
-                    fontWeight: "900",
-                    letterSpacing: "0.18em",
-                    lineHeight: "1.15",
-                    textTransform: "uppercase",
-                  }}>
-                    My Destination
-                  </span>
-                  <span style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    color: "#81313A",
-                    fontSize: "10px",
-                    fontFamily: "'Noto Serif Devanagari', 'Devanagari', serif",
-                    fontWeight: "500",
-                    letterSpacing: "0.04em",
-                    opacity: "0.78",
-                    lineHeight: "1.4",
-                    marginTop: "1px",
-                  }}>
-                    <span style={{ fontSize: "8px", opacity: 0.6 }}>—</span>
-                    अतिथि देवो भवः
-                    <span style={{ fontSize: "8px", opacity: 0.6 }}>—</span>
-                  </span>
-                </div>
-              </div>
 
               {/* Desktop nav */}
               <div className="hidden md:flex items-center gap-8 h-full">
@@ -330,6 +297,13 @@ const WeddingLayout = () => {
               {/* Action Icons */}
               <div className="flex items-center gap-2 md:gap-4 relative">
                 <button
+                  onClick={() => navigate('/wedding/wallet')}
+                  className="relative p-2 rounded-full bg-[#81313A]/5 text-[#81313A] hover:bg-[#81313A]/10 transition-colors"
+                  title="My Wallet"
+                >
+                  <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
+                </button>
+                <button
                   onClick={() => {
                     setNotifOpen(!notifOpen);
                     if (!notifOpen) fetchNotifications();
@@ -406,29 +380,56 @@ const WeddingLayout = () => {
           style={{ touchAction: 'none' }}
         />
         {/* Sidebar */}
-        <div id="mobile-sidebar-container" className={`absolute top-0 left-0 h-[100dvh] w-[280px] sm:w-[320px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out overscroll-contain ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <div className="p-5 pt-8 border-b border-slate-100 flex items-start justify-between shrink-0">
-            <div className="flex flex-col gap-3">
-              {user ? (
-                <>
-                  <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm flex items-center justify-center bg-slate-50">
-                    {user.profileImage || user.avatar ? (
-                      <img src={user.profileImage || user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="w-6 h-6 text-[#81313A]" />
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-slate-800" style={{ fontFamily: "'Playfair Display', serif" }}>{user.name}</h2>
-                  </div>
-                </>
-              ) : (
-                <img src={logoImg} alt="Logo" className="h-8 object-contain" />
-              )}
-            </div>
+        <div id="mobile-sidebar-container" className={`absolute top-0 left-0 h-[100dvh] w-[85%] max-w-[300px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out overscroll-contain ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          <div className="flex items-center justify-between p-5 pb-2">
+            <img src={logoImg} alt="Logo" className="h-16 object-contain" />
             <button onClick={() => setMobileSidebarOpen(false)} className="p-2 text-slate-400 bg-slate-50 rounded-full hover:text-[#81313A] hover:bg-[#81313A]/10">
               <X className="w-5 h-5" />
             </button>
+          </div>
+
+          <div className="px-5 mb-4 mt-2 shrink-0">
+            {user ? (
+                <div className="bg-gradient-to-br from-[#81313A] to-[#5A1D25] rounded-2xl p-4 text-white shadow-lg shadow-[#81313A]/20 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+
+                    <div className="flex items-start justify-between relative z-10">
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30 backdrop-blur-sm overflow-hidden">
+                                {user.profileImage || user.avatar ? (
+                                    <img src={user.profileImage || user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={22} className="text-white" />
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-base leading-tight">{user.name}</h3>
+                                <p className="text-[11px] text-white/80 mt-0.5">{user.phone || 'User Profile'}</p>
+                            </div>
+                        </div>
+                        <button onClick={() => { navigate('/wedding/settings'); setMobileSidebarOpen(false); }} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm">
+                            <Edit3 size={14} className="text-white" />
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="bg-[#81313A] rounded-2xl p-4 text-white shadow-lg shadow-[#81313A]/20 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                    <div className="flex items-center gap-3 relative z-10">
+                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
+                            <User size={20} className="text-white" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-base leading-tight">Guest User</h3>
+                            <p className="text-[10px] text-white/70">Sign in for better experience</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-2 mt-4">
+                        <button onClick={() => { navigate('/wedding/login'); setMobileSidebarOpen(false); }} className="flex-1 py-2 bg-white text-[#81313A] text-xs font-bold rounded-lg shadow-sm hover:bg-rose-50 transition-colors">Login</button>
+                        <button onClick={() => { navigate('/wedding/login'); setMobileSidebarOpen(false); }} className="flex-1 py-2 bg-white/10 text-white border border-white/20 text-xs font-bold rounded-lg hover:bg-white/20 transition-colors">Signup</button>
+                    </div>
+                </div>
+            )}
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto py-4 px-4 space-y-2 wedding-sidebar-scrollbar overscroll-contain" style={{ WebkitOverflowScrolling: "touch" }}>
             {navLinks.map(link => (
@@ -487,6 +488,7 @@ const WeddingLayout = () => {
             {[
               { icon: Calendar, label: "My Bookings", to: "/wedding/bookings" },
               { icon: Heart, label: "Saved Destinations", to: "/wedding/saved" },
+              { icon: Wallet, label: "My Wallet", to: "/wedding/wallet" },
               { icon: Users, label: "Wedding Planner", to: "/wedding/planners" },
               { icon: MessageSquare, label: "My Enquiries", to: "/wedding/my-enquiries" },
               { icon: Clock, label: "My Support Tickets", to: "/wedding/support#my-tickets" },

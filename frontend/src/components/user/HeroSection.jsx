@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, Wallet } from 'lucide-react';
+import { Search, Menu, Wallet, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../../assets/rokologin-removebg-preview.png';
 import MobileMenu from '../../components/ui/MobileMenu';
@@ -82,9 +82,9 @@ const HeroSection = () => {
                     {/* Menu Button */}
                     <button
                         onClick={() => setIsMenuOpen(true)}
-                        className="p-1.5 rounded-full bg-white/20 hover:bg-white/30 transition shadow-sm"
+                        className="p-1 -ml-1 text-white hover:opacity-80 transition-opacity"
                     >
-                        <Menu size={18} className="text-white" />
+                        <Menu size={24} />
                     </button>
 
                     {/* Logo */}
@@ -95,26 +95,24 @@ const HeroSection = () => {
                     />
                 </div>
 
-                {/* Wallet Balance Display */}
-                <button
-                    onClick={() => navigate('/wallet')}
-                    className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/20 shadow-sm active:scale-95 transition-transform"
-                >
-                    <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                        <Wallet size={10} className="text-surface" />
-                    </div>
-                    <div className="flex flex-col items-start leading-none mr-0.5">
-                        <span className="text-[8px] font-bold text-white/80 uppercase tracking-wide">Wallet</span>
-                        <span className="text-[10px] font-bold text-white">
-                            {new Intl.NumberFormat('en-IN', {
-                                style: 'currency',
-                                currency: 'INR',
-                                minimumFractionDigits: 0,
-                                maximumFractionDigits: 0
-                            }).format(walletBalance)}
-                        </span>
-                    </div>
-                </button>
+                {/* Right Section: Wallet & Notifications */}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => navigate('/wallet')}
+                        className="relative p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition shadow-sm"
+                        title="My Wallet"
+                    >
+                        <Wallet size={18} />
+                    </button>
+                    <button
+                        onClick={() => navigate('/notifications')}
+                        className="relative p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition shadow-sm"
+                        title="Notifications"
+                    >
+                        <Bell size={18} />
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-[var(--color-surface)] rounded-full"></span>
+                    </button>
+                </div>
             </div>
 
             {/* 2. Search Bar - Sticky Logic */}

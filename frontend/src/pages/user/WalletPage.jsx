@@ -7,10 +7,25 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/apiService';
 import toast, { Toaster } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const WalletPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    
+    const isWedding = location.pathname.startsWith('/wedding');
+    const isTaxi = location.pathname.startsWith('/taxi');
+
+    const theme = {
+        bg: isWedding ? 'bg-[#81313A]' : isTaxi ? 'bg-slate-900' : 'bg-[#39593F]',
+        text: isWedding ? 'text-[#81313A]' : isTaxi ? 'text-slate-900' : 'text-[#39593F]',
+        textLight: isWedding ? 'text-rose-100/60' : isTaxi ? 'text-slate-300/60' : 'text-emerald-100/60',
+        ringFocus: isWedding ? 'focus-within:border-[#81313A] focus-within:ring-[#81313A]' : isTaxi ? 'focus-within:border-slate-900 focus-within:ring-slate-900' : 'focus-within:border-[#39593F] focus-within:ring-[#39593F]',
+        hoverBgBtn: isWedding ? 'hover:bg-[#81313A] hover:border-[#81313A]' : isTaxi ? 'hover:bg-slate-900 hover:border-slate-900' : 'hover:bg-[#39593F] hover:border-[#39593F]',
+        lightBg: isWedding ? 'bg-[#81313A]/5' : isTaxi ? 'bg-slate-900/5' : 'bg-[#39593F]/5',
+        shadowColor: isWedding ? 'shadow-[#81313A]/20' : isTaxi ? 'shadow-slate-900/20' : 'shadow-[#39593F]/20'
+    };
+
     const [balance, setBalance] = useState(0);
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,9 +37,41 @@ const WalletPage = () => {
     const quickAmounts = [500, 1000, 2000];
 
     useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const txnId = searchParams.get('phonepe_wallet_txn');
+        const amount = searchParams.get('amount');
+        const viewAs = searchParams.get('viewAs');
+
+        if (txnId && amount) {
+            verifyPhonePePayment(txnId, amount, viewAs);
+        }
+
         fetchWalletData();
         fetchTransactions();
     }, []);
+
+    const verifyPhonePePayment = async (txnId, amount, viewAs) => {
+        try {
+            setLoading(true);
+            const verifyRes = await api.post('/wallet/verify-add-money', {
+                phonepe_txn_id: txnId,
+                amount: amount,
+                viewAs: viewAs || 'user'
+            });
+
+            if (verifyRes.data.success) {
+                toast.success('Money added successfully!');
+                window.history.replaceState({}, document.title, window.location.pathname);
+                fetchWalletData();
+                fetchTransactions();
+            }
+        } catch (error) {
+            toast.error('Payment verification failed');
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchWalletData = async () => {
         try {
@@ -75,16 +122,6 @@ const WalletPage = () => {
         }
     };
 
-    const loadRazorpay = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-        });
-    };
-
     const handleAddMoney = async () => {
         const amount = Number(addAmount);
         if (!amount || amount < 10) {
@@ -94,57 +131,16 @@ const WalletPage = () => {
 
         try {
             setProcessing(true);
-            const res = await loadRazorpay();
-            if (!res) {
-                toast.error('Razorpay SDK failed to load');
-                setProcessing(false);
-                return;
-            }
-
-            // Create Order
             const { data } = await api.post('/wallet/add-money', { amount });
-            if (!data.success) throw new Error('Order creation failed');
-
-            const options = {
-                key: data.order.key,
-                amount: data.order.amount,
-                currency: data.order.currency,
-                name: 'My DESTINATION',
-                description: 'Wallet Top-up',
-                order_id: data.order.id,
-                handler: async function (response) {
-                    try {
-                        const verifyRes = await api.post('/wallet/verify-add-money', {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            amount: amount
-                        });
-
-                        if (verifyRes.data.success) {
-                            toast.success('Money added successfully!');
-                            setBalance(verifyRes.data.newBalance);
-                            fetchTransactions();
-                            fetchWalletData();
-                            setShowAddMoneySheet(false);
-                            setAddAmount('');
-                        }
-                    } catch (err) {
-                        toast.error('Payment verification failed');
-                    }
-                },
-                theme: {
-                    color: 'var(--color-surface)'
-                }
-            };
-
-            const paymentObject = new window.Razorpay(options);
-            paymentObject.open();
-
+            
+            if (data.success && data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error('Order creation failed');
+            }
         } catch (error) {
             console.error('Add Money Error:', error);
             toast.error(error.response?.data?.message || 'Failed to initiate payment');
-        } finally {
             setProcessing(false);
         }
     };
@@ -167,13 +163,13 @@ const WalletPage = () => {
             <Toaster position="top-center" />
 
             {/* Header / Balance Card */}
-            <div className="sticky top-0 z-10 bg-[var(--color-surface)] px-6 pt-10 pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden">
+            <div className={`sticky top-0 z-10 ${theme.bg} px-6 pt-10 pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
                 <h1 className="text-white text-lg font-bold mb-6 text-center">My Wallet</h1>
 
                 <div className="flex flex-col items-center">
-                    <p className="text-emerald-100/60 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</p>
+                    <p className={`${theme.textLight} text-xs font-bold uppercase tracking-widest mb-2`}>Available Balance</p>
                     <div className="flex items-start text-white">
                         <span className="text-2xl mt-1 opacity-80 mr-1">₹</span>
                         <span className="text-5xl font-black tracking-tight">{balance.toLocaleString('en-IN')}</span>
@@ -183,7 +179,7 @@ const WalletPage = () => {
                 <div className="mt-8">
                     <button
                         onClick={() => setShowAddMoneySheet(true)}
-                        className="w-full bg-white text-[var(--color-surface)] py-3.5 rounded-xl font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        className={`w-full bg-white ${theme.text} py-3.5 rounded-xl font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
                     >
                         <Plus size={18} strokeWidth={3} /> Add Money
                     </button>
@@ -270,7 +266,7 @@ const WalletPage = () => {
                                 </button>
                             </div>
 
-                            <div className="bg-gray-50 rounded-2xl p-4 mb-2 flex items-center gap-3 border border-gray-200 focus-within:border-[var(--color-surface)] focus-within:ring-1 ring-[var(--color-surface)] transition-all">
+                            <div className={`bg-gray-50 rounded-2xl p-4 mb-2 flex items-center gap-3 border border-gray-200 ${theme.ringFocus} transition-all`}>
                                 <IndianRupee size={24} className="text-gray-400" />
                                 <input
                                     type="number"
@@ -307,7 +303,7 @@ const WalletPage = () => {
                                     <button
                                         key={amt}
                                         onClick={() => setAddAmount(String(amt))}
-                                        className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-[var(--color-surface)] hover:text-white hover:border-[var(--color-surface)] transition-all whitespace-nowrap"
+                                        className={`px-4 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 ${theme.hoverBgBtn} hover:text-white transition-all whitespace-nowrap`}
                                     >
                                         +₹{amt}
                                     </button>
@@ -320,7 +316,7 @@ const WalletPage = () => {
                                 className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2
                                     ${(!addAmount || Number(addAmount) < 10)
                                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                        : 'bg-[var(--color-surface)] text-white shadow-[var(--color-surface)]/20'
+                                        : `${theme.bg} text-white ${theme.shadowColor}`
                                     }`}
                             >
                                 {processing && <Loader2 size={20} className="animate-spin" />}
@@ -385,7 +381,7 @@ const WalletPage = () => {
                                 {selectedTransaction.bookingId && (
                                     <div className="flex justify-between items-center bg-white/50 p-2 rounded-lg border border-gray-100">
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reference</span>
-                                        <span className="text-[10px] font-bold text-[var(--color-surface)] bg-[var(--color-surface)]/5 px-2 py-0.5 rounded">
+                                        <span className={`text-[10px] font-bold ${theme.text} ${theme.lightBg} px-2 py-0.5 rounded`}>
                                             #{selectedTransaction.bookingId}
                                         </span>
                                     </div>

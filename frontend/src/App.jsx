@@ -84,6 +84,7 @@ const AdminPartners = React.lazy(() => import('./app/admin/pages/AdminPartners')
 const AdminPartnerDetail = React.lazy(() => import('./app/admin/pages/AdminPartnerDetail'));
 const AdminReviews = React.lazy(() => import('./app/admin/pages/AdminReviews'));
 const AdminFinance = React.lazy(() => import('./pages/admin/FinanceAndPayoutsPage'));
+const AdminUserRecharges = React.lazy(() => import('./app/admin/pages/AdminUserRecharges'));
 const AdminSettings = React.lazy(() => import('./app/admin/pages/AdminSettings'));
 const AdminOffers = React.lazy(() => import('./app/admin/pages/AdminOffers'));
 const AdminProtectedRoute = React.lazy(() => import('./app/admin/AdminProtectedRoute'));
@@ -787,6 +788,7 @@ function App() {
                 <Route path="partners/:id" element={<AdminPartnerDetail />} />
                 <Route path="reviews" element={<AdminReviews />} />
                 <Route path="finance" element={<AdminFinance />} />
+                <Route path="user-recharges" element={<AdminUserRecharges />} />
                 <Route path="legal" element={<AdminLegalPages />} />
                 <Route path="contact-messages" element={<AdminContactMessages />} />
                 <Route path="settings" element={<AdminSettings />} />
@@ -851,6 +853,7 @@ function App() {
                 <Route path="my-enquiries" element={<WeddingMyEnquiriesPage />} />
                 <Route path="account" element={<WeddingAccountSettingsPage />} />
                 <Route path="payment/status" element={<WeddingPaymentStatus />} />
+                <Route path="wallet" element={<WalletPage />} />
               </Route>
 
               <Route path="real-weddings/by-location/:destinationId" element={<WeddingRealWeddingsByLocation />} />

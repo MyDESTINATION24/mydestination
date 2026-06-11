@@ -75,6 +75,7 @@ const AdminLayout = () => {
         { icon: Calendar, label: 'Bookings', path: '/admin/bookings' },
         { icon: Bell, label: 'Notifications', path: '/admin/notifications', badge: unreadCount > 0 },
         { icon: Wallet, label: 'Finance & Payouts', path: '/admin/finance' },
+        { icon: Wallet, label: 'User Recharges', path: '/admin/user-recharges' },
         { icon: Tag, label: 'Offers & Coupons', path: '/admin/offers' },
         { icon: FileText, label: 'Legal & Content', path: '/admin/legal' },
         { icon: MessageSquare, label: 'Contact Messages', path: '/admin/contact-messages' },

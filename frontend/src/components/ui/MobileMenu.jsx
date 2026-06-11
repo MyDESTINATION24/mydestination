@@ -160,86 +160,97 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         animate={{ x: 0 }}
                         exit={{ x: '-100%' }}
                         transition={{ type: 'tween', ease: 'circOut', duration: 0.4 }}
-                        className="fixed top-0 left-0 h-full w-[85%] max-w-[300px] bg-white z-[101] overflow-y-auto overscroll-contain md:hidden shadow-2xl"
+                        className="fixed top-0 left-0 h-[100dvh] w-[85%] max-w-[300px] bg-white z-[101] flex flex-col md:hidden shadow-2xl"
                         style={{ touchAction: 'pan-y' }}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between p-5 pb-2">
+                        <div className="flex items-center justify-between p-5 pb-2 shrink-0">
                             <img src={logo} alt="My DESTINATION" className="h-20 object-contain" />
                             <button onClick={onClose} className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition border border-gray-100">
                                 <X size={20} className="text-gray-500" />
                             </button>
                         </div>
 
-                        <div className="px-5 mb-4">
-                            {user ? (
-                                <div className="bg-gradient-to-br from-surface to-emerald-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-
-                                    <div className="flex items-start justify-between relative z-10">
-                                        <div className="flex items-center gap-3 flex-1">
-                                            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30 backdrop-blur-sm">
-                                                <User size={22} className="text-white" />
+                        <div className="flex-1 overflow-y-auto overscroll-contain">
+                            <div className="px-5 mb-4">
+                                {user ? (
+                                    <div className="bg-gradient-to-br from-surface to-emerald-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+    
+                                        <div className="flex items-start justify-between relative z-10">
+                                            <div className="flex items-center gap-3 flex-1">
+                                                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30 backdrop-blur-sm">
+                                                    <User size={22} className="text-white" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-base leading-tight">{user.name}</h3>
+                                                    <p className="text-[11px] text-white/80 mt-0.5">{user.phone}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="font-bold text-base leading-tight">{user.name}</h3>
-                                                <p className="text-[11px] text-white/80 mt-0.5">{user.phone}</p>
+                                            <button onClick={handleEditProfile} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm">
+                                                <Edit3 size={14} className="text-white" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-surface rounded-2xl p-4 text-white shadow-lg shadow-surface/20 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                                        <div className="flex items-center gap-3 relative z-10">
+                                            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
+                                                <User size={20} className="text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-bold text-base leading-tight">Guest User</h3>
+                                                <p className="text-[10px] text-white/70">Sign in for better experience</p>
                                             </div>
                                         </div>
-                                        <button onClick={handleEditProfile} className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm">
-                                            <Edit3 size={14} className="text-white" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="bg-surface rounded-2xl p-4 text-white shadow-lg shadow-surface/20 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                                    <div className="flex items-center gap-3 relative z-10">
-                                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/20">
-                                            <User size={20} className="text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-base leading-tight">Guest User</h3>
-                                            <p className="text-[10px] text-white/70">Sign in for better experience</p>
+                                        <div className="flex gap-2 mt-4">
+                                            <button onClick={() => handleNavigation('/login')} className="flex-1 py-2 bg-white text-surface text-xs font-bold rounded-lg shadow-sm hover:bg-gray-50 transition-colors">Login</button>
+                                            <button onClick={() => handleNavigation('/signup')} className="flex-1 py-2 bg-white/10 text-white border border-white/20 text-xs font-bold rounded-lg hover:bg-white/20 transition-colors">Signup</button>
                                         </div>
                                     </div>
-                                    <div className="flex gap-2 mt-4">
-                                        <button onClick={() => handleNavigation('/login')} className="flex-1 py-2 bg-white text-surface text-xs font-bold rounded-lg shadow-sm hover:bg-gray-50 transition-colors">Login</button>
-                                        <button onClick={() => handleNavigation('/signup')} className="flex-1 py-2 bg-white/10 text-white border border-white/20 text-xs font-bold rounded-lg hover:bg-white/20 transition-colors">Signup</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="px-5 space-y-4 pb-10">
-                            <div>
-                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">Travel & Stays</h4>
-                                <div className="flex flex-col gap-1">{bookingItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
-                            </div>
-
-                            <div>
-                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">Grow with My DESTINATION</h4>
-                                <div className="flex flex-col gap-1">{growthItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
-                            </div>
-
-                            <div>
-                                <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">App Settings</h4>
-                                <div className="flex flex-col gap-1">{settingItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
-                            </div>
-
-                            <div className="pt-2 border-t border-gray-100">
-                                {legalItems.map((item, idx) => (
-                                    <button key={idx} onClick={() => handleNavigation(item.path)} className="flex items-center gap-3 w-full p-2 hover:text-surface transition-colors">
-                                        <span className="text-xs font-medium text-gray-400 hover:text-surface">{item.label}</span>
-                                    </button>
-                                ))}
-                                {user && (
-                                    <button onClick={handleLogout} className="mt-4 flex items-center gap-2 text-red-500 font-medium text-xs px-2 hover:opacity-80">
-                                        <LogOut size={14} /> Log Out
-                                    </button>
                                 )}
                             </div>
+    
+                            <div className="px-5 space-y-4 pb-6">
+                                <div>
+                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">Travel & Stays</h4>
+                                    <div className="flex flex-col gap-1">{bookingItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
+                                </div>
+    
+                                <div>
+                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">Grow with My DESTINATION</h4>
+                                    <div className="flex flex-col gap-1">{growthItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
+                                </div>
+    
+                                <div>
+                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">App Settings</h4>
+                                    <div className="flex flex-col gap-1">{settingItems.map((item, idx) => <MenuItem key={idx} {...item} />)}</div>
+                                </div>
+    
+                                <div className="pt-2 border-t border-gray-100">
+                                    {legalItems.map((item, idx) => (
+                                        <button key={idx} onClick={() => handleNavigation(item.path)} className="flex items-center gap-3 w-full p-2 hover:text-surface transition-colors">
+                                            <span className="text-xs font-medium text-gray-400 hover:text-surface">{item.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
+
+                        {user && (
+                            <div className="p-5 border-t border-slate-100 bg-slate-50 shrink-0">
+                                <button 
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center justify-center gap-3 p-3 rounded-2xl text-slate-600 bg-white border border-slate-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all font-bold shadow-sm group"
+                                >
+                                    <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-rose-100 group-hover:text-rose-600 transition-colors">
+                                        <LogOut size={16} />
+                                    </div>
+                                    <span className="text-sm">Log Out</span>
+                                </button>
+                            </div>
+                        )}
                     </motion.div>
                 </>
             )}

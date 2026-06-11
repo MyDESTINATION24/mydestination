@@ -10,7 +10,7 @@ const AdminLayout = () => {
 
   // Check role-based admin access
   if (!token) {
-    return <Navigate to="/wedding/admin/login" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Get the title from current path for the header

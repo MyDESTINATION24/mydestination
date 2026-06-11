@@ -936,4 +936,45 @@ export const adminAdjustWallet = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Get centralized user wallet recharges (Admin only)
+ * @route   GET /api/admin/user-wallet-recharges
+ * @access  Private (Admin)
+ */
+export const getUserWalletRecharges = async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
 
+    // Filter strictly for Users and only topups
+    const query = {
+      modelType: 'User', // Ensures no vendors are included
+      category: 'topup', // Ensures only recharges are fetched
+      status: 'completed'
+    };
+
+    const transactions = await Transaction.find(query)
+      .populate('partnerId', 'name email phone') // In this context, partnerId is the User
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .lean();
+
+    const total = await Transaction.countDocuments(query);
+
+    res.json({
+      success: true,
+      transactions,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+
+  } catch (error) {
+    console.error('Get User Wallet Recharges Error:', error);
+    res.status(500).json({ message: 'Failed to fetch user wallet recharges' });
+  }
+};

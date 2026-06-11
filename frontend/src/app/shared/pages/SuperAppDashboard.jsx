@@ -47,8 +47,8 @@ const SuperAppDashboard = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-24 md:p-8 md:flex md:items-center md:justify-center">
-      <div className="max-w-4xl mx-auto w-full">
+    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-24 md:p-8 flex flex-col md:items-center md:justify-center">
+      <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
         
         {/* Header Section */}
         <div className="mb-6 md:mb-8">
@@ -76,7 +76,7 @@ const SuperAppDashboard = () => {
         </div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-6 flex-1 min-h-0">
           {services.map((service, index) => (
             <motion.div
               key={service.id}
@@ -84,9 +84,9 @@ const SuperAppDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               onClick={() => navigate(service.path)}
-              className={`group cursor-pointer ${service.cardBg} rounded-[20px] md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-row md:flex-col`}
+              className={`group flex-1 cursor-pointer ${service.cardBg} rounded-[20px] md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-row md:flex-col`}
             >
-              <div className="h-28 w-28 md:h-36 md:w-full shrink-0 overflow-hidden relative">
+              <div className="w-[38%] min-h-[110px] md:h-36 md:w-full shrink-0 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
                 <img 
                   src={service.image} 
