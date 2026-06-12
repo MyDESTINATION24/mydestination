@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Search, Wallet, Bell, Menu, SlidersHorizontal } from 'lucide-react';
+import { MapPin, Wallet, Bell, Menu } from 'lucide-react';
 import { DEFAULT_LOCATION_LABEL, getSavedLocationLabel, LOCATION_UPDATED_EVENT } from '../services/locationStore';
 
 
@@ -93,27 +93,6 @@ const HeaderGreeting = () => {
         </div>
       </div>
 
-      {/* SEARCH BAR (Independent, Below Header) */}
-      <div className="px-5 mt-5">
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.05, ease: 'easeOut' }}
-        >
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.99 }}
-            onClick={() => navigate('/ride/select-location')}
-            className="flex w-full items-center gap-3 rounded-2xl border border-white bg-white px-4 py-3.5 text-left shadow-[0_8px_20px_rgba(15,23,42,0.06)]"
-          >
-            <Search size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
-            <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium text-slate-400">
-              Search destination...
-            </span>
-            <SlidersHorizontal size={18} className="text-slate-400 shrink-0" />
-          </motion.button>
-        </motion.div>
-      </div>
     </>
   );
 };

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
+import HeaderGreeting from '../components/HeaderGreeting';
 import carIcon from '../../../assets/icons/car.png';
 import bikeIcon from '../../../assets/icons/bike.png';
 import autoIcon from '../../../assets/icons/auto.png';
@@ -533,6 +534,7 @@ const Home = () => {
       `}</style>
 
       <div className="relative z-10 pb-6">
+        <HeaderGreeting />
         {/* Top Banner mimicking the screenshot */}
         <div className="relative w-full h-64 bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
           {/* Back button */}
