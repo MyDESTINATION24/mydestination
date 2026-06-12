@@ -536,26 +536,26 @@ const Home = () => {
       <div className="relative z-10 pb-6">
         <HeaderGreeting />
         {/* Top Banner mimicking the screenshot */}
-        <div className="relative w-full h-64 bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
+        <div className="relative w-full h-64 bg-gradient-to-br from-yellow-100 via-lime-200 to-emerald-300 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
           {/* Back button */}
           <button
             onClick={() => navigate('/home')}
-            className="absolute top-5 left-5 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 border border-white/25 text-white hover:bg-white/30 transition backdrop-blur-sm active:scale-90"
+            className="absolute top-5 left-5 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/10 border border-slate-900/15 text-slate-800 hover:bg-slate-900/20 transition backdrop-blur-sm active:scale-90"
             title="Back to Services"
           >
             <ChevronLeft size={20} strokeWidth={2.5} />
           </button>
 
           {/* Left curtain SVG illustration */}
-          <svg className="absolute left-0 top-0 h-full w-1/4 text-blue-400/30 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
+          <svg className="absolute left-0 top-0 h-full w-1/4 text-emerald-600/10 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
             <path d="M0,0 L70,0 C70,30 40,70 45,95 C50,115 75,150 85,200 L0,200 Z" />
-            <path d="M0,80 L48,95 L0,110 Z" fill="#1D4ED8" opacity="0.3" />
+            <path d="M0,80 L48,95 L0,110 Z" fill="#047857" opacity="0.15" />
           </svg>
 
           {/* Right curtain SVG illustration */}
-          <svg className="absolute right-0 top-0 h-full w-1/4 text-blue-400/30 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
+          <svg className="absolute right-0 top-0 h-full w-1/4 text-emerald-600/10 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
             <path d="M100,0 L30,0 C30,30 60,70 55,95 C50,115 25,150 15,200 L100,200 Z" />
-            <path d="M100,80 L52,95 L100,110 Z" fill="#1D4ED8" opacity="0.3" />
+            <path d="M100,80 L52,95 L100,110 Z" fill="#047857" opacity="0.15" />
           </svg>
 
           {/* Bus Cabin Seats Background */}
@@ -563,10 +563,10 @@ const Home = () => {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="w-12 h-16 bg-blue-500/20 rounded-t-2xl border-t-2 border-blue-400/30 shadow-inner flex flex-col items-center pt-2"
+                className="w-12 h-16 bg-emerald-600/10 rounded-t-2xl border-t-2 border-emerald-500/20 shadow-inner flex flex-col items-center pt-2"
               >
-                <div className="w-8 h-4 bg-blue-400/30 rounded shadow-sm" />
-                <div className="w-[1.5px] h-8 bg-blue-600/20 mt-1" />
+                <div className="w-8 h-4 bg-emerald-500/20 rounded shadow-sm" />
+                <div className="w-[1.5px] h-8 bg-emerald-700/10 mt-1" />
               </div>
             ))}
           </div>
@@ -574,18 +574,18 @@ const Home = () => {
           {/* Banner text contents */}
           <div className="relative z-10 space-y-1.5 -translate-y-1">
             <p
-              className="text-2xl font-semibold text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] tracking-wide"
+              className="text-2xl font-semibold text-emerald-800 drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)] tracking-wide"
               style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}
             >
               Summer deals
             </p>
-            <h2 className="text-4xl font-extrabold text-white tracking-tight leading-none drop-shadow-md">
+            <h2 className="text-4xl font-extrabold text-emerald-950 tracking-tight leading-none drop-shadow-sm">
               ONBOARD
             </h2>
-            <div className="inline-block border border-white/30 bg-white/10 text-white text-[11px] font-black uppercase tracking-widest px-4 py-1 rounded-[6px] backdrop-blur-xs shadow-sm mt-1">
+            <div className="inline-block border border-emerald-800/20 bg-emerald-800/10 text-emerald-800 text-[11px] font-black uppercase tracking-widest px-4 py-1 rounded-[6px] backdrop-blur-xs shadow-sm mt-1">
               RAPIDOTRAVEL
             </div>
-            <p className="text-blue-100 text-[11px] font-bold tracking-wide mt-1.5">
+            <p className="text-emerald-700 text-[11px] font-bold tracking-wide mt-1.5">
               Use code at checkout
             </p>
           </div>
