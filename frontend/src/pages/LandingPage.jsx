@@ -820,8 +820,8 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 overflow-hidden flex-shrink-0">
-                <img src={logo} alt="Logo Icon" className="h-full w-auto max-w-none object-left object-cover brightness-0 invert" />
+              <div className="h-10 w-10 overflow-hidden flex-shrink-0 bg-white rounded-full p-1">
+                <img src={logo} alt="Logo Icon" className="h-full w-auto max-w-none object-left object-cover" />
               </div>
               <span className="font-bold text-xl tracking-widest">My DESTINATION</span>
             </div>

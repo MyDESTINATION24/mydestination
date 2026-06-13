@@ -16,7 +16,9 @@ const CMSLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-emerald-950 text-white flex flex-col">
         <div className="p-4 border-b border-emerald-900/50 flex items-center gap-3">
-          <img src={logo} alt="Logo" className="h-8 w-auto brightness-0 invert" />
+          <div className="h-8 w-8 overflow-hidden flex-shrink-0 bg-white rounded-full p-1">
+            <img src={logo} alt="Logo" className="h-full w-auto max-w-none object-left object-cover" />
+          </div>
           <span className="font-bold text-lg tracking-wide">CMS Admin</span>
         </div>
         
