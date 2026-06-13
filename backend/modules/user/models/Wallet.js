@@ -68,7 +68,7 @@ walletSchema.pre('save', async function () {
 });
 
 // Methods
-walletSchema.methods.credit = async function (amount, description, reference, type = 'booking_payment') {
+walletSchema.methods.credit = async function (amount, description, reference, type = 'booking_payment', metadata = {}) {
   this.balance += amount;
   // Only add to totalEarnings for actual earnings (bookings), not topups, refunds or admin adjustments
   if (type !== 'topup' && type !== 'refund' && type !== 'commission_refund' && type !== 'admin_adjustment') {
@@ -89,7 +89,8 @@ walletSchema.methods.credit = async function (amount, description, reference, ty
     balanceAfter: this.balance,
     description,
     reference,
-    status: 'completed'
+    status: 'completed',
+    metadata
   });
 
   return this;

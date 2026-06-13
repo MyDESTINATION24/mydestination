@@ -805,6 +805,9 @@ export const createAddMoneyOrder = async (req, res) => {
   }
 };
 
+// In-memory lock to prevent concurrent double-processing of the same top-up
+const activeTopups = new Set();
+
 /**
  * @desc    Verify Add Money Payment
  * @route   POST /api/wallet/verify-add-money
@@ -819,17 +822,64 @@ export const verifyAddMoneyPayment = async (req, res) => {
        return res.status(400).json({ message: 'Missing phonepe transaction ID' });
     }
 
-    const response = await phonepeClient.getOrderStatus(phonepe_txn_id);
+    if (activeTopups.has(phonepe_txn_id)) {
+      return res.json({ success: true, message: 'Payment already processing' });
+    }
+    activeTopups.add(phonepe_txn_id);
+
+    // Pass `true` as second argument to fetch detailed payment info (including UTR)
+    const response = await phonepeClient.getOrderStatus(phonepe_txn_id, true);
     if (!response || response.state !== 'COMPLETED') {
+       activeTopups.delete(phonepe_txn_id);
        return res.status(400).json({ message: 'Payment verification failed', details: response });
     }
 
-    const razorpay_payment_id = response.paymentDetails?.[0]?.transactionId || phonepe_txn_id;
+    const paymentDetail = response.paymentDetails && response.paymentDetails[0];
+    const phonepeTxnId = paymentDetail?.transactionId;
+    
+    let bankUtr = paymentDetail?.rail?.utr || paymentDetail?.rail?.transactionId || paymentDetail?.rail?.serviceTransactionId;
+    
+    if (!bankUtr && paymentDetail?.splitInstruments?.length > 0) {
+      const splitInst = paymentDetail.splitInstruments[0];
+      bankUtr = splitInst.rail?.utr || splitInst.rail?.transactionId || splitInst.rail?.serviceTransactionId;
+      
+      if (!bankUtr && splitInst.instrument) {
+        bankUtr = splitInst.instrument.utr || splitInst.instrument.brn || splitInst.instrument.arn;
+      }
+    }
+
+    // Extract all 3 fields as requested
+    const phonepeOrderId = response.orderId || phonepe_txn_id; // PhonePe Order ID (OMO...)
+    const providerReferenceId = paymentDetail?.transactionId; // Provider Reference ID (M232...)
+    // bankUtr is already extracted above as the Bank Reference Number (BRN/UTR)
+
+    const razorpay_payment_id = bankUtr || providerReferenceId || phonepeOrderId;
+
+    console.log("========== PHONEPE PAYMENT LOGS ==========");
+    console.log("FULL_PHONEPE_RESPONSE", JSON.stringify(response, null, 2));
+    console.log("PAYMENT_DETAIL", JSON.stringify(paymentDetail, null, 2));
+    console.log("phonepeOrderId (OMO...)", phonepeOrderId);
+    console.log("providerReferenceId (M232...)", providerReferenceId);
+    console.log("bankReferenceNumber (BRN)", bankUtr);
+    console.log("final_payment_reference", razorpay_payment_id);
+    console.log("==========================================");
 
     // Determine whose wallet to credit: ownerId (if admin) or current user
     const userRole = req.user.role?.toLowerCase();
     const isAdmin = userRole === 'admin' || userRole === 'superadmin';
     const targetUserId = (isAdmin && req.body.ownerId) ? req.body.ownerId : req.user._id;
+
+    // Idempotency Check: Prevent duplicate credit
+    const existingTransaction = await Transaction.findOne({ reference: razorpay_payment_id });
+    if (existingTransaction) {
+      activeTopups.delete(phonepe_txn_id);
+      let wallet = await Wallet.findOne({ partnerId: targetUserId, role });
+      return res.json({
+        success: true,
+        message: 'Wallet already credited for this payment',
+        newBalance: wallet ? wallet.balance : 0
+      });
+    }
 
     // Find correct wallet based on ROLE
     let wallet = await Wallet.findOne({ partnerId: targetUserId, role });
@@ -841,12 +891,20 @@ export const verifyAddMoneyPayment = async (req, res) => {
       });
     }
 
+    // Create metadata object to save all reference IDs separately
+    const txnMetadata = {
+      phonepeOrderId: phonepeOrderId,
+      providerReferenceId: providerReferenceId,
+      bankReferenceNumber: bankUtr
+    };
+
     // Credit wallet
     await wallet.credit(
       Number(amount),
       `Wallet Top-up`,
       razorpay_payment_id,
-      'topup'
+      'topup',
+      txnMetadata
     );
 
     // NOTIFICATION: Notify User/Partner/Admin
@@ -858,6 +916,7 @@ export const verifyAddMoneyPayment = async (req, res) => {
       body: `₹${amount} has been added to your wallet successfully.`
     }, { type: 'wallet_topup', amount }, notificationRole).catch(e => console.error('Topup push failed:', e));
 
+    activeTopups.delete(phonepe_txn_id);
     res.json({
       success: true,
       message: 'Wallet credited successfully',
@@ -865,6 +924,9 @@ export const verifyAddMoneyPayment = async (req, res) => {
     });
 
   } catch (error) {
+    if (req.body.phonepe_txn_id) {
+      activeTopups.delete(req.body.phonepe_txn_id);
+    }
     console.error('Verify Add Money Error:', error);
     res.status(500).json({ message: 'Payment verification failed' });
   }

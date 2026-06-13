@@ -69,6 +69,7 @@ const CMSPromoBanner = React.lazy(() => import('./app/cms-admin/pages/CMSPromoBa
 const CMSServices = React.lazy(() => import('./app/cms-admin/pages/CMSServices'));
 const CMSStaff = React.lazy(() => import('./app/cms-admin/pages/CMSStaff'));
 const CMSFooter = React.lazy(() => import('./app/cms-admin/pages/CMSFooter'));
+const CMSIntroVideo = React.lazy(() => import('./app/cms-admin/pages/CMSIntroVideo'));
 const CMSCareerApplications = React.lazy(() => import('./app/cms-admin/pages/CMSCareerApplications'));
 
 // Lazy Imports - Admin Pages
@@ -767,6 +768,7 @@ function App() {
               <Route path="promo" element={<CMSPromoBanner />} />
               <Route path="services" element={<CMSServices />} />
               <Route path="staff" element={<CMSStaff />} />
+              <Route path="intro-video" element={<CMSIntroVideo />} />
               <Route path="footer" element={<CMSFooter />} />
               <Route path="applications" element={<CMSCareerApplications />} />
             </Route>
@@ -871,6 +873,7 @@ function App() {
               <Route path="customers" element={<WeddingManageCustomers />} />
               <Route path="financials" element={<WeddingManageFinancials />} />
               <Route path="destinations" element={<WeddingManageDestinations />} />
+              <Route path="user-recharges" element={<AdminUserRecharges />} />
               <Route path="venues" element={<WeddingManageVenues />} />
               <Route path="subscriptions" element={<WeddingManageSubscriptions />} />
               <Route path="categories" element={<WeddingManageCategories />} />

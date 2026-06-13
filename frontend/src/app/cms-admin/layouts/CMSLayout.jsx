@@ -50,6 +50,12 @@ const CMSLayout = () => {
               </Link>
             </li>
             <li>
+              <Link to="/cms-admin/intro-video" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Globe size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">Intro Video & Features</span>
+              </Link>
+            </li>
+            <li>
               <Link to="/cms-admin/services" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
                 <Type size={18} className="text-emerald-400" />
                 <span className="text-sm font-medium">Services & Text</span>

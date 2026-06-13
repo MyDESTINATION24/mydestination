@@ -20,7 +20,8 @@ import {
   Building2,
   Palette,
   FolderPlus,
-  Layers
+  Layers,
+  Wallet
 } from 'lucide-react';
 import { adminStyles } from '../theme/themeConfig';
 import toast from 'react-hot-toast';
@@ -38,6 +39,7 @@ const menuItems = [
   },
   { icon: FolderPlus, label: 'Add Category', path: '/wedding/admin/add-category' },
   { icon: Briefcase, label: 'Manage Customers', path: '/wedding/admin/customers' },
+  { icon: Wallet, label: 'Wallet Recharges', path: '/wedding/admin/user-recharges' },
   { icon: MessageSquare, label: 'Enquiries', path: '/wedding/admin/enquiries' },
   { icon: CreditCard, label: 'Financials', path: '/wedding/admin/financials' },
   { icon: Layers, label: 'Subscriptions', path: '/wedding/admin/subscriptions' },

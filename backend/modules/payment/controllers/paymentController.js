@@ -122,12 +122,27 @@ export const verifyPayment = async (req, res) => {
         return res.status(500).json({ message: 'PhonePe Client not initialized' });
       }
 
-      const response = await phonepeClient.getOrderStatus(phonepe_txn_id);
+      // Pass `true` to fetch detailed payment info including UTR
+      const response = await phonepeClient.getOrderStatus(phonepe_txn_id, true);
       
       if (response && response.state === 'COMPLETED') {
         paymentVerified = true;
         paymentMethodToUpdate = 'phonepe';
-        paymentIdToUpdate = response.paymentDetails?.[0]?.transactionId || phonepe_txn_id;
+        const paymentDetail = response.paymentDetails && response.paymentDetails[0];
+        const phonepeTxnId = paymentDetail?.transactionId;
+        
+        let bankUtr = paymentDetail?.rail?.utr || paymentDetail?.rail?.transactionId || paymentDetail?.rail?.serviceTransactionId;
+        
+        if (!bankUtr && paymentDetail?.splitInstruments?.length > 0) {
+          const splitInst = paymentDetail.splitInstruments[0];
+          bankUtr = splitInst.rail?.utr || splitInst.rail?.transactionId || splitInst.rail?.serviceTransactionId;
+          
+          if (!bankUtr && splitInst.instrument) {
+            bankUtr = splitInst.instrument.utr || splitInst.instrument.brn || splitInst.instrument.arn;
+          }
+        }
+        
+        paymentIdToUpdate = bankUtr || phonepeTxnId || phonepe_txn_id;
       } else {
         return res.status(400).json({ message: 'Payment verification failed', details: response });
       }

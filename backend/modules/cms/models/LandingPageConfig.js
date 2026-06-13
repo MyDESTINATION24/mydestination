@@ -77,9 +77,23 @@ const LandingPageConfigSchema = new mongoose.Schema({
     }]
   },
 
-  // 8. Footer
+  // 8. Phase 4: Intro Video & Facilities
+  introVideoAndFacilities: {
+    bannerText: { type: String, default: "Destination events success" },
+    videoLink: { type: String, default: "" },
+    thumbnailImage: { type: String, default: "" },
+    facilitiesSubtitle: { type: String, default: "FACILITIES" },
+    facilitiesTitle: { type: String, default: "Core Features" },
+    features: [{
+      title: String,
+      description: String,
+      iconType: String // e.g. 'Star', 'Moon', 'MapPin'
+    }]
+  },
+
+  // 9. Footer
   footer: {
-    companyName: { type: String, default: "MyDestionation" },
+    companyName: { type: String, default: "My DESTINATION" },
     companyDescription: { type: String, default: "Your ultimate companion for unforgettable journeys." },
     address: { type: String, default: "1 My Address, My Street, New York City, NY, USA" },
     phone: { type: String, default: "" },

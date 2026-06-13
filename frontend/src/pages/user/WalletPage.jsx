@@ -51,6 +51,8 @@ const WalletPage = () => {
     }, []);
 
     const verifyPhonePePayment = async (txnId, amount, viewAs) => {
+        // Clear immediately to prevent double-firing from React Strict Mode
+        window.history.replaceState({}, document.title, window.location.pathname);
         try {
             setLoading(true);
             const verifyRes = await api.post('/wallet/verify-add-money', {
@@ -61,13 +63,11 @@ const WalletPage = () => {
 
             if (verifyRes.data.success) {
                 toast.success('Money added successfully!');
-                window.history.replaceState({}, document.title, window.location.pathname);
                 fetchWalletData();
                 fetchTransactions();
             }
         } catch (error) {
             toast.error('Payment verification failed');
-            window.history.replaceState({}, document.title, window.location.pathname);
         } finally {
             setLoading(false);
         }
@@ -378,9 +378,17 @@ const WalletPage = () => {
                                         #{selectedTransaction._id?.slice(-8).toUpperCase()}
                                     </span>
                                 </div>
+                                {selectedTransaction.reference && (
+                                    <div className="flex justify-between items-center bg-white/50 p-2 rounded-lg border border-gray-100">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bank Reference (UTR)</span>
+                                        <span className="text-[10px] font-mono font-bold text-gray-900">
+                                            {selectedTransaction.reference}
+                                        </span>
+                                    </div>
+                                )}
                                 {selectedTransaction.bookingId && (
                                     <div className="flex justify-between items-center bg-white/50 p-2 rounded-lg border border-gray-100">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Reference</span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Booking Ref</span>
                                         <span className={`text-[10px] font-bold ${theme.text} ${theme.lightBg} px-2 py-0.5 rounded`}>
                                             #{selectedTransaction.bookingId}
                                         </span>

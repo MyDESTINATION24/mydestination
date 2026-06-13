@@ -61,7 +61,7 @@ const AdminUserRecharges = () => {
                   {transactions.length > 0 ? transactions.map((t) => (
                     <tr key={t._id} className="hover:bg-gray-50 transition-colors">
                       <td className="p-4 font-mono text-xs text-gray-500">
-                        {t._id}
+                        {t.metadata?.phonepeOrderId || t._id}
                         <div className="text-[10px] text-gray-400 mt-0.5">
                           {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString()}
                         </div>
@@ -75,7 +75,12 @@ const AdminUserRecharges = () => {
                         +{currency(t.amount)}
                       </td>
                       <td className="p-4">
-                        <div className="font-mono text-xs text-gray-600">{t.reference || 'N/A'}</div>
+                        <div className="font-mono text-xs text-gray-800 font-bold">{t.reference || 'N/A'}</div>
+                        {t.metadata?.providerReferenceId && (
+                           <div className="font-mono text-[10px] text-gray-400 mt-0.5" title="Provider Reference ID">
+                             {t.metadata.providerReferenceId}
+                           </div>
+                        )}
                       </td>
                       <td className="p-4">
                         <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide border bg-green-50 text-green-700 border-green-100">

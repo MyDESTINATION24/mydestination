@@ -71,6 +71,9 @@ const transactionSchema = new mongoose.Schema({
     razorpayOrderId: String,
     razorpayPaymentId: String,
     razorpayPayoutId: String,
+    phonepeOrderId: String,
+    providerReferenceId: String,
+    bankReferenceNumber: String,
     bankTransferUTR: String,
     notes: String
   }
