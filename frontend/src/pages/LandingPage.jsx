@@ -260,7 +260,7 @@ const LandingPage = () => {
               
               {/* Auth Buttons */}
               <div className="flex items-center gap-6 ml-4 border-l pl-8 border-white/20">
-                <Link to="/login" className={`transition-colors font-bold ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>SIGN IN</Link>
+                <Link to="/login" className={`transition-colors font-bold ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>LOGIN</Link>
                 <Link to="/signup" className={`transition-colors px-6 py-2.5 font-bold tracking-widest shadow-lg ${isScrolled ? 'bg-[#065f46] text-white hover:bg-[#04402f]' : 'bg-white text-[#065f46] hover:bg-gray-100'}`}>
                   REGISTER
                 </Link>
@@ -285,7 +285,7 @@ const LandingPage = () => {
               <a href="#feature" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">SERVICES</a>
               <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">ABOUT US</a>
               <a href="#staff" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">OUR STAFF</a>
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">SIGN IN</Link>
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">LOGIN</Link>
               <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center">REGISTER</Link>
             </div>
           </div>
