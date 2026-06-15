@@ -38,7 +38,7 @@ import {
   uploadPropertyImage
 } from '../controllers/adminController.js';
 import { protect, authorizedRoles } from '../../../middlewares/authMiddleware.js';
-import { uploadDocuments } from '../../../utils/multer.js';
+import upload, { uploadDocuments } from '../../../utils/multer.js';
 import { getWithdrawals, updateWithdrawalStatus, adminAdjustWallet, getUserWalletRecharges } from '../../user/controllers/walletController.js';
 
 const router = express.Router();
@@ -91,7 +91,7 @@ router.get('/contact-messages', getContactMessages);
 router.put('/contact-messages/:id/status', updateContactStatus);
 router.get('/platform-settings', getPlatformSettings);
 router.put('/platform-settings', updatePlatformSettings);
-router.post('/upload-image', uploadDocuments.array('images', 20), uploadPropertyImage);
+router.post('/upload-image', upload.array('images', 20), uploadPropertyImage);
 
 export default router;
 

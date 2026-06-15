@@ -3,10 +3,18 @@ import mongoose from 'mongoose';
 const LandingPageConfigSchema = new mongoose.Schema({
   // 1. Hero Section
   hero: {
-    titleLines: { type: [String], default: ["Experience", "Unforgettable", "travel", "Experiences"] },
-    subText: { type: String, default: "Find amazing things to do. Anytime, anywhere." },
+    titleLines: { type: [String], default: ["We give you", "strong desire to travel &", "explore the world", "Tourism"] },
+    subText: { type: String, default: "Embark on an unforgettable journey to the world's most breathtaking destinations. Discover new cultures, create lasting memories, and let your adventure begin." },
+    textBlocks: {
+      type: [{
+        text: String,
+        tag: { type: String, enum: ['h1', 'h2', 'h3', 'p'], default: 'h2' }
+      }],
+      default: []
+    },
     buttonText: { type: String, default: "Explore Our Tours" },
-    buttonLink: { type: String, default: "/welcome" }
+    buttonLink: { type: String, default: "/welcome" },
+    backgroundImages: [{ type: String }]
   },
 
   // 2. Top Destinations

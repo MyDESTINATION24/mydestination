@@ -25,8 +25,8 @@ export const updateLandingPageConfig = async (req, res) => {
       config = new LandingPageConfig(updateData);
       await config.save();
     } else {
-      // Update fields
-      config = await LandingPageConfig.findOneAndUpdate({}, updateData, { new: true, runValidators: true });
+      // Update fields explicitly using $set to prevent nested array drops
+      config = await LandingPageConfig.findOneAndUpdate({}, { $set: updateData }, { new: true, runValidators: true });
     }
     
     res.status(200).json({ success: true, data: config, message: 'Configuration updated successfully' });
