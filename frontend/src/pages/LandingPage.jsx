@@ -237,7 +237,7 @@ const LandingPage = () => {
           </h1>
           <h2 className="text-white text-2xl md:text-4xl mt-12 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">Tourism</h2>
           <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ac<br className="hidden md:block"/>leo ut arcu dictum viverra at eu magna.
+            Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block"/> Discover new cultures, create lasting memories, and let your adventure begin.
           </p>
         </div>
         
