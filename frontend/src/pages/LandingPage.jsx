@@ -59,7 +59,11 @@ const LandingPage = () => {
 
   // Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slides = [heroBg, destAmsterdam, destLisbon, destDublin, destExuma];
+  const defaultSlides = [heroBg, destAmsterdam, destLisbon, destDublin, destExuma];
+  
+  const activeSlides = cmsData?.hero?.backgroundImages?.length > 0 
+    ? cmsData.hero.backgroundImages 
+    : defaultSlides;
 
   // Scroll State for Navbar
   const [isScrolled, setIsScrolled] = useState(false);
@@ -74,10 +78,10 @@ const LandingPage = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % activeSlides.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, [slides.length]);
+  }, [activeSlides.length]);
 
   const handleHotelSearch = (e) => {
     e.preventDefault();
@@ -169,9 +173,7 @@ const LandingPage = () => {
         submitData.append('image', imageFile);
       }
 
-      const res = await api.post('/cms/career/apply', submitData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const res = await api.post('/cms/career/apply', submitData);
 
       if (res.data.success) {
         toast.success('Application submitted successfully!');
@@ -195,25 +197,27 @@ const LandingPage = () => {
       <section className="relative min-h-screen w-full flex flex-col bg-gray-100 overflow-hidden pb-20">
         
         {/* Background Image Slider */}
-        {slides.map((slide, index) => (
+        {activeSlides.map((slide, index) => {
+          const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
+          return (
           <div 
             key={index} 
-            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${safeCurrentSlide === index ? 'opacity-100' : 'opacity-0'}`}
           >
             <img src={slide} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/20"></div>
           </div>
-        ))}
+        )})}
 
         {/* Left/Right Slider Controls */}
         <button 
-           onClick={() => setCurrentSlide(prev => (prev - 1 + slides.length) % slides.length)}
+           onClick={() => setCurrentSlide(prev => (prev - 1 + activeSlides.length) % activeSlides.length)}
            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#065f46] text-[#065f46] flex items-center justify-center hover:bg-[#065f46] hover:text-white transition-all bg-transparent group"
         >
            <ChevronLeft size={20} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
         </button>
         <button 
-           onClick={() => setCurrentSlide(prev => (prev + 1) % slides.length)}
+           onClick={() => setCurrentSlide(prev => (prev + 1) % activeSlides.length)}
            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#065f46] text-[#065f46] flex items-center justify-center hover:bg-[#065f46] hover:text-white transition-all bg-transparent group"
         >
            <ChevronRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
@@ -221,24 +225,43 @@ const LandingPage = () => {
 
         {/* Dot Indicators */}
         <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-           {slides.map((_, idx) => (
+           {activeSlides.map((_, idx) => {
+              const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
+              return (
               <button 
                  key={idx}
                  onClick={() => setCurrentSlide(idx)}
-                 className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-[#065f46] scale-125' : 'bg-white/60 hover:bg-white'}`}
+                 className={`w-3 h-3 rounded-full transition-all duration-300 ${safeCurrentSlide === idx ? 'bg-[#065f46] scale-125' : 'bg-white/60 hover:bg-white'}`}
               />
-           ))}
+           )})}
         </div>
 
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 mt-16 pointer-events-none">
-          <h1 className="text-white text-3xl md:text-5xl font-medium tracking-wide leading-tight mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-            We give you <br /> strong desire to travel & <br /> explore the world
-          </h1>
-          <h2 className="text-white text-2xl md:text-4xl mt-12 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">Tourism</h2>
-          <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium">
-            Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block"/> Discover new cultures, create lasting memories, and let your adventure begin.
-          </p>
+          {(cmsData?.hero?.textBlocks && cmsData.hero.textBlocks.length > 0) ? (
+            cmsData.hero.textBlocks.map((block, idx) => {
+              if (block.tag === 'h1') {
+                return <h1 key={idx} className="text-white text-4xl md:text-6xl font-black mt-10 mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">{block.text}</h1>;
+              } else if (block.tag === 'h2') {
+                return <h2 key={idx} className="text-white text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-2 mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{block.text}</h2>;
+              } else if (block.tag === 'h3') {
+                return <h3 key={idx} className="text-white text-2xl md:text-4xl mt-6 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">{block.text}</h3>;
+              } else if (block.tag === 'p') {
+                return <p key={idx} className="text-white/90 text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-6"><span dangerouslySetInnerHTML={{ __html: block.text.replace(/\n/g, '<br />') }} /></p>;
+              }
+              return null;
+            })
+          ) : (
+            <>
+              <h2 className="text-white text-3xl md:text-5xl font-medium tracking-wide leading-tight mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                We give you <br /> strong desire to travel & <br /> explore the world
+              </h2>
+              <h1 className="text-white text-4xl md:text-6xl mt-12 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif uppercase tracking-widest">Tourism</h1>
+              <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-6">
+                Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block"/> Discover new cultures, create lasting memories, and let your adventure begin.
+              </p>
+            </>
+          )}
         </div>
         
         {/* Flat Transparent Navbar */}
@@ -518,28 +541,37 @@ const LandingPage = () => {
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h4 className="text-[15px] text-[#065f46]/80 font-serif mb-3">Select your perfect trips</h4>
+            <h4 className="text-[15px] text-[#065f46]/80 font-serif mb-3">
+              {cmsData?.destinations?.sectionTitle || "Select your perfect trips"}
+            </h4>
             <div className="flex items-center justify-center gap-3">
               <div className="h-[1px] w-12 bg-gray-400"></div>
-              <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-wider uppercase">TOP DESTINATION</h2>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-wider uppercase">
+                {cmsData?.destinations?.sectionHeading || "TOP DESTINATION"}
+              </h2>
             </div>
           </div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {[
-              { img: destAmsterdam, title: 'Amsterdam, Natherland' },
-              { img: destLisbon, title: 'Lisbon, Portugal' },
-              { img: destDublin, title: 'Doolin, Ireland' },
-              { img: destExuma, title: 'Exuma, Bahamas' }
-            ].map((dest, i) => (
+            {(cmsData?.destinations?.items?.length > 0 ? cmsData.destinations.items : [
+              { image: destAmsterdam, title: 'Amsterdam, Natherland', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' },
+              { image: destLisbon, title: 'Lisbon, Portugal', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' },
+              { image: destDublin, title: 'Doolin, Ireland', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' },
+              { image: destExuma, title: 'Exuma, Bahamas', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' }
+            ]).map((dest, i) => (
               <motion.div variants={fadeUp} key={i} className="group relative flex flex-col text-center">
                 <div className="w-full aspect-square overflow-hidden mb-5">
-                  <img src={dest.img} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
+                  <img src={dest.img || dest.image} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
                 </div>
                 <h3 className="text-[15px] font-black text-gray-900 mb-3">{dest.title}</h3>
                 <p className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto">
-                  Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.
+                  {dest.description || 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.'}
                 </p>
+                {dest.link && (
+                  <Link to={dest.link} className="mt-4 text-[11px] font-bold text-[#065f46] hover:underline uppercase tracking-widest">
+                    Explore
+                  </Link>
+                )}
               </motion.div>
             ))}
           </motion.div>

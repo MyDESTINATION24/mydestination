@@ -70,14 +70,10 @@ const BlogManager = () => {
       }
 
       if (isEditing) {
-        await axios.put(`${API_BASE_URL}/blogs/${currentBlog._id}`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.put(`${API_BASE_URL}/blogs/${currentBlog._id}`, data);
         toast.success('Blog updated successfully', { id: loadingToast });
       } else {
-        await axios.post(`${API_BASE_URL}/blogs`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await axios.post(`${API_BASE_URL}/blogs`, data);
         toast.success('Blog created successfully', { id: loadingToast });
       }
       resetForm();

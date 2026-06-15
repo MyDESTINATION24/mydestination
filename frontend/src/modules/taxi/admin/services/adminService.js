@@ -266,9 +266,7 @@ export const adminService = {
   getPreferences: (params) => api.get('/admin/preferences', { params: params }),
   createPreference: (data) => api.post('/admin/preferences', data),
   getPreference: (id) => api.get(`/admin/preferences/${id}`),
-  updatePreference: (id, formData) => api.patch(`/admin/preferences/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
+  updatePreference: (id, formData) => api.patch(`/admin/preferences/${id}`, formData),
   updatePreferenceStatus: (id, data) => api.patch(`/admin/preferences/${id}/status`, data),
   deletePreference: (id) => api.delete(`/admin/preferences/${id}`),
 

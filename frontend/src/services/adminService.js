@@ -220,11 +220,7 @@ const adminService = {
     return response.data;
   },
   uploadImage: async (formData) => {
-    const response = await axiosInstance.post('/admin/upload-image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    const response = await axiosInstance.post('/admin/upload-image', formData);
     return response.data;
   },
 
