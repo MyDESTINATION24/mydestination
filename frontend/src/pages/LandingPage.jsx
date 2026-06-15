@@ -854,7 +854,7 @@ const LandingPage = () => {
               <span className="font-bold text-xl tracking-widest">My DESTINATION</span>
             </div>
             <p className="text-xs text-gray-400">
-              {cmsData?.footer?.companyDescription || "Your ultimate companion for unforgettable journeys. We provide premium travel services, personalized itineraries, and the best deals for your next adventure."}
+              My DESTINATION - Wed in India | Event Planners
             </p>
           </div>
           <div>
