@@ -715,9 +715,12 @@ const LandingPage = () => {
                 <img src={cat.img} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
               </div>
               <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-6 font-serif tracking-wide">{cat.title}</h3>
-              <Link to={`/welcome?type=${cat.type}`} className="bg-black text-white px-10 md:px-12 py-3 text-[11px] md:text-xs font-bold tracking-widest hover:bg-gray-800 transition uppercase shadow-lg">
+              <button
+                onClick={() => handleNavigation('/home')}
+                className="bg-black text-white px-10 md:px-12 py-3 text-[11px] md:text-xs font-bold tracking-widest hover:bg-gray-800 transition uppercase shadow-lg cursor-pointer"
+              >
                 Search
-              </Link>
+              </button>
             </motion.div>
           ))}
         </motion.div>
