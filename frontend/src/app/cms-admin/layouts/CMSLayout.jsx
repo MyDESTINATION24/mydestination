@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify } from 'lucide-react';
+import { LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify, Briefcase, Info } from 'lucide-react';
 import logo from '../../../assets/rokologin-removebg-preview.png';
 
 const CMSLayout = () => {
@@ -61,6 +61,30 @@ const CMSLayout = () => {
               <Link to="/cms-admin/services" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
                 <Type size={18} className="text-emerald-400" />
                 <span className="text-sm font-medium">Services & Text</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/cms-admin/travel-tips" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Globe size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">Premium Travel & Tours</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/cms-admin/categories" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Settings size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">Categories</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/cms-admin/essential-accessories" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Briefcase size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">Essential Accessories</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/cms-admin/about-us" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Info size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">About Us</span>
               </Link>
             </li>
             <li>

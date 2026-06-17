@@ -71,6 +71,10 @@ const CMSStaff = React.lazy(() => import('./app/cms-admin/pages/CMSStaff'));
 const CMSFooter = React.lazy(() => import('./app/cms-admin/pages/CMSFooter'));
 const CMSIntroVideo = React.lazy(() => import('./app/cms-admin/pages/CMSIntroVideo'));
 const CMSCareerApplications = React.lazy(() => import('./app/cms-admin/pages/CMSCareerApplications'));
+const CMSTravelTips = React.lazy(() => import('./app/cms-admin/pages/CMSTravelTips'));
+const CMSCategories = React.lazy(() => import('./app/cms-admin/pages/CMSCategories'));
+const CMSEssentialAccessories = React.lazy(() => import('./app/cms-admin/pages/CMSEssentialAccessories'));
+const CMSAboutUs = React.lazy(() => import('./app/cms-admin/pages/CMSAboutUs'));
 
 // Lazy Imports - Admin Pages
 const AdminLogin = React.lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
@@ -769,6 +773,10 @@ function App() {
               <Route path="services" element={<CMSServices />} />
               <Route path="staff" element={<CMSStaff />} />
               <Route path="intro-video" element={<CMSIntroVideo />} />
+              <Route path="travel-tips" element={<CMSTravelTips />} />
+              <Route path="categories" element={<CMSCategories />} />
+              <Route path="essential-accessories" element={<CMSEssentialAccessories />} />
+              <Route path="about-us" element={<CMSAboutUs />} />
               <Route path="footer" element={<CMSFooter />} />
               <Route path="applications" element={<CMSCareerApplications />} />
             </Route>

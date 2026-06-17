@@ -1,15 +1,25 @@
 import CareerApplication from '../models/CareerApplication.js';
 import notificationService from '../../../services/notificationService.js';
+import { uploadToCloudinary } from '../../../utils/cloudinary.js';
 
 // Public endpoint to submit application
 export const submitApplication = async (req, res) => {
   try {
     const { firstName, lastName, email, role } = req.body;
-    let image = null;
+    let profileImage = null;
+    let resume = null;
 
-    if (req.file) {
-      // Use the filename to construct the public URL path
-      image = req.file.location || `/uploads/${req.file.filename}`;
+    if (req.files) {
+      if (req.files.profileImage && req.files.profileImage[0]) {
+        const file = req.files.profileImage[0];
+        const uploadResult = await uploadToCloudinary(file.path, 'career/profiles');
+        profileImage = uploadResult.url;
+      }
+      if (req.files.resume && req.files.resume[0]) {
+        const file = req.files.resume[0];
+        const uploadResult = await uploadToCloudinary(file.path, 'career/resumes');
+        resume = uploadResult.url;
+      }
     }
 
     const application = await CareerApplication.create({
@@ -17,7 +27,9 @@ export const submitApplication = async (req, res) => {
       lastName,
       email,
       role,
-      image
+      profileImage,
+      resume,
+      image: resume // Keep for compatibility
     });
 
     // Notify admins (optional)

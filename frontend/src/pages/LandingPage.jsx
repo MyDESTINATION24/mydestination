@@ -22,6 +22,18 @@ import { api } from '../services/apiService';
 const LandingPage = () => {
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
+
+  const handleScrollTo = (e, id) => {
+    e.preventDefault();
+    if (id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -31,7 +43,7 @@ const LandingPage = () => {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
   };
-  
+
   const staggerContainer = {
     hidden: { opacity: 0 },
     visible: {
@@ -48,6 +60,8 @@ const LandingPage = () => {
     role: 'Travel Specialist'
   });
   const [imageFile, setImageFile] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Hotel Search State
@@ -60,9 +74,9 @@ const LandingPage = () => {
   // Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
   const defaultSlides = [heroBg, destAmsterdam, destLisbon, destDublin, destExuma];
-  
-  const activeSlides = cmsData?.hero?.backgroundImages?.length > 0 
-    ? cmsData.hero.backgroundImages 
+
+  const activeSlides = cmsData?.hero?.backgroundImages?.length > 0
+    ? cmsData.hero.backgroundImages
     : defaultSlides;
 
   // Scroll State for Navbar
@@ -89,7 +103,7 @@ const LandingPage = () => {
     if (searchParams.destination) query.append('search', searchParams.destination);
     if (searchParams.checkIn) query.append('startDate', searchParams.checkIn);
     if (searchParams.checkOut) query.append('endDate', searchParams.checkOut);
-    
+
     const targetPath = `/search?${query.toString()}`;
     navigate(targetPath);
   };
@@ -169,8 +183,11 @@ const LandingPage = () => {
       submitData.append('lastName', formData.lastName);
       submitData.append('email', formData.email);
       submitData.append('role', formData.role);
-      if (imageFile) {
-        submitData.append('image', imageFile);
+      if (profileImageFile) {
+        submitData.append('profileImage', profileImageFile);
+      }
+      if (resumeFile) {
+        submitData.append('resume', resumeFile);
       }
 
       const res = await api.post('/cms/career/apply', submitData);
@@ -179,6 +196,8 @@ const LandingPage = () => {
         toast.success('Application submitted successfully!');
         setIsJoinModalOpen(false);
         setFormData({ firstName: '', lastName: '', email: '', role: 'Travel Specialist' });
+        setProfileImageFile(null);
+        setResumeFile(null);
         setImageFile(null);
       } else {
         toast.error(res.data.message || 'Failed to submit application');
@@ -195,45 +214,35 @@ const LandingPage = () => {
     <div className="min-h-screen bg-white font-['Inter',sans-serif]">
       {/* 1. Hero Section (Redesigned Phase 1) */}
       <section className="relative min-h-screen w-full flex flex-col bg-gray-100 overflow-hidden pb-20">
-        
+
         {/* Background Image Slider */}
         {activeSlides.map((slide, index) => {
           const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
           return (
-          <div 
-            key={index} 
-            className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${safeCurrentSlide === index ? 'opacity-100' : 'opacity-0'}`}
-          >
-            <img src={slide} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/20"></div>
-          </div>
-        )})}
+            <div
+              key={index}
+              className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${safeCurrentSlide === index ? 'opacity-100' : 'opacity-0'}`}
+            >
+              <img src={slide} alt={`Slide ${index + 1}`} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/20"></div>
+            </div>
+          )
+        })}
 
-        {/* Left/Right Slider Controls */}
-        <button 
-           onClick={() => setCurrentSlide(prev => (prev - 1 + activeSlides.length) % activeSlides.length)}
-           className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#065f46] text-[#065f46] flex items-center justify-center hover:bg-[#065f46] hover:text-white transition-all bg-transparent group"
-        >
-           <ChevronLeft size={20} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
-        </button>
-        <button 
-           onClick={() => setCurrentSlide(prev => (prev + 1) % activeSlides.length)}
-           className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-[#065f46] text-[#065f46] flex items-center justify-center hover:bg-[#065f46] hover:text-white transition-all bg-transparent group"
-        >
-           <ChevronRight size={20} strokeWidth={2.5} className="group-hover:translate-x-1 transition-transform" />
-        </button>
+
 
         {/* Dot Indicators */}
         <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 flex gap-3">
-           {activeSlides.map((_, idx) => {
-              const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
-              return (
-              <button 
-                 key={idx}
-                 onClick={() => setCurrentSlide(idx)}
-                 className={`w-3 h-3 rounded-full transition-all duration-300 ${safeCurrentSlide === idx ? 'bg-[#065f46] scale-125' : 'bg-white/60 hover:bg-white'}`}
+          {activeSlides.map((_, idx) => {
+            const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
+            return (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${safeCurrentSlide === idx ? 'bg-[#065f46] scale-125' : 'bg-white/60 hover:bg-white'}`}
               />
-           )})}
+            )
+          })}
         </div>
 
         {/* Hero Content Overlay */}
@@ -258,12 +267,12 @@ const LandingPage = () => {
               </h2>
               <h1 className="text-white text-4xl md:text-6xl mt-12 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif uppercase tracking-widest">Tourism</h1>
               <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-6">
-                Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block"/> Discover new cultures, create lasting memories, and let your adventure begin.
+                Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block" /> Discover new cultures, create lasting memories, and let your adventure begin.
               </p>
             </>
           )}
         </div>
-        
+
         {/* Flat Transparent Navbar */}
         <div className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-12 transition-all duration-500 flex items-center ${isScrolled ? 'bg-white py-3 shadow-xl' : 'bg-transparent pt-6 md:pt-8'}`}>
           <nav className="flex items-center justify-between w-full max-w-7xl mx-auto">
@@ -273,14 +282,14 @@ const LandingPage = () => {
               </div>
               {/* Removed Tourism text here as per request */}
             </div>
-            
+
             {/* Desktop Menu */}
             <div className={`hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase transition-colors duration-300 ${isScrolled ? 'text-slate-700' : 'text-white'}`}>
-              <a href="#" className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>HOME</a>
-              <a href="#feature" className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>SERVICES</a>
-              <a href="#about" className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>ABOUT US</a>
-              <a href="#staff" className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>OUR STAFF</a>
-              
+              <a href="#" onClick={(e) => handleScrollTo(e, 'home')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>HOME</a>
+              <a href="#feature" onClick={(e) => handleScrollTo(e, 'feature')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>SERVICES</a>
+              <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>ABOUT US</a>
+              <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>OUR STAFF</a>
+
               {/* Auth Buttons */}
               <div className="flex items-center gap-6 ml-4 border-l pl-8 border-white/20">
                 <Link to="/login" className={`transition-colors font-bold ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>LOGIN</Link>
@@ -291,7 +300,7 @@ const LandingPage = () => {
             </div>
 
             {/* Mobile Menu Toggle */}
-            <button 
+            <button
               className={`lg:hidden p-2 transition-colors duration-300 ${isScrolled ? 'text-slate-900' : 'text-white'}`}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
@@ -304,10 +313,10 @@ const LandingPage = () => {
         {isMobileMenuOpen && (
           <div className="fixed top-[80px] left-4 right-4 bg-white rounded-xl shadow-2xl z-[100] lg:hidden overflow-hidden border border-gray-100">
             <div className="flex flex-col text-gray-800 font-medium uppercase tracking-widest text-[13px]">
-              <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">HOME</a>
-              <a href="#feature" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">SERVICES</a>
-              <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">ABOUT US</a>
-              <a href="#staff" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">OUR STAFF</a>
+              <a href="#" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'home'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">HOME</a>
+              <a href="#feature" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'feature'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">SERVICES</a>
+              <a href="#about" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'about'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">ABOUT US</a>
+              <a href="#staff" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'staff'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">OUR STAFF</a>
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">LOGIN</Link>
               <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center">REGISTER</Link>
             </div>
@@ -319,7 +328,7 @@ const LandingPage = () => {
         {/* Contact Modal */}
         {isContactModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-            <div 
+            <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsContactModalOpen(false)}
             ></div>
@@ -327,40 +336,40 @@ const LandingPage = () => {
               <div className="p-6 md:p-10">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-3xl font-black text-white tracking-widest uppercase">Contact Us</h2>
-                  <button 
+                  <button
                     onClick={() => setIsContactModalOpen(false)}
                     className="text-white/60 hover:text-white transition"
                   >
                     <X size={32} />
                   </button>
                 </div>
-                
+
                 <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Full Name</label>
-                    <input 
-                      type="text" 
-                      placeholder="Your Name" 
+                    <input
+                      type="text"
+                      placeholder="Your Name"
                       className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Email Address</label>
-                    <input 
-                      type="email" 
-                      placeholder="example@mail.com" 
+                    <input
+                      type="email"
+                      placeholder="example@mail.com"
                       className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Message</label>
-                    <textarea 
-                      rows="4" 
-                      placeholder="How can we help you?" 
+                    <textarea
+                      rows="4"
+                      placeholder="How can we help you?"
                       className="w-full bg-white/5 border border-white/10 p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition resize-none"
                     ></textarea>
                   </div>
-                  
+
                   <button className="w-full bg-[#065f46] text-white py-4 font-black tracking-widest uppercase hover:bg-green-600 transition shadow-xl">
                     Send Message
                   </button>
@@ -373,7 +382,7 @@ const LandingPage = () => {
         {/* Join Now Modal */}
         {isJoinModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-            <div 
+            <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsJoinModalOpen(false)}
             ></div>
@@ -381,14 +390,14 @@ const LandingPage = () => {
               <div className="p-6 md:p-10">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-3xl font-black text-white tracking-widest uppercase">Join Our Team</h2>
-                  <button 
+                  <button
                     onClick={() => setIsJoinModalOpen(false)}
                     className="text-white/60 hover:text-white transition"
                   >
                     <X size={32} />
                   </button>
                 </div>
-                
+
                 <p className="text-white/80 text-sm mb-8 leading-relaxed">
                   Become a part of our global travel community. Tell us a bit about yourself and your passion for travel.
                 </p>
@@ -396,39 +405,39 @@ const LandingPage = () => {
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" onSubmit={handleJoinSubmit}>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">First Name *</label>
-                    <input 
-                      type="text" 
-                      placeholder="John" 
+                    <input
+                      type="text"
+                      placeholder="John"
                       value={formData.firstName}
-                      onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 p-3 md:p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Last Name *</label>
-                    <input 
-                      type="text" 
-                      placeholder="Doe" 
+                    <input
+                      type="text"
+                      placeholder="Doe"
                       value={formData.lastName}
-                      onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 p-3 md:p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Email Address *</label>
-                    <input 
-                      type="email" 
-                      placeholder="john@example.com" 
+                    <input
+                      type="email"
+                      placeholder="john@example.com"
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 p-3 md:p-4 text-white placeholder:text-white/30 focus:outline-none focus:border-[#065f46] transition"
                     />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Role of Interest</label>
-                    <select 
+                    <select
                       value={formData.role}
-                      onChange={(e) => setFormData({...formData, role: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                       className="w-full bg-white/5 border border-white/10 p-3 md:p-4 text-white focus:outline-none focus:border-[#065f46] transition appearance-none cursor-pointer"
                     >
                       <option className="bg-[#0f172a]">Travel Specialist</option>
@@ -437,18 +446,42 @@ const LandingPage = () => {
                       <option className="bg-[#0f172a]">Marketing</option>
                     </select>
                   </div>
-                  
-                  <div className="space-y-2 col-span-1 md:col-span-2">
-                    <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Profile Image / Resume</label>
-                    <input 
-                      type="file" 
-                      accept="image/*,.pdf"
-                      onChange={(e) => setImageFile(e.target.files[0])}
-                      className="w-full bg-white/5 border border-white/10 py-2.5 px-3 text-sm text-white focus:outline-none focus:border-[#065f46] transition file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#065f46] file:text-white hover:file:bg-green-600 cursor-pointer"
-                    />
+
+                  {/* Profile Image */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Profile Photo</label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="profileImageInput"
+                        onChange={(e) => setProfileImageFile(e.target.files[0])}
+                        className="w-full bg-white/5 border border-white/10 py-2.5 px-3 text-sm text-white focus:outline-none focus:border-[#065f46] transition file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#065f46] file:text-white hover:file:bg-green-600 cursor-pointer"
+                      />
+                      {profileImageFile && (
+                        <p className="text-xs text-emerald-400 mt-1 truncate">✓ {profileImageFile.name}</p>
+                      )}
+                    </div>
                   </div>
-                  
-                  <button 
+
+                  {/* Resume */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#065f46] uppercase tracking-widest">Resume / CV <span className="text-white/40 normal-case">(PDF)</span></label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        id="resumeInput"
+                        onChange={(e) => setResumeFile(e.target.files[0])}
+                        className="w-full bg-white/5 border border-white/10 py-2.5 px-3 text-sm text-white focus:outline-none focus:border-[#065f46] transition file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#065f46] file:text-white hover:file:bg-green-600 cursor-pointer"
+                      />
+                      {resumeFile && (
+                        <p className="text-xs text-emerald-400 mt-1 truncate">✓ {resumeFile.name}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
                     disabled={isSubmitting}
                     type="submit"
                     className="w-full col-span-1 md:col-span-2 bg-white text-[#0f172a] py-3 md:py-4 font-black tracking-widest uppercase hover:bg-gray-100 transition shadow-xl disabled:opacity-50"
@@ -466,15 +499,15 @@ const LandingPage = () => {
       <section className="relative z-40 -mt-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
         <div className="bg-white border border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.08)] p-6 md:p-8">
           <form onSubmit={handleHotelSearch} className="flex flex-col md:flex-row gap-4 items-center">
-            
+
             {/* Location */}
             <div className="flex-1 w-full relative border border-gray-300 bg-white">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Where are you going?"
                 value={searchParams.destination}
-                onChange={(e) => setSearchParams({...searchParams, destination: e.target.value})}
-                className="w-full text-gray-600 px-4 py-3 pr-12 text-sm focus:outline-none bg-transparent relative z-10" 
+                onChange={(e) => setSearchParams({ ...searchParams, destination: e.target.value })}
+                className="w-full text-gray-600 px-4 py-3 pr-12 text-sm focus:outline-none bg-transparent relative z-10"
               />
               <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0">
                 <MapPin className="text-gray-400" size={16} />
@@ -484,11 +517,11 @@ const LandingPage = () => {
             {/* Check In */}
             <div className="flex-1 w-full relative border border-gray-300 bg-white">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none z-20">In</div>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={searchParams.checkIn}
-                onChange={(e) => setSearchParams({...searchParams, checkIn: e.target.value})}
-                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer" 
+                onChange={(e) => setSearchParams({ ...searchParams, checkIn: e.target.value })}
+                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
               />
               <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0 pointer-events-none">
                 <Calendar className="text-gray-400" size={16} />
@@ -498,19 +531,19 @@ const LandingPage = () => {
             {/* Check Out */}
             <div className="flex-1 w-full relative border border-gray-300 bg-white">
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none z-20">Out</div>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 value={searchParams.checkOut}
-                onChange={(e) => setSearchParams({...searchParams, checkOut: e.target.value})}
-                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer" 
+                onChange={(e) => setSearchParams({ ...searchParams, checkOut: e.target.value })}
+                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
               />
               <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0 pointer-events-none">
                 <Calendar className="text-gray-400" size={16} />
               </div>
             </div>
 
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="w-full md:w-[150px] bg-[#0f172a] text-white px-8 py-3 text-sm font-medium hover:bg-black transition shadow-md"
             >
               Search
@@ -583,7 +616,7 @@ const LandingPage = () => {
         <div className="absolute inset-0 z-0">
           <img src={cmsData?.latestTour?.backgroundImage || latestTourBg} alt="City Night" className="w-full h-full object-cover opacity-60" />
         </div>
-        
+
         {/* Floating Images (Polaroid Style) */}
         <div className="absolute left-[5%] md:left-[10%] top-[10%] md:top-1/2 md:-translate-y-1/2 block z-10 opacity-70 md:opacity-100">
           <div className="bg-white p-2 md:p-3 pb-8 md:pb-12 transform -rotate-12 shadow-2xl w-28 h-36 md:w-60 md:h-72">
@@ -613,29 +646,29 @@ const LandingPage = () => {
           {/* Left Side - Round Image */}
           <motion.div variants={fadeUp} className="w-full lg:w-1/2 flex justify-center">
             <div className="w-[300px] h-[300px] md:w-[450px] md:h-[450px] rounded-full overflow-hidden shadow-2xl border-[12px] border-white">
-              <img src={airplane} alt="Airplane Wing" className="w-full h-full object-cover hover:scale-110 transition duration-1000" />
+              <img src={cmsData?.travelTips?.image || airplane} alt="Travel Section" className="w-full h-full object-cover hover:scale-110 transition duration-1000" />
             </div>
           </motion.div>
-          
+
           {/* Right Side - Premium Packages Info */}
           <motion.div variants={fadeUp} className="w-full lg:w-1/2 md:pl-8">
             <div className="mb-6">
-              <h4 className="text-[13px] md:text-sm font-bold text-[#065f46] tracking-widest uppercase mb-2">PLAN YOUR JOURNEY</h4>
-              <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">Premium Travel & Tours</h2>
+              <h4 className="text-[13px] md:text-sm font-bold text-[#065f46] tracking-widest uppercase mb-2">{cmsData?.travelTips?.sectionSubtitle || 'PLAN YOUR JOURNEY'}</h4>
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">{cmsData?.travelTips?.sectionTitle || 'Premium Travel & Tours'}</h2>
               <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4">
-                Experience the spiritual awakening of our exclusive <strong>Char Dham Yatra</strong> packages, or customize your dream destination getaway. We provide end-to-end luxury travel solutions, from comfortable taxi fleets to premium hotel stays.
+                {cmsData?.travelTips?.description || <>Experience the spiritual awakening of our exclusive <strong>Char Dham Yatra</strong> packages, or customize your dream destination getaway. We provide end-to-end luxury travel solutions, from comfortable taxi fleets to premium hotel stays.</>}
               </p>
               <ul className="space-y-3 mb-10 text-gray-600 text-sm md:text-base font-medium">
-                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> Custom Tour Packages</li>
-                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> Luxury Taxi & Fleet Services</li>
-                <li className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> Handpicked Premium Hotels</li>
+                {(cmsData?.travelTips?.bulletPoints?.length > 0 ? cmsData.travelTips.bulletPoints : ['Custom Tour Packages', 'Luxury Taxi & Fleet Services', 'Handpicked Premium Hotels']).map((point, idx) => (
+                  <li key={idx} className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> {point}</li>
+                ))}
               </ul>
             </div>
-            
+
             <div className="pt-2">
               {isLoggedIn ? (
                 <Link to="/taxi" className="inline-flex items-center justify-center bg-[#065f46] text-white px-10 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest uppercase shadow-xl hover:bg-[#064e3b] transition w-fit group">
-                  BOOK CAB NOW <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                  {cmsData?.travelTips?.buttonText || 'BOOK CAB NOW'} <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               ) : (
                 <Link to="/login" state={{ from: { pathname: '/taxi' } }} className="inline-flex items-center justify-center bg-[#065f46] text-white px-10 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest uppercase shadow-xl hover:bg-[#064e3b] transition w-fit group">
@@ -648,14 +681,36 @@ const LandingPage = () => {
       </section>
 
       {/* 6. Categories */}
-      <section className="pt-10 pb-16 md:pb-24 max-w-7xl mx-auto px-4">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="grid grid-cols-1 sm:grid-cols-3 gap-8 md:gap-12">
-          {[
-            { title: 'Hotels', img: hotelImg, type: 'hotel' },
-            { title: 'Cars', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600', type: 'car' },
-            { title: 'Activities', img: tourImg, type: 'activity' }
-          ].map((cat, i) => (
-            <motion.div variants={fadeUp} key={i} className="group flex flex-col items-center">
+      <section className="pt-10 pb-16 md:pb-24 max-w-7xl mx-auto px-4 overflow-hidden">
+        <motion.div 
+          initial="hidden" 
+          whileInView="visible" 
+          viewport={{ once: true, margin: "-50px" }} 
+          variants={staggerContainer} 
+          className="flex gap-8 md:gap-12 overflow-x-auto pb-6 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {(cmsData?.categories?.items?.length > 0
+            ? cmsData.categories.items.map(cat => {
+                let fallbackImg = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600';
+                if (cat.type === 'hotel') fallbackImg = hotelImg;
+                if (cat.type === 'activity') fallbackImg = tourImg;
+                return {
+                  title: cat.title,
+                  img: cat.image || fallbackImg,
+                  type: cat.type
+                };
+              })
+            : [
+                { title: 'Hotels', img: hotelImg, type: 'hotel' },
+                { title: 'Cars', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600', type: 'car' },
+                { title: 'Activities', img: tourImg, type: 'activity' }
+              ]
+          ).map((cat, i) => (
+            <motion.div 
+              variants={fadeUp} 
+              key={i} 
+              className="group flex flex-col items-center flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] snap-start"
+            >
               <div className="w-full h-56 md:h-72 mb-6 overflow-hidden shadow-lg border border-gray-100">
                 <img src={cat.img} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
               </div>
@@ -698,33 +753,40 @@ const LandingPage = () => {
 
       {/* 7.5 Essential Accessories */}
       <section className="py-10 md:py-16 bg-[#F8F9F5] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-6">
           {/* Left Side: Map with floating items */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="w-full md:w-1/2 relative h-[300px] md:h-[500px]">
-             {/* Map Background */}
-             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200')] bg-cover bg-center opacity-30 rounded-full blur-[1px]"></div>
-             
-             {/* Floating Elements */}
-             <motion.div variants={fadeUp} className="absolute top-[20%] left-[20%] bg-white p-4 rounded-full shadow-2xl rotate-12 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
-                <Camera size={36} className="text-[#065f46]" />
-             </motion.div>
-             <motion.div variants={fadeUp} className="absolute bottom-[30%] left-[10%] bg-white p-4 rounded-full shadow-2xl -rotate-12 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
-                <Glasses size={36} className="text-[#065f46]" />
-             </motion.div>
-             <motion.div variants={fadeUp} className="absolute top-[40%] right-[15%] bg-white p-4 rounded-full shadow-2xl rotate-6 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
-                <Briefcase size={36} className="text-[#065f46]" />
-             </motion.div>
-             <motion.div variants={fadeUp} className="absolute bottom-[10%] right-[30%] bg-white p-4 rounded-full shadow-2xl -rotate-6 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
-                <MapPin size={36} className="text-[#065f46]" />
-             </motion.div>
+            {/* Map Background */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-90 rounded-full blur-[1px]"
+              style={{ backgroundImage: `url(${cmsData?.essentialAccessories?.backgroundImage || 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200'})` }}
+            ></div>
+
+            {/* Floating Elements */}
+            <motion.div variants={fadeUp} className="absolute top-[20%] left-[20%] bg-white p-4 rounded-full shadow-2xl rotate-12 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
+              <Camera size={36} className="text-[#065f46]" />
+            </motion.div>
+            <motion.div variants={fadeUp} className="absolute bottom-[30%] left-[10%] bg-white p-4 rounded-full shadow-2xl -rotate-12 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
+              <Glasses size={36} className="text-[#065f46]" />
+            </motion.div>
+            <motion.div variants={fadeUp} className="absolute top-[40%] right-[15%] bg-white p-4 rounded-full shadow-2xl rotate-6 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
+              <Briefcase size={36} className="text-[#065f46]" />
+            </motion.div>
+            <motion.div variants={fadeUp} className="absolute bottom-[10%] right-[30%] bg-white p-4 rounded-full shadow-2xl -rotate-6 flex items-center justify-center border-4 border-white hover:scale-110 transition-transform cursor-pointer">
+              <MapPin size={36} className="text-[#065f46]" />
+            </motion.div>
           </motion.div>
 
           {/* Right Side: Text */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="w-full md:w-1/2 text-center md:text-left md:pl-8">
-            <h4 className="text-sm font-bold text-[#065f46] tracking-widest uppercase mb-4">PREPARE FOR YOUR TRIP</h4>
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">Essential Accessories</h2>
+            <h4 className="text-sm font-bold text-[#065f46] tracking-widest uppercase mb-4">
+              {cmsData?.essentialAccessories?.sectionSubtitle || 'PREPARE FOR YOUR TRIP'}
+            </h4>
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">
+              {cmsData?.essentialAccessories?.sectionTitle || 'Essential Accessories'}
+            </h2>
             <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8">
-              Don't forget to pack the essentials! From capturing beautiful moments with your camera, protecting your eyes with sunglasses, to carrying your belongings safely. We ensure you're fully prepared for the journey ahead.
+              {cmsData?.essentialAccessories?.description || "Don't forget to pack the essentials! From capturing beautiful moments with your camera, protecting your eyes with sunglasses, to carrying your belongings safely. We ensure you're fully prepared for the journey ahead."}
             </p>
           </motion.div>
         </div>
@@ -734,90 +796,93 @@ const LandingPage = () => {
       {/* 8. About Us Section (Redesigned to match provided image exactly) */}
       <section id="about" className="py-16 md:py-24 bg-white relative">
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* Header Section */}
           <div className="text-center mb-16 relative">
-            <h4 className="text-[14px] text-[#7a4b4b] font-serif mb-2">our featured story</h4>
+            <h4 className="text-[14px] text-[#7a4b4b] font-serif mb-2">{cmsData?.aboutUs?.sectionSubtitle || 'our featured story'}</h4>
             <div className="flex items-center justify-center gap-4">
               <div className="h-[1px] w-16 bg-[#7a4b4b]"></div>
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-wider uppercase">ABOUT US</h2>
+              <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-wider uppercase">{cmsData?.aboutUs?.sectionTitle || 'ABOUT US'}</h2>
             </div>
           </div>
 
           {/* Content Container - Use Grid instead of Flex for strict proportions */}
           <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1.8fr_1fr] items-center w-full gap-0 bg-white">
-            
+
             {/* Left Column: Beach Image */}
             <div className="w-full relative hidden lg:block h-[500px]">
-               <img 
-                 src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800" 
-                 alt="Beautiful Beach" 
-                 className="w-full h-full object-cover" 
-               />
+              <img
+                src={cmsData?.aboutUs?.mainImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800"}
+                alt="Beautiful Beach"
+                className="w-full h-full object-cover"
+              />
             </div>
             {/* Mobile Beach Image */}
             <div className="w-full h-[300px] relative lg:hidden mb-8">
-               <img 
-                 src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800" 
-                 alt="Beautiful Beach" 
-                 className="w-full h-full object-cover" 
-               />
+              <img
+                src={cmsData?.aboutUs?.mainImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=800"}
+                alt="Beautiful Beach"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Middle Column: Features List */}
             <div className="w-full flex flex-col justify-center bg-white relative py-4 lg:py-0 h-full">
-               <div className="space-y-6 lg:space-y-8 my-auto">
-                 {[
-                   {title: "Our never ending footsteps", desc: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."},
-                   {title: "Our total trips till now", desc: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."},
-                   {title: "Our most incredible moments to share", desc: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."},
-                   {title: "Our travel book released on 1991 year", desc: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."}
-                 ].map((item, idx) => (
-                   <div key={idx} className="relative flex items-start lg:pl-6">
-                     
-                     {/* Desktop map pin box - overlapping image boundary exactly */}
-                     <div className="absolute left-0 top-0 w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center lg:-ml-5 shadow-sm z-10 hidden lg:flex">
-                       <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
-                     </div>
-                     
-                     {/* Mobile map pin box */}
-                     <div className="w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center flex-shrink-0 lg:hidden shadow-sm z-10 mt-1 mr-4">
-                       <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
-                     </div>
+              <div className="space-y-6 lg:space-y-8 my-auto">
+                {(cmsData?.aboutUs?.milestones?.length > 0
+                  ? cmsData.aboutUs.milestones
+                  : [
+                      { title: "Our never ending footsteps", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                      { title: "Our total trips till now", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                      { title: "Our most incredible moments to share", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                      { title: "Our travel book released on 1991 year", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." }
+                    ]
+                ).map((item, idx) => (
+                  <div key={idx} className="relative flex items-start lg:pl-6">
 
-                     <div className="w-full pl-0 lg:pl-8 lg:pr-2">
-                       <h3 className="text-[15px] md:text-[16px] font-semibold text-gray-800 mb-1.5 text-left">{item.title}</h3>
-                       <div className="h-[1px] w-full bg-gray-300 mb-2"></div>
-                       <p className="text-[11px] md:text-[12px] text-gray-500 leading-relaxed text-left font-medium opacity-90">
-                         {item.desc}
-                       </p>
-                     </div>
-                   </div>
-                 ))}
-               </div>
+                    {/* Desktop map pin box - overlapping image boundary exactly */}
+                    <div className="absolute left-0 top-0 w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center lg:-ml-5 shadow-sm z-10 hidden lg:flex">
+                      <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
+                    </div>
+
+                    {/* Mobile map pin box */}
+                    <div className="w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center flex-shrink-0 lg:hidden shadow-sm z-10 mt-1 mr-4">
+                      <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
+                    </div>
+
+                    <div className="w-full pl-0 lg:pl-8 lg:pr-2">
+                      <h3 className="text-[15px] md:text-[16px] font-semibold text-gray-800 mb-1.5 text-left">{item.title}</h3>
+                      <div className="h-[1px] w-full bg-gray-300 mb-2"></div>
+                      <p className="text-[11px] md:text-[12px] text-gray-500 leading-relaxed text-left font-medium opacity-90">
+                        {item.description || item.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Right Column: Backpack Image */}
             <div className="w-full flex items-center justify-center py-10 lg:py-0 px-2 mt-8 lg:mt-0 relative h-[300px] lg:h-[450px]">
-               <div className="relative w-full h-full flex items-center justify-center max-w-[320px] lg:max-w-[400px]">
-                 <img 
-                   src={bagImg} 
-                   alt="Travel Backpack" 
-                   className="max-h-[100%] w-auto object-contain drop-shadow-2xl" 
-                 />
-                 {/* Compass Graphic */}
-                 <div className="absolute top-[5%] right-[-5%] lg:top-[15%] lg:right-[-10%] w-[90px] h-[90px] z-20 shadow-[0_10px_20px_rgba(0,0,0,0.3)] rounded-full bg-[#f4ebd8] flex items-center justify-center border-[3px] border-[#8b5a2b] overflow-hidden" style={{ backgroundImage: 'radial-gradient(#fbf8f1, #e8cda1)' }}>
-                   <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                     <div className="w-full h-[1px] bg-black absolute"></div>
-                     <div className="h-full w-[1px] bg-black absolute"></div>
-                   </div>
-                   <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#6b3a1b" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-compass relative z-10"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="#8b5a2b"/></svg>
-                   <span className="absolute top-1 text-[9px] font-bold text-[#6b3a1b]">N</span>
-                   <span className="absolute bottom-1 text-[9px] font-bold text-[#6b3a1b]">S</span>
-                   <span className="absolute right-1 text-[9px] font-bold text-[#6b3a1b]">E</span>
-                   <span className="absolute left-1 text-[9px] font-bold text-[#6b3a1b]">W</span>
-                 </div>
-               </div>
+              <div className="relative w-full h-full flex items-center justify-center max-w-[320px] lg:max-w-[400px]">
+                <img
+                  src={cmsData?.aboutUs?.sideImage || bagImg}
+                  alt="Travel Backpack"
+                  className="max-h-[100%] w-auto object-contain drop-shadow-2xl"
+                />
+                {/* Compass Graphic */}
+                <div className="absolute top-[5%] right-[-5%] lg:top-[15%] lg:right-[-10%] w-[90px] h-[90px] z-20 shadow-[0_10px_20px_rgba(0,0,0,0.3)] rounded-full bg-[#f4ebd8] flex items-center justify-center border-[3px] border-[#8b5a2b] overflow-hidden" style={{ backgroundImage: 'radial-gradient(#fbf8f1, #e8cda1)' }}>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                    <div className="w-full h-[1px] bg-black absolute"></div>
+                    <div className="h-full w-[1px] bg-black absolute"></div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#6b3a1b" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-compass relative z-10"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="#8b5a2b" /></svg>
+                  <span className="absolute top-1 text-[9px] font-bold text-[#6b3a1b]">N</span>
+                  <span className="absolute bottom-1 text-[9px] font-bold text-[#6b3a1b]">S</span>
+                  <span className="absolute right-1 text-[9px] font-bold text-[#6b3a1b]">E</span>
+                  <span className="absolute left-1 text-[9px] font-bold text-[#6b3a1b]">W</span>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -829,21 +894,23 @@ const LandingPage = () => {
         {/* Staff Banner */}
         <div className="relative h-[400px] md:h-[500px] flex flex-col items-center justify-center text-center text-white px-4">
           <div className="absolute inset-0 z-0">
-             <img src={tourImg} alt="Staff Background" className="w-full h-full object-cover object-center" />
-             <div className="absolute inset-0 bg-black/60"></div>
+            <img src={cmsData?.staff?.backgroundImage || tourImg} alt="Staff Background" className="w-full h-full object-cover object-center" />
+            <div className="absolute inset-0 bg-black/60"></div>
           </div>
-          
+
           <div className="relative z-10 max-w-3xl space-y-4 md:space-y-6 pt-10 pb-20">
-            <h4 className="text-sm md:text-base font-medium tracking-widest text-white/90">Tourism members</h4>
+            <h4 className="text-sm md:text-base font-medium tracking-widest text-white/90">
+              {cmsData?.staff?.sectionSubtitle || "Tourism members"}
+            </h4>
             <div className="flex items-center justify-center gap-4">
-               <div className="h-[1px] w-12 bg-white/50"></div>
-               <h2 className="text-4xl md:text-6xl font-black font-serif tracking-wide">{cmsData?.staff?.sectionTitle || "OUR STAFF"}</h2>
+              <div className="h-[1px] w-12 bg-white/50"></div>
+              <h2 className="text-4xl md:text-6xl font-black font-serif tracking-wide">{cmsData?.staff?.sectionTitle || "OUR STAFF"}</h2>
             </div>
             <p className="text-xs md:text-sm opacity-80 leading-relaxed max-w-2xl mx-auto font-medium">
               {cmsData?.staff?.description || "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."}
             </p>
             <button onClick={() => setIsJoinModalOpen(true)} className="bg-white text-slate-900 px-8 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition shadow-lg mt-4">
-               JOIN NOW
+              {cmsData?.staff?.buttonText || "JOIN NOW"}
             </button>
           </div>
         </div>
@@ -866,9 +933,12 @@ const LandingPage = () => {
                 <p className="text-[10px] md:text-xs text-gray-500 mb-3 px-1 md:px-4 leading-snug flex-grow">
                   {staff.description}
                 </p>
-                <button className="border border-gray-200 px-4 md:px-6 py-1.5 md:py-2 rounded-sm text-[9px] font-bold text-gray-500 hover:bg-[#065f46] hover:border-[#065f46] hover:text-white transition-all uppercase mb-1 md:mb-2 mx-auto w-fit tracking-widest">
+                <a 
+                  href={staff.email ? `mailto:${staff.email}` : '#'}
+                  className="block text-center border border-gray-200 px-4 md:px-6 py-1.5 md:py-2 rounded-sm text-[9px] font-bold text-gray-500 hover:bg-[#065f46] hover:border-[#065f46] hover:text-white transition-all uppercase mb-1 md:mb-2 mx-auto w-fit tracking-widest"
+                >
                   Contact Me
-                </button>
+                </a>
               </div>
             ))}
           </div>
@@ -880,19 +950,18 @@ const LandingPage = () => {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-10 w-10 overflow-hidden flex-shrink-0 bg-white rounded-full p-1">
-                <img src={logo} alt="Logo Icon" className="h-full w-auto max-w-none object-left object-cover" />
-              </div>
-              <span className="font-bold text-xl tracking-widest">My DESTINATION</span>
+              <span className="font-bold text-xl tracking-widest">
+                {cmsData?.footer?.companyName || "My DESTINATION"}
+              </span>
             </div>
             <p className="text-xs text-gray-400">
-              My DESTINATION - Wed in India | Event Planners
+              {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners"}
             </p>
           </div>
           <div>
             <h4 className="font-bold mb-4">Quick links</h4>
             <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#about">About us</a></li>
+              <li><a href="#about" onClick={(e) => handleScrollTo(e, 'about')}>About us</a></li>
               <li><Link to="/home">Services</Link></li>
             </ul>
           </div>
@@ -910,24 +979,70 @@ const LandingPage = () => {
           </div>
           <div>
             <h4 className="font-bold mb-4 font-serif text-lg tracking-wide">Pay safely with us</h4>
-            <p className="text-xs text-gray-400 mb-4 leading-relaxed">{cmsData?.footer?.paymentNote || "The payment is encrypted and transmitted securely with an SSL protocol."}</p>
-            <div className="flex items-center gap-3 flex-wrap">
-
-              <div className="bg-white px-2 py-1 rounded shadow-sm">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard" className="h-4 object-contain" />
-              </div>
-              <div className="bg-white px-2 py-1 rounded shadow-sm">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg" alt="Amex" className="h-4 object-contain" />
-              </div>
-              <div className="bg-white px-2 py-1 rounded shadow-sm">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-4 object-contain" />
-              </div>
-            </div>
+            <p className="text-xs text-gray-400 leading-relaxed">{cmsData?.footer?.paymentNote || "The payment is encrypted and transmitted securely with an SSL protocol."}</p>
           </div>
         </div>
-        <div className="text-center border-t border-gray-800 pt-8 text-xs text-gray-500">
-          {cmsData?.footer?.copyrightText || `© ${new Date().getFullYear()} MyDESTINATION. All rights reserved.`}
+        {/* Copyright + Payment Bar — same color as footer */}
+        <div style={{
+          background: '#022c22',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
+          padding: '12px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '10px',
+          margin: '0 -32px -32px -32px',
+        }}>
+          {/* Left: Copyright */}
+          <p style={{ margin: 0, fontSize: '13px', color: '#6b8c75' }}>
+            {cmsData?.footer?.copyrightText
+              ? cmsData.footer.copyrightText
+              : <>Copyright © {new Date().getFullYear()} <strong style={{ color: '#d4edda' }}>My DESTINATION<sup style={{ fontSize: '9px' }}>®</sup></strong> | All Rights Reserved.</>
+            }
+          </p>
+
+          {/* Right: Payment Icons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+            {/* PayPal */}
+            {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
+              <div style={{ background: '#003087', borderRadius: '5px', padding: '4px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              </div>
+            )}
+            {/* Mastercard */}
+            {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
+              <div style={{ background: '#fff', borderRadius: '5px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px', border: '1px solid #dde1e7' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard" style={{ height: '18px', objectFit: 'contain' }} />
+              </div>
+            )}
+            {/* Visa */}
+            {(cmsData?.footer?.paymentMethods?.visa !== false) && (
+              <div style={{ background: '#1a1f71', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" style={{ height: '11px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              </div>
+            )}
+            {/* Stripe */}
+            {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
+              <div style={{ background: '#635bff', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              </div>
+            )}
+            {/* Apple Pay */}
+            {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
+              <div style={{ background: '#000', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              </div>
+            )}
+            {/* Google Pay */}
+            {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
+              <div style={{ background: '#fff', borderRadius: '5px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px', border: '1px solid #dde1e7' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '15px', objectFit: 'contain' }} />
+              </div>
+            )}
+          </div>
         </div>
+
       </footer>
     </div>
   );

@@ -55,24 +55,26 @@ const AdminCareerApplications = () => {
     }
   };
 
-  const handleDownload = async (url, filename) => {
+  const handleDownload = (url, filename) => {
     try {
-      toast.loading('Downloading...', { id: 'download-toast' });
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Network response was not ok');
-      const blob = await response.blob();
-      const objectUrl = window.URL.createObjectURL(blob);
+      let downloadUrl = url;
+      // Force Cloudinary to trigger a download attachment instead of opening in browser
+      if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+        downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
+      }
+
       const link = document.createElement('a');
-      link.href = objectUrl;
+      link.href = downloadUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
       link.download = filename || 'downloaded-file';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(objectUrl);
-      toast.success('Download complete', { id: 'download-toast' });
+      toast.success('Starting download...');
     } catch (error) {
       console.error('Download failed:', error);
-      toast.error('Failed to download file', { id: 'download-toast' });
+      toast.error('Failed to open download link');
     }
   };
 
@@ -99,8 +101,8 @@ const AdminCareerApplications = () => {
                 <th className="p-4 font-semibold">Applicant</th>
                 <th className="p-4 font-semibold">Role</th>
                 <th className="p-4 font-semibold">Date</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold">Resume/Image</th>
+                <th className="p-4 font-semibold">Profile Photo</th>
+                <th className="p-4 font-semibold">Resume / CV</th>
                 <th className="p-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
@@ -125,47 +127,59 @@ const AdminCareerApplications = () => {
                     <td className="p-4 text-sm text-gray-500">
                       {new Date(app.createdAt).toLocaleDateString()}
                     </td>
+
+                    {/* Profile Photo column */}
                     <td className="p-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium 
-                        ${app.status === 'New' ? 'bg-blue-100 text-blue-800' : ''}
-                        ${app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' : ''}
-                        ${app.status === 'Contacted' ? 'bg-emerald-100 text-emerald-800' : ''}
-                        ${app.status === 'Rejected' ? 'bg-red-100 text-red-800' : ''}
-                      `}>
-                        {app.status}
-                      </span>
-                    </td>
-                    <td className="p-4">
-                      {app.image ? (
-                        <div className="flex flex-col gap-2">
-                          <button 
-                            onClick={() => setSelectedPreview(getFileUrl(app.image))} 
-                            className="text-emerald-600 hover:text-emerald-800 text-sm font-medium flex items-center gap-1 w-fit"
+                      {app.profileImage ? (
+                        <div className="flex flex-col gap-1.5">
+                          <img
+                            src={getFileUrl(app.profileImage)}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                          />
+                          <button
+                            onClick={() => setSelectedPreview(getFileUrl(app.profileImage))}
+                            className="text-emerald-600 hover:text-emerald-800 text-xs font-medium flex items-center gap-1"
                           >
-                            <Eye size={16} /> View
+                            <Eye size={13} /> View
                           </button>
-                          <button 
-                            onClick={() => handleDownload(getFileUrl(app.image), app.image.split('/').pop().split('\\').pop() || 'resume')} 
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 w-fit"
+                          <button
+                            onClick={() => handleDownload(getFileUrl(app.profileImage), `profile_${app.firstName}`)} 
+                            className="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center gap-1"
                           >
-                            <Download size={16} /> Download
+                            <Download size={13} /> Download
                           </button>
                         </div>
                       ) : (
-                        <span className="text-gray-400 text-sm">No file</span>
+                        <span className="text-gray-400 text-xs">No photo</span>
+                      )}
+                    </td>
+
+                    {/* Resume column */}
+                    <td className="p-4">
+                      {app.resume ? (
+                        <div className="flex flex-col gap-1.5">
+                          <span className="text-xs text-gray-600 font-medium bg-gray-100 px-2 py-1 rounded inline-flex items-center gap-1">
+                            📄 Resume
+                          </span>
+                          <button 
+                            onClick={() => setSelectedPreview(getFileUrl(app.resume))} 
+                            className="text-emerald-600 hover:text-emerald-800 text-xs font-medium flex items-center gap-1 w-fit"
+                          >
+                            <Eye size={13} /> View
+                          </button>
+                          <button 
+                            onClick={() => handleDownload(getFileUrl(app.resume), app.resume.split('/').pop().split('\\').pop() || 'resume')} 
+                            className="text-blue-600 hover:text-blue-800 text-xs font-medium flex items-center gap-1 w-fit"
+                          >
+                            <Download size={13} /> Download
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No resume</span>
                       )}
                     </td>
                     <td className="p-4 text-right space-x-2">
-                      <select 
-                        value={app.status}
-                        onChange={(e) => updateStatus(app._id, e.target.value)}
-                        className="text-xs border rounded p-1 bg-white"
-                      >
-                        <option value="New">New</option>
-                        <option value="Reviewed">Reviewed</option>
-                        <option value="Contacted">Contacted</option>
-                        <option value="Rejected">Rejected</option>
-                      </select>
                       <button onClick={() => deleteApplication(app._id)} className="text-red-500 hover:text-red-700 ml-2" title="Delete">
                         <Trash2 size={16} />
                       </button>

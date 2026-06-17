@@ -52,6 +52,24 @@ const documentFilter = (req, file, cb) => {
   }
 };
 
+// File filter for career applications (images + PDFs + docs)
+const careerFileFilter = (req, file, cb) => {
+  const allowedMimes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/webp',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  if (allowedMimes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image, PDF, or Word files are allowed'), false);
+  }
+};
+
 // Configure multer for images
 const upload = multer({
   storage: storage,
@@ -68,6 +86,15 @@ export const uploadDocuments = multer({
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: documentFilter
+});
+
+// Configure multer for career applications (profile image + resume PDF)
+export const uploadCareer = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: careerFileFilter
 });
 
 export default upload;

@@ -80,6 +80,14 @@ const CMSFooter = () => {
     email: '',
     paymentNote: 'The payment is encrypted and transmitted securely with an SSL protocol.',
     copyrightText: '',
+    paymentMethods: {
+      paypal: true,
+      mastercard: true,
+      visa: true,
+      stripe: true,
+      applepay: true,
+      googlepay: true,
+    }
   });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -92,7 +100,15 @@ const CMSFooter = () => {
     try {
       const res = await apiService.get('/cms/landing-page');
       if (res.data?.data?.footer) {
-        setFooterData(prev => ({ ...prev, ...res.data.data.footer }));
+        const fetched = res.data.data.footer;
+        setFooterData(prev => ({
+          ...prev,
+          ...fetched,
+          paymentMethods: {
+            ...prev.paymentMethods,
+            ...(fetched.paymentMethods || {})
+          }
+        }));
       }
     } catch {
       toast.error('Failed to load footer configuration');
@@ -318,6 +334,42 @@ const CMSFooter = () => {
                 className={inputClass('copyrightText')}
               />
               <FieldMessage error={touched.copyrightText && errors.copyrightText} value={footerData.copyrightText} maxLen={RULES.copyrightText.maxLen} />
+            </div>
+
+            {/* Payment Methods Selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                Show Payment Logos in Footer
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border border-gray-200 bg-gray-50/50 rounded-sm">
+                {[
+                  { key: 'paypal', label: 'PayPal' },
+                  { key: 'mastercard', label: 'Mastercard' },
+                  { key: 'visa', label: 'Visa' },
+                  { key: 'stripe', label: 'Stripe' },
+                  { key: 'applepay', label: 'Apple Pay' },
+                  { key: 'googlepay', label: 'Google Pay' },
+                ].map((method) => (
+                  <label key={method.key} className="flex items-center gap-3 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={!!footerData.paymentMethods?.[method.key]}
+                      onChange={(e) => {
+                        const updated = {
+                          ...footerData.paymentMethods,
+                          [method.key]: e.target.checked
+                        };
+                        setFooterData(prev => ({
+                          ...prev,
+                          paymentMethods: updated
+                        }));
+                      }}
+                      className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700 font-medium">{method.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
         </div>

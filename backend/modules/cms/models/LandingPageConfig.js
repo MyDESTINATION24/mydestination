@@ -42,11 +42,21 @@ const LandingPageConfigSchema = new mongoose.Schema({
     rightImage: String
   },
 
-  // 4. Categories
+  // 4. Premium Travel & Tours
+  travelTips: {
+    sectionSubtitle: { type: String, default: "PLAN YOUR JOURNEY" },
+    sectionTitle: { type: String, default: "Premium Travel & Tours" },
+    description: { type: String, default: "Experience the spiritual awakening of our exclusive Char Dham Yatra packages, or customize your dream destination getaway. We provide end-to-end luxury travel solutions, from comfortable taxi fleets to premium hotel stays." },
+    image: { type: String, default: "" },
+    buttonText: { type: String, default: "BOOK CAB NOW" },
+    bulletPoints: [{ type: String }]
+  },
+
+  // 5. Categories
   categories: {
     items: [{
       title: String,
-      type: String, // e.g., 'hotel', 'wedding', 'tour'
+      type: { type: String }, // e.g., 'hotel', 'wedding', 'tour'
       image: String
     }]
   },
@@ -67,6 +77,7 @@ const LandingPageConfigSchema = new mongoose.Schema({
     sectionSubtitle: { type: String, default: "Our featured story" },
     sectionTitle: { type: String, default: "ABOUT US" },
     mainImage: String,
+    sideImage: String,
     milestones: [{
       title: String,
       description: String
@@ -75,13 +86,17 @@ const LandingPageConfigSchema = new mongoose.Schema({
 
   // 7. Our Staff
   staff: {
+    sectionSubtitle: { type: String, default: "Tourism members" },
     sectionTitle: { type: String, default: "OUR STAFF" },
     description: { type: String, default: "Our team of dedicated travel experts is here to ensure your journey is smooth, safe, and unforgettable." },
+    backgroundImage: { type: String, default: "" },
+    buttonText: { type: String, default: "JOIN NOW" },
     items: [{
       name: String,
       role: String,
       description: String,
-      image: String
+      image: String,
+      email: String
     }]
   },
 
@@ -99,6 +114,14 @@ const LandingPageConfigSchema = new mongoose.Schema({
     }]
   },
 
+  // 8.5 Essential Accessories
+  essentialAccessories: {
+    sectionSubtitle: { type: String, default: "PREPARE FOR YOUR TRIP" },
+    sectionTitle: { type: String, default: "Essential Accessories" },
+    description: { type: String, default: "Don't forget to pack the essentials! From capturing beautiful moments with your camera, protecting your eyes with sunglasses, to carrying your belongings safely. We ensure you're fully prepared for the journey ahead." },
+    backgroundImage: { type: String, default: "" }
+  },
+
   // 9. Footer
   footer: {
     companyName: { type: String, default: "My DESTINATION" },
@@ -107,7 +130,15 @@ const LandingPageConfigSchema = new mongoose.Schema({
     phone: { type: String, default: "" },
     email: { type: String, default: "" },
     paymentNote: { type: String, default: "The payment is encrypted and transmitted securely with an SSL protocol." },
-    copyrightText: { type: String, default: "" }
+    copyrightText: { type: String, default: "" },
+    paymentMethods: {
+      paypal: { type: Boolean, default: true },
+      mastercard: { type: Boolean, default: true },
+      visa: { type: Boolean, default: true },
+      stripe: { type: Boolean, default: true },
+      applepay: { type: Boolean, default: true },
+      googlepay: { type: Boolean, default: true }
+    }
   }
 }, { timestamps: true });
 
