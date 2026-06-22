@@ -85,8 +85,8 @@ const HelicopterFeaturedSection = () => {
   const currentSlide = slides[currentIndex];
 
   return (
-    <div className="px-5">
-      <div className="mb-3 ml-1 flex items-center justify-between">
+    <div>
+      <div className="px-5 mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-[19px] font-black text-gray-900 tracking-tight">My Desination Airways</h2>
           <p className="mt-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">
@@ -101,7 +101,7 @@ const HelicopterFeaturedSection = () => {
 
       <div 
         onClick={handleNavigate}
-        className="group relative overflow-hidden rounded-[32px] border border-white/90 bg-white/70 shadow-[0_20px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(15,23,42,0.15)] transition-all duration-500 cursor-pointer h-[320px] flex flex-col justify-between"
+        className="group relative overflow-hidden border-y border-white/90 bg-white/70 shadow-[0_20px_40px_rgba(15,23,42,0.06)] hover:shadow-[0_24px_50px_-12px_rgba(15,23,42,0.15)] transition-all duration-500 cursor-pointer h-[320px] flex flex-col justify-between w-full"
       >
         {/* Background gradient animation */}
         <div className={`absolute inset-0 bg-gradient-to-br ${currentSlide.accent} opacity-40 transition-all duration-700 pointer-events-none`} />

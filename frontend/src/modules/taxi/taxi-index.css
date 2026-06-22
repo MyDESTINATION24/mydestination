@@ -106,3 +106,18 @@ body {
   box-shadow: 0 0 0 1000px #ffffff inset !important;
   transition: background-color 9999s ease-out 0s;
 }
+
+/* ─── Responsive layout overrides for all taxi pages on tablet/desktop ─── */
+@media (min-width: 768px) {
+  /* Override max-w-lg on ALL page root containers inside the taxi main wrapper.
+     Some individual pages still carry max-w-lg from mobile-first design.
+     This ensures they stretch to full width on tablet/desktop. */
+  .redigo-app > main > div:not(.fixed):not(.absolute) {
+    max-width: 100% !important;
+  }
+
+  /* Fixed bottom overlays (ride pill, action bars) — keep centered and readable */
+  .redigo-app .fixed.bottom-24 {
+    max-width: 48rem !important; /* max-w-3xl — comfortable reading width */
+  }
+}

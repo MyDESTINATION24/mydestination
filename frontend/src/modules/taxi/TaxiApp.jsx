@@ -413,8 +413,8 @@ const MainLayout = ({ children }) => {
   }
 
   return (
-    <div className="redigo-app min-h-screen bg-gray-50/50">
-      <main className="max-w-lg mx-auto shadow-2xl bg-white min-h-screen relative overflow-x-hidden">
+    <div className="redigo-app min-h-screen bg-white">
+      <main className="w-full min-h-screen relative overflow-x-hidden bg-white">
         {children}
       </main>
     </div>
@@ -738,6 +738,9 @@ function App() {
               <Route path="user/signup" element={<Navigate to="/signup" replace />} />
               
               <Route path="home" element={<UserHomeRoute />} />
+              {/* Desktop TopNavbar link redirects */}
+              <Route path="rides" element={<Navigate to="/taxi/user/activity" replace />} />
+              <Route path="support" element={<Navigate to="/taxi/user/support" replace />} />
 
               <Route element={<UserProtectedRoute />}>
               <Route

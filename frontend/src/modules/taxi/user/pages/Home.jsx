@@ -520,7 +520,7 @@ const Home = () => {
   const rentalTimerLabel = serviceType === 'rental' ? formatRentalTime(rentalElapsedSeconds) : '';
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] pb-28 max-w-lg mx-auto relative overflow-hidden font-sans no-scrollbar">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] pb-28 w-full relative overflow-hidden font-sans no-scrollbar">
       <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-orange-100/60 blur-3xl pointer-events-none" />
       <div className="absolute top-52 left-[-60px] h-52 w-52 rounded-full bg-emerald-100/60 blur-3xl pointer-events-none" />
       <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
@@ -536,7 +536,7 @@ const Home = () => {
       <div className="relative z-10 pb-6">
         <HeaderGreeting />
         {/* Top Banner mimicking the screenshot */}
-        <div className="relative w-full h-64 bg-gradient-to-br from-yellow-100 via-lime-200 to-emerald-300 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
+        <div className="relative w-full h-64 md:h-72 lg:h-80 bg-gradient-to-br from-yellow-100 via-lime-200 to-emerald-300 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
           {/* Back button */}
           <button
             onClick={() => navigate('/home')}
@@ -592,7 +592,7 @@ const Home = () => {
         </div>
 
         {/* Content Container */}
-        <div className="px-6 py-6 space-y-6">
+        <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
           {/* Active Scheduled Ride Alert */}
           {isScheduledAcceptedRide && (
             <motion.button
@@ -723,7 +723,7 @@ const Home = () => {
             </div>
 
             {/* Grid of Ride, Bus, Delivery and Char Dham Cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
@@ -896,7 +896,7 @@ const Home = () => {
             exit={{ y: 18, opacity: 0, scale: 0.96 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => navigate(trackingPath, { state: currentRide })}
-            className="fixed bottom-24 left-4 right-4 z-[60] mx-auto flex max-w-[calc(32rem-2rem)] items-center gap-3 rounded-[20px] border border-white/80 bg-white/95 px-4 py-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.16)] backdrop-blur-xl"
+            className="fixed bottom-24 left-4 right-4 z-[60] mx-auto flex max-w-3xl items-center gap-3 rounded-[20px] border border-white/80 bg-white/95 px-4 py-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.16)] backdrop-blur-xl"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-slate-900 shadow-lg">
               <img src={currentRideIcon} alt={vehicleLabel} className="h-8 w-8 object-contain" draggable={false} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, Wallet, Bell, Menu } from 'lucide-react';
+import { MapPin, Wallet, Bell, Menu, User } from 'lucide-react';
 import { DEFAULT_LOCATION_LABEL, getSavedLocationLabel, LOCATION_UPDATED_EVENT } from '../services/locationStore';
 
 
@@ -44,13 +44,22 @@ const HeaderGreeting = () => {
       {/* TOP HEADER (Sticky, Yellow, Flat Bottom) */}
       <div className="bg-[#FFCC00] px-5 pt-6 pb-4 w-full sticky top-0 z-50 rounded-none shadow-sm">
         <div className="flex items-center justify-between gap-3">
+          {/* LEFT: Hamburger (mobile only) + Location */}
           <div className="flex min-w-0 items-center gap-3">
+            {/* Hamburger: only on mobile */}
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-1 -ml-1 text-slate-800 hover:opacity-80 transition-opacity"
+              className="md:hidden p-1 -ml-1 text-slate-800 hover:opacity-80 transition-opacity"
             >
               <Menu size={24} />
             </button>
+
+            {/* App Name / Logo: desktop only */}
+            {appLogo ? (
+              <img src={appLogo} alt={appName} className="hidden md:block h-8 object-contain" />
+            ) : (
+              <span className="hidden md:block text-slate-900 font-black text-lg tracking-tight">{appName}</span>
+            )}
 
             <div className="h-6 w-[1px] bg-slate-800/20 mx-1"></div>
 
@@ -72,6 +81,41 @@ const HeaderGreeting = () => {
             </motion.button>
           </div>
 
+          {/* CENTER: Desktop Nav Links (only on md+) */}
+          <nav className="hidden md:flex items-center gap-6">
+            <button
+              onClick={() => navigate('/home')}
+              className="text-slate-800 hover:text-slate-600 font-bold text-sm transition-colors"
+            >
+              Services
+            </button>
+            <button
+              onClick={() => navigate('/taxi/ride/select-location')}
+              className="text-slate-800 hover:text-slate-600 font-bold text-sm transition-colors"
+            >
+              Ride
+            </button>
+            <button
+              onClick={() => navigate('/taxi/user/activity')}
+              className="text-slate-800 hover:text-slate-600 font-bold text-sm transition-colors"
+            >
+              My Rides
+            </button>
+            <button
+              onClick={() => navigate('/taxi/user/bus')}
+              className="text-slate-800 hover:text-slate-600 font-bold text-sm transition-colors"
+            >
+              Bus
+            </button>
+            <button
+              onClick={() => navigate('/taxi/user/support')}
+              className="text-slate-800 hover:text-slate-600 font-bold text-sm transition-colors"
+            >
+              Support
+            </button>
+          </nav>
+
+          {/* RIGHT: Action icons */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={() => navigate('/taxi/wallet')}
@@ -88,6 +132,20 @@ const HeaderGreeting = () => {
             >
               <Bell size={20} />
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-[#FFCC00] rounded-full"></span>
+            </button>
+
+            {/* Profile button: desktop only */}
+            <button
+              onClick={() => navigate('/taxi/user/profile')}
+              className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 border border-white/30 text-slate-900 hover:bg-white/60 transition-colors shadow-sm active:scale-95"
+              title="My Profile"
+            >
+              <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center">
+                <User size={14} className="text-white" />
+              </div>
+              <span className="text-xs font-black tracking-tight">
+                {JSON.parse(localStorage.getItem('user') || '{}')?.name?.split(' ')[0] || 'Profile'}
+              </span>
             </button>
           </div>
         </div>

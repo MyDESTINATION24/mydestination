@@ -274,7 +274,7 @@ const Activity = () => {
   const helperText = useMemo(() => getHelperText(activeTab), [activeTab]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col bg-slate-50 font-sans pb-28">
+    <div className="w-full flex min-h-screen flex-col bg-slate-50 font-sans pb-28">
       <ActivityHeader helperText={helperText} onBack={() => navigate(-1)} />
       <ActivityTabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} />
 
@@ -288,15 +288,18 @@ const Activity = () => {
         ) : activities.length === 0 ? (
           <ActivityEmptyState activeTab={activeTab} />
         ) : (
-          <div className="space-y-3 pb-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 pb-2">
             {activities.map((activity) => (
               <ActivityCard key={activity.id} {...activity} onClick={() => handleItemClick(activity)} />
             ))}
-            <ActivityPager
-              pagination={pagination}
-              onPrevious={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              onNext={() => setCurrentPage((page) => Math.min(pagination.totalPages, page + 1))}
-            />
+            {/* Pager spans full width */}
+            <div className="col-span-full">
+              <ActivityPager
+                pagination={pagination}
+                onPrevious={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                onNext={() => setCurrentPage((page) => Math.min(pagination.totalPages, page + 1))}
+              />
+            </div>
           </div>
         )}
       </div>

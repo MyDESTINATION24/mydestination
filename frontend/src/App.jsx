@@ -299,7 +299,7 @@ const Layout = ({ children }) => {
   const isPartnerApp = (location.pathname === '/hotel' || location.pathname.startsWith('/hotel/')) && !isUserHotelDetail;
 
   // 3. NAVBAR VISIBILITY
-  const showUserNavs = !isPartnerApp;
+  const showUserNavs = !isPartnerApp && !isTaxiRoute;
 
   // Specific user pages where BottomNav is hidden
   const hideUserBottomNavOn = ['/booking-confirmation', '/payment', '/support', '/refer', '/hotel/', '/legal', '/terms', '/privacy', '/taxi'];
@@ -322,7 +322,7 @@ const Layout = ({ children }) => {
     <>
       {showUserNavs && <TopNavbar />}
 
-      <div className={`min-h-screen md:pt-16 ${showUserBottomNav || showPartnerBottomNav ? 'pb-20 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : 'hotel-module'}`}>
+      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-20 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : 'hotel-module'}`}>
         {showMaintenanceOverlay ? (
           <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-6 py-10 text-center bg-gradient-to-b from-[#111827] via-[#0f172a] to-black">
             <div className="flex flex-col items-center justify-center max-w-md w-full">

@@ -202,7 +202,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto pb-28 relative overflow-x-hidden font-['Inter']">
+    <div className="min-h-screen bg-slate-50 w-full pb-28 relative overflow-x-hidden font-['Inter']">
       {/* Premium Header Background */}
       <div className="absolute top-0 inset-x-0 h-80 bg-slate-900 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 via-slate-900 to-slate-900" />
@@ -285,8 +285,9 @@ const Profile = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="px-6 space-y-8"
+          className="px-6 md:px-10 lg:px-14 space-y-8"
         >
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {menuSections.map((section, sIdx) => (
             <motion.div key={sIdx} variants={itemVariants} className="space-y-4">
               <h3 className="font-['Outfit'] text-[12px] font-black text-slate-400 uppercase tracking-[0.25em] ml-1">
@@ -316,6 +317,7 @@ const Profile = () => {
               </div>
             </motion.div>
           ))}
+          </div>{/* end responsive grid */}
 
           {/* Dangerous Zone */}
           <motion.div variants={itemVariants} className="pt-4 pb-12 space-y-4">
