@@ -211,7 +211,9 @@ const WeddingLayout = () => {
                   <Menu className="w-6 h-6" />
                 </button>
                 <Link to="/wedding" className="flex items-center gap-2">
-                  <img src={logoImg} alt="Weddings Logo" className="h-8 md:h-11 w-auto object-contain transition-transform duration-300" />
+                  <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
+                    <img src={logoImg} alt="Weddings Logo" className="h-full w-full object-cover" />
+                  </div>
                 </Link>
                 <div className="hidden md:block">
                   <Link to="/home" className="text-gray-600 font-bold text-sm hover:text-[#81313A] transition">
@@ -382,7 +384,9 @@ const WeddingLayout = () => {
         {/* Sidebar */}
         <div id="mobile-sidebar-container" className={`absolute top-0 left-0 h-[100dvh] w-[85%] max-w-[300px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out overscroll-contain ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
           <div className="flex items-center justify-between p-5 pb-2">
-            <img src={logoImg} alt="Logo" className="h-16 object-contain" />
+            <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
+              <img src={logoImg} alt="Logo" className="h-full w-full object-cover" />
+            </div>
             <button onClick={() => setMobileSidebarOpen(false)} className="p-2 text-slate-400 bg-slate-50 rounded-full hover:text-[#81313A] hover:bg-[#81313A]/10">
               <X className="w-5 h-5" />
             </button>
@@ -542,7 +546,7 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav ? 'pt-16' : ''} ${location.pathname !== "/wedding" && location.pathname !== "/wedding/" && !hideNav ? "pb-24 md:pb-16" : ""}`}>
+      <main className={`${!hideNav && location.pathname !== "/wedding" && location.pathname !== "/wedding/" ? 'pt-16' : ''} ${location.pathname !== "/wedding" && location.pathname !== "/wedding/" && !hideNav ? "pb-24 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 
