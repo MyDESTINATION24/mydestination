@@ -11,11 +11,9 @@ const VendorOnboardingLayout = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <Link to="/wedding" className="flex items-center gap-2">
-                <img
-                  src={logoImg}
-                  alt="Logo"
-                  className="h-10 md:h-12 w-auto object-contain"
-                />
+                <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
+                  <img src={logoImg} alt="Logo" className="h-full w-full object-cover" />
+                </div>
               </Link>
               <span
                 className="text-sm md:text-base font-bold text-primary uppercase tracking-wider"

@@ -15,7 +15,7 @@ import hotelImg from '../assets/landing/hotel.webp';
 import weddingImg from '../assets/landing/wedding.jpg';
 import tourImg from '../assets/landing/tour.jpg';
 import bagImg from '../assets/landing/bag.png';
-import { Facebook, Twitter, Instagram, Menu, X } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Menu, X, Phone, Mail, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../services/apiService';
 
@@ -81,10 +81,21 @@ const LandingPage = () => {
 
   // Scroll State for Navbar
   const [isScrolled, setIsScrolled] = useState(false);
+  const [navbarVisible, setNavbarVisible] = useState(true);
+  const lastScrollY = React.useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      setIsScrolled(currentScrollY > 50);
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+        // Scroll down → hide navbar
+        setNavbarVisible(false);
+      } else {
+        // Scroll up → show navbar
+        setNavbarVisible(true);
+      }
+      lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -232,7 +243,7 @@ const LandingPage = () => {
 
 
         {/* Dot Indicators */}
-        <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-3">
           {activeSlides.map((_, idx) => {
             const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
             return (
@@ -274,7 +285,7 @@ const LandingPage = () => {
         </div>
 
         {/* Flat Transparent Navbar */}
-        <div className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-12 transition-all duration-500 flex items-center ${isScrolled ? 'bg-white py-3 shadow-xl' : 'bg-transparent pt-6 md:pt-8'}`}>
+        <div className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-12 flex items-center bg-white py-1.5 shadow-xl transition-transform duration-300 ${navbarVisible ? 'translate-y-0' : '-translate-y-full'}`}>
           <nav className="flex items-center justify-between w-full max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
@@ -284,16 +295,16 @@ const LandingPage = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className={`hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase transition-colors duration-300 ${isScrolled ? 'text-slate-700' : 'text-white'}`}>
-              <a href="#" onClick={(e) => handleScrollTo(e, 'home')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>HOME</a>
-              <a href="#feature" onClick={(e) => handleScrollTo(e, 'feature')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>SERVICES</a>
-              <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>ABOUT US</a>
-              <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className={`transition-colors ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>OUR STAFF</a>
+            <div className="hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
+              <a href="#" onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group">HOME<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
+              <a href="#feature" onClick={(e) => handleScrollTo(e, 'feature')} className="relative pb-1 transition-colors hover:text-[#065f46] group">SERVICES<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
+              <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className="relative pb-1 transition-colors hover:text-[#065f46] group">ABOUT US<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
+              <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className="relative pb-1 transition-colors hover:text-[#065f46] group">OUR STAFF<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
 
               {/* Auth Buttons */}
-              <div className="flex items-center gap-6 ml-4 border-l pl-8 border-white/20">
-                <Link to="/login" className={`transition-colors font-bold ${isScrolled ? 'hover:text-black' : 'hover:text-gray-300'}`}>LOGIN</Link>
-                <Link to="/signup" className={`transition-colors px-6 py-2.5 font-bold tracking-widest shadow-lg ${isScrolled ? 'bg-[#065f46] text-white hover:bg-[#04402f]' : 'bg-white text-[#065f46] hover:bg-gray-100'}`}>
+              <div className="flex items-center gap-6 ml-4 border-l pl-8 border-slate-200">
+                <Link to="/login" className="transition-colors font-bold hover:text-black">LOGIN</Link>
+                <Link to="/signup" className="transition-colors font-bold hover:text-[#065f46]">
                   REGISTER
                 </Link>
               </div>
@@ -634,7 +645,7 @@ const LandingPage = () => {
           <h2 className="text-4xl md:text-6xl font-black tracking-widest mb-6 md:mb-10 text-white uppercase">{cmsData?.latestTour?.title || "OUR LATEST TOUR"}</h2>
           <p className="text-sm md:text-base mb-2 opacity-90 font-medium tracking-wider">{cmsData?.latestTour?.dateText || "Fri 15 March to Sun 17 March"}</p>
           <p className="text-lg md:text-2xl font-black mb-10 md:mb-12">{cmsData?.latestTour?.priceText || "$125 per person"}</p>
-          <Link to={cmsData?.latestTour?.buttonLink || "/welcome"} className="inline-block bg-white text-[#0f172a] px-10 md:px-14 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest hover:bg-gray-100 transition shadow-2xl uppercase">
+          <Link to={cmsData?.latestTour?.buttonLink || "/welcome"} className="inline-block bg-white text-[#0f172a] px-10 md:px-14 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest hover:bg-[#065f46] hover:text-white transition-all duration-300 shadow-2xl uppercase">
             {cmsData?.latestTour?.buttonText || "BOOK NOW"}
           </Link>
         </div>
@@ -844,13 +855,13 @@ const LandingPage = () => {
                   <div key={idx} className="relative flex items-start lg:pl-6">
 
                     {/* Desktop map pin box - overlapping image boundary exactly */}
-                    <div className="absolute left-0 top-0 w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center lg:-ml-5 shadow-sm z-10 hidden lg:flex">
-                      <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
+                    <div className="absolute left-0 top-0 w-10 h-10 border-[1.5px] border-[#065f46] bg-white flex items-center justify-center lg:-ml-5 shadow-sm z-10 hidden lg:flex transition-all duration-300 hover:bg-[#065f46] group/pin">
+                      <MapPin size={20} className="text-[#065f46] fill-[#065f46] group-hover/pin:text-white group-hover/pin:fill-white transition-colors duration-300" />
                     </div>
 
                     {/* Mobile map pin box */}
-                    <div className="w-10 h-10 border-[1.5px] border-[#7a4b4b] bg-white flex items-center justify-center flex-shrink-0 lg:hidden shadow-sm z-10 mt-1 mr-4">
-                      <MapPin size={20} className="text-[#7a4b4b] fill-[#7a4b4b]" />
+                    <div className="w-10 h-10 border-[1.5px] border-[#065f46] bg-white flex items-center justify-center flex-shrink-0 lg:hidden shadow-sm z-10 mt-1 mr-4 transition-all duration-300 hover:bg-[#065f46] group/pin2">
+                      <MapPin size={20} className="text-[#065f46] fill-[#065f46] group-hover/pin2:text-white group-hover/pin2:fill-white transition-colors duration-300" />
                     </div>
 
                     <div className="w-full pl-0 lg:pl-8 lg:pr-2">
@@ -948,105 +959,171 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* 10. Footer (Minimal) */}
+      {/* 10. Footer (Restructured) */}
       <footer className="bg-emerald-950 text-white pt-16 pb-8 px-8">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+          {/* Column 1: Contact Details */}
           <div>
-            <div className="flex items-center gap-3 mb-6">
-              <span className="font-bold text-xl tracking-widest">
-                {cmsData?.footer?.companyName || "My DESTINATION"}
-              </span>
-            </div>
-            <p className="text-xs text-gray-400">
-              {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners"}
+            <h4 className="font-bold text-lg mb-6 tracking-wide">Contact Details</h4>
+            <ul className="space-y-3 text-sm text-gray-300">
+              <li className="flex items-start gap-3">
+                <MapPin size={18} className="text-emerald-400 mt-1 flex-shrink-0" />
+                <span className="leading-relaxed">
+                  {cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA"}
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Phone size={18} className="text-emerald-400 flex-shrink-0" />
+                <span>
+                  Helpline No: <a href={`tel:${cmsData?.footer?.phone || "+1 234 567 890"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.phone || "+1 234 567 890"}</a>
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <MessageCircle size={18} className="text-emerald-400 flex-shrink-0" />
+                <span>
+                  Whatsapp No: <a href={`https://wa.me/${(cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1234567890").replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1 234 567 890"}</a>
+                </span>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail size={18} className="text-emerald-400 flex-shrink-0" />
+                <span>
+                  Email: <a href={`mailto:${cmsData?.footer?.email || "info@mydestination.com"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.email || "info@mydestination.com"}</a>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 2: Useful Links */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide">Useful links</h4>
+            <ul className="space-y-3 text-sm text-gray-300">
+              <li>
+                <a href="#home" onClick={(e) => handleScrollTo(e, 'home')} className="hover:text-emerald-400 transition-colors block">Home</a>
+              </li>
+              <li>
+                <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className="hover:text-emerald-400 transition-colors block">About Us</a>
+              </li>
+              <li>
+                <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className="hover:text-emerald-400 transition-colors block">Our Team</a>
+              </li>
+
+              <li>
+                <Link to="/help" className="hover:text-emerald-400 transition-colors block">Contact Us</Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Important Links */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide">Important Links</h4>
+            <ul className="space-y-3 text-sm text-gray-300">
+              <li>
+                <Link to="/terms" className="hover:text-emerald-400 transition-colors block">Terms & Conditions</Link>
+              </li>
+
+              <li>
+                <Link to="/refund-policy" className="hover:text-emerald-400 transition-colors block">Return & Refund Policy</Link>
+              </li>
+              <li>
+                <Link to="/privacy-policy" className="hover:text-emerald-400 transition-colors block">Privacy Policy</Link>
+              </li>
+
+            </ul>
+          </div>
+
+          {/* Column 4: About Company */}
+          <div>
+            <h4 className="font-bold text-lg mb-6 tracking-wide">
+              {cmsData?.footer?.companyName?.toLowerCase().startsWith('about') 
+                ? cmsData.footer.companyName 
+                : `About ${cmsData?.footer?.companyName || "My DESTINATION"}`}
+            </h4>
+            <p className="text-xs text-gray-300 leading-relaxed mb-6">
+              {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services."}
             </p>
-          </div>
-          <div>
-            <h4 className="font-bold mb-4">Quick links</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><a href="#about" onClick={(e) => handleScrollTo(e, 'about')}>About us</a></li>
-              <li><Link to="/home">Services</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-4">Contact Info</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li className="flex items-start gap-2"><MapPin size={16} className="mt-1 flex-shrink-0" /> {cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA"}</li>
-              {cmsData?.footer?.phone && (
-                <li className="flex items-start gap-2">📞 {cmsData.footer.phone}</li>
-              )}
-              {cmsData?.footer?.email && (
-                <li className="flex items-start gap-2">✉️ {cmsData.footer.email}</li>
-              )}
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-bold mb-4 font-serif text-lg tracking-wide">Pay safely with us</h4>
-            <p className="text-xs text-gray-400 leading-relaxed">{cmsData?.footer?.paymentNote || "The payment is encrypted and transmitted securely with an SSL protocol."}</p>
+            <div>
+              <h5 className="font-bold text-xs uppercase tracking-wider text-emerald-400 mb-3">Connect with Us</h5>
+              <div className="flex gap-3">
+                <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/60 border border-emerald-800 flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all text-gray-300" aria-label="Facebook">
+                  <Facebook size={16} />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/60 border border-emerald-800 flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all text-gray-300" aria-label="Twitter">
+                  <Twitter size={16} />
+                </a>
+                <a href="#" className="w-8 h-8 rounded-full bg-emerald-900/60 border border-emerald-800 flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all text-gray-300" aria-label="Instagram">
+                  <Instagram size={16} />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-        {/* Copyright + Payment Bar — same color as footer */}
+        {/* Copyright + Payment Bar — white/light thin bar */}
         <div style={{
-          background: '#022c22',
-          borderTop: '1px solid rgba(255,255,255,0.08)',
-          padding: '12px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '10px',
+          background: '#ffffff',
+          borderTop: '1px solid #e5e7eb',
+          padding: '16px 0',
           margin: '0 -32px -32px -32px',
         }}>
+          <div style={{
+            maxWidth: '80rem',
+            margin: '0 auto',
+            padding: '0 32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}>
           {/* Left: Copyright */}
-          <p style={{ margin: 0, fontSize: '13px', color: '#6b8c75' }}>
-            {cmsData?.footer?.copyrightText
-              ? cmsData.footer.copyrightText
-              : <>Copyright © {new Date().getFullYear()} <strong style={{ color: '#d4edda' }}>My DESTINATION<sup style={{ fontSize: '9px' }}>®</sup></strong> | All Rights Reserved.</>
-            }
+          <p style={{ margin: 0, fontSize: '12px', color: '#065f46', fontFamily: 'inherit', fontWeight: 500 }}>
+            Copyright © {new Date().getFullYear()}{' '}
+            <strong style={{ color: '#065f46', fontWeight: 'bold', fontSize: '13px', letterSpacing: '0.02em' }}>My DESTINATION<sup style={{ fontSize: '8px' }}>®</sup></strong>
+            {' '}<span style={{ fontWeight: 500 }}>| All Rights Reserved.</span>
           </p>
 
           {/* Right: Payment Icons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
             {/* PayPal */}
             {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
-              <div style={{ background: '#003087', borderRadius: '5px', padding: '4px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <div style={{ background: '#172b85', borderRadius: '6px', padding: '3px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '36px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
               </div>
             )}
             {/* Mastercard */}
             {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
-              <div style={{ background: '#fff', borderRadius: '5px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px', border: '1px solid #dde1e7' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg" alt="Mastercard" style={{ height: '18px', objectFit: 'contain' }} />
+              <div style={{ background: '#1a1a1a', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', gap: '0px' }}>
+                <div style={{ position: 'relative', width: '28px', height: '16px', display: 'flex', alignItems: 'center' }}>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
+                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '8px', opacity: 0.9 }}></div>
+                </div>
               </div>
             )}
             {/* Visa */}
             {(cmsData?.footer?.paymentMethods?.visa !== false) && (
-              <div style={{ background: '#1a1f71', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
-                <svg fill="#ffffff" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style={{ height: '16px', width: 'auto' }}>
-                  <title>Visa</title>
-                  <path d="M9.112 8.262L5.97 15.758H3.92L2.374 9.775c-.094-.368-.175-.503-.461-.658C1.447 8.864.677 8.627 0 8.479l.046-.217h3.3a.904.904 0 01.894.764l.817 4.338 2.018-5.102zm8.033 5.049c.008-1.979-2.736-2.088-2.717-2.972.006-.269.262-.555.822-.628a3.66 3.66 0 011.913.336l.34-1.59a5.207 5.207 0 00-1.814-.333c-1.917 0-3.266 1.02-3.278 2.479-.012 1.079.963 1.68 1.698 2.04.756.367 1.01.603 1.006.931-.005.504-.602.725-1.16.734-.975.015-1.54-.263-1.992-.473l-.351 1.642c.453.208 1.289.39 2.156.398 2.037 0 3.37-1.006 3.377-2.564m5.061 2.447H24l-1.565-7.496h-1.656a.883.883 0 00-.826.55l-2.909 6.946h2.036l.405-1.12h2.488zm-2.163-2.656l1.02-2.815.588 2.815zm-8.16-4.84l-1.603 7.496H8.34l1.605-7.496z"/>
-                </svg>
+              <div style={{ background: '#1a56db', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
+                <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>VISA</span>
               </div>
             )}
             {/* Stripe */}
             {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
-              <div style={{ background: '#635bff', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <div style={{ background: '#635bff', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
               </div>
             )}
             {/* Apple Pay */}
             {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
-              <div style={{ background: '#000', borderRadius: '5px', padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '13px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+              <div style={{ background: '#000000', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '48px' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '11px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
               </div>
             )}
             {/* Google Pay */}
             {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
-              <div style={{ background: '#fff', borderRadius: '5px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '26px', border: '1px solid #dde1e7' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '15px', objectFit: 'contain' }} />
+              <div style={{ background: '#f8f9fa', borderRadius: '6px', padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', border: '1px solid #e5e7eb' }}>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '12px', objectFit: 'contain' }} />
               </div>
             )}
           </div>
+        </div>
         </div>
 
       </footer>
