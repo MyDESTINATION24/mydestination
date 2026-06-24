@@ -34,7 +34,11 @@ const generateSearchNonce = () =>
 const IntercityDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
   const state = location.state || {};
   const { fromCity, toCity, vehicle } = state;
 

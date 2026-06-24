@@ -544,7 +544,7 @@ const SenderReceiverDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const routePrefix = useMemo(
-    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
+    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : location.pathname.startsWith('/taxi') ? '/taxi' : ''),
     [location.pathname],
   );
   const { isLoaded: isGoogleMapsLoaded } = useAppGoogleMapsLoader();

@@ -15,7 +15,12 @@ import {
   Ticket,
 } from 'lucide-react';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const formatTravelDate = (dateStr) => {
   if (!dateStr) return '';

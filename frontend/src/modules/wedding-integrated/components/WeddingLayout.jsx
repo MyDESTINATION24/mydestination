@@ -104,9 +104,8 @@ const WeddingLayout = () => {
   const isBookingDetail = location.pathname.match(/\/wedding\/bookings\/bk-\d+/);
   const hideNav = isGallery || isBookingDetail;
 
-  const [footerDestinations, setFooterDestinations] = useState([]);
-  const [footerCategories, setFooterCategories] = useState([]);
   const [dynamicMegaMenu, setDynamicMegaMenu] = useState([[], [], [], []]);
+
 
   // Handle touch interactions for mobile sidebar if needed
   useEffect(() => {
@@ -138,21 +137,12 @@ const WeddingLayout = () => {
   }, []);
 
   useEffect(() => {
-    const fetchFooterData = async () => {
+    const fetchMegaMenuData = async () => {
       try {
-        const [destData, catData] = await Promise.all([
-          weddingService.getDestinations(),
-          weddingService.getCategories()
-        ]);
-
-        if (Array.isArray(destData)) {
-          setFooterDestinations(destData.slice(0, 6));
-        }
+        const catData = await weddingService.getCategories();
         const actualCatData = Array.isArray(catData) ? catData : (catData?.categories || []);
 
         if (actualCatData) {
-          setFooterCategories(actualCatData.slice(0, 5));
-          
           if (actualCatData.length > 0) {
             // Generate Dynamic Mega Menu
             const grouped = actualCatData.reduce((acc, cat) => {
@@ -182,10 +172,10 @@ const WeddingLayout = () => {
           }
         }
       } catch (error) {
-        console.error("Footer fetch error", error);
+        console.error("Mega menu fetch error", error);
       }
     };
-    fetchFooterData();
+    fetchMegaMenuData();
   }, []);
 
   // Hide the main app's navbars when wedding module is active
@@ -546,7 +536,7 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav && location.pathname !== "/wedding" && location.pathname !== "/wedding/" ? 'pt-16' : ''} ${location.pathname !== "/wedding" && location.pathname !== "/wedding/" && !hideNav ? "pb-24 md:pb-16" : ""}`}>
+      <main className={`${!hideNav && location.pathname !== "/wedding" && location.pathname !== "/wedding/" ? 'pt-16 md:pt-0' : ''} ${location.pathname !== "/wedding" && location.pathname !== "/wedding/" && !hideNav ? "pb-24 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 
@@ -582,53 +572,7 @@ const WeddingLayout = () => {
         </div>
       )}
 
-      {/* Footer */}
-      {(location.pathname === "/wedding" || location.pathname === "/wedding/") && (
-        <footer className="hidden md:block bg-[hsl(353,20%,15%)] text-white pt-6 pb-28 md:pt-10 md:pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-y-6 md:gap-8">
-              <div>
-                <p className="text-xs opacity-70 mt-2">
-                  Creating unforgettable destination wedding experiences across
-                  India's most beautiful locations.
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">My DESTINATIONS</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs opacity-70">
-                  {(footerDestinations.length > 0 ? footerDestinations : [{ name: "Goa" }, { name: "Jaipur" }, { name: "Udaipur" }, { name: "Kerala" }, { name: "Rishikesh" }]).map((d) => (
-                    <Link key={d._id || d.name} to={`/wedding/destinations/${d._id || d.name.toLowerCase()}`} className="block hover:opacity-100 transition-opacity">
-                      {d.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">Services</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs opacity-70">
-                  {(footerCategories.length > 0 ? footerCategories : [{ name: "Full Planning" }, { name: "Decor & Design" }, { name: "Photography" }, { name: "Catering" }, { name: "Entertainment" }]).map((s) => (
-                    <Link 
-                      key={s._id || s.name} 
-                      to={`/wedding/vendors?category=${encodeURIComponent(s.name)}`}
-                      className="block hover:opacity-100 transition-opacity"
-                    >
-                      {s.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider">Get in Touch</h4>
-                <p className="text-xs opacity-70 mb-2">hello@weddings.example.com</p>
-                <p className="text-xs opacity-70">+91 98765 43210</p>
-              </div>
-            </div>
-            <div className="border-t border-white/20 mt-8 pt-6 text-center text-[11px] opacity-50">
-              © 2026 My DESTINATION™. All rights reserved.
-            </div>
-          </div>
-        </footer>
-      )}
+
     </div>
   );
 };

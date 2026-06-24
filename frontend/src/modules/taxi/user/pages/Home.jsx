@@ -198,7 +198,11 @@ const Home = () => {
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [endingRide, setEndingRide] = useState(false);
   const [showDeferredSections, setShowDeferredSections] = useState(false);
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
   const currentRideRef = useRef(currentRide);
 
   const persistCurrentRide = (ride) => {

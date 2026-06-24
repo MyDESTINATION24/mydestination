@@ -5,9 +5,30 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+let activeLenis = null;
+
+const shouldDisableSmoothScroll = () => {
+    if (typeof window === 'undefined') return true;
+
+    const ua = window.navigator.userAgent || '';
+    const isTouchDevice = 'ontouchstart' in window || window.navigator.maxTouchPoints > 0;
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
+    const isEmbeddedWebView =
+        ua.includes('FlutterWebView') ||
+        window.flutter_inappwebview !== undefined ||
+        window.flutter !== undefined;
+
+    return isTouchDevice || isIOS || isEmbeddedWebView;
+};
+
 export const useLenis = (disabled = false) => {
     useEffect(() => {
-        if (disabled) return;
+        if (disabled || shouldDisableSmoothScroll()) return;
+
+        if (activeLenis) {
+            window.lenis = activeLenis;
+            return;
+        }
 
         const lenis = new Lenis({
             duration: 1.2,
@@ -29,12 +50,19 @@ export const useLenis = (disabled = false) => {
 
         gsap.ticker.lagSmoothing(0);
 
+        ScrollTrigger.config({ ignoreMobileResize: true });
+
         window.lenis = lenis;
+        activeLenis = lenis;
 
         return () => {
-            lenis.destroy();
-            gsap.ticker.remove(update);
+            if (lenis) {
+                lenis.destroy();
+                gsap.ticker.remove(update);
+            }
             window.lenis = null;
+            activeLenis = null;
         };
     }, [disabled]);
 };
+

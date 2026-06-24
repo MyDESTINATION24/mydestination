@@ -69,7 +69,11 @@ const CabHome = () => {
   const { settings } = useSettings();
   const showBusService = String(settings.transportRide?.enable_bus_service || '0') === '1';
   const visibleServices = services.filter((service) => showBusService || service.id !== 'bus');
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] max-w-lg mx-auto font-sans pb-12 relative overflow-hidden">

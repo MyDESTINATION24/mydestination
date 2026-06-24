@@ -21,7 +21,12 @@ import {
 import toast from 'react-hot-toast';
 import userBusService from '../../services/busService';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const formatMoney = (amount, currency = 'INR') =>
   new Intl.NumberFormat('en-IN', {

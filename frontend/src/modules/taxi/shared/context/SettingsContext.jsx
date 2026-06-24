@@ -196,6 +196,12 @@ export const SettingsProvider = ({ children }) => {
           )
           : null;
 
+      // Force logo and favicon to be the new requested image
+      generalSettings.logo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
+      generalSettings.favicon = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
+      customizationSettings.logo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
+      customizationSettings.favicon = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
+
       setSettings({
         general: generalSettings,
         customization: customizationSettings,

@@ -15,7 +15,12 @@ const Login = () => {
   const navigate = useNavigate();
   const appName = settings.general?.app_name || 'App';
   const userHomeRoute = useMemo(
-    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '/user'),
+    () =>
+      location.pathname.startsWith('/taxi/user')
+        ? '/taxi/user'
+        : location.pathname.startsWith('/taxi')
+          ? '/taxi'
+          : '/user',
     [location.pathname],
   );
 

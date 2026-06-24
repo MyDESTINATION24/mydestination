@@ -15,6 +15,7 @@ import userBusService from './user/services/busService';
 import { userService } from './user/services/userService';
 import { syncUpcomingRideReminders } from './user/utils/upcomingRideReminderService';
 import { getAuthenticatedDriverRole, getLocalDriverToken } from './driver/services/registrationService';
+import TaxiSidebar from './user/components/TaxiSidebar';
 import { getTaxiAdminToken, getTaxiUserToken } from './shared/authStorage';
 import './taxi-index.css';
 import './TaxiApp.css';
@@ -707,6 +708,7 @@ function App() {
         <ScrollToTop />
         {!isUserAuthRoute ? <UserAccountInvalidationListener /> : null}
         {!isUserAuthRoute ? <UserUpcomingRideReminderBootstrap /> : null}
+        <TaxiSidebar />
         <MainLayout>
           <Suspense
             fallback={

@@ -5,7 +5,12 @@ import { ArrowLeft, User, Phone, Mail, ChevronRight, Check, Loader2 } from 'luci
 import userBusService from '../../services/busService';
 import { userAuthService } from '../../services/authService';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const loadRazorpayScript = () =>
   new Promise((resolve) => {

@@ -4,7 +4,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ChevronRight, Loader2 } from 'lucide-react';
 import userBusService from '../../services/busService';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const seatLegend = [
   { key: 'available', label: 'Available' },

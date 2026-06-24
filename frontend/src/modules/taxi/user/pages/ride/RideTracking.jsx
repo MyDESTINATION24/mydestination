@@ -335,11 +335,16 @@ const RideTracking = () => {
   const storedRide = useMemo(() => getCurrentRide(), []);
   const state = useMemo(() => location.state || storedRide || {}, [location.state, storedRide]);
   const { isLoaded, loadError } = useAppGoogleMapsLoader();
-  const routeHome = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '/';
-  const routeComplete = location.pathname.startsWith('/taxi/user') ? '/taxi/user/ride/complete' : '/ride/complete';
-  const routeChat = location.pathname.startsWith('/taxi/user') ? '/taxi/user/ride/chat' : '/ride/chat';
-  const routeSupport = location.pathname.startsWith('/taxi/user') ? '/taxi/user/support' : '/support';
-  const routeSos = location.pathname.startsWith('/taxi/user') ? '/taxi/user/safety/sos' : '/safety/sos';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
+  const routeHome = routePrefix || '/';
+  const routeComplete = `${routePrefix}/ride/complete`;
+  const routeChat = `${routePrefix}/ride/chat`;
+  const routeSupport = `${routePrefix}/support`;
+  const routeSos = `${routePrefix}/safety/sos`;
 
   const rideId = state.rideId || '';
   const scheduledAt = rideRealtime?.scheduledAt || state.scheduledAt || null;
@@ -475,7 +480,7 @@ const RideTracking = () => {
       // If the ride has already advanced or ended, we still clear the local state below.
     } finally {
       clearCurrentRide();
-      navigate('/taxi/user');
+      navigate(routeHome);
     }
   };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,11 +6,26 @@ import { User, Edit3, X, LogOut, LayoutGrid, Clock, Map, Home, Bell, Wallet } fr
 import { useSettings } from '../../../../shared/context/SettingsContext';
 import { clearLocalUserSession } from '../services/authService';
 
-const TaxiSidebar = ({ isOpen, onClose }) => {
+const TaxiSidebar = ({ isOpen: propIsOpen, onClose: propOnClose }) => {
     const navigate = useNavigate();
     const { settings } = useSettings();
     const logoImg = settings?.general?.logo || '';
     const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+    const [localIsOpen, setLocalIsOpen] = useState(false);
+
+    useEffect(() => {
+        const handleOpen = () => setLocalIsOpen(true);
+        window.addEventListener('openTaxiSidebar', handleOpen);
+        return () => window.removeEventListener('openTaxiSidebar', handleOpen);
+    }, []);
+
+    const isOpen = propIsOpen !== undefined ? propIsOpen : localIsOpen;
+    
+    const onClose = () => {
+        if (propOnClose) propOnClose();
+        setLocalIsOpen(false);
+    };
 
     const handleNavigation = (path) => {
         onClose();
@@ -34,7 +49,7 @@ const TaxiSidebar = ({ isOpen, onClose }) => {
     return createPortal(
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[100] md:hidden" style={{ touchAction: 'none' }}>
+                <div className="fixed inset-0 z-[100]" style={{ touchAction: 'none' }}>
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

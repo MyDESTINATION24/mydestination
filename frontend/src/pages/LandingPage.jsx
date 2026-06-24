@@ -296,7 +296,7 @@ const LandingPage = () => {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
-              <a href="#" onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group">HOME<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
+              <a href="/" onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group">HOME<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
               <a href="#feature" onClick={(e) => handleScrollTo(e, 'feature')} className="relative pb-1 transition-colors hover:text-[#065f46] group">SERVICES<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
               <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className="relative pb-1 transition-colors hover:text-[#065f46] group">ABOUT US<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
               <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className="relative pb-1 transition-colors hover:text-[#065f46] group">OUR STAFF<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
@@ -324,7 +324,7 @@ const LandingPage = () => {
         {isMobileMenuOpen && (
           <div className="fixed top-[80px] left-4 right-4 bg-white rounded-xl shadow-2xl z-[100] lg:hidden overflow-hidden border border-gray-100">
             <div className="flex flex-col text-gray-800 font-medium uppercase tracking-widest text-[13px]">
-              <a href="#" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'home'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">HOME</a>
+              <a href="/" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'home'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">HOME</a>
               <a href="#feature" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'feature'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">SERVICES</a>
               <a href="#about" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'about'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">ABOUT US</a>
               <a href="#staff" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'staff'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">OUR STAFF</a>

@@ -4,7 +4,12 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Ticket, QrCode, Home, Share2, Phone, Route, BusFront } from 'lucide-react';
 import { scheduleBusBookingReminders } from '../../utils/upcomingRideReminderService';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const formatTravelDate = (dateStr) => {
   if (!dateStr) return '';

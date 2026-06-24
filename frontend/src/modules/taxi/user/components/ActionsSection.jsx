@@ -1,9 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
 const ActionCard = ({ title, description, image, surfaceClass, titleClass, buttonClass, buttonText, path }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '/taxi';
 
   return (
     <div
@@ -22,7 +24,7 @@ const ActionCard = ({ title, description, image, surfaceClass, titleClass, butto
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(path);
+              navigate(`${routePrefix}${path}`);
             }}
             className="relative inline-flex items-center rounded-full px-3.5 py-2 text-[11px] font-black whitespace-nowrap text-white shadow-[0_12px_26px_rgba(2,6,23,0.16)] backdrop-blur-md bg-white/10 border border-white/35 overflow-hidden transition-all active:scale-95"
           >

@@ -939,7 +939,11 @@ const SelectVehicle = () => {
     [routeState.stops],
   );
   const serviceLocationId = routeState.service_location_id || routeState.serviceLocationId || '';
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
   const pickupPosition = useMemo(() => toLatLng(pickupCoords), [pickupCoords]);
   const dropPosition = useMemo(() => toLatLng(dropCoords, null), [dropCoords]);
   const { isLoaded: isMapLoaded, loadError: mapLoadError } = useAppGoogleMapsLoader();

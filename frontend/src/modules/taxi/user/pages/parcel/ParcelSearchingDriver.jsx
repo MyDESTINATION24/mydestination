@@ -306,7 +306,7 @@ const ParcelSearchingDriver = () => {
   const location = useLocation();
   const routeState = useMemo(() => location.state || {}, [location.state]);
   const routePrefix = useMemo(
-    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
+    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : location.pathname.startsWith('/taxi') ? '/taxi' : ''),
     [location.pathname],
   );
   const userHomeRoute = routePrefix || '/taxi/user';

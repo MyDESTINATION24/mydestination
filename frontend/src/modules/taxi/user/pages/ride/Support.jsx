@@ -7,7 +7,11 @@ import BottomNavbar from '../../components/BottomNavbar';
 const Support = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
   const helpTopics = [
     { title: "Driver didn't arrive", Icon: XCircle, iconClass: 'text-rose-500', ringClass: 'bg-rose-50/70' },

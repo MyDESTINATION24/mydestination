@@ -13,7 +13,11 @@ const generateSearchNonce = () =>
 const IntercityConfirm = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
   const state = useMemo(() => location.state || {}, [location.state]);
   const [status, setStatus] = useState('saving');
   const [error, setError] = useState('');

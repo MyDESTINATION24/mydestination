@@ -99,7 +99,11 @@ const RideComplete = () => {
     min_tip_amount: '10',
   });
 
-  const routeHome = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '/';
+  const routeHome = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '/';
   const rideId = state.rideId || '';
   const fare = Number(state.fare || 22);
   const paymentMethod = state.paymentMethod || 'Cash';

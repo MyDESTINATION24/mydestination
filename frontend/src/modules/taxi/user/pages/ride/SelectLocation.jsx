@@ -168,7 +168,11 @@ const SelectLocation = () => {
   const latestSearchRef = useRef(0);
   const { isLoaded, loadError } = useAppGoogleMapsLoader();
   const navigate = useNavigate();
-  const routePrefix = window.location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = window.location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : window.location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
   // All known locations â€” filtered live as user types
   const allResults = [

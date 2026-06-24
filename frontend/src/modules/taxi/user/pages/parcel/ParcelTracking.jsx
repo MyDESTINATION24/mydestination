@@ -144,7 +144,7 @@ const ParcelTracking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const routePrefix = useMemo(
-    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
+    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : location.pathname.startsWith('/taxi') ? '/taxi' : ''),
     [location.pathname],
   );
   const userHomeRoute = routePrefix || '/taxi/user';

@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Wallet, Heart, Gift, HelpCircle, FileText, Shield, ChevronRight, LogOut, Settings, BookOpen, Building, Briefcase, Bell, Edit3 } from 'lucide-react';
 import logo from '../../assets/rokologin-removebg-preview.png';
+import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
+const taxiLogo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
 import { userService } from '../../services/apiService';
 import { isWebView } from '../../utils/deviceDetect';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const MobileMenu = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const isWeddingModule = location.pathname.startsWith('/wedding');
+    const isTaxiModule = location.pathname.startsWith('/taxi');
+    const activeLogo = isWeddingModule ? weddingLogo : isTaxiModule ? taxiLogo : logo;
     const [unreadCount, setUnreadCount] = useState(0);
 
     const user = React.useMemo(() => {
@@ -165,7 +171,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between p-5 pb-2 shrink-0">
-                            <img src={logo} alt="My DESTINATION" className="h-20 object-contain" />
+                            <img src={activeLogo} alt="My DESTINATION" className="h-20 object-contain" />
                             <button onClick={onClose} className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition border border-gray-100">
                                 <X size={20} className="text-gray-500" />
                             </button>

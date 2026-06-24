@@ -50,7 +50,11 @@ const RideDetail = () => {
   const [ride, setRide] = useState(location.state?.ride || null);
   const [loading, setLoading] = useState(!location.state?.ride);
   const [error, setError] = useState('');
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
   useEffect(() => {
     if (ride || !id) return undefined;

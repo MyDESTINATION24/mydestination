@@ -211,7 +211,7 @@ const SearchingDriver = () => {
   const trackingStartedRef = useRef(false);
   const driverRef = useRef(driver);
   const routePrefix = useMemo(
-    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
+    () => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : location.pathname.startsWith('/taxi') ? '/taxi' : ''),
     [location.pathname],
   );
   const userHomeRoute = routePrefix || '/taxi/user';

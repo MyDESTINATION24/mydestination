@@ -121,7 +121,11 @@ const IntercityVehicle = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { settings } = useSettings();
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
   const {
     fromCity,
     toCity,

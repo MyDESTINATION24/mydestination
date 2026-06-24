@@ -58,7 +58,7 @@ const formatMoney = (amount, currency = 'INR') =>
 const BusBookings = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = useMemo(() => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''), [location.pathname]);
+  const routePrefix = useMemo(() => (location.pathname.startsWith('/taxi/user') ? '/taxi/user' : location.pathname.startsWith('/taxi') ? '/taxi' : ''), [location.pathname]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

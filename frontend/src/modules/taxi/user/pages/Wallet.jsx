@@ -20,7 +20,12 @@ const Wallet = () => {
   const [wallet, setWallet] = React.useState({ balance: 0, currency: 'INR', recentTransactions: [] });
 
   const basePath = useMemo(
-    () => (window.location.pathname.startsWith('/taxi/user') ? '/taxi/user' : ''),
+    () =>
+      window.location.pathname.startsWith('/taxi/user')
+        ? '/taxi/user'
+        : window.location.pathname.startsWith('/taxi')
+          ? '/taxi'
+          : '',
     [],
   );
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Car, Heart, ChevronRight, Compass } from 'lucide-react';
+import { Building2, Car, Heart, ChevronRight, Compass, LogOut } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const services = [
   {
@@ -46,6 +47,12 @@ const SuperAppDashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+  const handleLogout = () => {
+    localStorage.clear();
+    toast.success("Logged out successfully");
+    navigate('/login');
+  };
+
   return (
     <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-24 md:p-8 flex flex-col md:items-center md:justify-center">
       <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
@@ -55,17 +62,28 @@ const SuperAppDashboard = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-4 mb-2"
+            className="flex items-center justify-between gap-4 mb-2 w-full"
           >
-            <div className="w-12 h-12 rounded-full bg-surface text-white flex items-center justify-center text-xl font-semibold shadow-lg">
-              {user?.name ? user.name.charAt(0) : 'U'}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-surface text-white flex items-center justify-center text-xl font-semibold shadow-lg">
+                {user?.name ? user.name.charAt(0) : 'U'}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Hi, {user?.name?.split(' ')[0] || 'User'}! 👋
+                </h1>
+                <p className="text-gray-500 font-normal">What are you looking for today?</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Hi, {user?.name?.split(' ')[0] || 'User'}! 👋
-              </h1>
-              <p className="text-gray-500 font-normal">What are you looking for today?</p>
-            </div>
+
+            {/* Logout button for desktop view */}
+            <button
+              onClick={handleLogout}
+              className="hidden md:flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 active:scale-95 rounded-xl transition-all duration-200 border border-red-100 shadow-sm shadow-red-100/50 hover:shadow-red-200/50 hover:-translate-y-0.5 cursor-pointer"
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
           </motion.div>
         </div>
 

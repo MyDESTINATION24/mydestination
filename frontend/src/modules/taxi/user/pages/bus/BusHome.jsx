@@ -19,7 +19,12 @@ import { useSettings } from '../../../../shared/context/SettingsContext';
 import userBusService from '../../services/busService';
 import BottomNavbar from '../../components/BottomNavbar';
 
-const getRoutePrefix = (pathname = '') => (pathname.startsWith('/taxi/user') ? '/taxi/user' : '');
+const getRoutePrefix = (pathname = '') =>
+  pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
 const getDateOffset = (offset = 1) => {
   const date = new Date();

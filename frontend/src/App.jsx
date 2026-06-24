@@ -18,6 +18,7 @@ import { legalService, userService, hotelService } from './services/apiService';
 import adminService from './services/adminService';
 import { requestNotificationPermission, onMessageListener } from './utils/firebase';
 import logo from './assets/rokologin-removebg-preview.png';
+import weddingLogo from './modules/wedding-integrated/assets/logo.png';
 import { AuthProvider as WeddingVendorAuthProvider } from "./modules/wedding-integrated/vendor/context/AuthContext";
 import { VendorProvider as WeddingVendorProvider } from "./modules/wedding-integrated/vendor/context/VendorContext";
 import { initAppMode, isWebView } from './utils/deviceDetect';
@@ -568,6 +569,45 @@ const WeddingVendorPublicRoute = ({ children }) => {
 };
 
 function App() {
+  const location = useLocation();
+
+  // Dynamic Service-wise Favicon Updater
+  React.useEffect(() => {
+    const isWeddingRoute = location.pathname.startsWith('/wedding');
+    const isTaxiRoute = location.pathname.startsWith('/taxi');
+
+    let faviconHref = '/WhatsApp_Image_2026-06-04_at_2.41.20_PM-removebg-preview.png';
+
+    if (isWeddingRoute) {
+      faviconHref = weddingLogo;
+    } else if (isTaxiRoute) {
+      faviconHref = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
+    }
+
+    const ensureHeadLink = (selector, rel) => {
+      let link = document.querySelector(selector);
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      return link;
+    };
+
+    const updateFavicon = (href) => {
+      const iconLink = ensureHeadLink("link[rel='icon']", 'icon');
+      const shortcutIconLink = ensureHeadLink("link[rel='shortcut icon']", 'shortcut icon');
+      const appleTouchIconLink = ensureHeadLink("link[rel='apple-touch-icon']", 'apple-touch-icon');
+
+      [iconLink, shortcutIconLink, appleTouchIconLink].forEach((link) => {
+        link.href = href;
+        link.type = 'image/png';
+      });
+    };
+
+    updateFavicon(faviconHref);
+  }, [location.pathname]);
+
   // Fix for Back Button in WebView/App Wrappers (Flutter/Android)
   // Ensures history stack has depth so "canGoBack" is true, preventing immediate app exit.
   React.useEffect(() => {

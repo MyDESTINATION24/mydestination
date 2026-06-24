@@ -1,9 +1,12 @@
 import React from 'react';
 import { User, Globe, Navigation, Menu } from 'lucide-react';
 import logo from '../../assets/rokologin-removebg-preview.png';
+import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';
 import { toast } from 'react-hot-toast';
+
+const taxiLogo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
 
 const TopNavbar = () => {
     const navigate = useNavigate();
@@ -22,6 +25,8 @@ const TopNavbar = () => {
     
     // Fallback to show default links (Hotel links) on global pages like Wallet so header doesn't look broken
     const showDefaultLinks = isHotelModule || isGlobalModule;
+
+    const hoverClass = isWeddingModule ? 'hover:text-[#81313A]' : 'hover:text-surface';
 
     if (isSuperApp) {
         return null;
@@ -54,20 +59,20 @@ const TopNavbar = () => {
                         <Menu size={20} />
                     </button>
                 )}
-                <Link to="/home">
-                    <img src={logo} alt="My DESTINATION" className="h-12 object-contain" />
+                <Link to={isWeddingModule ? "/wedding" : isTaxiModule ? "/taxi" : "/home"}>
+                    <img src={isWeddingModule ? weddingLogo : isTaxiModule ? taxiLogo : logo} alt="My DESTINATION" className="h-12 object-contain" />
                 </Link>
             </div>
 
             {/* Desktop Links */}
             <div className="flex items-center gap-8">
                 {/* Always show Services and Home */}
-                <Link to="/home" className="text-gray-600 font-bold text-sm hover:text-surface transition">
+                <Link to="/home" className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}>
                     Services
                 </Link>
                 <Link 
                     to={isWeddingModule ? '/wedding' : isTaxiModule ? '/taxi' : isGlobalModule ? '/home' : '/hotels'} 
-                    className="text-gray-600 font-bold text-sm hover:text-surface transition"
+                    className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}
                 >
                     Home
                 </Link>
@@ -97,13 +102,13 @@ const TopNavbar = () => {
                 {/* Wedding Specific Links */}
                 {isWeddingModule && (
                     <>
-                        <Link to="/wedding/destinations" className="text-gray-600 font-bold text-sm hover:text-pink-500 transition">
+                        <Link to="/wedding/destinations" className="text-gray-600 font-bold text-sm hover:text-[#81313A] transition">
                             Destinations
                         </Link>
-                        <Link to="/wedding/vendors" className="text-gray-600 font-bold text-sm hover:text-pink-500 transition">
+                        <Link to="/wedding/vendors" className="text-gray-600 font-bold text-sm hover:text-[#81313A] transition">
                             Vendors
                         </Link>
-                        <Link to="/wedding/planners" className="text-gray-600 font-bold text-sm hover:text-pink-500 transition">
+                        <Link to="/wedding/planners" className="text-gray-600 font-bold text-sm hover:text-[#81313A] transition">
                             Planners
                         </Link>
                     </>
@@ -128,17 +133,17 @@ const TopNavbar = () => {
                     to={isWeddingModule ? '/wedding/saved' : '/saved-places'}
                     className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition"
                 >
-                    <Globe size={18} className="text-surface" />
+                    <Globe size={18} className={isWeddingModule ? "text-[#81313A]" : "text-surface"} />
                 </Link>
 
                 <Link
                     to={isWeddingModule ? '/wedding/account' : '/settings'}
-                    className="pl-3 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-full flex items-center gap-3 hover:border-surface transition group"
+                    className={`pl-3 pr-4 py-1.5 bg-gray-50 border border-gray-200 rounded-full flex items-center gap-3 ${isWeddingModule ? 'hover:border-[#81313A]' : 'hover:border-surface'} transition group`}
                 >
-                    <div className="w-8 h-8 rounded-full bg-surface text-white flex items-center justify-center font-bold text-xs">
+                    <div className={`w-8 h-8 rounded-full ${isWeddingModule ? 'bg-[#81313A]' : 'bg-surface'} text-white flex items-center justify-center font-bold text-xs`}>
                         {userName.charAt(0)}
                     </div>
-                    <span className="text-sm font-bold text-surface group-hover:text-surface/80">
+                    <span className={`text-sm font-bold ${isWeddingModule ? 'text-[#81313A] group-hover:text-[#81313A]/80' : 'text-surface group-hover:text-surface/80'}`}>
                         {userName.split(' ')[0]}
                     </span>
                 </Link>

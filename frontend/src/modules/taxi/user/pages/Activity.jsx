@@ -85,7 +85,11 @@ const Activity = () => {
   });
   const navigate = useNavigate();
   const location = useLocation();
-  const routePrefix = location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+  const routePrefix = location.pathname.startsWith('/taxi/user')
+    ? '/taxi/user'
+    : location.pathname.startsWith('/taxi')
+      ? '/taxi'
+      : '';
 
   useEffect(() => {
     let active = true;

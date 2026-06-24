@@ -78,7 +78,11 @@ const ProfileSettings = () => {
       const user = response?.data?.user || {};
       localStorage.setItem('userInfo', JSON.stringify(user));
       toast.success('Profile updated successfully');
-      const basePath = window.location.pathname.startsWith('/taxi/user') ? '/taxi/user' : '';
+      const basePath = window.location.pathname.startsWith('/taxi/user')
+        ? '/taxi/user'
+        : window.location.pathname.startsWith('/taxi')
+          ? '/taxi'
+          : '';
       navigate(`${basePath}/profile`);
     } catch (err) {
       setSaveError(err?.message || 'Save failed');
