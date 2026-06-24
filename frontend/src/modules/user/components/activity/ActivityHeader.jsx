@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 const ActivityHeader = ({ helperText, onBack }) => {
   return (
     <header className="border-b border-slate-200 bg-white">
-      <div className="flex items-start gap-3 px-5 pb-4 pt-4">
+      <div className="flex items-start gap-3 px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
           <button type="button" onClick={onBack} className="rounded-full p-2 -ml-2 transition-all active:scale-95">
             <ArrowLeft size={22} className="text-slate-900" strokeWidth={2.6} />
           </button>

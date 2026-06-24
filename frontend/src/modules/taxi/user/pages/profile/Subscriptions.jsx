@@ -84,7 +84,7 @@ const Subscriptions = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-10">
-      <div className="mx-auto max-w-3xl px-4 pt-8">
+      <div className="mx-auto max-w-3xl px-4 pt-[calc(env(safe-area-inset-top)+2rem)]">
         <div className="mb-6 flex items-center gap-3">
           <button
             type="button"
