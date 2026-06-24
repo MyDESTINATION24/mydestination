@@ -12,6 +12,7 @@ import busImg from '@/assets/3d images/AutoCab/bus.png';
 import taxiImg from '@/assets/3d images/AutoCab/taxi.png';
 import parcelImg from '@/assets/landing/parcel.png';
 import templeImg from '@/assets/3d images/AutoCab/temple.png';
+import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
 import api from '../../../shared/api/axiosInstance';
 import { useSettings } from '../../../shared/context/SettingsContext';
 import { userService } from '../services/userService';
@@ -726,8 +727,8 @@ const Home = () => {
               <h3 className="text-2xl font-extrabold text-slate-900 mt-1">Book your travel</h3>
             </div>
 
-            {/* Grid of Ride, Bus, Delivery and Char Dham Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {/* Grid of Ride, Bus, Delivery, Char Dham and Helicopter Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
@@ -735,9 +736,9 @@ const Home = () => {
                 onClick={() => navigate('/taxi/user/ride/select-location')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
-                <div className="flex flex-col justify-between h-full z-10 w-[58%]">
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Discount Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs">
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
                     <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                     Upto 20% Off
                   </div>
@@ -745,7 +746,7 @@ const Home = () => {
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Get a ride in minutes</p>
-                    <h4 className="text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
                       Ride <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -766,9 +767,9 @@ const Home = () => {
                 onClick={() => navigate('/taxi/user/bus')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
-                <div className="flex flex-col justify-between h-full z-10 w-[58%]">
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Discount Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs">
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Upto 25% Off
                   </div>
@@ -776,7 +777,7 @@ const Home = () => {
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Save big on</p>
-                    <h4 className="text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
                       Bus <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -797,9 +798,9 @@ const Home = () => {
                 onClick={() => navigate('/taxi/user/parcel/type')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
-                <div className="flex flex-col justify-between h-full z-10 w-[58%]">
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Discount Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs">
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Upto 15% Off
                   </div>
@@ -807,7 +808,7 @@ const Home = () => {
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Send packages instantly</p>
-                    <h4 className="text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
                       Delivery <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -828,17 +829,17 @@ const Home = () => {
                 onClick={() => navigate('/taxi/user/tours')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
-                <div className="flex flex-col justify-between h-full z-10 w-[58%]">
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Discount Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs">
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Pilgrim Special
                   </div>
 
                   {/* Subtitle & Title */}
                   <div className="mt-2">
-                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Pilgrim & Helicopter Tours</p>
-                    <h4 className="text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Pilgrim Tours</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
                       Char Dham <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -848,6 +849,37 @@ const Home = () => {
                 <img
                   src={templeImg}
                   alt="Char Dham"
+                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                />
+              </motion.div>
+
+              {/* Helicopter Card */}
+              <motion.div
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/taxi/user/airways')}
+                className="col-span-2 md:col-span-1 justify-self-center md:justify-self-auto w-full max-w-[calc(50%-8px)] md:max-w-none bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
+                  {/* Discount Badge */}
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Upto 10% Off
+                  </div>
+
+                  {/* Subtitle & Title */}
+                  <div className="mt-2">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Elite spiritual travel</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                      Helicopter <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                    </h4>
+                  </div>
+                </div>
+
+                {/* 3D Helicopter Image */}
+                <img
+                  src={helicopterImg}
+                  alt="Helicopter"
                   className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>

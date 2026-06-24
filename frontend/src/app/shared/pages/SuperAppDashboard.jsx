@@ -81,7 +81,7 @@ const SuperAppDashboard = () => {
 
   return (
     <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-32 md:p-8 flex flex-col md:items-center md:justify-center">
-      <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-10 md:pb-0">
+      <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-10 md:pb-0">
         
         {/* Header Section */}
         <div className="mb-6 md:mb-8">
@@ -120,7 +120,7 @@ const SuperAppDashboard = () => {
         </div>
 
         {/* Services Grid */}
-        <div className="flex flex-col md:grid md:grid-cols-3 gap-4 md:gap-6">
+        <div className="flex flex-col md:grid md:grid-cols-5 gap-4 md:gap-6">
           {services.map((service, index) => (
             <motion.div
               key={service.id}
