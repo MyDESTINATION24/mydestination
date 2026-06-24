@@ -696,12 +696,12 @@ const PropertyDetailsPage = () => {
             </div>
           </>
         )}
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute top-10 md:top-4 left-4 z-10">
           <button onClick={() => navigate(-1)} className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors">
             <ArrowLeft size={20} className="text-surface" />
           </button>
         </div>
-        <div className="absolute top-4 right-4 flex gap-2 z-10">
+        <div className="absolute top-10 md:top-4 right-4 flex gap-2 z-10">
           <button
             onClick={handleShare}
             className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors"
