@@ -377,9 +377,6 @@ const WeddingLayout = () => {
             <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
               <img src={logoImg} alt="Logo" className="h-full w-full object-cover" />
             </div>
-            <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
-              <img src={logoImg} alt="Logo" className="h-full w-full object-cover" />
-            </div>
             <button onClick={() => setMobileSidebarOpen(false)} className="p-2 text-slate-400 bg-slate-50 rounded-full hover:text-[#81313A] hover:bg-[#81313A]/10">
               <X className="w-5 h-5" />
             </button>
