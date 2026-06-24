@@ -313,7 +313,7 @@ const BusHome = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
-      <header className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
+      <header className="bg-white px-5 pt-14 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm md:pt-10">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}

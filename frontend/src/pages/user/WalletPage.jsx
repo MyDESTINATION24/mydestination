@@ -163,7 +163,7 @@ const WalletPage = () => {
             <Toaster position="top-center" />
 
             {/* Header / Balance Card */}
-            <div className={`sticky top-0 z-10 ${theme.bg} px-6 pt-10 pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden`}>
+            <div className={`sticky top-0 z-10 ${theme.bg} px-6 pt-14 pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden`}>
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
                 <h1 className="text-white text-lg font-bold mb-6 text-center">My Wallet</h1>

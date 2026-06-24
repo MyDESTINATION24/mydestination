@@ -145,7 +145,7 @@ const AirwaysHome = () => {
         <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
         
-        <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
+        <div className="absolute top-12 md:top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
            <div className="h-12 px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-3">
               <Sparkles size={16} className="text-sky-300" />
               <span className="text-[11px] font-black text-white uppercase tracking-widest">My Desination Airways</span>

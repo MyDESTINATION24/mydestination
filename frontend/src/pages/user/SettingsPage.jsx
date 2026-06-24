@@ -37,7 +37,7 @@ const SettingsPage = () => {
     return (
         <div className="min-h-screen">
             {/* Header */}
-            <div className="bg-surface text-white p-6 pb-12 rounded-b-[30px] shadow-lg sticky top-0 z-20">
+            <div className="bg-surface text-white px-6 pt-14 pb-12 rounded-b-[30px] shadow-lg sticky top-0 z-20 md:pt-6">
                 <div className="flex items-center gap-4 mb-4">
                     <button onClick={() => navigate(-1)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition">
                         <ArrowLeft size={20} />

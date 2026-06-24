@@ -23,7 +23,7 @@ const HeaderGreeting = () => {
   return (
     <>
       {/* TOP HEADER (Sticky, Yellow, Flat Bottom) */}
-      <div className="bg-[#FFCC00] px-5 pt-12 pb-4 md:pt-6 w-full sticky top-0 z-50 rounded-none shadow-sm">
+      <div className="bg-[#FFCC00] px-5 pt-14 pb-4 md:pt-6 w-full sticky top-0 z-50 rounded-none shadow-sm">
         <div className="flex items-center justify-between gap-3">
           {/* LEFT: Hamburger + Logo */}
           <div className="flex min-w-0 items-center gap-3">

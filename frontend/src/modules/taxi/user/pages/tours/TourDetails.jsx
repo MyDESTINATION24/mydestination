@@ -62,7 +62,7 @@ const TourDetails = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
         
         {/* Floating Top Nav bar */}
-        <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+        <div className="absolute top-12 md:top-4 left-4 right-4 flex items-center justify-between">
           <button
             onClick={() => navigate('/taxi/user/tours')}
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 hover:bg-white/30 text-white backdrop-blur-md transition active:scale-90"

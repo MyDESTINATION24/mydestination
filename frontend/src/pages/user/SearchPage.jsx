@@ -184,7 +184,7 @@ const SearchPage = () => {
         <div className="min-h-screen pb-24">
 
             {/* Sticky Header */}
-            <div className="sticky top-0 z-30 bg-[#f5fcf5]/80 backdrop-blur-md border-b border-gray-100 pb-3 pt-10 px-4 md:pt-3 shadow-sm">
+            <div className="sticky top-0 z-30 bg-[#f5fcf5]/80 backdrop-blur-md border-b border-gray-100 pb-3 pt-14 px-4 md:pt-3 shadow-sm">
 
                 {/* Search Input Row */}
                 <div className="relative mb-3">

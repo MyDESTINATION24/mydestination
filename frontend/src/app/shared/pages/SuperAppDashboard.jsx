@@ -78,7 +78,7 @@ const SuperAppDashboard = () => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-32 md:p-8 flex flex-col md:items-center md:justify-center">
+    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 pt-14 pb-32 md:p-8 flex flex-col md:items-center md:justify-center">
       <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-10 md:pb-0">
         
         {/* Header Section */}
@@ -128,7 +128,7 @@ const SuperAppDashboard = () => {
               onClick={() => navigate(service.path)}
               className={`group cursor-pointer ${service.cardBg} rounded-[20px] md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex flex-row md:flex-col md:h-[320px]`}
             >
-              <div className="w-[38%] min-h-[110px] md:h-32 md:w-full shrink-0 overflow-hidden relative">
+              <div className="w-[38%] h-[110px] md:h-32 md:w-full shrink-0 overflow-hidden relative">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
                 <img 
                   src={service.image} 

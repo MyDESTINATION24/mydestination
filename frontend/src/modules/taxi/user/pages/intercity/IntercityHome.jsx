@@ -318,7 +318,7 @@ const IntercityHome = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="px-6 pt-12 pb-4 flex items-center justify-between sticky top-0 bg-[#FAFBFF]/80 backdrop-blur-md z-30">
+      <header className="px-6 pt-14 pb-4 flex items-center justify-between sticky top-0 bg-[#FAFBFF]/80 backdrop-blur-md z-30 md:pt-12">
         <motion.button 
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate(routePrefix || '/')} 

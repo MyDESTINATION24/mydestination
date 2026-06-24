@@ -212,7 +212,7 @@ const BookingCheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-hotel-bg)] pb-20 md:pb-10">
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 pt-8 md:pt-0">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 pt-14 md:pt-0">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">
           <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <ArrowLeft size={20} className="text-surface/80" />
