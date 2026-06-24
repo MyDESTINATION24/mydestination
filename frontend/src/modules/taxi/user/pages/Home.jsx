@@ -539,6 +539,8 @@ const Home = () => {
       `}</style>
 
       <div className="relative z-10 pb-6">
+        {/* Spacer for fixed header greeting */}
+        <div className="h-[96px] md:h-[64px]" />
         <HeaderGreeting />
         {/* Top Banner mimicking the screenshot */}
         <div className="relative w-full h-64 md:h-72 lg:h-80 bg-gradient-to-br from-yellow-100 via-lime-200 to-emerald-300 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
