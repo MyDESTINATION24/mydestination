@@ -93,10 +93,10 @@ const SuperAppDashboard = () => {
                 {user?.name ? user.name.charAt(0) : 'U'}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                   Hi, {user?.name?.split(' ')[0] || 'User'}! 👋
                 </h1>
-                <p className="text-gray-500 font-normal">What are you looking for today?</p>
+                <p className="text-[13px] md:text-sm text-gray-500 font-normal">What are you looking for today?</p>
               </div>
             </div>
 

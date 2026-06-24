@@ -58,7 +58,7 @@ const ToursHome = () => {
       <div className="absolute top-64 left-[-40px] h-48 w-48 rounded-full bg-indigo-100/40 blur-3xl pointer-events-none" />
 
       {/* Sticky Top Header */}
-      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-100 bg-white/80 px-6 py-4 backdrop-blur-md">
+      <div className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-100 bg-white/80 px-6 pt-10 pb-4 md:py-4 backdrop-blur-md">
         <button
           onClick={() => navigate('/taxi/user')}
           className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm hover:bg-slate-50 transition active:scale-90"

@@ -75,7 +75,7 @@ const HeroSection = () => {
         <section className={`relative w-full px-5 pt-4 pb-2 flex flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300`}>
 
             {/* 1. Header Row (Hides on Scroll) */}
-            <div className={`flex md:hidden items-center justify-between relative h-16 px-5 -mt-4 -mx-5 bg-surface shadow-sm transition-all duration-300 ${isSticky ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-2'}`}>
+            <div className={`flex md:hidden items-center justify-between relative h-[88px] pt-7 pb-2 px-5 -mt-4 -mx-5 bg-surface shadow-sm transition-all duration-300 ${isSticky ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-2'}`}>
                 
                 {/* Left Section: Menu & Logo */}
                 <div className="flex items-center gap-2">
