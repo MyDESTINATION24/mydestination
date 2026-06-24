@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Car, Heart, ChevronRight, Compass, LogOut } from 'lucide-react';
+import { Building2, Car, Heart, ChevronRight, Compass, LogOut, Helicopter, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const services = [
@@ -40,6 +40,30 @@ const services = [
     textColor: 'text-pink-600',
     path: '/wedding',
     image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'helicopter',
+    title: 'Helicopter Booking',
+    description: 'Book premium helicopter travel & spiritual tours to holy shrines.',
+    icon: Helicopter,
+    color: 'from-blue-500 to-cyan-600',
+    bgLight: 'bg-blue-50',
+    cardBg: 'bg-blue-50/50',
+    textColor: 'text-blue-600',
+    path: '/taxi/user/airways',
+    image: 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&q=80&w=800'
+  },
+  {
+    id: 'chardham',
+    title: 'Char Dham Yatra',
+    description: 'Spiritual pilgrim tour packages to Yamunotri, Gangotri, Kedarnath, and Badrinath.',
+    icon: MapPin,
+    color: 'from-orange-500 to-amber-600',
+    bgLight: 'bg-orange-50',
+    cardBg: 'bg-orange-50/50',
+    textColor: 'text-orange-600',
+    path: '/taxi/user/tours',
+    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=800'
   }
 ];
 
@@ -54,8 +78,8 @@ const SuperAppDashboard = () => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-24 md:p-8 flex flex-col md:items-center md:justify-center">
-      <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 h-full min-h-0">
+    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 py-8 pb-32 md:p-8 flex flex-col md:items-center md:justify-center">
+      <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-10 md:pb-0">
         
         {/* Header Section */}
         <div className="mb-6 md:mb-8">
