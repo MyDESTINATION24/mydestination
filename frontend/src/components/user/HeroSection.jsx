@@ -10,7 +10,6 @@ const HeroSection = () => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
-    const [isSticky, setIsSticky] = useState(false);
     const [walletBalance, setWalletBalance] = useState(0);
 
     const placeholders = [
@@ -57,25 +56,15 @@ const HeroSection = () => {
         return () => clearInterval(interval);
     }, [placeholders.length]);
 
-    // Scroll Listener for Sticky & Header Logic
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            setIsSticky(scrollY > 80);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     const handleSearchClick = () => {
         navigate('/search');
     };
 
     return (
-        <section className={`relative w-full px-5 pt-4 pb-2 flex flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300`}>
+        <section className="relative w-full px-5 pt-4 pb-2 flex flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300">
 
-            {/* 1. Header Row (Hides on Scroll) */}
-            <div className={`flex md:hidden items-center justify-between relative h-[88px] pt-7 pb-2 px-5 -mt-4 -mx-5 bg-surface shadow-sm transition-all duration-300 ${isSticky ? 'opacity-0 h-0 overflow-hidden mb-0' : 'opacity-100 mb-2'}`}>
+            {/* 1. Header Row (Stays in flow) */}
+            <div className="flex md:hidden items-center justify-between relative h-[88px] pt-7 pb-2 px-5 -mt-4 -mx-5 bg-surface shadow-sm transition-all duration-300 opacity-100 mb-2">
                 
                 {/* Left Section: Menu & Logo */}
                 <div className="flex items-center gap-2">
@@ -115,25 +104,12 @@ const HeroSection = () => {
                 </div>
             </div>
 
-            {/* 2. Search Bar - Sticky Logic */}
-            <div className={`
-                 w-full transition-all duration-300 z-50
-                 ${isSticky ? 'fixed top-0 left-0 right-0 p-3 bg-[var(--color-hotel-bg)]/95 backdrop-blur-xl shadow-md border-b border-surface/5' : 'relative'}
-            `}>
+            {/* 2. Search Bar - Relative Flow */}
+            <div className="w-full transition-all duration-300 z-50 relative">
                 <div
                     onClick={handleSearchClick}
-                    className={`
-                    w-full 
-                    bg-white/80 backdrop-blur-sm
-                    ${isSticky ? 'h-10 rounded-full shadow-inner bg-surface/5 mx-auto max-w-7xl' : 'h-11 md:h-14 rounded-xl md:rounded-2xl shadow-sm border border-surface/5'}
-                    flex items-center 
-                    px-3 md:px-4
-                    gap-2 md:gap-3
-                    relative
-                    overflow-hidden
-                    cursor-pointer
-                    transition-all duration-300
-                `}>
+                    className="w-full bg-white/80 backdrop-blur-sm h-11 md:h-14 rounded-xl md:rounded-2xl shadow-sm border border-surface/5 flex items-center px-3 md:px-4 gap-2 md:gap-3 relative overflow-hidden cursor-pointer transition-all duration-300"
+                >
                     <Search size={18} className="text-surface/50 z-10 md:w-6 md:h-6" />
 
                     <div className="flex-1 h-full flex items-center bg-transparent outline-none text-surface font-medium z-20 relative text-xs md:text-sm">
@@ -165,11 +141,6 @@ const HeroSection = () => {
                     </button>
                 </div>
             </div>
-
-            {/* Placeholder Spacer only when sticky to prevent content jump */}
-            {isSticky && (
-                <div className="h-11 w-full md:h-14"></div>
-            )}
 
             <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
