@@ -373,7 +373,7 @@ const WeddingLayout = () => {
         />
         {/* Sidebar */}
         <div id="mobile-sidebar-container" className={`absolute top-0 left-0 h-[100dvh] w-[85%] max-w-[300px] bg-white shadow-2xl flex flex-col transition-transform duration-300 ease-out overscroll-contain ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <div className="flex items-center justify-between p-5 pb-2">
+          <div className="flex items-center justify-between px-5 pb-2 pt-[calc(env(safe-area-inset-top)+1.25rem)]">
             <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
               <img src={logoImg} alt="Logo" className="h-full w-full object-cover" />
             </div>

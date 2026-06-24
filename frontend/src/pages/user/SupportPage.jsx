@@ -26,7 +26,7 @@ const SupportPage = () => {
     return (
         <div className="min-h-screen">
             {/* Header */}
-            <div className="bg-surface text-white p-6 pb-12 rounded-b-[30px] shadow-lg">
+            <div className="bg-surface text-white px-6 pb-12 pt-[calc(env(safe-area-inset-top)+1.5rem)] rounded-b-[30px] shadow-lg">
                 <div className="flex items-center gap-4 mb-4">
                     <button onClick={() => navigate(-1)} className="p-2 bg-white/10 rounded-full hover:bg-white/20">
                         <ArrowLeft size={20} />
