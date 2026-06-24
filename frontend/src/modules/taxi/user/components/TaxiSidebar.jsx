@@ -65,7 +65,7 @@ const TaxiSidebar = ({ isOpen: propIsOpen, onClose: propOnClose }) => {
                         transition={{ type: 'tween', ease: 'circOut', duration: 0.4 }}
                         className="absolute top-0 left-0 h-[100dvh] w-[85%] max-w-[300px] bg-white shadow-2xl flex flex-col"
                     >
-                        <div className="flex items-center justify-between p-5 pb-2 shrink-0">
+                        <div className="flex items-center justify-between px-5 pb-2 pt-[calc(env(safe-area-inset-top)+1.25rem)] shrink-0">
                             <img src={logoImg} alt="Logo" className="h-16 object-contain" />
                             <button onClick={onClose} className="p-2 text-slate-400 bg-slate-50 rounded-full hover:text-slate-600 hover:bg-slate-100">
                                 <X className="w-5 h-5" />

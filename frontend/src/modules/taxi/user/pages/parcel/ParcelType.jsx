@@ -105,7 +105,7 @@ const ParcelType = () => {
     <div className="min-h-screen bg-[#F5F8FF] max-w-lg mx-auto flex flex-col font-sans relative overflow-x-hidden">
       
       {/* Premium Header with Wave Background */}
-      <div className="relative bg-[#0047AB] pt-10 pb-20 px-6 overflow-hidden">
+      <div className="relative bg-[#0047AB] pt-[calc(env(safe-area-inset-top)+2.5rem)] pb-20 px-6 overflow-hidden">
         {/* Subtle Wave SVG */}
         <div className="absolute bottom-0 left-0 right-0 h-16 opacity-20 pointer-events-none">
             <svg viewBox="0 0 1440 320" className="w-full h-full preserve-3d">
@@ -222,7 +222,7 @@ const ParcelType = () => {
       {/* Floating Back Button */}
       <button 
         onClick={() => navigate(-1)}
-        className="fixed top-2 left-4 z-50 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10"
+        className="fixed top-[calc(env(safe-area-inset-top)+0.5rem)] left-4 z-50 w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/10"
       >
         <ArrowLeft size={16} />
       </button>

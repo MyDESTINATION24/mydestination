@@ -724,7 +724,7 @@ const SelectLocation = () => {
             className="fixed inset-0 z-[100] bg-white flex flex-col max-w-lg mx-auto"
           >
             {/* Map Header */}
-            <div className="absolute top-0 left-0 right-0 z-20 px-5 pt-10 pb-4 bg-gradient-to-b from-white via-white/80 to-transparent">
+            <div className="absolute top-0 left-0 right-0 z-20 px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 bg-gradient-to-b from-white via-white/80 to-transparent">
                <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setShowMapPicker(false)}
@@ -855,7 +855,7 @@ const SelectLocation = () => {
       {/* Header */}
       <header className="sticky top-0 z-30">
         <div className="bg-white/70 backdrop-blur-md border-b border-white/70 shadow-[0_10px_20px_rgba(15,23,42,0.05)]">
-          <div className="px-5 py-4 flex items-center gap-3">
+          <div className="px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="p-2 -ml-2 active:scale-95 transition-all rounded-full">
               <ArrowLeft size={22} className="text-slate-900" strokeWidth={3} />
             </button>

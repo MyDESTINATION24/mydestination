@@ -101,9 +101,8 @@ const ReferAndEarnPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-b from-surface via-surface to-[var(--color-textDark)]">
 
-            {/* Header */}
             <div className="sticky top-0 z-20 bg-surface/95 backdrop-blur-lg border-b border-white/10">
-                <div className="flex items-center justify-between px-5 py-4">
+                <div className="flex items-center justify-between px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
                     <button
                         onClick={() => navigate(-1)}
                         className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors"
