@@ -536,7 +536,7 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav && location.pathname !== "/wedding" && location.pathname !== "/wedding/" ? 'pt-[88px] md:pt-0' : ''} ${location.pathname !== "/wedding" && location.pathname !== "/wedding/" && !hideNav ? "pb-24 md:pb-16" : ""}`}>
+      <main className={`${!hideNav ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-24 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 

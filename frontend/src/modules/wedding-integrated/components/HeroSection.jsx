@@ -18,7 +18,7 @@ const HeroSection = () => {
           alt="Luxury destination wedding"
           width={1920}
           height={1080}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-top"
         />
 
         <div className="absolute inset-0 bg-black/50" />

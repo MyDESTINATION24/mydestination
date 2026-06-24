@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Car, Heart, ChevronRight, Compass, LogOut, Helicopter, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
+import chardhamImg from '@/assets/airways/kedarnath.png';
 
 const services = [
   {
@@ -63,7 +64,8 @@ const services = [
     cardBg: 'bg-orange-50/50',
     textColor: 'text-orange-600',
     path: '/taxi/user/tours',
-    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=800'
+    image: chardhamImg,
+    imagePos: 'object-bottom'
   }
 ];
 
@@ -133,7 +135,7 @@ const SuperAppDashboard = () => {
                 <img 
                   src={service.image} 
                   alt={service.title} 
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ${service.imagePos || 'object-center'}`}
                 />
                 <div className={`absolute top-2 right-2 md:top-3 md:right-3 z-20 ${service.bgLight} ${service.textColor} p-1.5 md:p-2 rounded-lg md:rounded-xl shadow-md backdrop-blur-md bg-opacity-90`}>
                   <service.icon className="w-4 h-4 md:w-5 md:h-5" />
