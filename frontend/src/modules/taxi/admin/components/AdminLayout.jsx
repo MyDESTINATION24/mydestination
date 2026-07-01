@@ -348,9 +348,8 @@ const SidebarBadge = ({ count, isActive = false }) => {
 
   return (
     <span
-      className={`ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-black ${
-        isActive ? 'bg-white/20 text-white' : 'bg-orange-500 text-white'
-      }`}
+      className={`ml-auto inline-flex min-w-[1.5rem] items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-black ${isActive ? 'bg-white/20 text-white' : 'bg-orange-500 text-white'
+        }`}
     >
       {count > 99 ? '99+' : count}
     </span>
@@ -362,10 +361,9 @@ const SidebarItem = ({ icon, label, path, isCollapsed, sidebarTextColor, unreadC
     to={path}
     end
     className={({ isActive }) =>
-      `group flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
-        isActive
-          ? 'text-white'
-          : 'hover:text-white hover:bg-slate-800'
+      `group flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${isActive
+        ? 'text-white'
+        : 'hover:text-white hover:bg-slate-800'
       }`
     }
     style={({ isActive }) =>
@@ -412,9 +410,8 @@ const SidebarGroup = ({
       <button
         type="button"
         onClick={toggleGroup}
-        className={`group w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 ${
-          isActive || isExpanded ? 'text-white' : 'hover:text-white hover:bg-slate-800'
-        }`}
+        className={`group w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all duration-200 ${isActive || isExpanded ? 'text-white' : 'hover:text-white hover:bg-slate-800'
+          }`}
         style={isActive || isExpanded ? { backgroundColor: 'rgba(255, 255, 255, 0.16)' } : { color: sidebarTextColor }}
       >
         <div className="flex min-w-0 items-center gap-3">
@@ -499,9 +496,8 @@ const NestedGroup = ({
       <button
         type="button"
         onClick={toggleGroup}
-        className={`group w-full flex items-center justify-between px-3 py-1.5 rounded-lg transition-all ${
-          isActive || isExpanded ? 'text-white' : 'hover:text-slate-200'
-        }`}
+        className={`group w-full flex items-center justify-between px-3 py-1.5 rounded-lg transition-all ${isActive || isExpanded ? 'text-white' : 'hover:text-slate-200'
+          }`}
         style={isActive || isExpanded ? { backgroundColor: 'rgba(255, 255, 255, 0.12)' } : { color: sidebarTextColor }}
       >
         <span className="flex min-w-0 items-center gap-3 text-[12px] font-medium">
@@ -576,14 +572,12 @@ const ModeSwitcher = ({ mode, setMode }) => {
                   setMode(option.id);
                   setIsOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
-                  selected ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'hover:bg-slate-50'
-                }`}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${selected ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'hover:bg-slate-50'
+                  }`}
               >
                 <span
-                  className={`h-2.5 w-2.5 rounded-full transition-all ${
-                    selected ? 'bg-white' : 'bg-slate-300'
-                  }`}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${selected ? 'bg-white' : 'bg-slate-300'
+                    }`}
                 />
                 <span className="flex-1">
                   <span className={`block text-[13px] font-bold ${selected ? 'text-white' : 'text-slate-900'}`}>
@@ -764,18 +758,18 @@ const AdminLayout = () => {
               { label: 'Airport', path: '/admin/pricing/airport', permission: 'airports.view' },
               { label: 'App Modules', path: '/admin/pricing/app-modules', permission: 'settings.view' },
               { label: 'Vehicle Type', path: '/admin/pricing/vehicle-type', permission: 'vehicle_types.view' },
-              {
-                label: 'Rental',
-                subItems: [
-                  { label: 'Service Stores', path: '/admin/pricing/service-stores', permission: 'service_stores.view' },
-                  { label: 'Rental Vehicles', path: '/admin/pricing/rental-vehicles', permission: 'rental.view' },
-                  { label: 'Track Vehicles', path: '/admin/pricing/rental-tracking', permission: 'rental.view' },
-                  { label: 'Rental Requests', path: '/admin/pricing/rental-requests', permission: 'rental.view' },
-                  { label: 'Rental Quote Requests', path: '/admin/pricing/rental-quotes', permission: 'rental.view' },
-                  { label: 'Rental Package Types', path: '/admin/pricing/rental-packages', permission: 'rental.view' },
-                  { label: 'Package Pricing', path: '/admin/pricing/package-pricing', permission: 'rental.view' },
-                ],
-              },
+              // {
+              //   label: 'Rental',
+              //   subItems: [
+              //     { label: 'Service Stores', path: '/admin/pricing/service-stores', permission: 'service_stores.view' },
+              //     { label: 'Rental Vehicles', path: '/admin/pricing/rental-vehicles', permission: 'rental.view' },
+              //     { label: 'Track Vehicles', path: '/admin/pricing/rental-tracking', permission: 'rental.view' },
+              //     { label: 'Rental Requests', path: '/admin/pricing/rental-requests', permission: 'rental.view' },
+              //     { label: 'Rental Quote Requests', path: '/admin/pricing/rental-quotes', permission: 'rental.view' },
+              //     { label: 'Rental Package Types', path: '/admin/pricing/rental-packages', permission: 'rental.view' },
+              //     { label: 'Package Pricing', path: '/admin/pricing/package-pricing', permission: 'rental.view' },
+              //   ],
+              // },
               { label: 'Set Price', path: '/admin/pricing/set-price', permission: 'set_prices.view' },
               { label: 'Goods Types', path: '/admin/pricing/goods-types', permission: 'goods_types.view' },
             ],
@@ -814,15 +808,15 @@ const AdminLayout = () => {
               { label: 'Pooling Bookings', path: '/admin/pooling/bookings', permission: 'pooling.view' },
             ],
           },
-          {
-            icon: MapPin,
-            label: 'Geofencing',
-            subItems: [
-              { label: 'Heat Map', path: '/admin/geo/heatmap', permission: 'geofencing.view' },
-              { label: "God's Eye", path: '/admin/geo/gods-eye', permission: 'geofencing.view' },
-              { label: 'Peak Zone', path: '/admin/geo/peak-zone', permission: 'geofencing.view' },
-            ],
-          },
+          // {
+          //   icon: MapPin,
+          //   label: 'Geofencing',
+          //   subItems: [
+          //     { label: 'Heat Map', path: '/admin/geo/heatmap', permission: 'geofencing.view' },
+          //     { label: "God's Eye", path: '/admin/geo/gods-eye', permission: 'geofencing.view' },
+          //     { label: 'Peak Zone', path: '/admin/geo/peak-zone', permission: 'geofencing.view' },
+          //   ],
+          // },
           { icon: Car, label: 'Trip Requests', path: '/admin/trips', permission: 'trips.view' },
           { icon: Package, label: 'Delivery Requests', path: '/admin/deliveries', permission: 'deliveries.view' },
           { icon: Clock, label: 'Ongoing Requests', path: '/admin/ongoing', permission: 'ongoing.view' },
@@ -926,7 +920,7 @@ const AdminLayout = () => {
             subItems: [
               { label: 'Wallet Settings', path: '/admin/settings/app/wallet', permission: 'settings.view' },
               { label: 'Tip Settings', path: '/admin/settings/app/tip', permission: 'settings.view' },
-              { label: 'Mobile App Landing/Onboard Screens Settings', path: '/admin/settings/app/onboard', permission: 'settings.view' },
+              //{ label: 'Mobile App Landing/Onboard Screens Settings', path: '/admin/settings/app/onboard', permission: 'settings.view' },
             ],
           },
           {
@@ -935,10 +929,10 @@ const AdminLayout = () => {
             permission: 'settings.view',
             subItems: [
               { label: 'Payment Gateway Settings', path: '/admin/settings/third-party/payment', permission: 'settings.view' },
-              { label: 'SMS Gateway Settings', path: '/admin/settings/third-party/sms', permission: 'settings.view' },
-              { label: 'Firebase Settings', path: '/admin/settings/third-party/firebase', permission: 'settings.view' },
-              { label: 'Map and Map APIs Settings', path: '/admin/settings/third-party/map-apis', permission: 'settings.view' },
-              { label: 'Mail Configuration', path: '/admin/settings/third-party/mail', permission: 'settings.view' },
+              //{ label: 'SMS Gateway Settings', path: '/admin/settings/third-party/sms', permission: 'settings.view' },
+              //{ label: 'Firebase Settings', path: '/admin/settings/third-party/firebase', permission: 'settings.view' },
+              //{ label: 'Map and Map APIs Settings', path: '/admin/settings/third-party/map-apis', permission: 'settings.view' },
+              // { label: 'Mail Configuration', path: '/admin/settings/third-party/mail', permission: 'settings.view' },
               // { label: 'Notification Channel', path: '/admin/settings/third-party/notification-channel' },
             ],
           },
@@ -947,20 +941,20 @@ const AdminLayout = () => {
           //   label: 'Addons',
           //   subItems: [{ label: 'Dispatcher Addons', path: '/admin/settings/addons/dispatcher' }],
           // },
-          {
-            icon: Monitor,
-            label: 'CMS-Landing Website',
-            permission: 'settings.view',
-            subItems: [
-              { label: 'Header-Footer', path: '/admin/settings/cms/header-footer', permission: 'settings.view' },
-              { label: 'Home', path: '/admin/settings/cms/home', permission: 'settings.view' },
-              { label: 'About Us', path: '/admin/settings/cms/about', permission: 'settings.view' },
-              { label: 'Driver', path: '/admin/settings/cms/driver', permission: 'settings.view' },
-              { label: 'User', path: '/admin/settings/cms/user', permission: 'settings.view' },
-              { label: 'Contact', path: '/admin/settings/cms/contact', permission: 'settings.view' },
-              { label: 'Privacy Policy, T&C and DMV', path: '/admin/settings/cms/legal', permission: 'settings.view' },
-            ],
-          },
+          // {
+          //   icon: Monitor,
+          //   label: 'CMS-Landing Website',
+          //   permission: 'settings.view',
+          //   subItems: [
+          //     { label: 'Header-Footer', path: '/admin/settings/cms/header-footer', permission: 'settings.view' },
+          //     { label: 'Home', path: '/admin/settings/cms/home', permission: 'settings.view' },
+          //     { label: 'About Us', path: '/admin/settings/cms/about', permission: 'settings.view' },
+          //     { label: 'Driver', path: '/admin/settings/cms/driver', permission: 'settings.view' },
+          //     { label: 'User', path: '/admin/settings/cms/user', permission: 'settings.view' },
+          //     { label: 'Contact', path: '/admin/settings/cms/contact', permission: 'settings.view' },
+          //     { label: 'Privacy Policy, T&C and DMV', path: '/admin/settings/cms/legal', permission: 'settings.view' },
+          //   ],
+          // },
         ],
       },
     ],
@@ -1333,9 +1327,8 @@ const AdminLayout = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#F8F9FA] font-sans text-gray-900">
       <aside
-        className={`relative z-50 flex h-screen min-h-0 flex-col overflow-hidden transition-[width,transform] duration-500 ${
-          isCollapsed ? 'w-20' : 'w-72'
-        } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+        className={`relative z-50 flex h-screen min-h-0 flex-col overflow-hidden transition-[width,transform] duration-500 ${isCollapsed ? 'w-20' : 'w-72'
+          } ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
         style={{ backgroundColor: adminThemeColor }}
       >
         <div className="flex h-full min-h-0 flex-col">
@@ -1451,9 +1444,8 @@ const AdminLayout = () => {
                 </button>
 
                 <div
-                  className={`absolute right-0 top-full z-50 mt-2 w-[360px] overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-2xl transition-all ${
-                    isNotificationsOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
-                  }`}
+                  className={`absolute right-0 top-full z-50 mt-2 w-[360px] overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-2xl transition-all ${isNotificationsOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
+                    }`}
                 >
                   <div className="border-b border-slate-100 px-4 py-4">
                     <div className="flex items-center justify-between gap-3">
@@ -1486,11 +1478,10 @@ const AdminLayout = () => {
                           setNotificationTab('ride_requests');
                           setRideRequestPage(1);
                         }}
-                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${
-                          notificationTab === 'ride_requests'
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-900'
-                        }`}
+                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${notificationTab === 'ride_requests'
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-900'
+                          }`}
                       >
                         Ride Requests
                       </button>
@@ -1500,11 +1491,10 @@ const AdminLayout = () => {
                           setNotificationTab('bookings');
                           setBookingPage(1);
                         }}
-                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${
-                          notificationTab === 'bookings'
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-900'
-                        }`}
+                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${notificationTab === 'bookings'
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-900'
+                          }`}
                       >
                         Bookings
                       </button>
@@ -1513,11 +1503,10 @@ const AdminLayout = () => {
                         onClick={() => {
                           setNotificationTab('chats');
                         }}
-                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${
-                          notificationTab === 'chats'
-                            ? 'bg-white text-slate-900 shadow-sm'
-                            : 'text-slate-500 hover:text-slate-900'
-                        }`}
+                        className={`rounded-xl px-3 py-2 text-xs font-bold transition-all ${notificationTab === 'chats'
+                          ? 'bg-white text-slate-900 shadow-sm'
+                          : 'text-slate-500 hover:text-slate-900'
+                          }`}
                       >
                         Chats
                       </button>
@@ -1560,33 +1549,33 @@ const AdminLayout = () => {
                                   {item.tripStatus || 'Upcoming'}
                                 </span>
                               </div>
-                            <div className="mt-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400">
-                              <span>
-                                Destination: {formatAdminNotificationLocation(item.dropLabel, 'Destination set')}
-                              </span>
-                              <span>{formatRelativeAdminTime(item.date)}</span>
-                            </div>
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                dismissNotification('ride_requests', item);
-                              }}
-                              onKeyDown={(event) => {
-                                if (event.key === 'Enter' || event.key === ' ') {
+                              <div className="mt-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-slate-400">
+                                <span>
+                                  Destination: {formatAdminNotificationLocation(item.dropLabel, 'Destination set')}
+                                </span>
+                                <span>{formatRelativeAdminTime(item.date)}</span>
+                              </div>
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(event) => {
                                   event.preventDefault();
                                   event.stopPropagation();
                                   dismissNotification('ride_requests', item);
-                                }
-                              }}
-                              className="absolute right-3 top-3 inline-flex rounded-lg p-1.5 text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-600"
-                              aria-label="Delete notification"
-                            >
-                              <Trash2 size={14} />
-                            </span>
-                          </button>
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    dismissNotification('ride_requests', item);
+                                  }
+                                }}
+                                className="absolute right-3 top-3 inline-flex rounded-lg p-1.5 text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-600"
+                                aria-label="Delete notification"
+                              >
+                                <Trash2 size={14} />
+                              </span>
+                            </button>
                           ))}
                         </div>
                       )
@@ -1763,9 +1752,8 @@ const AdminLayout = () => {
               </button>
 
               <div
-                className={`absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl transition-all ${
-                  isUserMenuOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
-                }`}
+                className={`absolute right-0 top-full z-50 mt-2 w-48 rounded-2xl border border-gray-100 bg-white p-2 shadow-xl transition-all ${isUserMenuOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
+                  }`}
               >
                 <button
                   type="button"
