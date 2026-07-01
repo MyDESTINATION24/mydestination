@@ -55,20 +55,20 @@ const PhoneRegistration = () => {
     const routePrefix = location.pathname.startsWith('/taxi/owner') ? '/taxi/owner' : '/taxi/driver';
     const isLoginPage = location.pathname === `${routePrefix}/login` || location.pathname === `${routePrefix}/login/`;
     const appName = settings.general?.app_name || 'App';
-    
+
     const roleOptions = isLoginPage
         ? [
             { id: 'driver', label: 'Driver', Icon: UserRound },
             { id: 'owner', label: 'Owner', Icon: Briefcase },
             { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
-            { id: 'service_center', label: 'Center', Icon: Building2 },
-            { id: 'service_center_staff', label: 'Staff', Icon: UserRound },
+            //{ id: 'service_center', label: 'Center', Icon: Building2 },
+            //{ id: 'service_center_staff', label: 'Staff', Icon: UserRound },
         ]
         : [
             { id: 'driver', label: 'Driver', Icon: UserRound },
             { id: 'owner', label: 'Owner', Icon: Briefcase },
         ];
-    
+
     const modeConfig = useMemo(() => {
         const isOwner = role === 'owner';
         const isBusDriver = role === 'bus_driver';
@@ -159,11 +159,11 @@ const PhoneRegistration = () => {
 
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },
-        visible: { 
-            opacity: 1, 
+        visible: {
+            opacity: 1,
             y: 0,
-            transition: { 
-                duration: 0.6, 
+            transition: {
+                duration: 0.6,
                 ease: [0.22, 1, 0.36, 1],
                 staggerChildren: 0.1
             }
@@ -176,13 +176,13 @@ const PhoneRegistration = () => {
     };
 
     return (
-        <div 
+        <div
             className="min-h-screen relative bg-white select-none overflow-x-hidden font-['Inter']"
         >
             <div className="fixed inset-0 z-0">
-                <img 
-                    src={loginBg} 
-                    alt="" 
+                <img
+                    src={loginBg}
+                    alt=""
                     className="w-full h-full object-cover opacity-20 blur-[1px]"
                 />
                 {/* Vibrant Bright Gradient */}
@@ -191,7 +191,7 @@ const PhoneRegistration = () => {
             </div>
 
             <main className="relative z-10 mx-auto max-w-sm px-5 pt-10 pb-24">
-                <motion.header 
+                <motion.header
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
@@ -200,9 +200,9 @@ const PhoneRegistration = () => {
                     <div className="flex flex-col items-center gap-4">
                         {settings.general?.logo || settings.customization?.logo ? (
                             <div className="p-3 bg-white rounded-2xl shadow-xl shadow-amber-200/40 border border-amber-100">
-                                <img 
-                                    src={settings.general?.logo || settings.customization?.logo} 
-                                    alt={appName} 
+                                <img
+                                    src={settings.general?.logo || settings.customization?.logo}
+                                    alt={appName}
                                     className="h-10 w-auto object-contain"
                                 />
                             </div>
@@ -211,7 +211,7 @@ const PhoneRegistration = () => {
                                 {appName}
                             </div>
                         )}
-                        <motion.div 
+                        <motion.div
                             variants={itemVariants}
                             className="rounded-full bg-amber-100 px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#B48400] border border-amber-200/50 w-fit"
                         >
@@ -219,14 +219,14 @@ const PhoneRegistration = () => {
                         </motion.div>
                     </div>
 
-                    <motion.section 
+                    <motion.section
                         variants={itemVariants}
                         className="space-y-3 flex flex-col items-center"
                     >
                         <div className="flex items-center gap-3">
-                             <div 
+                            <div
                                 className="flex h-10 w-10 items-center justify-center rounded-2xl text-white shadow-xl"
-                                style={{ 
+                                style={{
                                     backgroundColor: modeConfig.accentColor,
                                     boxShadow: `0 10px 20px ${modeConfig.accentColor}33`
                                 }}
@@ -246,13 +246,13 @@ const PhoneRegistration = () => {
                     </motion.section>
                 </motion.header>
 
-                <motion.div 
+                <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
                     className="space-y-6"
                 >
-                    <motion.div 
+                    <motion.div
                         variants={itemVariants}
                         className="flex items-center gap-2 mb-4 bg-white/60 backdrop-blur-md p-2 rounded-2xl border border-white/80 shadow-sm overflow-x-auto no-scrollbar scroll-smooth w-full"
                     >
@@ -264,11 +264,10 @@ const PhoneRegistration = () => {
                                     layout
                                     whileTap={{ scale: 0.97 }}
                                     onClick={() => setRole(option.id)}
-                                    className={`flex-none flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl transition-all whitespace-nowrap ${
-                                        active
+                                    className={`flex-none flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl transition-all whitespace-nowrap ${active
                                             ? 'bg-[#FFB300] text-slate-900 shadow-lg shadow-amber-400/20 border border-amber-300'
                                             : 'text-slate-400 hover:text-slate-600'
-                                    }`}
+                                        }`}
                                 >
                                     <option.Icon size={16} strokeWidth={active ? 3 : 2} />
                                     <span className="text-[11px] font-black uppercase tracking-wider">{option.label}</span>
@@ -277,7 +276,7 @@ const PhoneRegistration = () => {
                         })}
                     </motion.div>
 
-                    <motion.section 
+                    <motion.section
                         variants={itemVariants}
                         ref={phoneCardRef}
                         className="bg-white rounded-[32px] p-6 shadow-[0_20px_50px_rgba(255,179,0,0.08)] border border-amber-50 relative overflow-hidden"
@@ -293,9 +292,9 @@ const PhoneRegistration = () => {
                                         <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-amber-600/60 mb-1.5">Mobile Number</label>
                                         <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
                                             <span className="shrink-0 text-[20px] font-black text-slate-400">+91</span>
-                                            <input 
+                                            <input
                                                 ref={phoneInputRef}
-                                                type="tel" 
+                                                type="tel"
                                                 inputMode="numeric"
                                                 pattern="[0-9]*"
                                                 autoFocus
@@ -317,8 +316,8 @@ const PhoneRegistration = () => {
 
                             <div className="flex gap-4 px-1 items-start">
                                 <div className="relative flex items-center shrink-0 mt-1">
-                                    <input 
-                                        type="checkbox" 
+                                    <input
+                                        type="checkbox"
                                         id="terms"
                                         checked={agreed}
                                         onChange={() => setAgreed(!agreed)}
@@ -360,7 +359,7 @@ const PhoneRegistration = () => {
 
                             <AnimatePresence>
                                 {error && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
@@ -380,7 +379,7 @@ const PhoneRegistration = () => {
                             <span className="text-[11px] font-black tracking-tight text-slate-900 uppercase opacity-70">{modeConfig.highlight}</span>
                         </div>
 
-                        <motion.button 
+                        <motion.button
                             variants={itemVariants}
                             whileHover={{ y: -1 }}
                             onClick={() => navigate(isLoginPage ? `${routePrefix}/reg-phone` : `${routePrefix}/login`)}
@@ -397,16 +396,15 @@ const PhoneRegistration = () => {
 
                 <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/95 to-transparent">
                     <div className="mx-auto max-w-sm">
-                        <motion.button 
+                        <motion.button
                             whileHover={{ scale: 1.02, y: -2 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={handleSendOTP}
                             disabled={loading || !agreed || phone.length !== 10}
-                            className={`group flex h-16 w-full items-center justify-center gap-3 rounded-[24px] text-[16px] font-black tracking-tight transition-all relative overflow-hidden ${
-                                agreed && phone.length === 10 
-                                    ? 'bg-slate-900 text-white shadow-[0_20px_40px_rgba(0,0,0,0.2)] active:bg-black' 
+                            className={`group flex h-16 w-full items-center justify-center gap-3 rounded-[24px] text-[16px] font-black tracking-tight transition-all relative overflow-hidden ${agreed && phone.length === 10
+                                    ? 'bg-slate-900 text-white shadow-[0_20px_40px_rgba(0,0,0,0.2)] active:bg-black'
                                     : 'pointer-events-none bg-slate-100 text-slate-300 shadow-none'
-                            }`}
+                                }`}
                         >
                             {loading ? (
                                 <div className="h-6 w-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
