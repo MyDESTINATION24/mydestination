@@ -78,7 +78,7 @@ const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
 
 const defaultVehicleFieldConfigs = [
     { field_key: 'locationId', name: 'Operating City', account_type: 'both', is_required: true, active: true, sort_order: 10, placeholder: '', help_text: '' },
-    { field_key: 'serviceCategories', name: 'Service Category', account_type: 'individual', is_required: true, active: true, sort_order: 20, placeholder: '', help_text: '' },
+    { field_key: 'serviceCategories', name: 'Service Category', account_type: 'individual', is_required: true, active: false, sort_order: 20, placeholder: '', help_text: '' },
     { field_key: 'vehicleTypeId', name: 'Vehicle Type', account_type: 'individual', is_required: true, active: true, sort_order: 30, placeholder: '', help_text: 'Select the type of vehicle you drive.' },
     { field_key: 'make', name: 'Brand / Make', account_type: 'individual', is_required: true, active: true, sort_order: 40, placeholder: 'e.g. Maruti Suzuki', help_text: '' },
     { field_key: 'model', name: 'Model', account_type: 'individual', is_required: true, active: true, sort_order: 50, placeholder: 'Swift, Bolt', help_text: '' },
@@ -238,11 +238,13 @@ const StepVehicle = () => {
     });
 
     const shouldShowField = (key, fallback = true) => {
+        if (key === 'serviceCategories') return false;
         if (!fieldConfigMap[key]) return fallback;
         return fieldConfigMap[key].active !== false;
     };
 
     const isFieldRequired = (key, fallback = true) => {
+        if (key === 'serviceCategories') return false;
         if (!fieldConfigMap[key]) return fallback;
         return fieldConfigMap[key].is_required !== false;
     };
