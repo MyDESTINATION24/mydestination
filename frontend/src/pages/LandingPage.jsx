@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses } from 'lucide-react';
 import logo from '../assets/rokologin-removebg-preview.png';
 import heroBg from '../assets/landing/hero_travel1.png';
 import coupleImg from '../assets/landing/landingPageImage.png';
@@ -18,6 +18,122 @@ import bagImg from '../assets/landing/bag.png';
 import { Facebook, Twitter, Instagram, Menu, X, Phone, Mail, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../services/apiService';
+
+const DestinationCard = ({ dest, fadeUp }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isModalOpen]);
+
+  const descriptionText = dest.description || 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.';
+  const isLong = descriptionText.length > 120;
+  const displayText = isLong ? descriptionText.slice(0, 120) + '...' : descriptionText;
+
+  return (
+    <>
+      <motion.div variants={fadeUp} className="group relative flex flex-col h-full text-center">
+        <div className="w-full aspect-square overflow-hidden mb-5">
+          <img src={dest.img || dest.image} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
+        </div>
+        <h3 className="text-[15px] font-black text-gray-900 mb-3">{dest.title}</h3>
+        
+        <div className="flex flex-col items-center justify-start">
+          <p className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto h-[54px] overflow-hidden mb-1">
+            {displayText}
+          </p>
+          {isLong && (
+            <button 
+              onClick={() => setIsModalOpen(true)} 
+              className="text-[#065f46] hover:underline font-black text-[9px] uppercase tracking-widest focus:outline-none mb-3 cursor-pointer"
+            >
+              Read More
+            </button>
+          )}
+        </div>
+
+        {dest.link && (
+          <Link to={dest.link} className="mt-auto text-[11px] font-bold text-[#065f46] hover:underline uppercase tracking-widest block pt-2">
+            Explore
+          </Link>
+        )}
+      </motion.div>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            {/* Modal Content */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200"
+            >
+              {/* Close button */}
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full shadow-md z-20 transition focus:outline-none cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+
+              {/* Image */}
+              <div className="w-full h-48 sm:h-56 md:h-64 overflow-hidden flex-shrink-0">
+                <img 
+                  src={dest.img || dest.image} 
+                  alt={dest.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Details */}
+              <div className="p-6 text-left flex flex-col flex-grow overflow-y-auto">
+                <h3 className="text-xl font-black text-gray-900 mb-3">{dest.title}</h3>
+                <div className="text-sm text-gray-600 leading-relaxed flex-grow overflow-y-auto pr-1">
+                  {descriptionText}
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center flex-shrink-0">
+                  <button 
+                    onClick={() => setIsModalOpen(false)}
+                    className="text-gray-500 hover:text-gray-700 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  {dest.link && (
+                    <Link 
+                      to={dest.link} 
+                      className="bg-[#065f46] text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#064e3b] transition shadow-md"
+                    >
+                      Explore
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -257,7 +373,7 @@ const LandingPage = () => {
         </div>
 
         {/* Hero Content Overlay */}
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 mt-16 pointer-events-none">
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 mt-16 pb-28 pointer-events-none">
           {(cmsData?.hero?.textBlocks && cmsData.hero.textBlocks.length > 0) ? (
             cmsData.hero.textBlocks.map((block, idx) => {
               if (block.tag === 'h1') {
@@ -564,16 +680,16 @@ const LandingPage = () => {
       </section>
 
       {/* Features Icons Strip */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 text-center">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 md:pt-8 md:pb-4">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="flex flex-wrap justify-center gap-x-12 gap-y-8 md:gap-x-16 text-center">
           {[
             { title: "Travel without hassel", icon: <Umbrella size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
             { title: "Millions of view", icon: <Star size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
             { title: "Perfect for your budget", icon: <HandCoins size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
-            { title: "Best travel tips", icon: <Briefcase size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
+            { title: "Taxi Service", icon: <CarTaxiFront size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
             { title: "Char Dham Yatra", icon: <Navigation size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> }
           ].map((feature, i) => (
-            <motion.div variants={fadeUp} key={i} className="flex flex-col items-center justify-start hover:-translate-y-1 transition-transform">
+            <motion.div variants={fadeUp} key={i} className="flex flex-col items-center justify-start hover:-translate-y-1 transition-transform w-[140px] sm:w-[160px]">
               {feature.icon}
               <h4 className="text-sm font-bold text-gray-800">{feature.title}</h4>
             </motion.div>
@@ -582,7 +698,7 @@ const LandingPage = () => {
       </section>
 
       {/* 3. Top Destinations */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="pt-4 pb-16 md:pt-6 md:pb-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h4 className="text-[15px] text-[#065f46]/80 font-serif mb-3">
@@ -603,20 +719,7 @@ const LandingPage = () => {
               { image: destDublin, title: 'Doolin, Ireland', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' },
               { image: destExuma, title: 'Exuma, Bahamas', description: 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.', link: '' }
             ]).map((dest, i) => (
-              <motion.div variants={fadeUp} key={i} className="group relative flex flex-col text-center">
-                <div className="w-full aspect-square overflow-hidden mb-5">
-                  <img src={dest.img || dest.image} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
-                </div>
-                <h3 className="text-[15px] font-black text-gray-900 mb-3">{dest.title}</h3>
-                <p className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto">
-                  {dest.description || 'Eu turpis egestas pretium aenean pharetra. Nibh venenatis cras sed felis eget velit aliquet neque egestas congue.'}
-                </p>
-                {dest.link && (
-                  <Link to={dest.link} className="mt-4 text-[11px] font-bold text-[#065f46] hover:underline uppercase tracking-widest">
-                    Explore
-                  </Link>
-                )}
-              </motion.div>
+              <DestinationCard dest={dest} fadeUp={fadeUp} key={i} />
             ))}
           </motion.div>
         </div>
@@ -693,33 +796,33 @@ const LandingPage = () => {
 
       {/* 6. Categories */}
       <section className="pt-10 pb-16 md:pb-24 max-w-7xl mx-auto px-4 overflow-hidden">
-        <motion.div 
-          initial="hidden" 
-          whileInView="visible" 
-          viewport={{ once: true, margin: "-50px" }} 
-          variants={staggerContainer} 
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
           className="flex gap-8 md:gap-12 overflow-x-auto pb-6 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {(cmsData?.categories?.items?.length > 0
             ? cmsData.categories.items.map(cat => {
-                let fallbackImg = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600';
-                if (cat.type === 'hotel') fallbackImg = hotelImg;
-                if (cat.type === 'activity') fallbackImg = tourImg;
-                return {
-                  title: cat.title,
-                  img: cat.image || fallbackImg,
-                  type: cat.type
-                };
-              })
+              let fallbackImg = 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600';
+              if (cat.type === 'hotel') fallbackImg = hotelImg;
+              if (cat.type === 'activity') fallbackImg = tourImg;
+              return {
+                title: cat.title,
+                img: cat.image || fallbackImg,
+                type: cat.type
+              };
+            })
             : [
-                { title: 'Hotels', img: hotelImg, type: 'hotel' },
-                { title: 'Cars', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600', type: 'car' },
-                { title: 'Activities', img: tourImg, type: 'activity' }
-              ]
+              { title: 'Hotels', img: hotelImg, type: 'hotel' },
+              { title: 'Cars', img: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=600', type: 'car' },
+              { title: 'Activities', img: tourImg, type: 'activity' }
+            ]
           ).map((cat, i) => (
-            <motion.div 
-              variants={fadeUp} 
-              key={i} 
+            <motion.div
+              variants={fadeUp}
+              key={i}
               className="group flex flex-col items-center flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] snap-start"
             >
               <div className="w-full h-56 md:h-72 mb-6 overflow-hidden shadow-lg border border-gray-100">
@@ -771,7 +874,7 @@ const LandingPage = () => {
           {/* Left Side: Map with floating items */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="w-full md:w-1/2 relative h-[300px] md:h-[500px]">
             {/* Map Background */}
-            <div 
+            <div
               className="absolute inset-0 bg-cover bg-center opacity-90 rounded-full blur-[1px]"
               style={{ backgroundImage: `url(${cmsData?.essentialAccessories?.backgroundImage || 'https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1200'})` }}
             ></div>
@@ -846,11 +949,11 @@ const LandingPage = () => {
                 {(cmsData?.aboutUs?.milestones?.length > 0
                   ? cmsData.aboutUs.milestones
                   : [
-                      { title: "Our never ending footsteps", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                      { title: "Our total trips till now", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                      { title: "Our most incredible moments to share", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                      { title: "Our travel book released on 1991 year", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." }
-                    ]
+                    { title: "Our never ending footsteps", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                    { title: "Our total trips till now", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                    { title: "Our most incredible moments to share", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
+                    { title: "Our travel book released on 1991 year", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." }
+                  ]
                 ).map((item, idx) => (
                   <div key={idx} className="relative flex items-start lg:pl-6">
 
@@ -947,7 +1050,7 @@ const LandingPage = () => {
                 <p className="text-[10px] md:text-xs text-gray-500 mb-3 px-1 md:px-4 leading-snug flex-grow">
                   {staff.description}
                 </p>
-                <a 
+                <a
                   href={staff.email ? `mailto:${staff.email}` : '#'}
                   className="block text-center border border-gray-200 px-4 md:px-6 py-1.5 md:py-2 rounded-sm text-[9px] font-bold text-gray-500 hover:bg-[#065f46] hover:border-[#065f46] hover:text-white transition-all uppercase mb-1 md:mb-2 mx-auto w-fit tracking-widest"
                 >
@@ -1034,8 +1137,8 @@ const LandingPage = () => {
           {/* Column 4: About Company */}
           <div>
             <h4 className="font-bold text-lg mb-6 tracking-wide">
-              {cmsData?.footer?.companyName?.toLowerCase().startsWith('about') 
-                ? cmsData.footer.companyName 
+              {cmsData?.footer?.companyName?.toLowerCase().startsWith('about')
+                ? cmsData.footer.companyName
                 : `About ${cmsData?.footer?.companyName || "My DESTINATION"}`}
             </h4>
             <p className="text-xs text-gray-300 leading-relaxed mb-6">
@@ -1074,56 +1177,56 @@ const LandingPage = () => {
             flexWrap: 'wrap',
             gap: '8px',
           }}>
-          {/* Left: Copyright */}
-          <p style={{ margin: 0, fontSize: '12px', color: '#065f46', fontFamily: 'inherit', fontWeight: 500 }}>
-            Copyright © {new Date().getFullYear()}{' '}
-            <strong style={{ color: '#065f46', fontWeight: 'bold', fontSize: '13px', letterSpacing: '0.02em' }}>My DESTINATION<sup style={{ fontSize: '8px' }}>®</sup></strong>
-            {' '}<span style={{ fontWeight: 500 }}>| All Rights Reserved.</span>
-          </p>
+            {/* Left: Copyright */}
+            <p style={{ margin: 0, fontSize: '12px', color: '#065f46', fontFamily: 'inherit', fontWeight: 500 }}>
+              Copyright © {new Date().getFullYear()}{' '}
+              <strong style={{ color: '#065f46', fontWeight: 'bold', fontSize: '13px', letterSpacing: '0.02em' }}>My DESTINATION<sup style={{ fontSize: '8px' }}>®</sup></strong>
+              {' '}<span style={{ fontWeight: 500 }}>| All Rights Reserved.</span>
+            </p>
 
-          {/* Right: Payment Icons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
-            {/* PayPal */}
-            {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
-              <div style={{ background: '#172b85', borderRadius: '6px', padding: '3px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '36px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-              </div>
-            )}
-            {/* Mastercard */}
-            {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
-              <div style={{ background: '#1a1a1a', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', gap: '0px' }}>
-                <div style={{ position: 'relative', width: '28px', height: '16px', display: 'flex', alignItems: 'center' }}>
-                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
-                  <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '8px', opacity: 0.9 }}></div>
+            {/* Right: Payment Icons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+              {/* PayPal */}
+              {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
+                <div style={{ background: '#172b85', borderRadius: '6px', padding: '3px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '36px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
-              </div>
-            )}
-            {/* Visa */}
-            {(cmsData?.footer?.paymentMethods?.visa !== false) && (
-              <div style={{ background: '#1a56db', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
-                <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>VISA</span>
-              </div>
-            )}
-            {/* Stripe */}
-            {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
-              <div style={{ background: '#635bff', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-              </div>
-            )}
-            {/* Apple Pay */}
-            {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
-              <div style={{ background: '#000000', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '48px' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '11px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-              </div>
-            )}
-            {/* Google Pay */}
-            {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
-              <div style={{ background: '#f8f9fa', borderRadius: '6px', padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', border: '1px solid #e5e7eb' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '12px', objectFit: 'contain' }} />
-              </div>
-            )}
+              )}
+              {/* Mastercard */}
+              {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
+                <div style={{ background: '#1a1a1a', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', gap: '0px' }}>
+                  <div style={{ position: 'relative', width: '28px', height: '16px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
+                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '8px', opacity: 0.9 }}></div>
+                  </div>
+                </div>
+              )}
+              {/* Visa */}
+              {(cmsData?.footer?.paymentMethods?.visa !== false) && (
+                <div style={{ background: '#1a56db', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
+                  <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>VISA</span>
+                </div>
+              )}
+              {/* Stripe */}
+              {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
+                <div style={{ background: '#635bff', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                </div>
+              )}
+              {/* Apple Pay */}
+              {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
+                <div style={{ background: '#000000', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '48px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '11px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                </div>
+              )}
+              {/* Google Pay */}
+              {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
+                <div style={{ background: '#f8f9fa', borderRadius: '6px', padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', border: '1px solid #e5e7eb' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '12px', objectFit: 'contain' }} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
         </div>
 
       </footer>

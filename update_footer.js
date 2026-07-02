@@ -9,8 +9,13 @@ mongoose.connect(uri)
     const configSchema = new mongoose.Schema({}, { strict: false });
     const Config = mongoose.model('LandingPageConfig', configSchema, 'landingpageconfigs');
     
-    await Config.updateOne({}, { $set: { 'footer.companyDescription': 'My DESTINATION - Wed in India | Event Planners' } });
-    console.log('Database footer updated successfully!');
+    await Config.updateOne({}, { 
+      $set: { 
+        'footer.phone': '+91 80 06 787878',
+        'footer.whatsapp': '+91 80 06 787878'
+      } 
+    });
+    console.log('Database footer phone numbers updated successfully!');
     process.exit(0);
   })
   .catch(err => {
