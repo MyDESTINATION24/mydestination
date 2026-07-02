@@ -3,7 +3,7 @@
 Use this to verify "Contact Property" works on Booking Confirmation and no other behaviour is affected.
 
 ## What was fixed
-- **Contact number**: Shown from property (partner-entered) first; if missing, from partner account phone.
+- **Contact number**: Shownfgfgfgfh from property (partner-entered) first; if missing, from partner account phone.
 - **Backend**: All paths that send booking to the confirmation page now include `property.contactNumber` and/or `property.partnerId.phone`.
 - **Frontend**: Renders a `tel:` link when a number exists; shows disabled "Number not available" only when neither exists.
 
