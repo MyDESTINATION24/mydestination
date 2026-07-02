@@ -558,7 +558,7 @@ const PromoCodes = () => {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => navigate(`/admin/promotions/promo-codes/edit/${promo._id}`)}
+                                onClick={() => navigate(`/taxi/admin/promotions/promo-codes/edit/${promo._id}`)}
                                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
                               >
                                 <Pencil size={16} />

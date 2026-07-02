@@ -334,7 +334,7 @@ const MainDashboard = () => {
           iconClass="text-emerald-500"
           isLoading={isLoading}
           clickable
-          onClick={() => navigate('/admin/drivers')}
+          onClick={() => navigate('/taxi/admin/drivers')}
         />
         <TopStatCard
           label="Approved Drivers"
@@ -344,7 +344,7 @@ const MainDashboard = () => {
           iconClass="text-blue-500"
           isLoading={isLoading}
           clickable
-          onClick={() => navigate('/admin/drivers')}
+          onClick={() => navigate('/taxi/admin/drivers')}
         />
         <TopStatCard
           label="Waiting Approval"
@@ -354,7 +354,7 @@ const MainDashboard = () => {
           iconClass="text-amber-500"
           isLoading={isLoading}
           clickable
-          onClick={() => navigate('/admin/drivers/pending')}
+          onClick={() => navigate('/taxi/admin/drivers/pending')}
         />
         <TopStatCard
           label="Users Registered"
@@ -364,13 +364,13 @@ const MainDashboard = () => {
           iconClass="text-indigo-500"
           isLoading={isLoading}
           clickable
-          onClick={() => navigate('/admin/users')}
+          onClick={() => navigate('/taxi/admin/users')}
         />
       </div>
 
       <button
         type="button"
-        onClick={() => navigate('/admin/safety')}
+        onClick={() => navigate('/taxi/admin/safety')}
         className="w-full overflow-hidden rounded-[28px] border border-gray-100 bg-white p-8 text-center shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
       >
         <h3 className="mb-4 text-left text-[14px] font-semibold uppercase tracking-wider text-gray-400">Notified SOS</h3>
@@ -494,7 +494,7 @@ const MainDashboard = () => {
         <div className="grid h-full grid-cols-2 gap-4">
           <button
             type="button"
-            onClick={() => navigate('/admin/trips')}
+            onClick={() => navigate('/taxi/admin/trips')}
             className="flex w-full items-center justify-between rounded-[28px] border border-gray-50 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             <div>
@@ -507,7 +507,7 @@ const MainDashboard = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/trips')}
+            onClick={() => navigate('/taxi/admin/trips')}
             className="flex w-full items-center justify-between rounded-[28px] border border-gray-50 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             <div>
@@ -520,7 +520,7 @@ const MainDashboard = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/drivers')}
+            onClick={() => navigate('/taxi/admin/drivers')}
             className="flex w-full items-center justify-between rounded-[28px] border border-gray-50 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             <div>
@@ -533,7 +533,7 @@ const MainDashboard = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/ongoing')}
+            onClick={() => navigate('/taxi/admin/ongoing')}
             className="flex w-full items-center justify-between rounded-[28px] border border-gray-50 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
             <div>

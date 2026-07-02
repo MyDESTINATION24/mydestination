@@ -104,7 +104,7 @@ const PoolingVehicles = () => {
             <p className="text-sm font-medium text-slate-500">Manage dedicated fleet for car pooling services</p>
           </div>
           <button
-            onClick={() => navigate('/admin/pooling/vehicles/create')}
+            onClick={() => navigate('/taxi/admin/pooling/vehicles/create')}
             className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition-all hover:bg-indigo-700 active:scale-95"
           >
             <Plus size={18} />
@@ -239,7 +239,7 @@ const PoolingVehicles = () => {
 
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => navigate(`/admin/pooling/vehicles/edit/${vehicle._id}`)}
+                    onClick={() => navigate(`/taxi/admin/pooling/vehicles/edit/${vehicle._id}`)}
                     className="flex-1 rounded-xl border border-slate-200 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
                   >
                     Edit Vehicle

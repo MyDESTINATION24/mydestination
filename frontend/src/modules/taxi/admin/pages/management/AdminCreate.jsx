@@ -81,7 +81,7 @@ const AdminCreate = () => {
           const existingAdmin = adminList.find((item) => String(item.id || item._id) === String(id));
           if (!existingAdmin) {
             toast.error('Admin account not found.');
-            navigate('/admin/management/admins');
+            navigate('/taxi/admin/management/admins');
             return;
           }
 
@@ -204,7 +204,7 @@ const AdminCreate = () => {
         await adminService.createAdminAccount(payload);
         toast.success('Subadmin created.');
       }
-      navigate('/admin/management/admins');
+      navigate('/taxi/admin/management/admins');
     } catch (error) {
       toast.error(error?.response?.data?.message || error?.message || 'Unable to save admin account.');
     } finally {
@@ -243,7 +243,7 @@ const AdminCreate = () => {
 
           <button
             type="button"
-            onClick={() => navigate('/admin/management/admins')}
+            onClick={() => navigate('/taxi/admin/management/admins')}
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700 transition-all hover:bg-slate-50"
           >
             <ArrowLeft size={16} />
@@ -460,7 +460,7 @@ const AdminCreate = () => {
             <div className="flex flex-col gap-3 rounded-[30px] border border-slate-200 bg-white p-6 shadow-lg shadow-slate-200/50 sm:flex-row sm:justify-end">
               <button
                 type="button"
-                onClick={() => navigate('/admin/management/admins')}
+                onClick={() => navigate('/taxi/admin/management/admins')}
                 className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition-all hover:bg-slate-50"
               >
                 Cancel

@@ -219,6 +219,11 @@ const PageLoader = () => (
   </div>
 );
 
+const AdminTaxiFallbackRedirect = () => {
+  const location = useLocation();
+  return <Navigate to={`/taxi${location.pathname}${location.search || ''}${location.hash || ''}`} replace />;
+};
+
 // Wrapper to conditionally render Navbars & Handle Lenis
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -847,6 +852,7 @@ function App() {
                 <Route path="offers" element={<AdminOffers />} />
                 <Route path="notifications" element={<AdminNotifications />} />
                 <Route path="faqs" element={<AdminFaqs />} />
+                <Route path="*" element={<AdminTaxiFallbackRedirect />} />
               </Route>
             </Route>
 

@@ -8,7 +8,9 @@ import {
     Package,
     ShieldCheck,
     Info,
-    CheckCircle2
+    CheckCircle2,
+    Armchair,
+    Grid3X3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -49,7 +51,7 @@ const normalizeServiceCategories = (value, registerFor = 'taxi') => {
         rawValues
             .map((item) => String(item || '').trim().toLowerCase())
             .flatMap((item) => item === 'both' ? ['taxi', 'outstation'] : item ? [item] : [])
-            .filter((item) => ['taxi', 'outstation', 'delivery', 'pooling'].includes(item)),
+            .filter((item) => ['taxi', 'outstation', 'delivery', 'pooling', 'bus'].includes(item)),
     )];
 
     if (normalized.length > 0) {
@@ -61,7 +63,7 @@ const normalizeServiceCategories = (value, registerFor = 'taxi') => {
         return ['taxi', 'outstation'];
     }
 
-    return ['taxi', 'outstation', 'delivery', 'pooling'].includes(fallback) ? [fallback] : ['taxi'];
+    return ['taxi', 'outstation', 'delivery', 'pooling', 'bus'].includes(fallback) ? [fallback] : ['taxi'];
 };
 
 const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
@@ -72,6 +74,7 @@ const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
     if (normalized.includes('outstation')) return 'outstation';
     if (normalized.includes('delivery')) return 'delivery';
     if (normalized.includes('pooling')) return 'pooling';
+    if (normalized.includes('bus')) return 'bus';
 
     return String(fallback || 'taxi').trim().toLowerCase() || 'taxi';
 };
@@ -112,8 +115,8 @@ const StepVehicle = () => {
     const [vehicleFieldConfigs, setVehicleFieldConfigs] = useState(defaultVehicleFieldConfigs);
 
     const [formData, setFormData] = useState({
-        registerFor: getPrimaryRegisterFor(session.serviceCategories || session.vehicleSession?.vehicle?.serviceCategories || [], session.registerFor || 'taxi'),
-        serviceCategories: normalizeServiceCategories(session.serviceCategories || session.vehicleSession?.vehicle?.serviceCategories || [], session.registerFor || 'taxi'),
+        registerFor: role === 'pooling' ? 'pooling' : role === 'bus_driver' ? 'bus' : getPrimaryRegisterFor(session.serviceCategories || session.vehicleSession?.vehicle?.serviceCategories || [], session.registerFor || 'taxi'),
+        serviceCategories: role === 'pooling' ? ['pooling'] : role === 'bus_driver' ? ['bus'] : normalizeServiceCategories(session.serviceCategories || session.vehicleSession?.vehicle?.serviceCategories || [], session.registerFor || 'taxi'),
         locationId: session.locationId || '',
         vehicleTypeId: session.vehicleTypeId || '',
         make: session.make || '',
@@ -131,6 +134,101 @@ const StepVehicle = () => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    const VEHICLE_TYPES_POOLING = [
+        { id: 'bike', label: 'Bike', capacity: 1, grid: [1, 1] },
+        { id: 'hatchback', label: 'Hatchback', capacity: 4, grid: [3, 2] },
+        { id: 'sedan', label: 'Sedan', capacity: 4, grid: [3, 2] },
+        { id: 'suv', label: 'SUV', capacity: 6, grid: [4, 2] },
+        { id: 'van', label: 'Van', capacity: 12, grid: [5, 3] },
+        { id: 'luxury', label: 'Luxury', capacity: 4, grid: [3, 2] },
+    ];
+
+    const VEHICLE_TYPES_BUS = [
+        { id: 'minibus', label: 'Mini Bus', capacity: 15, grid: [5, 3] },
+        { id: 'standard_bus', label: 'Standard Bus', capacity: 30, grid: [8, 4] },
+        { id: 'sleeper_bus', label: 'Sleeper Bus', capacity: 20, grid: [7, 3] },
+    ];
+
+    const generateDefaultLayout = (type, registerForType) => {
+        const types = registerForType === 'bus' ? VEHICLE_TYPES_BUS : VEHICLE_TYPES_POOLING;
+        const config = types.find(t => t.id === type) || types[0];
+        const rows = config.grid[0];
+        const cols = config.grid[1];
+        const layout = [];
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                let seatType = 'seat';
+                if (r === 0 && c === 0) seatType = 'driver';
+                if (r === 0 && c === 1 && type !== 'van' && registerForType !== 'bus') seatType = 'empty';
+                layout.push({ r, c, type: seatType });
+            }
+        }
+
+        return { rows, cols, layout };
+    };
+
+    const [blueprint, setBlueprint] = useState(() => {
+        const customFields = session.customFields || {};
+        if (customFields.blueprint) return customFields.blueprint;
+        const defaultType = role === 'bus_driver' ? 'standard_bus' : 'sedan';
+        const defaultReg = role === 'bus_driver' ? 'bus' : 'pooling';
+        return generateDefaultLayout(defaultType, defaultReg);
+    });
+
+    const [vehicleType, setVehicleType] = useState(() => {
+        const customFields = session.customFields || {};
+        if (customFields.vehicleType) return customFields.vehicleType;
+        return role === 'bus_driver' ? 'standard_bus' : 'sedan';
+    });
+
+    const handleTypeChange = (type) => {
+        setVehicleType(type);
+        const newBlueprint = generateDefaultLayout(type, formData.registerFor);
+        setBlueprint(newBlueprint);
+        
+        const seatCount = newBlueprint.layout.filter(s => s.type === 'seat').length;
+        setFormData(prev => ({
+            ...prev,
+            capacity: seatCount,
+        }));
+    };
+
+    const toggleSeat = (r, c) => {
+        const layout = [...blueprint.layout];
+        const index = layout.findIndex(s => s.r === r && s.c === c);
+        if (index === -1) return;
+
+        const currentType = layout[index].type;
+        let nextType = 'seat';
+        if (currentType === 'seat') nextType = 'empty';
+        else if (currentType === 'empty') nextType = 'driver';
+        else if (currentType === 'driver') nextType = 'seat';
+
+        layout[index].type = nextType;
+        const seatCount = layout.filter(s => s.type === 'seat').length;
+
+        setBlueprint({ ...blueprint, layout });
+        setFormData(prev => ({
+            ...prev,
+            capacity: seatCount,
+        }));
+    };
+
+    useEffect(() => {
+        if (formData.registerFor === 'pooling' || formData.registerFor === 'bus') {
+            const defaultType = formData.registerFor === 'bus' ? 'standard_bus' : 'sedan';
+            setVehicleType(defaultType);
+            const newBlueprint = generateDefaultLayout(defaultType, formData.registerFor);
+            setBlueprint(newBlueprint);
+            const seatCount = newBlueprint.layout.filter(s => s.type === 'seat').length;
+            setFormData(prev => ({
+                ...prev,
+                capacity: seatCount,
+            }));
+        }
+    }, [formData.registerFor]);
     const trimmedModel = String(formData.model || '').trim();
 
     useEffect(() => {
@@ -337,13 +435,21 @@ const StepVehicle = () => {
                     city: isOwner ? formData.city : selectedServiceLocation?.name || selectedServiceLocation?.service_location_name || formData.city,
                     postalCode: formData.postalCode,
                     taxNumber: formData.taxNumber,
-                    customFields: formData.customFields,
+                    customFields: {
+                        ...formData.customFields,
+                        blueprint,
+                        vehicleType,
+                        capacity: formData.capacity,
+                    },
                 });
 
                 const nextState = saveDriverRegistrationSession({
                     ...session,
                     ...formData,
                     number: normalizedNumber,
+                    blueprint,
+                    vehicleType,
+                    capacity: formData.capacity,
                     vehicleSession: response?.data?.session || null,
                 });
 
@@ -362,7 +468,8 @@ const StepVehicle = () => {
         { id: 'taxi', label: 'Taxi', icon: <Car size={18} />, color: 'emerald' },
         { id: 'outstation', label: 'Outstation', icon: <MapPin size={18} />, color: 'sky' },
         { id: 'delivery', label: 'Delivery', icon: <Package size={18} />, color: 'amber' },
-        { id: 'pooling', label: 'Pooling', icon: <Zap size={18} />, color: 'indigo' }
+        { id: 'pooling', label: 'Pooling', icon: <Zap size={18} />, color: 'indigo' },
+        { id: 'bus', label: 'Bus', icon: <Car size={18} />, color: 'violet' }
     ];
 
     const locationField = getFieldConfig('locationId', { name: 'Operating City' });
@@ -392,7 +499,7 @@ const StepVehicle = () => {
         : [
             !isFieldRequired('locationId', true) || isFilled(formData.locationId),
             !isFieldRequired('serviceCategories', true) || isFilled(formData.serviceCategories),
-            !isFieldRequired('vehicleTypeId', true) || isFilled(formData.vehicleTypeId),
+            !isFieldRequired('vehicleTypeId', true) || isFilled(formData.vehicleTypeId) || formData.registerFor === 'pooling' || formData.registerFor === 'bus',
             !isFieldRequired('make', true) || isFilled(formData.make),
             !isFieldRequired('model', true) || isFilled(formData.model),
             !isFieldRequired('year', true) || isFilled(formData.year),
@@ -613,55 +720,121 @@ const StepVehicle = () => {
                         ) : (
                             <div className="space-y-5 animate-in fade-in slide-in-from-top-4 duration-500">
                                 {shouldShowField('vehicleTypeId', true) && (
-                                    <div className="space-y-4 pt-1">
-                                         <div className="space-y-1 px-1">
-                                            <h2 className="text-base font-semibold tracking-[-0.03em] text-slate-950">{vehicleTypeField.name}</h2>
-                                            <p className="text-sm text-slate-500">
-                                                {formData.locationId
-                                                    ? (vehicleTypeField.help_text || 'Select the type of vehicle you drive.')
-                                                    : 'Select a vehicle type now. Choosing your city later will refine availability if needed.'}
-                                            </p>
-                                        </div>
-                                         <div className="grid grid-cols-2 gap-3">
-                                             {vehicleTypesLoading ? (
-                                                 Array.from({ length: 4 }).map((_, i) => (
-                                                     <div key={i} className="h-32 bg-slate-50/50 rounded-2xl animate-pulse" />
-                                                 ))
-                                             ) : (
-                                                 vehicleTypes.map((type) => (
-                                                     <button
-                                                         key={type._id || type.id}
-                                                         type="button"
-                                                         onClick={() => setFormData(p => ({ ...p, vehicleTypeId: type._id || type.id }))}
-                                                         className={`relative h-32 rounded-3xl border transition-all flex flex-col group overflow-hidden cursor-pointer touch-manipulation text-left ${
-                                                             formData.vehicleTypeId === (type._id || type.id)
-                                                             ? 'border-slate-900 bg-slate-900/[0.02] ring-1 ring-slate-900/5' 
-                                                             : 'border-slate-100 bg-[#FCFCFB] hover:border-slate-200'
-                                                         }`}
-                                                     >
-                                                         <div className="flex-1 flex items-center justify-center p-3">
-                                                            {type.image || type.icon || type.map_icon ? (
-                                                                <img 
-                                                                    src={type.image || type.icon || type.map_icon} 
-                                                                    alt={type.name} 
-                                                                    className="max-h-14 w-auto object-contain transition-transform duration-500"
-                                                                />
-                                                            ) : (
-                                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
-                                                                    <Car size={24} />
-                                                                </div>
-                                                            )}
-                                                         </div>
-                                                         <div className={`p-2.5 text-center transition-colors ${
-                                                             formData.vehicleTypeId === (type._id || type.id) ? 'bg-slate-900 text-white font-bold' : 'bg-white/50 text-slate-700 font-semibold'
-                                                         }`}>
-                                                             <span className="text-[11px] tracking-tight uppercase">{type.name || type.vehicle_type_name}</span>
-                                                         </div>
-                                                     </button>
-                                                 ))
-                                             )}
+                                     formData.registerFor !== 'pooling' && formData.registerFor !== 'bus' ? (
+                                         <div className="space-y-4 pt-1">
+                                             <div className="space-y-1 px-1">
+                                                <h2 className="text-base font-semibold tracking-[-0.03em] text-slate-950">{vehicleTypeField.name}</h2>
+                                                <p className="text-sm text-slate-500">
+                                                    {formData.locationId
+                                                        ? (vehicleTypeField.help_text || 'Select the type of vehicle you drive.')
+                                                        : 'Select a vehicle type now. Choosing your city later will refine availability if needed.'}
+                                                </p>
+                                            </div>
+                                             <div className="grid grid-cols-2 gap-3">
+                                                 {vehicleTypesLoading ? (
+                                                     Array.from({ length: 4 }).map((_, i) => (
+                                                         <div key={i} className="h-32 bg-slate-50/50 rounded-2xl animate-pulse" />
+                                                     ))
+                                                 ) : (
+                                                     vehicleTypes.map((type) => (
+                                                         <button
+                                                             key={type._id || type.id}
+                                                             type="button"
+                                                             onClick={() => setFormData(p => ({ ...p, vehicleTypeId: type._id || type.id }))}
+                                                             className={`relative h-32 rounded-3xl border transition-all flex flex-col group overflow-hidden cursor-pointer touch-manipulation text-left ${
+                                                                 formData.vehicleTypeId === (type._id || type.id)
+                                                                 ? 'border-slate-900 bg-slate-900/[0.02] ring-1 ring-slate-900/5' 
+                                                                 : 'border-slate-100 bg-[#FCFCFB] hover:border-slate-200'
+                                                             }`}
+                                                         >
+                                                             <div className="flex-1 flex items-center justify-center p-3">
+                                                                {type.image || type.icon || type.map_icon ? (
+                                                                    <img 
+                                                                        src={type.image || type.icon || type.map_icon} 
+                                                                        alt={type.name} 
+                                                                        className="max-h-14 w-auto object-contain transition-transform duration-500"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300">
+                                                                        <Car size={24} />
+                                                                    </div>
+                                                                )}
+                                                             </div>
+                                                             <div className={`p-2.5 text-center transition-colors ${
+                                                                 formData.vehicleTypeId === (type._id || type.id) ? 'bg-slate-900 text-white font-bold' : 'bg-white/50 text-slate-700 font-semibold'
+                                                             }`}>
+                                                                 <span className="text-[11px] tracking-tight uppercase">{type.name || type.vehicle_type_name}</span>
+                                                             </div>
+                                                         </button>
+                                                     ))
+                                                 )}
+                                             </div>
                                          </div>
-                                    </div>
+                                     ) : (
+                                         <div className="space-y-4 pt-1 animate-in fade-in duration-300">
+                                             <div className="space-y-1 px-1">
+                                                <h2 className="text-base font-semibold tracking-[-0.03em] text-slate-950">Vehicle Configuration</h2>
+                                                <p className="text-sm text-slate-500">
+                                                    Select a vehicle layout template and customize your seat arrangement blueprint.
+                                                </p>
+                                            </div>
+                                            <div className="grid grid-cols-3 gap-2">
+                                                {(formData.registerFor === 'bus' ? VEHICLE_TYPES_BUS : VEHICLE_TYPES_POOLING).map((type) => (
+                                                    <button
+                                                        key={type.id}
+                                                        type="button"
+                                                        onClick={() => handleTypeChange(type.id)}
+                                                        className={`rounded-xl border p-2.5 text-center transition-all ${
+                                                            vehicleType === type.id
+                                                                ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                                                                : 'border-slate-100 bg-slate-50 text-slate-400 hover:border-slate-200'
+                                                        }`}
+                                                    >
+                                                        <p className="text-[10px] font-black uppercase tracking-tight">{type.label}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div className="space-y-2 pt-2">
+                                                <label className="block text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 opacity-70 px-1">Interactive Seat Layout Grid</label>
+                                                <div className="flex flex-col items-center justify-center py-8 bg-slate-50/50 rounded-[32px] border border-dashed border-slate-200">
+                                                    <div className="mb-6 h-8 w-36 rounded-t-[40px] border-x-4 border-t-4 border-slate-300 bg-slate-200/50" />
+                                                    <div className="relative p-4 rounded-[32px] bg-white shadow-xl border-x-8 border-slate-300">
+                                                        <div 
+                                                            className="grid gap-4"
+                                                            style={{ 
+                                                                gridTemplateColumns: `repeat(${blueprint.cols}, minmax(0, 1fr))`,
+                                                                gridTemplateRows: `repeat(${blueprint.rows}, minmax(0, 1fr))`
+                                                            }}
+                                                        >
+                                                            {blueprint.layout.map((item) => (
+                                                                <button
+                                                                    key={`${item.r}-${item.c}`}
+                                                                    type="button"
+                                                                    onClick={() => toggleSeat(item.r, item.c)}
+                                                                    className={`group relative h-10 w-10 flex items-center justify-center rounded-xl transition-all ${
+                                                                        item.type === 'seat' 
+                                                                            ? 'bg-indigo-50 text-indigo-600 border border-indigo-200 hover:bg-indigo-600 hover:text-white' 
+                                                                            : item.type === 'driver'
+                                                                            ? 'bg-slate-900 text-white border border-slate-900 cursor-default'
+                                                                            : 'bg-slate-100 text-slate-300 border border-dashed border-slate-200 hover:bg-slate-200'
+                                                                    }`}
+                                                                >
+                                                                    {item.type === 'seat' && <Armchair size={16} />}
+                                                                    {item.type === 'driver' && <Grid3X3 size={16} />}
+                                                                    {item.type === 'empty' && <div className="h-1.5 w-1.5 rounded-full bg-slate-300" />}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-6 h-5 w-36 rounded-b-2xl border-x-4 border-b-4 border-slate-300 bg-slate-200/50" />
+                                                </div>
+                                                <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs font-bold text-slate-700">
+                                                    <span>Total Seat Capacity</span>
+                                                    <span className="text-indigo-600 font-black">{formData.capacity || 0} Seats</span>
+                                                </div>
+                                            </div>
+                                         </div>
+                                     )
                                 )}
 
                                 {driverHasTechnicalFields ? (

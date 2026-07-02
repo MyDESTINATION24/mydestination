@@ -740,7 +740,7 @@ const EditDriver = () => {
 
             <button 
               type="button"
-              onClick={() => navigate('/admin/drivers')}
+              onClick={() => navigate('/taxi/admin/drivers')}
               className="w-full py-3 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
             >
               Cancel

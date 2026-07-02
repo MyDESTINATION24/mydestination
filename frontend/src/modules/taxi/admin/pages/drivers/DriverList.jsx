@@ -222,7 +222,7 @@ const DriverList = ({ mode = 'approved' }) => {
           <h1 className="text-xl font-semibold text-gray-900">{mode === 'active' ? 'Active Drivers' : 'Approved Drivers'}</h1>
           {mode !== 'active' ? (
             <button
-              onClick={() => navigate('/admin/drivers/create')}
+              onClick={() => navigate('/taxi/admin/drivers/create')}
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
             >
               <Plus size={15} /> Add Drivers
@@ -331,7 +331,7 @@ const DriverList = ({ mode = 'approved' }) => {
                     </td>
                     <td className="px-4 py-4">
                       <button
-                        onClick={() => navigate(`/admin/drivers/${driver.id}?tab=Documents`)}
+                        onClick={() => navigate(`/taxi/admin/drivers/${driver.id}?tab=Documents`)}
                         className="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
                       >
                         <FileText size={16} />
@@ -415,7 +415,7 @@ const DriverList = ({ mode = 'approved' }) => {
             <button
               onClick={() => {
                 closeMenu();
-                navigate(`/admin/drivers/edit/${activeMenu}`);
+                navigate(`/taxi/admin/drivers/edit/${activeMenu}`);
               }}
               className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >
@@ -433,7 +433,7 @@ const DriverList = ({ mode = 'approved' }) => {
             <button
               onClick={() => {
                 closeMenu();
-                navigate(`/admin/drivers/${activeMenu}`);
+                navigate(`/taxi/admin/drivers/${activeMenu}`);
               }}
               className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-2"
             >

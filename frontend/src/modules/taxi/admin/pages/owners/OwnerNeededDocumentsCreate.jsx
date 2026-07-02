@@ -96,7 +96,7 @@ const OwnerNeededDocumentsCreate = () => {
 
       const json = await res.json();
       if (json?.success) {
-        navigate('/admin/owners/documents');
+        navigate('/taxi/admin/owners/documents');
         return;
       }
       alert(json?.message || 'Operation failed');

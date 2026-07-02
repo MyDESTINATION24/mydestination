@@ -166,7 +166,7 @@ const PoolingVehicleForm = () => {
         await adminService.createPoolingVehicle(formData);
         toast.success('Vehicle created successfully');
       }
-      navigate('/admin/pooling/vehicles');
+      navigate('/taxi/admin/pooling/vehicles');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Save failed');
     } finally {
@@ -188,7 +188,7 @@ const PoolingVehicleForm = () => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate('/admin/pooling/vehicles')}
+            onClick={() => navigate('/taxi/admin/pooling/vehicles')}
             className="mb-4 flex items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-slate-900"
           >
             <ArrowLeft size={16} />

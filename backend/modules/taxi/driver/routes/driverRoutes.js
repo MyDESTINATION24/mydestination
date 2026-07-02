@@ -26,6 +26,8 @@ import {
   createBusDriverReservation,
   updateBusDriverSchedules,
   getCurrentDriver,
+  getPoolingDriverDashboard,
+  updatePoolingDriverBookingStatus,
   getBusDriverSeatLayout,
   listBusDriverBookings,
   getDriverPaymentQrStatus,
@@ -92,12 +94,12 @@ driverRouter.post(
 );
 driverRouter.get(
   "/me",
-  authenticate(["driver", "owner", "bus_driver", "service_center", "service_center_staff"], { allowPending: true }),
+  authenticate(["driver", "owner", "bus_driver", "service_center", "service_center_staff", "pooling"], { allowPending: true }),
   asyncHandler(getCurrentDriver),
 );
 driverRouter.patch(
   "/me",
-  authenticate(["driver", "owner"]),
+  authenticate(["driver", "owner", "pooling"]),
   asyncHandler(updateCurrentDriver),
 );
 driverRouter.get(
@@ -157,7 +159,7 @@ driverRouter.patch(
 );
 driverRouter.get(
   "/notifications",
-  authenticate(["driver"]),
+  authenticate(["driver", "pooling"]),
   asyncHandler(getDriverNotifications),
 );
 driverRouter.get(
@@ -178,6 +180,7 @@ driverRouter.post(
     "bus_driver",
     "service_center",
     "service_center_staff",
+    "pooling",
   ]),
   asyncHandler(saveDriverFcmToken),
 );
@@ -422,4 +425,15 @@ driverRouter.patch(
   "/offline",
   authenticate(["driver"]),
   asyncHandler(goOffline),
+);
+
+driverRouter.get(
+  "/pooling/dashboard",
+  authenticate(["pooling"]),
+  asyncHandler(getPoolingDriverDashboard),
+);
+driverRouter.patch(
+  "/pooling/bookings/:id",
+  authenticate(["pooling"]),
+  asyncHandler(updatePoolingDriverBookingStatus),
 );

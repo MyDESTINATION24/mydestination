@@ -18,6 +18,7 @@ const roleModelMap = {
   admin: Admin,
   'super-admin': Admin,
   driver: Driver,
+  pooling: Driver,
   bus_driver: BusDriver,
   owner: Owner,
   service_center: ServiceStore,
@@ -128,7 +129,7 @@ export const authenticate = (allowedRoles = [], options = {}) => async (req, _re
     }
 
     if (
-      normalizedRole === 'driver' &&
+      (normalizedRole === 'driver' || normalizedRole === 'pooling') &&
       !allowPending &&
       (entity.approve === false || String(entity.status || '').toLowerCase() === 'pending')
     ) {

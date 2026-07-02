@@ -80,6 +80,7 @@ export const normalizeDriverPortalRole = (role) => {
   if (!normalized) return "";
 
   if (normalized === "owner") return "owner";
+  if (normalized === "pooling") return "pooling";
   if (normalized === "service_center" || normalized === "service-center" || normalized === "servicecenter") {
     return "service_center";
   }

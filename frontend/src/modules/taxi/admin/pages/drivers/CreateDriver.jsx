@@ -641,7 +641,7 @@ const CreateDriver = () => {
       });
 
       if (response?.success) {
-        navigate('/admin/drivers');
+        navigate('/taxi/admin/drivers');
         return;
       }
 
@@ -693,7 +693,7 @@ const CreateDriver = () => {
           </div>
           <button
             type="button"
-            onClick={() => navigate('/admin/drivers')}
+            onClick={() => navigate('/taxi/admin/drivers')}
             className="rounded-full border border-slate-200 bg-white px-5 py-2 text-xs font-black uppercase tracking-widest text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
           >
             Back To Drivers

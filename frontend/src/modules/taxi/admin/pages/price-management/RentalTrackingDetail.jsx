@@ -111,7 +111,7 @@ const RentalTrackingDetail = () => {
 
         if (!nextItem) {
           toast.error('Tracked rental was not found.');
-          navigate('/admin/pricing/rental-tracking', { replace: true });
+          navigate('/taxi/admin/pricing/rental-tracking', { replace: true });
           return;
         }
 

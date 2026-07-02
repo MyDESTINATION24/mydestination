@@ -149,6 +149,7 @@ const StepReferral = lazy(() => import('./driver/pages/registration/StepReferral
 const StepVehicle = lazy(() => import('./driver/pages/registration/StepVehicle'));
 const StepDocuments = lazy(() => import('./driver/pages/registration/StepDocuments'));
 const ApplicationStatus = lazy(() => import('./driver/pages/registration/ApplicationStatus'));
+const PoolingDriverHome = lazy(() => import('./driver/pages/PoolingDriverHome'));
 
 // Driver Module - Core
 const DriverHome = lazy(() => import('./driver/pages/DriverHome'));
@@ -686,6 +687,8 @@ const DriverEntryRedirect = () => {
               ? '/taxi/driver/service-center'
             : role === 'bus_driver'
               ? '/taxi/driver/bus-home'
+            : role === 'pooling'
+              ? '/taxi/driver/pooling-home'
               : '/taxi/driver/home'
       }
       replace
@@ -1048,9 +1051,10 @@ function App() {
                 />
                 <Route path="status" element={<ApplicationStatus />} />
 
-                <Route path="home" element={<DriverHome />} />
-                <Route path="bus-home" element={<BusDriverHome />} />
-                <Route path="dashboard" element={<DriverHome />} />
+                 <Route path="home" element={<DriverHome />} />
+                 <Route path="bus-home" element={<BusDriverHome />} />
+                 <Route path="pooling-home" element={<PoolingDriverHome />} />
+                 <Route path="dashboard" element={<DriverHome />} />
                 <Route path="active-trip" element={<ActiveTrip />} />
                 <Route path="chat" element={<Chat />} />
                 <Route path="wallet" element={<DriverWallet />} />

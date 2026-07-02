@@ -34,6 +34,7 @@ const generateOtp = () => String(Math.floor(1000 + Math.random() * 9000));
 const normalizeRole = (role) => {
   const normalized = String(role || 'driver').toLowerCase();
   if (normalized === 'owner') return 'owner';
+  if (normalized === 'pooling') return 'pooling';
   if (
     normalized === 'service_center' ||
     normalized === 'service-center' ||
@@ -233,9 +234,18 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
             ? 'Service center staff'
           : normalizedRole === 'bus_driver'
             ? 'Bus driver'
+          : normalizedRole === 'pooling'
+            ? 'Pooling driver'
             : 'Driver'
       } account not found`,
     );
+  }
+
+  if (normalizedRole === 'pooling') {
+    const isPoolingDriver = account.registerFor === 'pooling' || (account.serviceCategories && account.serviceCategories.includes('pooling'));
+    if (!isPoolingDriver) {
+      throw new ApiError(400, 'This account is not registered for pooling services');
+    }
   }
 
   // Allow login even if account is pending approval to show registration status

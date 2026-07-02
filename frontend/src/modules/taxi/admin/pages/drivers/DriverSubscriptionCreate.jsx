@@ -68,7 +68,7 @@ const DriverSubscriptionCreate = () => {
       const data = await adminService.createSubscriptionPlan(formData);
       if (data.success) {
         toast.success("Subscription plan created successfully");
-        navigate('/admin/drivers/subscription');
+        navigate('/taxi/admin/drivers/subscription');
       } else {
         toast.error(data.message || "Failed to save subscription");
       }
@@ -93,7 +93,7 @@ const DriverSubscriptionCreate = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-900">Create Subscription</h1>
           <button 
-            onClick={() => navigate('/admin/drivers/subscription')}
+            onClick={() => navigate('/taxi/admin/drivers/subscription')}
             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
           >
             <ArrowLeft size={16} /> Back
@@ -238,7 +238,7 @@ const DriverSubscriptionCreate = () => {
               Save Subscription
             </button>
             <button 
-              onClick={() => navigate('/admin/drivers/subscription')}
+              onClick={() => navigate('/taxi/admin/drivers/subscription')}
               className="w-full py-3 bg-gray-50 text-gray-600 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors"
             >
               Cancel

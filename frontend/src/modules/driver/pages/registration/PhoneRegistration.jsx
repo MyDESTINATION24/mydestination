@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Phone, ChevronRight, ShieldCheck, Briefcase, UserRound, Sparkles, Building2, CheckCircle2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import {
     clearDriverRegistrationSession,
     getStoredDriverRegistrationSession,
@@ -32,6 +33,7 @@ const PhoneRegistration = () => {
             const normalized = String(value || '').toLowerCase();
             if (normalized === 'owner') return 'owner';
             if (normalized === 'bus_driver' || normalized === 'bus-driver' || normalized === 'busdriver') return 'bus_driver';
+            if (normalized === 'pooling') return 'pooling';
             if (normalized === 'service_center' || normalized === 'service-center' || normalized === 'servicecenter') return 'service_center';
             if (normalized === 'service_center_staff' || normalized === 'service-center-staff' || normalized === 'servicecenterstaff') return 'service_center_staff';
             return 'driver';
@@ -61,6 +63,7 @@ const PhoneRegistration = () => {
             { id: 'driver', label: 'Driver', Icon: UserRound },
             { id: 'owner', label: 'Owner', Icon: Briefcase },
             { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
+            { id: 'pooling', label: 'Pooling', Icon: Sparkles },
             { id: 'service_center', label: 'Center', Icon: Building2 },
             { id: 'service_center_staff', label: 'Staff', Icon: UserRound },
         ]
@@ -72,20 +75,21 @@ const PhoneRegistration = () => {
     const modeConfig = useMemo(() => {
         const isOwner = role === 'owner';
         const isBusDriver = role === 'bus_driver';
+        const isPooling = role === 'pooling';
         const isServiceCenter = role === 'service_center';
         const isServiceCenterStaff = role === 'service_center_staff';
 
         return {
-            badge: isOwner ? 'Enterprise' : isBusDriver ? 'Transit' : isServiceCenter ? 'Operations' : isServiceCenterStaff ? 'Team' : 'Partner',
+            badge: isOwner ? 'Enterprise' : isBusDriver ? 'Transit' : isPooling ? 'Pooling' : isServiceCenter ? 'Operations' : isServiceCenterStaff ? 'Team' : 'Partner',
             title: isLoginPage
-                ? `${isOwner ? 'Owner' : isBusDriver ? 'Bus Driver' : isServiceCenter ? 'Service Center' : isServiceCenterStaff ? 'Service Staff' : 'Driver'} Login`
+                ? `${isOwner ? 'Owner' : isBusDriver ? 'Bus Driver' : isPooling ? 'Pooling Driver' : isServiceCenter ? 'Service Center' : isServiceCenterStaff ? 'Service Staff' : 'Driver'} Login`
                 : `Join ${appName}`,
             subtitle: isLoginPage
                 ? `Enter your number to access account.`
-                : `Start your journey as a ${isOwner ? 'owner' : isBusDriver ? 'captain' : isServiceCenter ? 'operator' : isServiceCenterStaff ? 'staff' : 'driver'}.`,
-            highlight: isOwner ? 'Manage fleet, payouts & drivers.' : isBusDriver ? 'Manage your coach, schedules and seat desk.' : isServiceCenter ? 'Manage your center profile, staff and rental vehicle catalog.' : isServiceCenterStaff ? 'Handle assigned bookings and work queues for your center.' : 'Go online, get trips & earn daily.',
-            accentColor: isOwner ? '#1C2833' : isBusDriver ? '#0f3d3e' : isServiceCenter ? '#14342b' : isServiceCenterStaff ? '#1e3a5f' : '#4F46E5',
-            Icon: isOwner ? Briefcase : isBusDriver ? ShieldCheck : isServiceCenter ? Building2 : isServiceCenterStaff ? ShieldCheck : UserRound,
+                : `Start your journey as a ${isOwner ? 'owner' : isBusDriver ? 'captain' : isPooling ? 'pooling driver' : isServiceCenter ? 'operator' : isServiceCenterStaff ? 'staff' : 'driver'}.`,
+            highlight: isOwner ? 'Manage fleet, payouts & drivers.' : isBusDriver ? 'Manage your coach, schedules and seat desk.' : isPooling ? 'Manage shared rides, bookings and routes.' : isServiceCenter ? 'Manage your center profile, staff and rental vehicle catalog.' : isServiceCenterStaff ? 'Handle assigned bookings and work queues for your center.' : 'Go online, get trips & earn daily.',
+            accentColor: isOwner ? '#1C2833' : isBusDriver ? '#0f3d3e' : isPooling ? '#312E81' : isServiceCenter ? '#14342b' : isServiceCenterStaff ? '#1e3a5f' : '#4F46E5',
+            Icon: isOwner ? Briefcase : isBusDriver ? ShieldCheck : isPooling ? Sparkles : isServiceCenter ? Building2 : isServiceCenterStaff ? ShieldCheck : UserRound,
         };
     }, [appName, isLoginPage, role]);
 
@@ -134,16 +138,34 @@ const PhoneRegistration = () => {
 
         try {
             clearDriverRegistrationSession();
-            const response = isLoginPage
-                ? await sendDriverLoginOtp({ phone, role })
-                : await sendDriverOtp({ phone, role });
+            let response;
+            let isNew = false;
+
+            try {
+                response = isLoginPage
+                    ? await sendDriverLoginOtp({ phone, role })
+                    : await sendDriverOtp({ phone, role });
+            } catch (err) {
+                const isNotFound = err?.response?.status === 404 || 
+                    String(err?.message || '').toLowerCase().includes('not found') ||
+                    String(err?.response?.data?.message || '').toLowerCase().includes('not found');
+
+                if (isLoginPage && isNotFound) {
+                    isNew = true;
+                    toast.loading('Creating a new account...', { duration: 1500 });
+                    response = await sendDriverOtp({ phone, role });
+                } else {
+                    throw err;
+                }
+            }
+
             const sessionData = response?.data?.session || response?.session || {};
             const nextState = saveDriverRegistrationSession({
                 phone,
                 role,
                 registrationId: sessionData.registrationId || '',
                 debugOtp: sessionData.debugOtp || '',
-                loginMode: isLoginPage,
+                loginMode: !isNew && isLoginPage,
                 referralCode: sharedReferralCode,
             });
 
@@ -151,7 +173,7 @@ const PhoneRegistration = () => {
                 state: nextState,
             });
         } catch (err) {
-            setError(err?.message || 'Unable to send OTP right now');
+            setError(err?.response?.data?.message || err?.message || 'Unable to send OTP right now');
         } finally {
             setLoading(false);
         }
@@ -379,19 +401,6 @@ const PhoneRegistration = () => {
                             <Sparkles size={14} className="text-[#FFB300] fill-[#FFB300]" />
                             <span className="text-[11px] font-black tracking-tight text-slate-900 uppercase opacity-70">{modeConfig.highlight}</span>
                         </div>
-
-                        <motion.button 
-                            variants={itemVariants}
-                            whileHover={{ y: -1 }}
-                            onClick={() => navigate(isLoginPage ? `${routePrefix}/reg-phone` : `${routePrefix}/login`)}
-                            className="w-full text-[13px] font-black text-slate-400 transition-all py-1 uppercase tracking-widest"
-                        >
-                            {isLoginPage ? (
-                                <>Don't have an account? <span className="text-[#FFB300] border-b-2 border-amber-400/30 pb-0.5">Join Now</span></>
-                            ) : (
-                                <>Already a partner? <span className="text-[#FFB300] border-b-2 border-amber-400/30 pb-0.5">Sign in</span></>
-                            )}
-                        </motion.button>
                     </motion.div>
                 </motion.div>
 

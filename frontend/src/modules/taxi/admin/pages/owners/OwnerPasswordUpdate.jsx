@@ -43,7 +43,7 @@ const OwnerPasswordUpdate = () => {
       const response = await adminService.updateOwner(id, formData);
 
       if (response.success) {
-        navigate('/admin/owners');
+        navigate('/taxi/admin/owners');
         return;
       }
 

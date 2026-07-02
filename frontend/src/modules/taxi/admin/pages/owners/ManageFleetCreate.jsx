@@ -131,7 +131,7 @@ const ManageFleetCreate = () => {
 
       const json = await res.json();
       if (json?.success) {
-        navigate('/admin/fleet/manage');
+        navigate('/taxi/admin/fleet/manage');
         return;
       }
       alert(json?.message || 'Operation failed');

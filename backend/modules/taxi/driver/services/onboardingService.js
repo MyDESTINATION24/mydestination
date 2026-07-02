@@ -21,6 +21,8 @@ import { findZoneByPickup } from './locationService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 import { WalletTransaction } from '../models/WalletTransaction.js';
 import { applyDriverWalletAdjustment } from './walletService.js';
+import { PoolingVehicle } from '../../admin/models/PoolingVehicle.js';
+import { BusDriver } from '../models/BusDriver.js';
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -1025,6 +1027,50 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
     };
   }
 
+  const isBusDriverRegistration = String(session.role || '').toLowerCase() === 'bus_driver';
+
+  if (isBusDriverRegistration) {
+    const normalizedEmail = String(session.personal.email || '').trim().toLowerCase();
+    const normalizedMobile = String(session.phone || '').trim();
+
+    const duplicateBusDriver = await BusDriver.findOne({ phone: normalizedMobile }).lean();
+    if (duplicateBusDriver) {
+      throw new ApiError(409, 'Bus driver already exists with this phone number');
+    }
+
+    const busDriver = await BusDriver.create({
+      name: session.personal.fullName,
+      phone: normalizedMobile,
+      email: normalizedEmail,
+      approve: false,
+      status: 'pending',
+      busName: `${session.vehicle.make} ${session.vehicle.model}`,
+      registrationNumber: session.vehicle.number,
+      originCity: session.vehicle.city || session.vehicle.locationName,
+    });
+
+    session.status = 'completed';
+    session.completedAt = submittedAt;
+    session.finalDriverId = busDriver._id;
+    await session.save();
+    await DriverRegistrationSession.deleteOne({ _id: session._id });
+
+    return {
+      message: 'Bus driver registration completed successfully',
+      driver: {
+        id: busDriver._id,
+        name: busDriver.name,
+        phone: busDriver.phone,
+        email: busDriver.email,
+        approve: busDriver.approve,
+        status: busDriver.status,
+      },
+      documents: normalizedDocuments,
+      token: signAccessToken({ sub: String(busDriver._id), role: 'bus_driver' }),
+      session: publicSessionPayload(session),
+    };
+  }
+
   const normalizedReferralCode = normalizeReferralCode(session.referralCode);
   const referrer = normalizedReferralCode
     ? await findDriverByReferralCode(normalizedReferralCode)
@@ -1086,6 +1132,47 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
       },
     },
   });
+
+  const isPooling = session.vehicle.registerFor === 'pooling' || 
+    session.vehicle.serviceCategories?.includes('pooling') || 
+    String(session.role || '').toLowerCase() === 'pooling';
+
+  if (isPooling) {
+    const customFields = session.vehicle.customFields || {};
+    const blueprint = customFields.blueprint || {};
+    const vehicleType = customFields.vehicleType || 'sedan';
+    const capacity = Number(customFields.capacity || session.vehicle.capacity || 4);
+
+    try {
+      await PoolingVehicle.create({
+        name: `${session.vehicle.make} ${session.vehicle.model}`,
+        vehicleModel: session.vehicle.model,
+        vehicleNumber: session.vehicle.number,
+        color: session.vehicle.color,
+        capacity,
+        vehicleType,
+        blueprint,
+        images: session.vehicle.images || [],
+        status: 'active',
+        poolingEnabled: true,
+      });
+    } catch (e) {
+      console.error('Failed to create PoolingVehicle during onboarding:', e);
+      if (e.code === 11000) {
+        await PoolingVehicle.updateOne(
+          { vehicleNumber: session.vehicle.number },
+          {
+            name: `${session.vehicle.make} ${session.vehicle.model}`,
+            vehicleModel: session.vehicle.model,
+            color: session.vehicle.color,
+            capacity,
+            vehicleType,
+            blueprint,
+          }
+        );
+      }
+    }
+  }
 
   if (!String(driver.referralCode || '').trim()) {
     driver.referralCode = generateDriverReferralCode(driver);

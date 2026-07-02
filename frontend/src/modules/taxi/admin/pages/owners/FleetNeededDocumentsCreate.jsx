@@ -50,7 +50,7 @@ const FleetNeededDocumentsCreate = () => {
 
       const json = await res.json();
       if (json?.success) {
-        navigate('/admin/fleet/documents');
+        navigate('/taxi/admin/fleet/documents');
         return;
       }
       alert(json?.message || 'Operation failed');

@@ -24,6 +24,9 @@ import { CustomerBiometricProfile } from "../../admin/models/CustomerBiometricPr
 import { AdminBusinessSetting } from "../../admin/models/AdminBusinessSetting.js";
 import { Notification } from "../../admin/promotions/models/Notification.js";
 import { FleetVehicle } from "../../admin/models/FleetVehicle.js";
+import { PoolingVehicle } from "../../admin/models/PoolingVehicle.js";
+import { PoolingRoute } from "../../admin/models/PoolingRoute.js";
+import { PoolingBooking } from "../../admin/models/PoolingBooking.js";
 import {
   comparePassword,
   hashPassword,
@@ -6605,5 +6608,120 @@ export const claimDriverIncentiveReward = async (req, res) => {
         periodKey: targetReward.periodKey,
       },
     },
+  });
+};
+
+export const getPoolingDriverDashboard = async (req, res) => {
+  const driver = await Driver.findById(req.auth.sub);
+  if (!driver) {
+    throw new ApiError(404, 'Driver not found');
+  }
+
+  // Find assigned vehicle where vehicleNumber matches driver's vehicleNumber
+  const vehicle = driver.vehicleNumber
+    ? await PoolingVehicle.findOne({ vehicleNumber: driver.vehicleNumber })
+    : null;
+
+  const routes = vehicle
+    ? await PoolingRoute.find({ assignedVehicleTypeIds: vehicle._id })
+    : [];
+
+  const bookings = vehicle
+    ? await PoolingBooking.find({ vehicle: vehicle._id })
+        .populate('user', 'name phone email')
+        .sort({ travelDate: -1 })
+    : [];
+
+  const completedBookings = bookings.filter(
+    (b) => b.bookingStatus === 'completed' && b.paymentStatus === 'paid'
+  );
+  const totalEarnings = completedBookings.reduce((sum, b) => sum + (b.fare || 0), 0);
+
+  res.json({
+    success: true,
+    data: {
+      driver: {
+        id: driver._id,
+        name: driver.name,
+        phone: driver.phone,
+        email: driver.email,
+        profileImage: driver.profileImage || driver.profile_picture || '',
+        status: driver.status,
+        approve: driver.approve,
+      },
+      vehicle: vehicle
+        ? {
+            id: vehicle._id,
+            name: vehicle.name,
+            vehicleModel: vehicle.vehicleModel,
+            vehicleNumber: vehicle.vehicleNumber,
+            color: vehicle.color,
+            capacity: vehicle.capacity,
+            status: vehicle.status,
+          }
+        : null,
+      routes: routes.map((r) => ({
+        id: r._id,
+        routeName: r.routeName,
+        routeCode: r.routeCode,
+        originLabel: r.originLabel,
+        destinationLabel: r.destinationLabel,
+        pickupPoints: r.pickupPoints,
+        dropPoints: r.dropPoints,
+        stops: r.stops,
+        schedules: r.schedules,
+        farePerSeat: r.farePerSeat,
+      })),
+      bookings: bookings.map((b) => ({
+        id: b._id,
+        bookingId: b.bookingId,
+        user: b.user,
+        travelDate: b.travelDate,
+        scheduleId: b.scheduleId,
+        seatsBooked: b.seatsBooked,
+        selectedSeats: b.selectedSeats,
+        pickupLabel: b.pickupLabel,
+        dropLabel: b.dropLabel,
+        fare: b.fare,
+        paymentStatus: b.paymentStatus,
+        bookingStatus: b.bookingStatus,
+      })),
+      totalEarnings,
+      completedTripsCount: completedBookings.length,
+      totalBookingsCount: bookings.length,
+    },
+  });
+};
+
+export const updatePoolingDriverBookingStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!['confirmed', 'cancelled', 'completed', 'no_show'].includes(status)) {
+    throw new ApiError(400, 'Invalid booking status');
+  }
+
+  const booking = await PoolingBooking.findById(id);
+  if (!booking) {
+    throw new ApiError(404, 'Booking not found');
+  }
+
+  const driver = await Driver.findById(req.auth.sub);
+  if (!driver) {
+    throw new ApiError(404, 'Driver not found');
+  }
+
+  const vehicle = await PoolingVehicle.findOne({ vehicleNumber: driver.vehicleNumber });
+  if (!vehicle || String(booking.vehicle) !== String(vehicle._id)) {
+    throw new ApiError(403, 'You do not have permission to update this booking');
+  }
+
+  booking.bookingStatus = status;
+  await booking.save();
+
+  res.json({
+    success: true,
+    message: 'Booking status updated successfully',
+    data: booking,
   });
 };
