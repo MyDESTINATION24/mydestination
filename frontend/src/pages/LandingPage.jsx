@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses } from 'lucide-react';
+import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Heart } from 'lucide-react';
 import logo from '../assets/rokologin-removebg-preview.png';
 import heroBg from '../assets/landing/hero_travel1.png';
 import coupleImg from '../assets/landing/landingPageImage.png';
@@ -37,40 +37,66 @@ const DestinationCard = ({ dest, fadeUp }) => {
   const isLong = descriptionText.length > 120;
   const displayText = isLong ? descriptionText.slice(0, 120) + '...' : descriptionText;
 
+  const isExternal = dest.link && (dest.link.startsWith('http://') || dest.link.startsWith('https://'));
+
+  const ImageWrapper = ({ children }) => {
+    if (!dest.link) {
+      return (
+        <div className="w-full aspect-square overflow-hidden mb-5">
+          {children}
+        </div>
+      );
+    }
+    if (isExternal) {
+      return (
+        <a 
+          href={dest.link} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="cursor-pointer block w-full aspect-square overflow-hidden mb-5"
+        >
+          {children}
+        </a>
+      );
+    }
+    return (
+      <Link 
+        to={dest.link} 
+        className="cursor-pointer block w-full aspect-square overflow-hidden mb-5"
+      >
+        {children}
+      </Link>
+    );
+  };
+
   return (
     <>
       <motion.div variants={fadeUp} className="group relative flex flex-col h-full text-center">
-        <div className="w-full aspect-square overflow-hidden mb-5">
+        <ImageWrapper>
           <img src={dest.img || dest.image} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
-        </div>
+        </ImageWrapper>
         <h3 className="text-[15px] font-black text-gray-900 mb-3">{dest.title}</h3>
-        
+
         <div className="flex flex-col items-center justify-start">
           <p className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto h-[54px] overflow-hidden mb-1">
             {displayText}
           </p>
           {isLong && (
-            <button 
-              onClick={() => setIsModalOpen(true)} 
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="text-[#065f46] hover:underline font-black text-[9px] uppercase tracking-widest focus:outline-none mb-3 cursor-pointer"
             >
               Read More
             </button>
           )}
         </div>
-
-        {dest.link && (
-          <Link to={dest.link} className="mt-auto text-[11px] font-bold text-[#065f46] hover:underline uppercase tracking-widest block pt-2">
-            Explore
-          </Link>
-        )}
       </motion.div>
 
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
             {/* Backdrop */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -79,7 +105,7 @@ const DestinationCard = ({ dest, fadeUp }) => {
             />
 
             {/* Modal Content */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -87,7 +113,7 @@ const DestinationCard = ({ dest, fadeUp }) => {
               className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200"
             >
               {/* Close button */}
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-4 right-4 bg-white/80 hover:bg-white text-gray-700 p-2 rounded-full shadow-md z-20 transition focus:outline-none cursor-pointer"
               >
@@ -96,9 +122,9 @@ const DestinationCard = ({ dest, fadeUp }) => {
 
               {/* Image */}
               <div className="w-full h-48 sm:h-56 md:h-64 overflow-hidden flex-shrink-0">
-                <img 
-                  src={dest.img || dest.image} 
-                  alt={dest.title} 
+                <img
+                  src={dest.img || dest.image}
+                  alt={dest.title}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -111,15 +137,15 @@ const DestinationCard = ({ dest, fadeUp }) => {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center flex-shrink-0">
-                  <button 
+                  <button
                     onClick={() => setIsModalOpen(false)}
                     className="text-gray-500 hover:text-gray-700 font-bold text-xs uppercase tracking-wider transition cursor-pointer"
                   >
                     Close
                   </button>
                   {dest.link && (
-                    <Link 
-                      to={dest.link} 
+                    <Link
+                      to={dest.link}
                       className="bg-[#065f46] text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#064e3b] transition shadow-md"
                     >
                       Explore
@@ -197,21 +223,26 @@ const LandingPage = () => {
 
   // Scroll State for Navbar
   const [isScrolled, setIsScrolled] = useState(false);
-  const [navbarVisible, setNavbarVisible] = useState(true);
-  const lastScrollY = React.useRef(0);
+
+  // Category Slider State
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+
+  const handleCategoryScroll = (e) => {
+    const container = e.target;
+    const scrollLeft = container.scrollLeft;
+    const firstChild = container.firstChild;
+    if (firstChild) {
+      const cardWidth = firstChild.offsetWidth;
+      const gap = 24; // gap-6 is 24px
+      const index = Math.round(scrollLeft / (cardWidth + gap));
+      setActiveCategoryIndex(index);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setIsScrolled(currentScrollY > 50);
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        // Scroll down → hide navbar
-        setNavbarVisible(false);
-      } else {
-        // Scroll up → show navbar
-        setNavbarVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -250,8 +281,8 @@ const LandingPage = () => {
     const mainToken = localStorage.getItem('token');
     const taxiToken = localStorage.getItem('taxiUserToken');
 
-    if (targetPath === '/taxi/user') {
-      // Taxi (Tours) routes need taxiUserToken â€” taxi has its own login
+    if (targetPath.startsWith('/taxi/user')) {
+      // All taxi user routes need taxiUserToken — taxi has its own login
       if (!taxiToken) {
         navigate('/taxi/user/login');
       } else {
@@ -272,7 +303,7 @@ const LandingPage = () => {
         navigate(targetPath);
       }
     } else {
-      // Generic fallback
+      // Generic fallback — uses main token
       if (!mainToken) {
         navigate('/login', { state: { from: { pathname: targetPath } } });
       } else {
@@ -340,7 +371,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-white font-['Inter',sans-serif]">
       {/* 1. Hero Section (Redesigned Phase 1) */}
-      <section className="relative min-h-screen w-full flex flex-col bg-gray-100 overflow-hidden pb-20">
+      <section className="relative h-[650px] sm:h-auto sm:min-h-screen w-full flex flex-col bg-gray-100 overflow-hidden pb-20">
 
         {/* Background Image Slider */}
         {activeSlides.map((slide, index) => {
@@ -359,7 +390,7 @@ const LandingPage = () => {
 
 
         {/* Dot Indicators */}
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 flex gap-3">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 hidden md:flex gap-3">
           {activeSlides.map((_, idx) => {
             const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
             return (
@@ -377,23 +408,23 @@ const LandingPage = () => {
           {(cmsData?.hero?.textBlocks && cmsData.hero.textBlocks.length > 0) ? (
             cmsData.hero.textBlocks.map((block, idx) => {
               if (block.tag === 'h1') {
-                return <h1 key={idx} className="text-white text-4xl md:text-6xl font-black mt-10 mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">{block.text}</h1>;
+                return <h1 key={idx} className="text-white text-2xl sm:text-4xl md:text-6xl font-black mt-6 md:mt-10 mb-2 md:mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">{block.text}</h1>;
               } else if (block.tag === 'h2') {
-                return <h2 key={idx} className="text-white text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-2 mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{block.text}</h2>;
+                return <h2 key={idx} className="text-white text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-2 mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{block.text}</h2>;
               } else if (block.tag === 'h3') {
-                return <h3 key={idx} className="text-white text-2xl md:text-4xl mt-6 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">{block.text}</h3>;
+                return <h3 key={idx} className="text-white text-lg sm:text-2xl md:text-4xl mt-4 md:mt-6 mb-2 md:mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">{block.text}</h3>;
               } else if (block.tag === 'p') {
-                return <p key={idx} className="text-white/90 text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-6"><span dangerouslySetInnerHTML={{ __html: block.text.replace(/\n/g, '<br />') }} /></p>;
+                return <p key={idx} className="text-white/90 text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-4 md:mt-6"><span dangerouslySetInnerHTML={{ __html: block.text.replace(/\n/g, '<br />') }} /></p>;
               }
               return null;
             })
           ) : (
             <>
-              <h2 className="text-white text-3xl md:text-5xl font-medium tracking-wide leading-tight mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <h2 className="text-white text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mb-4 md:mb-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 We give you <br /> strong desire to travel & <br /> explore the world
               </h2>
-              <h1 className="text-white text-4xl md:text-6xl mt-12 mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif uppercase tracking-widest">Tourism</h1>
-              <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-6">
+              <h1 className="text-white text-2xl sm:text-4xl md:text-6xl mt-6 md:mt-12 mb-2 md:mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif uppercase tracking-widest">Tourism</h1>
+              <p className="text-white/90 text-[10px] md:text-[13px] max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-4 md:mt-6">
                 Embark on an unforgettable journey to the world's most breathtaking destinations. <br className="hidden md:block" /> Discover new cultures, create lasting memories, and let your adventure begin.
               </p>
             </>
@@ -401,7 +432,7 @@ const LandingPage = () => {
         </div>
 
         {/* Flat Transparent Navbar */}
-        <div className={`fixed top-0 left-0 w-full z-[100] px-4 md:px-12 flex items-center bg-white py-1.5 shadow-xl transition-transform duration-300 ${navbarVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 flex items-center bg-white py-1.5 shadow-xl">
           <nav className="flex items-center justify-between w-full max-w-7xl mx-auto">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
@@ -428,7 +459,7 @@ const LandingPage = () => {
 
             {/* Mobile Menu Toggle */}
             <button
-              className={`lg:hidden p-2 transition-colors duration-300 ${isScrolled ? 'text-slate-900' : 'text-white'}`}
+              className="lg:hidden p-2 transition-colors duration-300 text-slate-900"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -623,55 +654,62 @@ const LandingPage = () => {
       </section>
 
       {/* 2. Hotel Search Bar */}
-      <section className="relative z-40 -mt-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="bg-white border border-gray-100 shadow-[0_20px_40px_rgba(0,0,0,0.08)] p-6 md:p-8">
-          <form onSubmit={handleHotelSearch} className="flex flex-col md:flex-row gap-4 items-center">
+      <section className="relative z-40 -mt-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 md:mb-16">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-5 md:p-6">
+          <form onSubmit={handleHotelSearch} className="flex flex-col md:flex-row gap-4 items-center w-full">
 
             {/* Location */}
-            <div className="flex-1 w-full relative border border-gray-300 bg-white">
+            <div className="flex-1 w-full relative flex items-center px-4 py-3 bg-white rounded-xl border border-gray-300 focus-within:border-green-600 transition-colors duration-200">
+              <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
+                <MapPin size={18} strokeWidth={2} />
+              </div>
               <input
                 type="text"
                 placeholder="Where are you going?"
                 value={searchParams.destination}
                 onChange={(e) => setSearchParams({ ...searchParams, destination: e.target.value })}
-                className="w-full text-gray-600 px-4 py-3 pr-12 text-sm focus:outline-none bg-transparent relative z-10"
+                onFocus={(e) => e.target.scrollIntoView({ block: 'nearest', behavior: 'auto' })}
+                className="w-full text-gray-800 placeholder-gray-400 pl-9 pr-2 py-0.5 text-sm font-semibold focus:outline-none bg-transparent"
               />
-              <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0">
-                <MapPin className="text-gray-400" size={16} />
-              </div>
             </div>
 
             {/* Check In */}
-            <div className="flex-1 w-full relative border border-gray-300 bg-white">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none z-20">In</div>
-              <input
-                type="date"
-                value={searchParams.checkIn}
-                onChange={(e) => setSearchParams({ ...searchParams, checkIn: e.target.value })}
-                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-              />
-              <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0 pointer-events-none">
-                <Calendar className="text-gray-400" size={16} />
+            <div className="flex-1 w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 focus-within:border-green-600 transition-colors duration-200">
+              <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
+                <Calendar size={18} strokeWidth={2} />
+              </div>
+              <div className="flex flex-col w-full pl-9 pr-2">
+                <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check In</span>
+                <input
+                  type="date"
+                  value={searchParams.checkIn}
+                  onChange={(e) => setSearchParams({ ...searchParams, checkIn: e.target.value })}
+                  onFocus={(e) => e.target.scrollIntoView({ block: 'nearest', behavior: 'auto' })}
+                  className="w-full text-gray-800 font-semibold text-sm focus:outline-none bg-transparent cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                />
               </div>
             </div>
 
             {/* Check Out */}
-            <div className="flex-1 w-full relative border border-gray-300 bg-white">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 uppercase tracking-widest pointer-events-none z-20">Out</div>
-              <input
-                type="date"
-                value={searchParams.checkOut}
-                onChange={(e) => setSearchParams({ ...searchParams, checkOut: e.target.value })}
-                className="w-full text-gray-600 pl-10 pr-12 py-3 text-sm focus:outline-none bg-transparent relative z-10 [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-              />
-              <div className="absolute right-0 top-0 bottom-0 w-10 border-l border-gray-300 bg-gray-50 flex items-center justify-center z-0 pointer-events-none">
-                <Calendar className="text-gray-400" size={16} />
+            <div className="flex-1 w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 focus-within:border-green-600 transition-colors duration-200">
+              <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
+                <Calendar size={18} strokeWidth={2} />
+              </div>
+              <div className="flex flex-col w-full pl-9 pr-2">
+                <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check Out</span>
+                <input
+                  type="date"
+                  value={searchParams.checkOut}
+                  onChange={(e) => setSearchParams({ ...searchParams, checkOut: e.target.value })}
+                  onFocus={(e) => e.target.scrollIntoView({ block: 'nearest', behavior: 'auto' })}
+                  className="w-full text-gray-800 font-semibold text-sm focus:outline-none bg-transparent cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full md:w-[150px] bg-[#0f172a] text-white px-8 py-3 text-sm font-medium hover:bg-black transition shadow-md"
+              className="w-full md:w-auto md:px-10 py-3 md:py-4 bg-[#065f46] hover:bg-[#044e39] text-white text-sm font-bold tracking-wider uppercase rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-[1px] active:translate-y-0 transition duration-150 ease-in-out cursor-pointer shrink-0"
             >
               Search
             </button>
@@ -679,26 +717,40 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Icons Strip */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 md:pt-8 md:pb-4">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="flex flex-wrap justify-center gap-x-12 gap-y-8 md:gap-x-16 text-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-2 overflow-visible">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+          className="flex flex-nowrap justify-start md:justify-center overflow-x-auto pt-6 pb-4 md:pb-6 gap-x-6 sm:gap-x-8 md:gap-x-10 lg:gap-x-12 text-center [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
           {[
-            { title: "Travel without hassel", icon: <Umbrella size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
-            { title: "Millions of view", icon: <Star size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
-            { title: "Perfect for your budget", icon: <HandCoins size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
-            { title: "Taxi Service", icon: <CarTaxiFront size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> },
-            { title: "Char Dham Yatra", icon: <Navigation size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} /> }
+            { title: "Travel without hassel", icon: <Umbrella size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/hotels' },
+            { title: "Taxi Service", icon: <CarTaxiFront size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/taxi/user' },
+            { title: "Char Dham Yatra", icon: <Navigation size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/taxi/user/tours' },
+            { title: "Helicopter Booking", icon: <Helicopter size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/taxi/user/airways' },
+            { title: "Wedding Planner", icon: <Heart size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/wedding' },
+            { title: "Hotel for Char Dham Yatra", icon: <Hotel size={40} className="text-green-800 mx-auto mb-4" strokeWidth={1.5} />, route: '/hotels' }
           ].map((feature, i) => (
-            <motion.div variants={fadeUp} key={i} className="flex flex-col items-center justify-start hover:-translate-y-1 transition-transform w-[140px] sm:w-[160px]">
-              {feature.icon}
-              <h4 className="text-sm font-bold text-gray-800">{feature.title}</h4>
+            <motion.div
+              variants={fadeUp}
+              key={i}
+              onClick={() => handleNavigation(feature.route)}
+              className="flex flex-col items-center justify-start hover:-translate-y-1 transition-transform w-[120px] sm:w-[130px] md:w-[140px] lg:w-[150px] shrink-0 cursor-pointer group"
+              title={feature.title}
+            >
+              <div className="group-hover:scale-110 transition-transform duration-200">
+                {feature.icon}
+              </div>
+              <h4 className="text-xs md:text-sm font-bold text-gray-800 group-hover:text-green-700 transition-colors leading-tight">{feature.title}</h4>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
       {/* 3. Top Destinations */}
-      <section className="pt-4 pb-16 md:pt-6 md:pb-24 bg-white">
+      <section className="pt-2 pb-8 md:pt-6 md:pb-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h4 className="text-[15px] text-[#065f46]/80 font-serif mb-3">
@@ -726,7 +778,7 @@ const LandingPage = () => {
       </section>
 
       {/* 4. Latest Tour */}
-      <section id="news" className="relative py-24 md:py-32 bg-[#0f172a] text-center text-white my-10 overflow-hidden">
+      <section id="news" className="relative py-12 md:py-32 bg-[#0f172a] text-center text-white my-6 md:my-10 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={cmsData?.latestTour?.backgroundImage || latestTourBg} alt="City Night" className="w-full h-full object-cover opacity-60" />
         </div>
@@ -755,7 +807,7 @@ const LandingPage = () => {
       </section>
 
       {/* 5. Travel Tips / Flight Search */}
-      <section className="py-16 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="pt-8 pb-8 md:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-center">
           {/* Left Side - Round Image */}
           <motion.div variants={fadeUp} className="w-full lg:w-1/2 flex justify-center">
@@ -779,7 +831,7 @@ const LandingPage = () => {
               </ul>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex justify-center lg:justify-start">
               {isLoggedIn ? (
                 <Link to="/taxi" className="inline-flex items-center justify-center bg-[#065f46] text-white px-10 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest uppercase shadow-xl hover:bg-[#064e3b] transition w-fit group">
                   {cmsData?.travelTips?.buttonText || 'BOOK CAB NOW'} <ChevronRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
@@ -795,13 +847,14 @@ const LandingPage = () => {
       </section>
 
       {/* 6. Categories */}
-      <section className="pt-10 pb-16 md:pb-24 max-w-7xl mx-auto px-4 overflow-hidden">
+      <section className="pt-4 pb-8 md:pb-24 max-w-7xl mx-auto px-4 overflow-hidden">
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
-          className="flex gap-8 md:gap-12 overflow-x-auto pb-6 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={handleCategoryScroll}
+          className="flex gap-4 md:gap-12 overflow-x-auto pb-6 -mx-4 md:mx-0 px-6 md:px-0 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {(cmsData?.categories?.items?.length > 0
             ? cmsData.categories.items.map(cat => {
@@ -823,7 +876,7 @@ const LandingPage = () => {
             <motion.div
               variants={fadeUp}
               key={i}
-              className="group flex flex-col items-center flex-shrink-0 w-[280px] sm:w-[320px] md:w-[380px] snap-start"
+              className="group flex flex-col items-center flex-shrink-0 w-[calc(100vw-48px)] sm:w-[320px] md:w-[380px] snap-center sm:snap-start"
             >
               <div className="w-full h-56 md:h-72 mb-6 overflow-hidden shadow-lg border border-gray-100">
                 <img src={cat.img} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
@@ -838,12 +891,25 @@ const LandingPage = () => {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Category Indicators (Dots) */}
+        <div className="flex md:hidden justify-center gap-2 mt-4">
+          {(cmsData?.categories?.items?.length > 0
+            ? cmsData.categories.items
+            : [1, 2, 3]
+          ).map((_, idx) => (
+            <div
+              key={idx}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${activeCategoryIndex === idx ? 'bg-[#065f46] w-4' : 'bg-gray-300'}`}
+            />
+          ))}
+        </div>
       </section>
 
       {/* 7. Services Section */}
-      <section id="feature" className="pt-4 pb-6 md:pb-12 max-w-6xl mx-auto px-4 text-center">
+      <section id="feature" className="pt-2 pb-4 md:pb-12 max-w-6xl mx-auto px-4 text-center">
         <p className="text-[#065f46] text-xs md:text-sm mb-1 md:mb-2 font-bold tracking-widest uppercase">{cmsData?.services?.sectionSubtitle || "We fulfill your needs"}</p>
-        <div className="relative inline-block mb-10 md:mb-20">
+        <div className="relative inline-block mb-6 md:mb-20">
           <h2 className="text-3xl md:text-5xl font-black tracking-widest text-gray-900 font-serif">{cmsData?.services?.sectionTitle || "SERVICES"}</h2>
           <div className="absolute -left-16 top-1/2 w-12 h-[2px] bg-gray-200 hidden md:block"></div>
         </div>
@@ -869,7 +935,7 @@ const LandingPage = () => {
       </section>
 
       {/* 7.5 Essential Accessories */}
-      <section className="py-10 md:py-16 bg-[#F8F9F5] relative overflow-hidden">
+      <section className="py-6 md:py-16 bg-[#F8F9F5] relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center gap-6">
           {/* Left Side: Map with floating items */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer} className="w-full md:w-1/2 relative h-[300px] md:h-[500px]">
@@ -911,14 +977,13 @@ const LandingPage = () => {
 
 
       {/* 8. About Us Section (Redesigned to match provided image exactly) */}
-      <section id="about" className="py-16 md:py-24 bg-white relative">
+      <section id="about" className="py-8 md:py-24 bg-white relative">
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header Section */}
-          <div className="text-center mb-16 relative">
+          <div className="text-center mb-8 relative">
             <h4 className="text-[14px] text-[#7a4b4b] font-serif mb-2">{cmsData?.aboutUs?.sectionSubtitle || 'our featured story'}</h4>
             <div className="flex items-center justify-center gap-4">
-              <div className="h-[1px] w-16 bg-[#7a4b4b]"></div>
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-wider uppercase">{cmsData?.aboutUs?.sectionTitle || 'ABOUT US'}</h2>
             </div>
           </div>
@@ -1034,14 +1099,14 @@ const LandingPage = () => {
 
         {/* Staff Grid */}
         <div className="max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20 pb-10 md:pb-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="flex flex-nowrap md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden -mx-4 md:mx-0 px-6 md:px-0">
             {(cmsData?.staff?.items?.length > 0 ? cmsData.staff.items : [
               { name: "Elly Spitch", role: "CUSTOMER CARE", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400", description: "Expert in providing personalized travel solutions and ensuring customer satisfaction." },
               { name: "Hannah Zafron", role: "SPECIALIST", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400", description: "Specialized in customized itineraries tailored to your unique travel preferences." },
               { name: "Janne Dcosta", role: "FOUNDER", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400", description: "Visionary leader dedicated to making premium travel accessible worldwide." },
               { name: "Adam Johnson", role: "PRESIDENT", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400", description: "Driving the company's mission to provide unparalleled hospitality experiences." }
             ]).map((staff, i) => (
-              <div key={i} className="bg-white p-2 shadow-xl text-center group flex flex-col h-full">
+              <div key={i} className="bg-white p-2 shadow-xl text-center group flex flex-col h-full flex-shrink-0 w-[250px] md:w-auto snap-center md:snap-align-none">
                 <div className="aspect-[4/3] overflow-hidden mb-2 md:mb-3">
                   <img src={staff.image || staff.img} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
                 </div>
@@ -1063,7 +1128,7 @@ const LandingPage = () => {
       </section>
 
       {/* 10. Footer (Restructured) */}
-      <footer className="bg-emerald-950 text-white pt-16 pb-8 px-8">
+      <footer className="bg-emerald-950 text-white pt-8 pb-8 px-6 md:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Column 1: Contact Details */}
           <div>
@@ -1077,21 +1142,15 @@ const LandingPage = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-emerald-400 flex-shrink-0" />
-                <span>
-                  Helpline No: <a href={`tel:${cmsData?.footer?.phone || "+1 234 567 890"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.phone || "+1 234 567 890"}</a>
-                </span>
+                <a href={`tel:${cmsData?.footer?.phone || "+1 234 567 890"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.phone || "+1 234 567 890"}</a>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle size={18} className="text-emerald-400 flex-shrink-0" />
-                <span>
-                  Whatsapp No: <a href={`https://wa.me/${(cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1234567890").replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1 234 567 890"}</a>
-                </span>
+                <a href={`https://wa.me/${(cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1234567890").replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.whatsapp || cmsData?.footer?.phone || "+1 234 567 890"}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="text-emerald-400 flex-shrink-0" />
-                <span>
-                  Email: <a href={`mailto:${cmsData?.footer?.email || "info@mydestination.com"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.email || "info@mydestination.com"}</a>
-                </span>
+                <a href={`mailto:${cmsData?.footer?.email || "info@mydestination.com"}`} className="hover:text-emerald-400 transition-colors font-medium">{cmsData?.footer?.email || "info@mydestination.com"}</a>
               </li>
             </ul>
           </div>
@@ -1161,68 +1220,54 @@ const LandingPage = () => {
           </div>
         </div>
         {/* Copyright + Payment Bar — white/light thin bar */}
-        <div style={{
-          background: '#ffffff',
-          borderTop: '1px solid #e5e7eb',
-          padding: '16px 0',
-          margin: '0 -32px -32px -32px',
-        }}>
-          <div style={{
-            maxWidth: '80rem',
-            margin: '0 auto',
-            padding: '0 32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}>
+        <div className="bg-white border-t border-gray-200 py-4 -mx-6 -mb-8 md:-mx-8 md:-mb-8">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:grid md:grid-cols-4 items-center justify-center gap-3 md:gap-8">
             {/* Left: Copyright */}
-            <p style={{ margin: 0, fontSize: '12px', color: '#065f46', fontFamily: 'inherit', fontWeight: 500 }}>
+            <p className="m-0 text-[10px] text-[#065f46] font-medium text-center md:text-left md:col-span-3">
               Copyright © {new Date().getFullYear()}{' '}
-              <strong style={{ color: '#065f46', fontWeight: 'bold', fontSize: '13px', letterSpacing: '0.02em' }}>My DESTINATION<sup style={{ fontSize: '8px' }}>®</sup></strong>
-              {' '}<span style={{ fontWeight: 500 }}>| All Rights Reserved.</span>
+              <strong className="text-[#065f46] font-bold text-[11px] tracking-wide">My DESTINATION<sup className="text-[7px]">®</sup></strong>
+              {' '}<span className="font-medium">| All Rights Reserved.</span>
             </p>
 
             {/* Right: Payment Icons */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap' }}>
+            <div className="flex items-center justify-center md:justify-start flex-wrap gap-1 md:col-span-1">
+              {/* Google Pay */}
+              {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
+                <div style={{ background: '#f8f9fa', borderRadius: '4px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px', border: '1px solid #e5e7eb' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '9px', objectFit: 'contain' }} />
+                </div>
+              )}
               {/* PayPal */}
               {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
-                <div style={{ background: '#172b85', borderRadius: '6px', padding: '3px 7px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '36px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <div style={{ background: '#172b85', borderRadius: '4px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '28px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '8px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
               {/* Mastercard */}
               {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
-                <div style={{ background: '#1a1a1a', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', gap: '0px' }}>
-                  <div style={{ position: 'relative', width: '28px', height: '16px', display: 'flex', alignItems: 'center' }}>
-                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
-                    <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '8px', opacity: 0.9 }}></div>
+                <div style={{ background: '#1a1a1a', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
+                  <div style={{ position: 'relative', width: '20px', height: '11px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
+                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '6px', opacity: 0.9 }}></div>
                   </div>
                 </div>
               )}
               {/* Visa */}
               {(cmsData?.footer?.paymentMethods?.visa !== false) && (
-                <div style={{ background: '#1a56db', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
-                  <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '13px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.5px' }}>VISA</span>
+                <div style={{ background: '#1a56db', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
+                  <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '9px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.3px' }}>VISA</span>
                 </div>
               )}
               {/* Stripe */}
               {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
-                <div style={{ background: '#635bff', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '10px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <div style={{ background: '#635bff', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '7px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
               {/* Apple Pay */}
               {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
-                <div style={{ background: '#000000', borderRadius: '6px', padding: '3px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '48px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '11px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
-                </div>
-              )}
-              {/* Google Pay */}
-              {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
-                <div style={{ background: '#f8f9fa', borderRadius: '6px', padding: '3px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '22px', minWidth: '42px', border: '1px solid #e5e7eb' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '12px', objectFit: 'contain' }} />
+                <div style={{ background: '#000000', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '36px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '8px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
             </div>

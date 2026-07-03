@@ -128,6 +128,7 @@ const LandingPageConfigSchema = new mongoose.Schema({
     companyDescription: { type: String, default: "Your ultimate companion for unforgettable journeys." },
     address: { type: String, default: "1 My Address, My Street, New York City, NY, USA" },
     phone: { type: String, default: "" },
+    whatsapp: { type: String, default: "" },
     email: { type: String, default: "" },
     paymentNote: { type: String, default: "The payment is encrypted and transmitted securely with an SSL protocol." },
     copyrightText: { type: String, default: "" },

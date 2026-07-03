@@ -24,6 +24,11 @@ const RULES = {
     pattern: /^\d{10}$/,
     patternMsg: 'Phone number must be exactly 10 digits',
   },
+  whatsapp: {
+    required: false,
+    pattern: /^\d{10}$/,
+    patternMsg: 'WhatsApp number must be exactly 10 digits',
+  },
   email: {
     required: false,
     pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -77,6 +82,7 @@ const CMSFooter = () => {
     companyDescription: 'Your ultimate companion for unforgettable journeys. We provide premium travel services, personalized itineraries, and the best deals for your next adventure.',
     address: '1 My Address, My Street, New York City, NY, USA',
     phone: '',
+    whatsapp: '',
     email: '',
     paymentNote: 'The payment is encrypted and transmitted securely with an SSL protocol.',
     copyrightText: '',
@@ -120,7 +126,7 @@ const CMSFooter = () => {
   // Live validation on every change
   const handleChange = (field, value) => {
     // Phone: block non-numeric non-special chars while typing
-    if (field === 'phone') {
+    if (field === 'phone' || field === 'whatsapp') {
       // Allow only digits, hard block after 10
       const cleaned = value.replace(/\D/g, '').slice(0, 10);
       setFooterData(prev => ({ ...prev, [field]: cleaned }));
@@ -238,10 +244,10 @@ const CMSFooter = () => {
         {/* ── Contact Info ── */}
         <div>
           <h3 className="text-xs font-black text-emerald-700 uppercase tracking-widest mb-4 border-b border-gray-100 pb-2">Contact Info</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
             {/* Address */}
-            <div className="space-y-1 md:col-span-2">
+            <div className="space-y-1 md:col-span-3">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Address <span className="text-red-400">*</span>
               </label>
@@ -274,6 +280,28 @@ const CMSFooter = () => {
               {!errors.phone && footerData.phone && touched.phone && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
                   <CheckCircle2 size={11} /> Valid phone number
+                </p>
+              )}
+            </div>
+
+            {/* WhatsApp */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">WhatsApp Number</label>
+              <input
+                type="tel"
+                value={footerData.whatsapp || ''}
+                onChange={(e) => handleChange('whatsapp', e.target.value)}
+                onBlur={() => handleBlur('whatsapp')}
+                placeholder="9876543210"
+                maxLength={10}
+                inputMode="numeric"
+                className={inputClass('whatsapp')}
+              />
+              <p className="text-[10px] text-gray-400 mt-0.5">{(footerData.whatsapp || '').length} / 10 digits</p>
+              <FieldMessage error={touched.whatsapp && errors.whatsapp} value={null} maxLen={null} />
+              {!errors.whatsapp && footerData.whatsapp && touched.whatsapp && (
+                <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
+                  <CheckCircle2 size={11} /> Valid WhatsApp number
                 </p>
               )}
             </div>

@@ -196,7 +196,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
             } else if (err.requiresRegistration || err.response?.data?.requiresRegistration || err.status === 404) {
                 setError('Account not found. Redirecting to signup...');
                 setTimeout(() => {
-                    navigate('/signup', { state: { phone } });
+                    navigate('/signup', { state: { phone, from: location.state?.from } });
                 }, 1500);
             } else {
                 setError(err.message || 'Verification failed');
@@ -427,7 +427,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
                         <p className="text-sm font-bold" style={{ color: light }}>
                             New to {isWedding ? 'Destination Weddings' : 'My Destination'}?{' '}
                             <button
-                                onClick={() => navigate(isWedding ? '/wedding/signup' : '/signup')}
+                                onClick={() => navigate(isWedding ? '/wedding/signup' : '/signup', { state: location.state })}
                                 className="font-black hover:underline ml-1 px-1"
                                 style={{ color: primary }}
                             >

@@ -87,7 +87,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
             const isDuplicate = err.requiresLogin || err.status === 409 || errorMessage.toLowerCase().includes('already exists');
             if (isDuplicate) {
                 setError(`${errorMessage} Redirecting to login...`);
-                setTimeout(() => navigate('/login', { state: { phone: formData.phone } }), 2000);
+                setTimeout(() => navigate('/login', { state: { phone: formData.phone, from: location.state?.from } }), 2000);
             } else {
                 setError(errorMessage || 'Failed to send OTP');
             }
@@ -152,7 +152,23 @@ const UserSignup = ({ theme = 'hotel' }) => {
                 defaultRedirect = '/wedding/vendor/dashboard';
             }
             
-            navigate(defaultRedirect, { replace: true });
+            // If user was trying to access a specific service before login/signup, redirect there
+            const fromPath = location.state?.from?.pathname || '';
+            const fromSearch = location.state?.from?.search || '';
+            const isFromWeddingRoute = fromPath.startsWith('/wedding');
+            const isFromHotelUserRoute = fromPath && !fromPath.startsWith('/wedding') && !fromPath.startsWith('/hotel');
+            
+            let redirectTo = defaultRedirect;
+            if (fromPath) {
+                if (isWedding && isFromWeddingRoute) {
+                    redirectTo = fromPath;
+                } else if (!isWedding && isFromHotelUserRoute) {
+                    redirectTo = fromPath;
+                }
+            }
+            
+            navigate(redirectTo + fromSearch, { replace: true });
+
         } catch (err) {
             setError(err.message || 'Verification failed');
         } finally {

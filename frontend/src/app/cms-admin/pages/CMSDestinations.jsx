@@ -193,12 +193,41 @@ const CMSDestinations = () => {
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Link (Optional)</label>
-                      <input 
-                        type="text" 
-                        value={item.link || ''}
-                        onChange={(e) => handleItemChange(idx, 'link', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                      />
+                      <div className="flex flex-col gap-2">
+                        <select
+                          value={
+                            ['', '/hotels', '/taxi/user', '/taxi/user/tours', '/taxi/user/airways', '/wedding'].includes(item.link || '')
+                              ? (item.link || '')
+                              : 'custom'
+                          }
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === 'custom') {
+                              handleItemChange(idx, 'link', 'https://');
+                            } else {
+                              handleItemChange(idx, 'link', val);
+                            }
+                          }}
+                          className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 bg-white transition cursor-pointer"
+                        >
+                          <option value="">No Link</option>
+                          <option value="/hotels">Hotels App (/hotels)</option>
+                          <option value="/taxi/user">Taxi App (/taxi/user)</option>
+                          <option value="/taxi/user/tours">Char Dham Yatra App (/taxi/user/tours)</option>
+                          <option value="/taxi/user/airways">Helicopter Booking App (/taxi/user/airways)</option>
+                          <option value="/wedding">Wedding Planner App (/wedding)</option>
+                          <option value="custom">Custom URL...</option>
+                        </select>
+                        {!['', '/hotels', '/taxi/user', '/taxi/user/tours', '/taxi/user/airways', '/wedding'].includes(item.link || '') && (
+                          <input 
+                            type="text" 
+                            placeholder="Enter custom URL (e.g. https://example.com)"
+                            value={item.link || ''}
+                            onChange={(e) => handleItemChange(idx, 'link', e.target.value)}
+                            className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
