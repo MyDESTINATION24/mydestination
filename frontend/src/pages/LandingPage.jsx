@@ -916,16 +916,21 @@ const LandingPage = () => {
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer} className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-12">
           {[
-            { title: 'Small transport', description: 'Reliable and comfortable transportation services for your local tours and transfers.', icon: Car },
-            { title: 'Events', description: 'Plan and execute unforgettable events and gatherings with our expert coordination.', icon: Calendar },
-            { title: 'Vacation package', description: 'Tailor-made vacation packages designed to give you the ultimate travel experience.', icon: Briefcase },
-            { title: 'Resorts stay', description: 'Handpicked luxury resorts and stays for your perfect relaxation and comfort.', icon: Hotel }
+            { title: 'Small transport', description: 'Reliable and comfortable transportation services for your local tours and transfers.', icon: Car, route: '/taxi/user' },
+            { title: 'Events', description: 'Plan and execute unforgettable events and gatherings with our expert coordination.', icon: Calendar, route: '/wedding' },
+            { title: 'Vacation package', description: 'Tailor-made vacation packages designed to give you the ultimate travel experience.', icon: Briefcase, route: '/hotels' },
+            { title: 'Resorts stay', description: 'Handpicked luxury resorts and stays for your perfect relaxation and comfort.', icon: Hotel, route: '/hotels' }
           ].map((svc, i) => (
-            <motion.div variants={fadeUp} key={i} className="flex flex-col items-center hover:-translate-y-2 transition-transform duration-500">
-              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-4 md:mb-6 rounded-full bg-emerald-50 text-[#065f46]">
+            <motion.div 
+              variants={fadeUp} 
+              key={i} 
+              onClick={() => handleNavigation(svc.route)}
+              className="flex flex-col items-center hover:-translate-y-2 transition-transform duration-500 cursor-pointer group"
+            >
+              <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-4 md:mb-6 rounded-full bg-emerald-50 text-[#065f46] group-hover:bg-emerald-100 transition-colors duration-300">
                 <svc.icon size={32} strokeWidth={1.5} />
               </div>
-              <h4 className="text-lg md:text-xl font-black text-gray-900 mb-2 font-serif">{svc.title}</h4>
+              <h4 className="text-lg md:text-xl font-black text-gray-900 mb-2 font-serif group-hover:text-green-700 transition-colors">{svc.title}</h4>
               <p className="text-xs md:text-sm text-gray-500 leading-relaxed px-2 md:px-0 font-medium">
                 {svc.description}
               </p>
