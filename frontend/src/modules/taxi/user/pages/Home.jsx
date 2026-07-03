@@ -207,12 +207,14 @@ const Home = () => {
   const [endingRide, setEndingRide] = useState(false);
   const [showDeferredSections, setShowDeferredSections] = useState(false);
   const [banners, setBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     const fetchBanners = async () => {
       try {
+        setBannersLoading(true);
         const response = await userService.getBanners();
         const payload = unwrapApiPayload(response);
         if (cancelled) return;
@@ -227,6 +229,10 @@ const Home = () => {
         }
       } catch (error) {
         console.error('Failed to fetch banners:', error);
+      } finally {
+        if (!cancelled) {
+          setBannersLoading(false);
+        }
       }
     };
     fetchBanners();
@@ -585,8 +591,16 @@ const Home = () => {
         {/* Spacer for fixed header greeting */}
         <div className="h-[96px] md:h-[64px]" />
         <HeaderGreeting />
-        {/* Top Banner Carousel */}
-        {banners.length > 0 && (
+        {/* Top Banner Skeleton / Carousel */}
+        {bannersLoading ? (
+          <div className="w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+            <div className="space-y-4 w-2/3 flex flex-col items-center">
+              <div className="h-6 bg-gray-300/40 rounded-full w-1/2" />
+              <div className="h-10 bg-gray-300/40 rounded-full w-3/4" />
+              <div className="h-4 bg-gray-300/40 rounded-full w-1/3" />
+            </div>
+          </div>
+        ) : banners.length > 0 ? (
           <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-slate-900 flex items-center justify-center">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
@@ -609,28 +623,22 @@ const Home = () => {
                   <button
                     key={index}
                     onClick={() => setActiveBannerIndex(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      index === activeBannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${index === activeBannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                      }`}
                   />
                 ))}
               </div>
             )}
-            
+
             {/* Overlay Gradient for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
           </div>
-        )}
+        ) : null}
 
         {/* Content Container */}
         <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
           {/* Back to Services button */}
-          <button
-            onClick={() => navigate('/home')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition shadow-sm font-semibold text-sm w-fit"
-          >
-            <ChevronLeft size={16} strokeWidth={2.5} /> Back to Services
-          </button>
+
           {/* Active Scheduled Ride Alert */}
           {isScheduledAcceptedRide && (
             <motion.button
