@@ -78,8 +78,14 @@ import {
 } from '../controllers/toursController.js';
 import { getAppModules, getGoodsTypes, getPublicRentalVehicleCatalog, getPublicVehicleTypeCatalog } from '../../admin/controllers/adminController.js';
 import { triggerUserSosAlert } from '../../safety/controllers/safetyController.js';
+import { listBanners } from '../../admin/promotions/services/promotionsService.js';
 
 export const userRouter = Router();
+
+userRouter.get('/banners', asyncHandler(async (req, res) => {
+  const banners = await listBanners({ active: true });
+  res.status(200).json({ success: true, data: banners });
+}));
 
 userRouter.get('/app-modules', asyncHandler(getAppModules));
 userRouter.get('/intercity-packages', asyncHandler(getIntercityPackageCatalog));

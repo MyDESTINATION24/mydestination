@@ -35,7 +35,8 @@ const BannerImage = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const token = localStorage.getItem('adminToken') || '';
-  const baseUrl = globalThis.__LEGACY_BACKEND_ORIGIN__ + '/api/v1/admin';
+  const backendOrigin = globalThis.__LEGACY_BACKEND_ORIGIN__ || 'http://localhost:5001';
+  const baseUrl = `${backendOrigin}/api/v1/admin`;
 
   const resolveImageUrl = useCallback(
     (img) => {
@@ -50,7 +51,7 @@ const BannerImage = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const bootstrapRes = await fetch(`${globalThis.__LEGACY_BACKEND_ORIGIN__}/api/v1/admin/promotions/bootstrap`, {
+      const bootstrapRes = await fetch(`${backendOrigin}/api/v1/admin/promotions/bootstrap`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -83,7 +84,7 @@ const BannerImage = () => {
     } finally {
       setLoading(false);
     }
-  }, [baseUrl, token]);
+  }, [baseUrl, token, backendOrigin]);
 
   useEffect(() => {
     fetchData();
@@ -153,7 +154,14 @@ const BannerImage = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new Error(`Server returned status ${res.status} (invalid JSON): ${responseText.slice(0, 300)}`);
+      }
+
       if (data.success) {
         setFormData(createInitialFormData());
         setImagePreview(null);

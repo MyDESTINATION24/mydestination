@@ -20,6 +20,7 @@ import {
   Compass,
   FileText,
   Globe,
+  Image as ImageIcon,
   Home,
   IndianRupee,
   Layers,
@@ -740,6 +741,7 @@ const AdminLayout = () => {
           { icon: Home, label: 'Dashboard', path: '/taxi/admin/dashboard', permission: 'dashboard.view' },
           { icon: IndianRupee, label: 'Admin Earnings', path: '/taxi/admin/earnings', permission: 'earnings.view' },
           { icon: MessageCircle, label: 'Chat', path: '/taxi/admin/chat', permission: 'chat.view' },
+          { icon: ImageIcon, label: 'Homepage Banners', path: '/taxi/admin/promotions/banner-image', permission: 'promotions.view' },
           {
             icon: TrendingUp,
             label: 'Promotions Management',

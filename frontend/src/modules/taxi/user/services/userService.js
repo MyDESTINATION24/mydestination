@@ -67,6 +67,10 @@ export const userService = {
     const response = await api.get('/users/service-stores');
     return response;
   },
+  getBanners: async () => {
+    const response = await api.get('/users/banners');
+    return response;
+  },
   getAvailablePromos: async (params) => {
     const response = await api.get('/promos/available', { params });
     return response;

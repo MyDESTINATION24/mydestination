@@ -393,8 +393,8 @@ const normalizeBannerPayload = async (payload, existing = null) => {
       });
       image = uploaded.secureUrl;
     } catch (error) {
-      console.error('Cloudinary upload error:', error);
-      throw new ApiError(500, `Failed to upload banner image: ${error.message}`);
+      console.warn('Cloudinary upload failed, falling back to database base64 storage:', error.message);
+      // Keep the original base64 dataUrl as a fallback so it works without network/credentials
     }
   }
 

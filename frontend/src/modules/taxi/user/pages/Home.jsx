@@ -110,6 +110,13 @@ const getScheduledCountdownLabel = (value, now = Date.now()) => {
   return `Starts in ${minutes}m`;
 };
 
+const resolveImageUrl = (img) => {
+  if (!img) return '';
+  if (img.startsWith('data:') || img.startsWith('http')) return img;
+  const origin = globalThis.__LEGACY_BACKEND_ORIGIN__ || 'http://localhost:5000';
+  return `${origin}/${img.startsWith('/') ? img.slice(1) : img}`;
+};
+
 const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {
   if (!ride) {
     return null;
@@ -199,6 +206,42 @@ const Home = () => {
   const [clockNow, setClockNow] = useState(() => Date.now());
   const [endingRide, setEndingRide] = useState(false);
   const [showDeferredSections, setShowDeferredSections] = useState(false);
+  const [banners, setBanners] = useState([]);
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchBanners = async () => {
+      try {
+        const response = await userService.getBanners();
+        const payload = unwrapApiPayload(response);
+        if (cancelled) return;
+        if (payload?.success && Array.isArray(payload?.data?.results)) {
+          setBanners(payload.data.results);
+        } else if (Array.isArray(payload?.results)) {
+          setBanners(payload.results);
+        } else if (Array.isArray(payload?.data)) {
+          setBanners(payload.data);
+        } else if (Array.isArray(payload)) {
+          setBanners(payload);
+        }
+      } catch (error) {
+        console.error('Failed to fetch banners:', error);
+      }
+    };
+    fetchBanners();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return undefined;
+    const interval = setInterval(() => {
+      setActiveBannerIndex((current) => (current + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners]);
   const routePrefix = location.pathname.startsWith('/taxi/user')
     ? '/taxi/user'
     : location.pathname.startsWith('/taxi')
@@ -542,61 +585,60 @@ const Home = () => {
         {/* Spacer for fixed header greeting */}
         <div className="h-[96px] md:h-[64px]" />
         <HeaderGreeting />
-        {/* Top Banner mimicking the screenshot */}
-        <div className="relative w-full h-64 md:h-72 lg:h-80 bg-gradient-to-br from-yellow-100 via-lime-200 to-emerald-300 rounded-b-[40px] shadow-lg overflow-hidden flex flex-col items-center justify-center p-6 text-center">
-          {/* Back button */}
-          <button
-            onClick={() => navigate('/home')}
-            className="absolute top-5 left-5 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/10 border border-slate-900/15 text-slate-800 hover:bg-slate-900/20 transition backdrop-blur-sm active:scale-90"
-            title="Back to Services"
-          >
-            <ChevronLeft size={20} strokeWidth={2.5} />
-          </button>
-
-          {/* Left curtain SVG illustration */}
-          <svg className="absolute left-0 top-0 h-full w-1/4 text-emerald-600/10 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
-            <path d="M0,0 L70,0 C70,30 40,70 45,95 C50,115 75,150 85,200 L0,200 Z" />
-            <path d="M0,80 L48,95 L0,110 Z" fill="#047857" opacity="0.15" />
-          </svg>
-
-          {/* Right curtain SVG illustration */}
-          <svg className="absolute right-0 top-0 h-full w-1/4 text-emerald-600/10 pointer-events-none" viewBox="0 0 100 200" preserveAspectRatio="none" fill="currentColor">
-            <path d="M100,0 L30,0 C30,30 60,70 55,95 C50,115 25,150 15,200 L100,200 Z" />
-            <path d="M100,80 L52,95 L100,110 Z" fill="#047857" opacity="0.15" />
-          </svg>
-
-          {/* Bus Cabin Seats Background */}
-          <div className="absolute bottom-0 inset-x-0 flex justify-around px-8 pointer-events-none opacity-80 z-0 select-none">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="w-12 h-16 bg-emerald-600/10 rounded-t-2xl border-t-2 border-emerald-500/20 shadow-inner flex flex-col items-center pt-2"
-              >
-                <div className="w-8 h-4 bg-emerald-500/20 rounded shadow-sm" />
-                <div className="w-[1.5px] h-8 bg-emerald-700/10 mt-1" />
-              </div>
-            ))}
-          </div>
-
-          {/* Banner text contents */}
-          <div className="relative z-10 space-y-1.5 -translate-y-1">
-            <p
-              className="text-2xl font-semibold text-emerald-800 drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)] tracking-wide"
-              style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}
+        {/* Top Banner Carousel or Default Banner */}
+        {banners.length > 0 ? (
+          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+            {/* Back button */}
+            <button
+              onClick={() => navigate('/home')}
+              className="absolute top-5 left-5 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/30 border border-white/20 text-white hover:bg-slate-900/45 transition backdrop-blur-sm active:scale-90"
+              title="Back to Services"
             >
-              Summer deals
-            </p>
-            <h2 className="text-4xl font-extrabold text-emerald-950 tracking-tight leading-none drop-shadow-sm">
-              ONBOARD
-            </h2>
-            <div className="inline-block border border-emerald-800/20 bg-emerald-800/10 text-emerald-800 text-[11px] font-black uppercase tracking-widest px-4 py-1 rounded-[6px] backdrop-blur-xs shadow-sm mt-1">
-              RAPIDOTRAVEL
-            </div>
-            <p className="text-emerald-700 text-[11px] font-bold tracking-wide mt-1.5">
-              Use code at checkout
-            </p>
+              <ChevronLeft size={20} strokeWidth={2.5} />
+            </button>
+
+            {/* Banner Slider */}
+            <AnimatePresence mode="wait">
+              <Motion.img
+                key={activeBannerIndex}
+                src={resolveImageUrl(banners[activeBannerIndex]?.image)}
+                alt="Promo Banner"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </AnimatePresence>
+
+            {/* Navigation Dots if multiple */}
+            {banners.length > 1 && (
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20">
+                {banners.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveBannerIndex(index)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === activeBannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+            
+            {/* Overlay Gradient for readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
           </div>
-        </div>
+        ) : (
+          <div className="px-6 md:px-10 lg:px-14 pt-4">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition shadow-sm font-semibold text-sm w-fit"
+            >
+              <ChevronLeft size={16} strokeWidth={2.5} /> Back to Services
+            </button>
+          </div>
+        )}
 
         {/* Content Container */}
         <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
