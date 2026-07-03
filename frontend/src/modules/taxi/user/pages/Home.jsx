@@ -585,18 +585,9 @@ const Home = () => {
         {/* Spacer for fixed header greeting */}
         <div className="h-[96px] md:h-[64px]" />
         <HeaderGreeting />
-        {/* Top Banner Carousel or Default Banner */}
-        {banners.length > 0 ? (
+        {/* Top Banner Carousel */}
+        {banners.length > 0 && (
           <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-slate-900 flex items-center justify-center">
-            {/* Back button */}
-            <button
-              onClick={() => navigate('/home')}
-              className="absolute top-5 left-5 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-slate-900/30 border border-white/20 text-white hover:bg-slate-900/45 transition backdrop-blur-sm active:scale-90"
-              title="Back to Services"
-            >
-              <ChevronLeft size={20} strokeWidth={2.5} />
-            </button>
-
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
@@ -629,19 +620,17 @@ const Home = () => {
             {/* Overlay Gradient for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
           </div>
-        ) : (
-          <div className="px-6 md:px-10 lg:px-14 pt-4">
-            <button
-              onClick={() => navigate('/home')}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition shadow-sm font-semibold text-sm w-fit"
-            >
-              <ChevronLeft size={16} strokeWidth={2.5} /> Back to Services
-            </button>
-          </div>
         )}
 
         {/* Content Container */}
         <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
+          {/* Back to Services button */}
+          <button
+            onClick={() => navigate('/home')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 transition shadow-sm font-semibold text-sm w-fit"
+          >
+            <ChevronLeft size={16} strokeWidth={2.5} /> Back to Services
+          </button>
           {/* Active Scheduled Ride Alert */}
           {isScheduledAcceptedRide && (
             <motion.button
