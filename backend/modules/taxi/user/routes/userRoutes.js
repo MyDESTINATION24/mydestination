@@ -76,6 +76,7 @@ import {
   listMyTourBookings,
   getMyTourBooking,
 } from '../controllers/toursController.js';
+import { getClosestEVStations } from '../controllers/evStationController.js';
 import { getAppModules, getGoodsTypes, getPublicRentalVehicleCatalog, getPublicVehicleTypeCatalog } from '../../admin/controllers/adminController.js';
 import { triggerUserSosAlert } from '../../safety/controllers/safetyController.js';
 import { listBanners } from '../../admin/promotions/services/promotionsService.js';
@@ -162,3 +163,5 @@ userRouter.get('/tours/:id', asyncHandler(getUserTourById));
 userRouter.post('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(createUserTourBooking));
 userRouter.get('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyTourBookings));
 userRouter.get('/tours/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyTourBooking));
+
+userRouter.get('/ev-stations/closest', asyncHandler(getClosestEVStations));

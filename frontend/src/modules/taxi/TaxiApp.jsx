@@ -262,6 +262,8 @@ const AdminAirwaysManager = lazy(() => import('./admin/pages/airways/AirwaysMana
 const AdminAirwaysRouteManager = lazy(() => import('./admin/pages/airways/AirwaysRouteManager'));
 const AdminAirwaysBookingManager = lazy(() => import('./admin/pages/airways/AirwaysBookingManager'));
 const AdminTourManager = lazy(() => import('./admin/pages/tours/TourManager'));
+const AdminEVStationsManager = lazy(() => import('./admin/pages/ev-stations/ManageEVStations'));
+const UserEVStationsMap = lazy(() => import('./user/pages/ev-stations/EVStationsMap'));
 const AdminTourBookingManager = lazy(() => import('./admin/pages/tours/TourBookingManager'));
 const AdminPricingPlaceholder = ({ title }) => (
   <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10">
@@ -905,6 +907,7 @@ function App() {
                 <Route path="user/airways" element={<AirwaysHome />} />
                 <Route path="user/airways/routes/:routeId" element={<AirwaysRouteBooking />} />
                 <Route path="user/airways/confirmation/:bookingId" element={<AirwaysConfirmation />} />
+                <Route path="user/ev-stations" element={<UserEVStationsMap />} />
                 <Route path="user/tours" element={<UserToursHome />} />
                 <Route path="user/tours/:id" element={<UserTourDetails />} />
                 <Route path="user/tours/book/:id" element={<UserTourBooking />} />
@@ -1180,6 +1183,7 @@ function App() {
                 <Route path="tours/create" element={<AdminTourManager mode="create" />} />
                 <Route path="tours/edit/:id" element={<AdminTourManager mode="edit" />} />
                 <Route path="tours/bookings" element={<AdminTourBookingManager />} />
+                <Route path="ev-stations" element={<AdminEVStationsManager />} />
                 <Route path="pooling" element={<Navigate to="/taxi/admin/pooling/routes" replace />} />
                 <Route path="pooling/routes" element={<AdminPoolingManager />} />
                 <Route

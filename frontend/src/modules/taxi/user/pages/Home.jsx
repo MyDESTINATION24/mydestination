@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
 import HeaderGreeting from '../components/HeaderGreeting';
+import { getClosestEVStations } from '../services/evStationService';
+import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import carIcon from '../../../assets/icons/car.png';
 import bikeIcon from '../../../assets/icons/bike.png';
 import autoIcon from '../../../assets/icons/auto.png';
@@ -13,6 +16,7 @@ import taxiImg from '@/assets/3d images/AutoCab/taxi.png';
 import parcelImg from '@/assets/landing/parcel.png';
 import templeImg from '@/assets/3d images/AutoCab/temple.png';
 import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
+import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
 import api from '../../../shared/api/axiosInstance';
 import { useSettings } from '../../../shared/context/SettingsContext';
 import { userService } from '../services/userService';
@@ -198,6 +202,7 @@ const Home = () => {
   const location = useLocation();
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
+
 
   const [currentRide, setCurrentRide] = useState(() => {
     const ride = getCurrentRide();
@@ -769,7 +774,7 @@ const Home = () => {
             </div>
 
             {/* Grid of Ride, Bus, Delivery, Char Dham and Helicopter Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
@@ -899,7 +904,7 @@ const Home = () => {
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate('/taxi/user/airways')}
-                className="col-span-2 md:col-span-1 justify-self-center md:justify-self-auto w-full max-w-[calc(50%-8px)] md:max-w-none bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+                className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
                 <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Discount Badge */}
@@ -909,7 +914,7 @@ const Home = () => {
                   </div>
 
                   {/* Subtitle & Title */}
-                  <div className="mt-2">
+                  <div className="mt-2 text-left">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Elite spiritual travel</p>
                     <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
                       Helicopter <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
@@ -921,6 +926,37 @@ const Home = () => {
                 <img
                   src={helicopterImg}
                   alt="Helicopter"
+                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                />
+              </motion.div>
+
+              {/* EV Stations Card */}
+              <motion.div
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/taxi/user/ev-stations')}
+                className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
+                  {/* Clean Energy Badge */}
+                  <div className="bg-blue-50 text-blue-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-blue-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    Clean Energy
+                  </div>
+
+                  {/* Subtitle & Title */}
+                  <div className="mt-2 text-left">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Find nearest charging point</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                      EV Stations <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                    </h4>
+                  </div>
+                </div>
+
+                {/* 3D EV Charging Station Image */}
+                <img
+                  src={evStationImg}
+                  alt="EV Stations"
                   className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>

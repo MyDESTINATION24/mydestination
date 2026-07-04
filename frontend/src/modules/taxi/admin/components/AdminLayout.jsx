@@ -802,6 +802,13 @@ const AdminLayout = () => {
             ],
           },
           {
+            icon: Zap,
+            label: 'EV Stations',
+            subItems: [
+              { label: 'Manage Stations', path: '/taxi/admin/ev-stations', permission: 'dashboard.view' },
+            ],
+          },
+          {
             icon: Share2,
             label: 'Car Pooling',
             subItems: [

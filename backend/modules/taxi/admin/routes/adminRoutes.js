@@ -237,6 +237,12 @@ import {
   createTourBooking,
   updateTourBookingStatus,
 } from '../controllers/toursController.js';
+import {
+  getEVStations,
+  createEVStation,
+  updateEVStation,
+  deleteEVStation,
+} from '../controllers/evStationController.js';
 import { promotionsRouter } from '../promotions/routes/index.js';
 import { listSafetyAlerts, resolveSafetyAlert } from '../../safety/controllers/safetyController.js';
 
@@ -380,6 +386,11 @@ adminRouter.delete('/admin/tours/:id', deleteTour);
 adminRouter.get('/admin/tour-bookings', getTourBookings);
 adminRouter.post('/admin/tour-bookings', createTourBooking);
 adminRouter.patch('/admin/tour-bookings/:id/status', updateTourBookingStatus);
+
+adminRouter.get('/admin/ev-stations', getEVStations);
+adminRouter.post('/admin/ev-stations', createEVStation);
+adminRouter.patch('/admin/ev-stations/:id', updateEVStation);
+adminRouter.delete('/admin/ev-stations/:id', deleteEVStation);
 
 adminRouter.post('/admin/upload-image', uploadImage);
 adminRouter.get('/admin/rental-booking-requests', getRentalBookingRequests);
