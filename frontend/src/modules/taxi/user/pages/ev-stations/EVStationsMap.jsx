@@ -26,8 +26,36 @@ const EVStationsMap = () => {
   const [selectedStation, setSelectedStation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [mapRef, setMapRef] = useState(null);
+  const mapWrapperRef = useRef(null);
 
   const { isLoaded: isMapLoaded, loadError: mapLoadError } = useAppGoogleMapsLoader();
+
+  useEffect(() => {
+    const wrapper = mapWrapperRef.current;
+    if (!wrapper) return;
+
+    const handleTouchStart = (e) => {
+      e.stopPropagation();
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      e.stopPropagation();
+    };
+
+    // Use passive: false to allow calling preventDefault inside touch event listener
+    wrapper.addEventListener('touchstart', handleTouchStart, { passive: false });
+    wrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
+    wrapper.addEventListener('touchend', handleTouchStart, { passive: false });
+
+    return () => {
+      wrapper.removeEventListener('touchstart', handleTouchStart);
+      wrapper.removeEventListener('touchmove', handleTouchMove);
+      wrapper.removeEventListener('touchend', handleTouchStart);
+    };
+  }, []);
 
   const fetchStations = async (lat, lng) => {
     try {
@@ -219,7 +247,10 @@ const EVStationsMap = () => {
         </div>
 
         {/* Map View */}
-        <div className="flex-1 h-1/2 md:h-full relative bg-slate-100">
+        <div 
+          ref={mapWrapperRef}
+          className="flex-1 h-1/2 md:h-full relative bg-slate-100 touch-none"
+        >
           {!HAS_VALID_GOOGLE_MAPS_KEY ? (
             <div className="w-full h-full flex flex-col items-center justify-center text-center p-6 bg-slate-100">
               <div className="w-14 h-14 bg-amber-50 border border-amber-100 rounded-full flex items-center justify-center mb-4 shadow-sm">
