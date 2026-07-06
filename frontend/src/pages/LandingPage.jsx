@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Heart } from 'lucide-react';
+import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Helicopter as HelicopterIcon, Heart } from 'lucide-react';
 import logo from '../assets/rokologin-removebg-preview.png';
+import WebsiteHeader from '../components/ui/WebsiteHeader';
 import heroBg from '../assets/landing/hero_travel1.png';
 import coupleImg from '../assets/landing/landingPageImage.png';
 import destAmsterdam from '../assets/landing/dest_amsterdam.png';
@@ -162,8 +163,26 @@ const DestinationCard = ({ dest, fadeUp }) => {
 };
 
 const LandingPage = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const isLoggedIn = !!localStorage.getItem('token');
+
+  useEffect(() => {
+    if (location.state && location.state.scrollTo) {
+      const id = location.state.scrollTo;
+      setTimeout(() => {
+        if (id === 'home') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          const element = document.getElementById(id);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }, 200);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   const handleScrollTo = (e, id) => {
     e.preventDefault();
@@ -389,19 +408,7 @@ const LandingPage = () => {
 
 
 
-        {/* Dot Indicators */}
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 hidden md:flex gap-3">
-          {activeSlides.map((_, idx) => {
-            const safeCurrentSlide = currentSlide >= activeSlides.length ? 0 : currentSlide;
-            return (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${safeCurrentSlide === idx ? 'bg-[#065f46] scale-125' : 'bg-white/60 hover:bg-white'}`}
-              />
-            )
-          })}
-        </div>
+        {/* Dot Indicators Removed */}
 
         {/* Hero Content Overlay */}
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 mt-16 pb-28 pointer-events-none">
@@ -432,54 +439,7 @@ const LandingPage = () => {
         </div>
 
         {/* Flat Transparent Navbar */}
-        <div className="fixed top-0 left-0 w-full z-[100] px-4 md:px-12 flex items-center bg-white py-1.5 shadow-xl">
-          <nav className="flex items-center justify-between w-full max-w-7xl mx-auto">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 md:h-12 md:w-12 overflow-hidden flex-shrink-0">
-                <img src={logo} alt="Logo Icon" className="h-full w-full object-cover" />
-              </div>
-              {/* Removed Tourism text here as per request */}
-            </div>
-
-            {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
-              <a href="/" onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group">HOME<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
-              <a href="#feature" onClick={(e) => handleScrollTo(e, 'feature')} className="relative pb-1 transition-colors hover:text-[#065f46] group">SERVICES<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
-              <a href="#about" onClick={(e) => handleScrollTo(e, 'about')} className="relative pb-1 transition-colors hover:text-[#065f46] group">ABOUT US<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
-              <a href="#staff" onClick={(e) => handleScrollTo(e, 'staff')} className="relative pb-1 transition-colors hover:text-[#065f46] group">OUR STAFF<span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span></a>
-
-              {/* Auth Buttons */}
-              <div className="flex items-center gap-6 ml-4 border-l pl-8 border-slate-200">
-                <Link to="/login" className="transition-colors font-bold hover:text-black">LOGIN</Link>
-                <Link to="/signup" className="transition-colors font-bold hover:text-[#065f46]">
-                  REGISTER
-                </Link>
-              </div>
-            </div>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden p-2 transition-colors duration-300 text-slate-900"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
-            </button>
-          </nav>
-        </div>
-
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="fixed top-[80px] left-4 right-4 bg-white rounded-xl shadow-2xl z-[100] lg:hidden overflow-hidden border border-gray-100">
-            <div className="flex flex-col text-gray-800 font-medium uppercase tracking-widest text-[13px]">
-              <a href="/" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'home'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">HOME</a>
-              <a href="#feature" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'feature'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">SERVICES</a>
-              <a href="#about" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'about'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">ABOUT US</a>
-              <a href="#staff" onClick={(e) => { setIsMobileMenuOpen(false); handleScrollTo(e, 'staff'); }} className="p-4 border-b border-gray-50 hover:bg-gray-50">OUR STAFF</a>
-              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">LOGIN</Link>
-              <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center">REGISTER</Link>
-            </div>
-          </div>
-        )}
+        <WebsiteHeader />
 
         {/* Promo Strip Removed (Interfered with Search Bar) */}
 
@@ -1200,14 +1160,16 @@ const LandingPage = () => {
 
           {/* Column 4: About Company */}
           <div>
-            <h4 className="font-bold text-lg mb-6 tracking-wide">
-              {cmsData?.footer?.companyName?.toLowerCase().startsWith('about')
-                ? cmsData.footer.companyName
-                : `About ${cmsData?.footer?.companyName || "My DESTINATION"}`}
-            </h4>
-            <p className="text-xs text-gray-300 leading-relaxed mb-6">
-              {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services."}
-            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'min-content' }}>
+              <h4 style={{ whiteSpace: 'nowrap' }} className="font-bold text-lg mb-2 tracking-wide">
+                {cmsData?.footer?.companyName?.toLowerCase().startsWith('about')
+                  ? cmsData.footer.companyName
+                  : `About ${cmsData?.footer?.companyName || "My DESTINATION"}`}
+              </h4>
+              <p className="text-xs text-gray-300 leading-relaxed mb-6">
+                {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services."}
+              </p>
+            </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-emerald-400 mb-3">Connect with Us</h5>
               <div className="flex gap-3">
@@ -1225,12 +1187,12 @@ const LandingPage = () => {
           </div>
         </div>
         {/* Copyright + Payment Bar — white/light thin bar */}
-        <div className="bg-white border-t border-gray-200 py-4 -mx-6 -mb-8 md:-mx-8 md:-mb-8">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:grid md:grid-cols-4 items-center justify-center gap-3 md:gap-8">
+        <div className="bg-white border-t border-gray-200 py-2 -mx-6 -mb-8 md:-mx-8 md:-mb-8">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:grid md:grid-cols-4 items-center justify-center gap-2 md:gap-6">
             {/* Left: Copyright */}
-            <p className="m-0 text-[10px] text-[#065f46] font-medium text-center md:text-left md:col-span-3">
+            <p className="m-0 text-[8px] text-[#065f46] font-medium text-center md:text-left md:col-span-3">
               Copyright © {new Date().getFullYear()}{' '}
-              <strong className="text-[#065f46] font-bold text-[11px] tracking-wide">My DESTINATION<sup className="text-[7px]">®</sup></strong>
+              <strong className="text-[#065f46] font-bold text-[9px] tracking-wide">My DESTINATION<sup className="text-[6px]">®</sup></strong>
               {' '}<span className="font-medium">| All Rights Reserved.</span>
             </p>
 
@@ -1238,41 +1200,41 @@ const LandingPage = () => {
             <div className="flex items-center justify-center md:justify-start flex-wrap gap-1 md:col-span-1">
               {/* Google Pay */}
               {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
-                <div style={{ background: '#f8f9fa', borderRadius: '4px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px', border: '1px solid #e5e7eb' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '9px', objectFit: 'contain' }} />
+                <div style={{ background: '#f8f9fa', borderRadius: '3px', padding: '1px 3px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px', border: '1px solid #e5e7eb' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '7px', objectFit: 'contain' }} />
                 </div>
               )}
               {/* PayPal */}
               {(cmsData?.footer?.paymentMethods?.paypal !== false) && (
-                <div style={{ background: '#172b85', borderRadius: '4px', padding: '2px 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '28px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '8px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <div style={{ background: '#172b85', borderRadius: '3px', padding: '1px 3px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '22px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style={{ height: '6px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
               {/* Mastercard */}
               {(cmsData?.footer?.paymentMethods?.mastercard !== false) && (
-                <div style={{ background: '#1a1a1a', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
-                  <div style={{ position: 'relative', width: '20px', height: '11px', display: 'flex', alignItems: 'center' }}>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
-                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '6px', opacity: 0.9 }}></div>
+                <div style={{ background: '#1a1a1a', borderRadius: '3px', padding: '1px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px' }}>
+                  <div style={{ position: 'relative', width: '15px', height: '9px', display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#eb001b', position: 'absolute', left: '0' }}></div>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f79e1b', position: 'absolute', left: '4px', opacity: 0.9 }}></div>
                   </div>
                 </div>
               )}
               {/* Visa */}
               {(cmsData?.footer?.paymentMethods?.visa !== false) && (
-                <div style={{ background: '#1a56db', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
-                  <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '9px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.3px' }}>VISA</span>
+                <div style={{ background: '#1a56db', borderRadius: '3px', padding: '1px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px' }}>
+                  <span style={{ color: '#ffffff', fontWeight: 800, fontStyle: 'italic', fontSize: '7px', fontFamily: 'Arial, sans-serif', letterSpacing: '0.3px' }}>VISA</span>
                 </div>
               )}
               {/* Stripe */}
               {(cmsData?.footer?.paymentMethods?.stripe !== false) && (
-                <div style={{ background: '#635bff', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '32px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '7px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <div style={{ background: '#635bff', borderRadius: '3px', padding: '1px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg" alt="Stripe" style={{ height: '5px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
               {/* Apple Pay */}
               {(cmsData?.footer?.paymentMethods?.applepay !== false) && (
-                <div style={{ background: '#000000', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '16px', minWidth: '36px' }}>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '8px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                <div style={{ background: '#000000', borderRadius: '3px', padding: '1px 4px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '28px' }}>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/Apple_Pay_logo.svg" alt="Apple Pay" style={{ height: '6px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                 </div>
               )}
             </div>

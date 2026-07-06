@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Calendar, User, ArrowRight } from 'lucide-react';
+import { Calendar, User, ArrowRight } from 'lucide-react';
 import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import WebsiteHeader from '../../components/ui/WebsiteHeader';
@@ -9,55 +9,55 @@ import WebsiteFooter from '../../components/ui/WebsiteFooter';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-const BlogDetail = () => {
+const ArticleDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [blog, setBlog] = useState(null);
+  const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchBlogDetail = async () => {
+    const fetchArticleDetail = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/blogs`);
+        const response = await axios.get(`${API_BASE_URL}/articles`);
         if (response.data.success) {
-          const foundBlog = response.data.data.find(b => b._id === id);
-          if (foundBlog) {
-            setBlog(foundBlog);
-            const others = response.data.data.filter(b => b._id !== id);
+          const foundArticle = response.data.data.find(a => a._id === id);
+          if (foundArticle) {
+            setArticle(foundArticle);
+            const others = response.data.data.filter(a => a._id !== id);
             setRelated(others.slice(0, 3));
           } else {
-            console.error('Blog not found');
+            console.error('Article not found');
           }
         }
       } catch (error) {
-        console.error('Error fetching blog details:', error);
+        console.error('Error fetching article details:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchBlogDetail();
+    fetchArticleDetail();
   }, [id]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4 font-['Inter',sans-serif]">
         <Loader2 className="w-10 h-10 animate-spin text-emerald-800" />
-        <p className="text-slate-655 font-medium">Loading story...</p>
+        <p className="text-slate-655 font-medium">Loading article...</p>
       </div>
     );
   }
 
-  if (!blog) {
+  if (!article) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center font-['Inter',sans-serif]">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">Story Not Found</h2>
-        <p className="text-slate-655 mb-8 max-w-md">The blog post you're looking for might have been moved or deleted.</p>
+        <h2 className="text-2xl font-bold text-slate-800 mb-4">Article Not Found</h2>
+        <p className="text-slate-655 mb-8 max-w-md">The article you're looking for might have been moved or deleted.</p>
         <button 
-          onClick={() => navigate('/blogs')}
+          onClick={() => navigate('/articles')}
           className="px-6 py-3 bg-emerald-800 text-white font-bold rounded-2xl hover:bg-emerald-950 transition"
         >
-          Back to Blogs
+          Back to Articles
         </button>
       </div>
     );
@@ -72,20 +72,13 @@ const BlogDetail = () => {
       <div className="relative pt-24">
         <div className="max-w-7xl mx-auto px-4 md:px-12 pt-10 pb-6">
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            {blog.badge && (
-              <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 uppercase tracking-widest shadow-sm">
-                {blog.badge}
-              </span>
-            )}
-            {blog.category && (
-              <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 border border-slate-200 text-slate-700 uppercase tracking-widest">
-                {blog.category}
-              </span>
-            )}
+            <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-50 border border-emerald-200 text-emerald-800 uppercase tracking-widest shadow-sm">
+              FEATURED ARTICLE
+            </span>
           </div>
           
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-6 leading-snug">
-            {blog.title}
+            {article.title}
           </h1>
 
           <div className="flex items-center gap-4 text-xs text-slate-500 mb-8 border-b border-slate-200 pb-6">
@@ -97,11 +90,7 @@ const BlogDetail = () => {
             </div>
             <div className="flex items-center gap-2">
               <Calendar size={12} className="text-slate-400" />
-              <span>{blog.date}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock size={12} className="text-slate-400" />
-              <span>{blog.readTime}</span>
+              <span>{article.date}</span>
             </div>
           </div>
         </div>
@@ -110,8 +99,8 @@ const BlogDetail = () => {
         <div className="max-w-7xl mx-auto px-4 md:px-12">
           <div className="aspect-[21/9] md:rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-205">
             <img 
-              src={blog.image} 
-              alt={blog.title} 
+              src={article.image} 
+              alt={article.title} 
               className="w-full h-full object-cover"
             />
           </div>
@@ -123,13 +112,13 @@ const BlogDetail = () => {
         <div className="bg-white rounded-3xl p-6 md:p-10 border border-slate-200/60 shadow-xs mb-16">
           {/* Excerpt */}
           <p className="text-base md:text-lg font-medium text-slate-655 mb-8 leading-relaxed italic border-l-4 border-emerald-850 pl-4">
-            {blog.excerpt}
+            {article.excerpt}
           </p>
 
           {/* Content Body */}
           <div className="prose prose-slate max-w-none">
             <div className="whitespace-pre-wrap text-slate-700 text-sm md:text-base leading-relaxed tracking-wide">
-              {blog.content}
+              {article.content}
             </div>
           </div>
         </div>
@@ -137,11 +126,11 @@ const BlogDetail = () => {
         {/* Divider */}
         <div className="h-[1px] bg-slate-200 my-16" />
 
-        {/* Related Stories Section */}
+        {/* Related Reads Section */}
         {related.length > 0 && (
           <div className="mb-16">
             <h3 className="text-lg font-bold text-slate-800 mb-6 uppercase tracking-wider">
-              Related Stories
+              Related Reads
             </h3>
             <div className="grid md:grid-cols-3 gap-6">
               {related.map((item, index) => (
@@ -150,7 +139,7 @@ const BlogDetail = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  onClick={() => navigate(`/blogs/${item._id}`)}
+                  onClick={() => navigate(`/articles/${item._id}`)}
                   className="group rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col justify-between"
                 >
                   <div>
@@ -166,7 +155,7 @@ const BlogDetail = () => {
                   </div>
                   <div className="px-4 pb-4">
                     <span className="text-[10px] font-bold text-emerald-800 group-hover:text-emerald-950 inline-flex items-center gap-1">
-                      Read Story <ArrowRight size={12} />
+                      Read Article <ArrowRight size={12} />
                     </span>
                   </div>
                 </motion.div>
@@ -198,4 +187,4 @@ const BlogDetail = () => {
   );
 };
 
-export default BlogDetail;
+export default ArticleDetail;

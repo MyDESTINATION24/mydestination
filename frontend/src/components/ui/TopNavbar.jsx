@@ -21,7 +21,15 @@ const TopNavbar = () => {
     const isGlobalModule = location.pathname.startsWith('/settings') || location.pathname.startsWith('/saved-places') || location.pathname.startsWith('/wallet');
     const isWeddingModule = location.pathname.startsWith('/wedding');
     const isTaxiModule = location.pathname.startsWith('/taxi');
-    const isHotelModule = !isSuperApp && !isGlobalModule && !isWeddingModule && !isTaxiModule;
+    const isMarketingRoute = location.pathname.startsWith('/about') || 
+                             location.pathname.startsWith('/contact') || 
+                             location.pathname.startsWith('/careers') || 
+                             location.pathname.startsWith('/blogs') || 
+                             location.pathname.startsWith('/articles') || 
+                             location.pathname.startsWith('/legal') || 
+                             location.pathname.startsWith('/terms') || 
+                             location.pathname.startsWith('/privacy');
+    const isHotelModule = !isSuperApp && !isGlobalModule && !isWeddingModule && !isTaxiModule && !isMarketingRoute;
     
     // Fallback to show default links (Hotel links) on global pages like Wallet so header doesn't look broken
     const showDefaultLinks = isHotelModule || isGlobalModule;
@@ -75,6 +83,12 @@ const TopNavbar = () => {
                     className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}
                 >
                     Home
+                </Link>
+                <Link to="/articles" className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}>
+                    Articles
+                </Link>
+                <Link to="/blogs" className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}>
+                    Blogs
                 </Link>
                 
                 {/* Default / Hotel Specific Links */}

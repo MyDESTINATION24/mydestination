@@ -21,7 +21,7 @@ const PropertyTypeFilter = ({ selectedType, onSelectType }) => {
   ];
 
   return (
-    <div className="flex gap-4 overflow-x-auto px-5 py-4 no-scrollbar">
+    <div className="flex justify-start sm:justify-center gap-4 md:gap-8 lg:gap-10 overflow-x-auto px-5 py-4 no-scrollbar">
       {types.map((type) => {
         const Icon = type.icon;
         const isSelected = selectedType === type.id;
