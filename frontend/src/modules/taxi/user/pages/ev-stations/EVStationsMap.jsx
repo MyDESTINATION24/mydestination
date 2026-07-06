@@ -34,9 +34,6 @@ const EVStationsMap = () => {
       setLoading(true);
       const data = await getClosestEVStations(lat, lng);
       setStations(data);
-      if (data.length > 0 && !selectedStation) {
-        setSelectedStation(data[0]);
-      }
     } catch (err) {
       console.error(err);
       toast.error('Failed to load charging stations.');
@@ -95,7 +92,7 @@ const EVStationsMap = () => {
     <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-800 animate-in fade-in duration-300">
       
       {/* Header */}
-      <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between shadow-xs">
+      <header className="bg-white/95 backdrop-blur-md border-b border-slate-100/80 px-6 py-4 flex items-center justify-between shadow-xs sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/taxi/home')}
@@ -105,7 +102,7 @@ const EVStationsMap = () => {
           </button>
           <div>
             <h1 className="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-              <BatteryCharging size={22} className="text-blue-600" />
+              <BatteryCharging size={22} className="text-blue-600 animate-pulse" />
               EV Charging Network
             </h1>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Find charging stations near you</p>
@@ -114,7 +111,7 @@ const EVStationsMap = () => {
 
         <button 
           onClick={locateUser} 
-          className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 transition-all flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+          className="p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 hover:text-slate-900 transition-all flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider active:scale-95 shadow-2xs hover:shadow-xs"
           title="Refresh location"
         >
           <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
@@ -137,7 +134,7 @@ const EVStationsMap = () => {
                 placeholder="Search stations, address, pricing..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/5 focus:shadow-xs"
               />
             </div>
           </div>
@@ -145,9 +142,9 @@ const EVStationsMap = () => {
           {/* List items */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-2">
-                <RefreshCw className="animate-spin text-slate-300" size={28} />
-                <span className="text-xs font-bold uppercase tracking-wider">Locating nearest chargers...</span>
+              <div className="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
+                <RefreshCw className="animate-spin text-blue-500" size={28} />
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Locating nearest chargers...</span>
               </div>
             ) : filteredStations.length === 0 ? (
               <div className="text-center py-12 text-slate-400 text-xs font-bold uppercase tracking-wider">
@@ -156,40 +153,63 @@ const EVStationsMap = () => {
             ) : (
               filteredStations.map((station) => {
                 const isSelected = selectedStation?.id === station.id;
+                const percentFree = (station.stallsAvailable / station.stallsTotal) * 100;
+                const isAvailable = station.stallsAvailable > 0;
+
                 return (
                   <div
                     key={station.id}
                     onClick={() => handleStationClick(station)}
-                    className={`rounded-2xl p-4 border transition-all duration-300 cursor-pointer text-left ${
+                    className={`rounded-2xl p-4 border transition-all duration-300 cursor-pointer text-left flex flex-col gap-3.5 relative overflow-hidden ${
                       isSelected
-                        ? 'bg-blue-50/40 border-blue-500/30 shadow-xs'
-                        : 'bg-white border-slate-100 hover:border-slate-200'
+                        ? 'bg-gradient-to-br from-blue-50/70 to-indigo-50/30 border-blue-500/30 shadow-xs border-l-4 border-l-blue-600 scale-[1.01]'
+                        : 'bg-white border-slate-100 hover:border-slate-200 hover:scale-[1.005] hover:shadow-2xs border-l-4 border-l-transparent'
                     }`}
                   >
                     <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <h4 className="font-extrabold text-sm text-slate-900">{station.name}</h4>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                          <h4 className="font-extrabold text-sm text-slate-900 leading-tight">{station.name}</h4>
+                        </div>
                         <p className="text-slate-500 text-xs mt-1.5 flex items-center gap-1">
                           <MapPin size={12} className="text-slate-400 shrink-0" />
                           <span className="truncate max-w-[200px]">{station.address}</span>
                         </p>
                       </div>
-                      <span className="bg-blue-50 text-blue-700 rounded-lg px-2 py-1 text-[10px] font-extrabold tracking-wide shrink-0">
+                      <span className="bg-blue-50/80 text-blue-700 rounded-lg px-2.5 py-1 text-[10px] font-extrabold tracking-wide shrink-0 border border-blue-100/50">
                         {station.powerKW} kW
                       </span>
                     </div>
 
-                    <div className="mt-3.5 pt-3.5 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
-                      <div className="flex items-center gap-1">
-                        <span className="bg-slate-100 rounded px-1.5 py-0.5 text-slate-600">
-                          Stalls: {station.stallsAvailable} / {station.stallsTotal} free
+                    {/* Stalls Capacity Bar */}
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+                        <span>Availability</span>
+                        <span className={isAvailable ? 'text-emerald-600' : 'text-rose-600'}>
+                          {station.stallsAvailable} / {station.stallsTotal} stalls free
                         </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className="bg-emerald-50 text-emerald-700 rounded px-1.5 py-0.5 border border-emerald-100">
-                          {station.pricing}
-                        </span>
+                      <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${isAvailable ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                          style={{ width: `${percentFree}%` }}
+                        />
                       </div>
+                    </div>
+
+                    {/* Connector & Price Badges */}
+                    <div className="pt-3 border-t border-slate-100/80 flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase">
+                      <div className="flex flex-wrap gap-1">
+                        {station.connectorTypes?.slice(0, 2).map((type) => (
+                          <span key={type} className="bg-slate-100 text-slate-600 rounded px-1.5 py-0.5 text-[9px] font-semibold">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="bg-emerald-50 text-emerald-700 rounded-lg px-2 py-0.5 border border-emerald-100/60 font-extrabold">
+                        {station.pricing}
+                      </span>
                     </div>
                   </div>
                 );
@@ -222,7 +242,7 @@ const EVStationsMap = () => {
             </div>
           ) : isMapLoaded ? (
             <GoogleMap
-              mapContainerStyle={{ width: '100%', height: '100%' }}
+              mapContainerStyle={{ width: '100%', height: '100%', touchAction: 'none' }}
               center={
                 selectedStation 
                   ? { lat: selectedStation.latitude, lng: selectedStation.longitude }
@@ -234,15 +254,21 @@ const EVStationsMap = () => {
                 streetViewControl: false,
                 mapTypeControl: true,
                 fullscreenControl: true,
+                gestureHandling: 'greedy',
               }}
             >
               {/* User location pin */}
-              {userCoords && (
+              {userCoords && window.google?.maps && (
                 <MarkerF
                   position={userCoords}
                   title="Your Location"
                   icon={{
-                    url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    path: window.google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#3b82f6', // Premium blue color
+                    fillOpacity: 0.9,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2.5,
+                    scale: 7, // Size of the location dot
                   }}
                 />
               )}
@@ -256,7 +282,9 @@ const EVStationsMap = () => {
                   onClick={() => setSelectedStation(station)}
                   icon={{
                     url: evStationImg,
-                    scaledSize: window.google?.maps ? new window.google.maps.Size(40, 40) : null,
+                    scaledSize: new window.google.maps.Size(42, 42),
+                    origin: new window.google.maps.Point(0, 0),
+                    anchor: new window.google.maps.Point(21, 21),
                   }}
                 />
               ))}
@@ -267,24 +295,39 @@ const EVStationsMap = () => {
                   position={{ lat: selectedStation.latitude, lng: selectedStation.longitude }}
                   onCloseClick={() => setSelectedStation(null)}
                 >
-                  <div className="p-2 max-w-xs text-left">
-                    <h3 className="font-extrabold text-sm text-slate-900">{selectedStation.name}</h3>
-                    <p className="text-slate-500 text-xs mt-1 leading-normal">{selectedStation.address}</p>
+                  <div className="p-3 max-w-xs text-left flex flex-col gap-2.5">
+                    <div>
+                      <h3 className="font-extrabold text-sm text-slate-900 leading-tight">{selectedStation.name}</h3>
+                      <p className="text-slate-500 text-xs mt-1 leading-normal flex items-center gap-1">
+                        <MapPin size={11} className="text-slate-400 shrink-0" />
+                        <span>{selectedStation.address}</span>
+                      </p>
+                    </div>
                     
-                    <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-bold text-slate-500 uppercase">
-                      <span className="bg-slate-100 px-1.5 py-0.5 rounded">
+                    <div className="flex flex-wrap gap-1.5 text-[10px] font-bold text-slate-500 uppercase">
+                      <span className="bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded border border-blue-100/50">
                         {selectedStation.powerKW} kW
                       </span>
-                      <span className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-700">
-                        {selectedStation.stallsAvailable} / {selectedStation.stallsTotal} Stalls Free
+                      <span className="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded border border-emerald-100/50">
+                        {selectedStation.stallsAvailable} / {selectedStation.stallsTotal} Free
                       </span>
                     </div>
+
+                    {selectedStation.connectorTypes && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedStation.connectorTypes.map((type) => (
+                          <span key={type} className="bg-slate-100 text-slate-600 rounded px-1.5 py-0.5 text-[9px] font-bold">
+                            {type}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${selectedStation.latitude},${selectedStation.longitude}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-3 w-full flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold uppercase text-[10px] tracking-wider py-2 shadow-sm hover:bg-blue-700 active:scale-98 transition-all"
+                      className="mt-1 w-full flex items-center justify-center gap-1.5 rounded-xl bg-blue-600 text-white font-bold uppercase text-[10px] tracking-wider py-2 shadow-sm hover:bg-blue-700 active:scale-98 transition-all"
                     >
                       <Navigation size={10} /> Get Directions
                     </a>
