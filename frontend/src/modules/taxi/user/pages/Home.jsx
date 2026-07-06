@@ -579,10 +579,10 @@ const Home = () => {
   const rentalTimerLabel = serviceType === 'rental' ? formatRentalTime(rentalElapsedSeconds) : '';
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] pb-28 w-full relative overflow-hidden font-sans no-scrollbar">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F3F4F6_38%,#EEF2F7_100%)] pb-14 w-full relative overflow-hidden font-sans no-scrollbar">
       <div className="absolute -top-16 right-[-40px] h-44 w-44 rounded-full bg-orange-100/60 blur-3xl pointer-events-none" />
       <div className="absolute top-52 left-[-60px] h-52 w-52 rounded-full bg-emerald-100/60 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-28 right-[-40px] h-40 w-40 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-8 right-[-40px] h-40 w-40 rounded-full bg-blue-100/60 blur-3xl pointer-events-none" />
 
       {/* Scoped CSS for Driving Animation */}
       <style>{`
@@ -965,10 +965,10 @@ const Home = () => {
         </div>
 
         {/* Footer section with Partner logos & City Silhouette */}
-        <div className="relative w-full pt-1 pb-12 overflow-hidden">
+        <div className="relative w-full pt-1 pb-0 overflow-hidden">
 
           {/* City skyline illustration */}
-          <div className="relative w-full h-24 mt-6 pointer-events-none select-none">
+          <div className="relative w-full h-24 mt-1 pointer-events-none select-none">
             <svg
               className="absolute bottom-0 inset-x-0 w-full h-full text-slate-200/50"
               viewBox="0 0 500 100"
