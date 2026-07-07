@@ -1,13 +1,13 @@
-import Blog from '../models/Blog.js';
+import Article from '../models/Article.js';
 import { uploadToCloudinary } from '../../../utils/cloudinary.js';
 
-// Get all blogs
-export const getAllBlogs = async (req, res) => {
+// Get all articles
+export const getAllArticles = async (req, res) => {
   try {
-    const blogs = await Blog.find({ isActive: true }).sort({ createdAt: -1 });
+    const articles = await Article.find({ isActive: true }).sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
-      data: blogs
+      data: articles
     });
   } catch (error) {
     res.status(500).json({
@@ -17,15 +17,15 @@ export const getAllBlogs = async (req, res) => {
   }
 };
 
-// Create a new blog
-export const createBlog = async (req, res) => {
+// Create a new article
+export const createArticle = async (req, res) => {
   try {
-    const { title, category = 'Travel Guides', readTime = '5 min read', badge = 'NEW', excerpt, content } = req.body;
+    const { title, excerpt, content } = req.body;
     let imageUrl = req.body.image; // Fallback to URL if provided
 
     // If a file is uploaded, use Cloudinary
     if (req.file) {
-      const uploadResult = await uploadToCloudinary(req.file.path, 'blogs');
+      const uploadResult = await uploadToCloudinary(req.file.path, 'articles');
       imageUrl = uploadResult.url;
     }
 
@@ -36,21 +36,18 @@ export const createBlog = async (req, res) => {
       });
     }
     
-    const newBlog = new Blog({
+    const newArticle = new Article({
       title,
-      category,
-      readTime,
-      badge,
       image: imageUrl,
       excerpt,
       content
     });
 
-    await newBlog.save();
+    await newArticle.save();
 
     res.status(201).json({
       success: true,
-      data: newBlog
+      data: newArticle
     });
   } catch (error) {
     res.status(500).json({
@@ -60,30 +57,30 @@ export const createBlog = async (req, res) => {
   }
 };
 
-// Update a blog
-export const updateBlog = async (req, res) => {
+// Update an article
+export const updateArticle = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = { ...req.body };
 
     // If a new file is uploaded, update image on Cloudinary
     if (req.file) {
-      const uploadResult = await uploadToCloudinary(req.file.path, 'blogs');
+      const uploadResult = await uploadToCloudinary(req.file.path, 'articles');
       updateData.image = uploadResult.url;
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(id, updateData, { new: true });
+    const updatedArticle = await Article.findByIdAndUpdate(id, updateData, { new: true });
 
-    if (!updatedBlog) {
+    if (!updatedArticle) {
       return res.status(404).json({
         success: false,
-        message: 'Blog not found'
+        message: 'Article not found'
       });
     }
 
     res.status(200).json({
       success: true,
-      data: updatedBlog
+      data: updatedArticle
     });
   } catch (error) {
     res.status(500).json({
@@ -93,22 +90,22 @@ export const updateBlog = async (req, res) => {
   }
 };
 
-// Delete a blog
-export const deleteBlog = async (req, res) => {
+// Delete an article
+export const deleteArticle = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedBlog = await Blog.findByIdAndDelete(id);
+    const deletedArticle = await Article.findByIdAndDelete(id);
 
-    if (!deletedBlog) {
+    if (!deletedArticle) {
       return res.status(404).json({
         success: false,
-        message: 'Blog not found'
+        message: 'Article not found'
       });
     }
 
     res.status(200).json({
       success: true,
-      message: 'Blog deleted successfully'
+      message: 'Article deleted successfully'
     });
   } catch (error) {
     res.status(500).json({
@@ -117,4 +114,3 @@ export const deleteBlog = async (req, res) => {
     });
   }
 };
-

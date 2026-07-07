@@ -50,6 +50,8 @@ const PrivacyPage = React.lazy(() => import('./pages/user/PrivacyPage'));
 const AboutPage = React.lazy(() => import('./pages/user/AboutPage'));
 const ContactPage = React.lazy(() => import('./pages/user/ContactPage'));
 const BlogsPage = React.lazy(() => import('./pages/user/BlogsPage'));
+const ArticlesPage = React.lazy(() => import('./pages/user/ArticlesPage'));
+const ArticleDetail = React.lazy(() => import('./pages/user/ArticleDetail'));
 const AmenitiesPage = React.lazy(() => import('./pages/user/AmenitiesPage'));
 const ReviewsPage = React.lazy(() => import('./pages/user/ReviewsPage'));
 const OffersPage = React.lazy(() => import('./pages/user/OffersPage'));
@@ -76,6 +78,8 @@ const CMSTravelTips = React.lazy(() => import('./app/cms-admin/pages/CMSTravelTi
 const CMSCategories = React.lazy(() => import('./app/cms-admin/pages/CMSCategories'));
 const CMSEssentialAccessories = React.lazy(() => import('./app/cms-admin/pages/CMSEssentialAccessories'));
 const CMSAboutUs = React.lazy(() => import('./app/cms-admin/pages/CMSAboutUs'));
+const CMSBlogs = React.lazy(() => import('./app/cms-admin/pages/CMSBlogs'));
+const CMSArticles = React.lazy(() => import('./app/cms-admin/pages/CMSArticles'));
 
 // Lazy Imports - Admin Pages
 const AdminLogin = React.lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
@@ -282,7 +286,7 @@ const Layout = ({ children }) => {
   }, []);
 
   // 1. GLOBAL HIDE: Auth pages, Admin, and Property Wizard
-  const globalHideRoutes = ['/login', '/signup', '/register', '/admin', '/cms-admin', '/hotel/join', '/welcome'];
+  const globalHideRoutes = ['/login', '/signup', '/register', '/admin', '/cms-admin', '/hotel/join', '/welcome', '/articles', '/blogs'];
   
   // Only hide for Vendor/Admin routes inside Wedding and Taxi
   const isWeddingHiddenRoute = location.pathname.startsWith('/wedding/admin') || location.pathname.startsWith('/wedding/vendor');
@@ -290,6 +294,14 @@ const Layout = ({ children }) => {
   
   const isWeddingRoute = location.pathname.startsWith('/wedding');
   const isTaxiRoute = location.pathname.startsWith('/taxi');
+  const isMarketingRoute = location.pathname.startsWith('/about') || 
+                           location.pathname.startsWith('/contact') || 
+                           location.pathname.startsWith('/careers') || 
+                           location.pathname.startsWith('/blogs') || 
+                           location.pathname.startsWith('/articles') || 
+                           location.pathname.startsWith('/legal') || 
+                           location.pathname.startsWith('/terms') || 
+                           location.pathname.startsWith('/privacy');
   
   const shouldGlobalHide = location.pathname === '/' || globalHideRoutes.some(route => location.pathname.includes(route)) || isWeddingHiddenRoute || isTaxiHiddenRoute;
 
@@ -328,7 +340,7 @@ const Layout = ({ children }) => {
     <>
       {showUserNavs && <TopNavbar />}
 
-      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-20 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : 'hotel-module'}`}>
+      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-20 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : isMarketingRoute ? 'marketing-module' : 'hotel-module'}`}>
         {showMaintenanceOverlay ? (
           <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-6 py-10 text-center bg-gradient-to-b from-[#111827] via-[#0f172a] to-black">
             <div className="flex flex-col items-center justify-center max-w-md w-full">
@@ -824,6 +836,8 @@ function App() {
               <Route path="about-us" element={<CMSAboutUs />} />
               <Route path="footer" element={<CMSFooter />} />
               <Route path="applications" element={<CMSCareerApplications />} />
+              <Route path="blogs" element={<CMSBlogs />} />
+              <Route path="articles" element={<CMSArticles />} />
             </Route>
 
             {/* Admin Auth Routes */}
@@ -882,6 +896,8 @@ function App() {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/blogs" element={<BlogsPage />} />
               <Route path="/blogs/:id" element={<BlogDetail />} />
+              <Route path="/articles" element={<ArticlesPage />} />
+              <Route path="/articles/:id" element={<ArticleDetail />} />
               <Route path="/manage-blogs" element={<BlogManager />} />
               <Route path="/serviced" element={<div className="pt-20 text-center text-surface font-bold">Serviced Page</div>} />
             </Route>

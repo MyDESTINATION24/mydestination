@@ -32,7 +32,7 @@ const ExclusiveOffers = () => {
                 <div className="h-5 w-40 bg-gray-100 rounded animate-pulse mb-3"></div>
                 <div className="flex gap-3 overflow-x-auto no-scrollbar">
                     {[1, 2].map(i => (
-                        <div key={i} className="min-w-[180px] h-[96px] bg-gray-100 rounded-xl animate-pulse flex items-center justify-center">
+                        <div key={i} className="w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] flex-shrink-0 h-[96px] bg-gray-100 rounded-xl animate-pulse flex items-center justify-center">
                             <Loader2 className="text-gray-200 animate-spin" size={16} />
                         </div>
                     ))}
@@ -44,9 +44,6 @@ const ExclusiveOffers = () => {
     if (error || (offers.length === 0 && !loading)) {
         return null; // Don't show section if no offers or error
     }
-
-    // Duplicate offers list for seamless infinite loop
-    const loopedOffers = [...offers, ...offers];
 
     const handleOfferClick = (offer) => {
         navigator.clipboard.writeText(offer.code);
@@ -61,20 +58,14 @@ const ExclusiveOffers = () => {
                 <div className="bg-accent/10 px-1.5 py-0.5 rounded text-[9px] font-bold text-accent">NEW</div>
             </h2>
 
-            {/* Infinite auto-scroll container */}
-            <div className="flex w-full overflow-hidden">
-                <div
-                    className="flex gap-3 pl-5"
-                    style={{
-                        animation: `marquee ${offers.length * 4}s linear infinite`,
-                        width: 'max-content'
-                    }}
-                >
-                    {loopedOffers.map((offer, idx) => (
+            {/* Horizontal manual scroll container */}
+            <div className="flex w-full overflow-x-auto no-scrollbar pb-3">
+                <div className="flex gap-3 px-5">
+                    {offers.map((offer) => (
                         <div
-                            key={`${offer._id || offer.id}-${idx}`}
+                            key={offer._id || offer.id}
                             onClick={() => handleOfferClick(offer)}
-                            className="relative min-w-[180px] h-[96px] rounded-xl overflow-hidden shadow-md shadow-gray-200/50 cursor-pointer flex-shrink-0 active:scale-95 transition-transform"
+                            className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] rounded-xl overflow-hidden shadow-md shadow-gray-200/50 cursor-pointer flex-shrink-0 active:scale-95 transition-transform"
                         >
                             {/* Background Image */}
                             <img
@@ -104,14 +95,6 @@ const ExclusiveOffers = () => {
                     ))}
                 </div>
             </div>
-
-            {/* Keyframe for continuous marquee scroll */}
-            <style>{`
-                @keyframes marquee {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
-                }
-            `}</style>
         </section>
     );
 };
