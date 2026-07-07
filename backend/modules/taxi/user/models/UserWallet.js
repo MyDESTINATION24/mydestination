@@ -56,13 +56,11 @@ const userWalletSchema = new mongoose.Schema(
     balance: {
       type: Number,
       default: 0,
-      min: 0,
       index: true,
     },
     refundWallet: {
       type: Number,
       default: 0,
-      min: 0,
     },
     transactions: {
       type: [walletTransactionSchema],

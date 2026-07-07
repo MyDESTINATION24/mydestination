@@ -85,7 +85,7 @@ const normalizeServiceType = (serviceType) => {
   return ['parcel', 'intercity'].includes(normalized) ? normalized : 'ride';
 };
 
-const ensureUserWallet = async (userId) => {
+const ensureUserWallet = async (userId, session = null) => {
   if (!userId) {
     return;
   }
@@ -93,7 +93,7 @@ const ensureUserWallet = async (userId) => {
   await UserWallet.updateOne(
     { userId },
     { $setOnInsert: { userId, balance: 0, refundWallet: 0, transactions: [] } },
-    { upsert: true },
+    { upsert: true, session },
   );
 };
 
@@ -121,7 +121,7 @@ const getDriverReferralProgramSettings = async () => {
   };
 };
 
-const creditUserWalletByReference = async ({ userId, amount, title, referenceKey }) => {
+const creditUserWalletByReference = async ({ userId, amount, title, referenceKey, session = null }) => {
   const normalizedAmount = Math.max(0, Number(amount || 0) || 0);
   const normalizedReferenceKey = String(referenceKey || '').trim();
 
@@ -129,12 +129,13 @@ const creditUserWalletByReference = async ({ userId, amount, title, referenceKey
     return 'skipped';
   }
 
-  await ensureUserWallet(userId);
+  await ensureUserWallet(userId, session);
 
   const existingTransaction = await UserWallet.findOne({
     userId,
     'transactions.referenceKey': normalizedReferenceKey,
   })
+    .session(session)
     .select('_id')
     .lean();
 
@@ -160,12 +161,13 @@ const creditUserWalletByReference = async ({ userId, amount, title, referenceKey
         },
       },
     },
+    { session },
   );
 
   return 'credited';
 };
 
-const creditDriverWalletByReference = async ({ driverId, amount, title, referenceKey, metadata = {} }) => {
+const creditDriverWalletByReference = async ({ driverId, amount, title, referenceKey, session = null, metadata = {} }) => {
   const normalizedAmount = Math.max(0, Number(amount || 0) || 0);
   const normalizedReferenceKey = String(referenceKey || '').trim();
 
@@ -177,6 +179,7 @@ const creditDriverWalletByReference = async ({ driverId, amount, title, referenc
     driverId,
     'metadata.referenceKey': normalizedReferenceKey,
   })
+    .session(session)
     .select('_id')
     .lean();
 
@@ -194,17 +197,21 @@ const creditDriverWalletByReference = async ({ driverId, amount, title, referenc
       referenceKey: normalizedReferenceKey,
       source: 'driver_referral',
     },
+    session,
   });
 
   return 'credited';
 };
 
-const processCompletedRideReferralReward = async (ride) => {
+const processCompletedRideReferralReward = async (ride, options = {}) => {
   if (!ride?.userId) {
     return;
   }
 
+  const session = options.session || null;
+
   const referredUser = await User.findById(ride.userId)
+    .session(session)
     .select('phone referredBy referredRideCompletionCount referralRewardGrantedAt')
     .lean();
 
@@ -225,13 +232,14 @@ const processCompletedRideReferralReward = async (ride) => {
     userId: ride.userId,
     status: RIDE_STATUS.COMPLETED,
     serviceType: { $in: ['ride', 'intercity'] },
-  });
+  }).session(session);
 
   const requiredRideCount = Math.max(1, settings.rideCount || 1);
 
   await User.updateOne(
     { _id: ride.userId },
     { $set: { referredRideCompletionCount: completedRideCount } },
+    { session },
   );
 
   if (completedRideCount < requiredRideCount || settings.amount <= 0) {
@@ -244,6 +252,7 @@ const processCompletedRideReferralReward = async (ride) => {
     amount: settings.amount,
     title: `Referral reward after ${completedRideCount} completed rides by ${referredUser.phone || 'referred user'}`,
     referenceKey: `${rewardBaseKey}:referrer`,
+    session,
   });
 
   let newUserResult = 'skipped';
@@ -253,6 +262,7 @@ const processCompletedRideReferralReward = async (ride) => {
       amount: settings.amount,
       title: `Referral completion reward after ${completedRideCount} rides`,
       referenceKey: `${rewardBaseKey}:new-user`,
+      session,
     });
   }
 
@@ -264,16 +274,20 @@ const processCompletedRideReferralReward = async (ride) => {
     await User.updateOne(
       { _id: ride.userId },
       { $set: { referralRewardGrantedAt: new Date(), referredRideCompletionCount: completedRideCount } },
+      { session },
     );
   }
 };
 
-const processCompletedDriverReferralReward = async (ride) => {
+const processCompletedDriverReferralReward = async (ride, options = {}) => {
   if (!ride?.driverId) {
     return;
   }
 
+  const session = options.session || null;
+
   const referredDriver = await Driver.findById(ride.driverId)
+    .session(session)
     .select('phone referredBy referredRideCompletionCount referralRewardGrantedAt')
     .lean();
 
@@ -293,13 +307,14 @@ const processCompletedDriverReferralReward = async (ride) => {
   const completedRideCount = await Ride.countDocuments({
     driverId: ride.driverId,
     status: RIDE_STATUS.COMPLETED,
-  });
+  }).session(session);
 
   const requiredRideCount = Math.max(1, settings.rideCount || 1);
 
   await Driver.updateOne(
     { _id: ride.driverId },
     { $set: { referredRideCompletionCount: completedRideCount } },
+    { session },
   );
 
   if (completedRideCount < requiredRideCount || settings.amount <= 0) {
@@ -312,10 +327,7 @@ const processCompletedDriverReferralReward = async (ride) => {
     amount: settings.amount,
     title: `Referral reward after ${completedRideCount} completed rides by ${referredDriver.phone || 'referred driver'}`,
     referenceKey: `${rewardBaseKey}:referrer`,
-    metadata: {
-      referredDriverId: String(ride.driverId),
-      completedRideCount,
-    },
+    session,
   });
 
   let newDriverResult = 'skipped';
@@ -329,6 +341,7 @@ const processCompletedDriverReferralReward = async (ride) => {
         referrerDriverId: String(referredDriver.referredBy),
         completedRideCount,
       },
+      session,
     });
   }
 
@@ -340,6 +353,7 @@ const processCompletedDriverReferralReward = async (ride) => {
     await Driver.updateOne(
       { _id: ride.driverId },
       { $set: { referralRewardGrantedAt: new Date(), referredRideCompletionCount: completedRideCount } },
+      { session },
     );
   }
 };
@@ -857,6 +871,11 @@ export const createRideRecord = async ({
 
   if (!user) {
     throw new ApiError(404, 'User not found');
+  }
+
+  const userWallet = await UserWallet.findOne({ userId });
+  if (userWallet && userWallet.balance < 0) {
+    throw new ApiError(402, `You have an outstanding negative wallet balance of ₹${Math.abs(userWallet.balance)}. Please clear it to book your next ride.`);
   }
 
   await clearUserActiveRideIfPresent(user);
@@ -1600,69 +1619,85 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
     throw new ApiError(400, 'Unsupported ride status');
   }
 
-  const ride = await Ride.findOne({ _id: rideId, driverId });
+  const session = await mongoose.startSession();
 
-  if (!ride) {
-    throw new ApiError(404, 'Assigned ride not found');
+  try {
+    session.startTransaction();
+
+    const ride = await Ride.findOne({ _id: rideId, driverId }).session(session);
+
+    if (!ride) {
+      throw new ApiError(404, 'Assigned ride not found');
+    }
+
+    if (!config.allowedCurrent.includes(ride.liveStatus)) {
+      throw new ApiError(409, `Ride cannot move from ${ride.liveStatus} to ${nextStatus}`);
+    }
+
+    ride.liveStatus = nextStatus;
+    ride.status = config.persistedStatus;
+
+    if (nextStatus === RIDE_LIVE_STATUS.ACCEPTED) {
+      ride.arrivedAt = null;
+    }
+
+    if (nextStatus === RIDE_LIVE_STATUS.ARRIVING && !ride.arrivedAt) {
+      ride.arrivedAt = new Date();
+    }
+
+    if (nextStatus === RIDE_LIVE_STATUS.STARTED && !ride.startedAt) {
+      ride.startedAt = new Date();
+    }
+
+    if (paymentMethod !== undefined && paymentMethod !== null && String(paymentMethod).trim()) {
+      ride.paymentMethod = normalizeRidePaymentMethod(paymentMethod);
+    }
+
+    if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
+      ride.completedAt = new Date();
+    }
+
+    await ride.save({ session });
+    await syncDeliveryWithRide(ride);
+
+    let walletUpdate = null;
+
+    if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
+      await Promise.all([
+        User.findByIdAndUpdate(ride.userId, { currentRideId: null }, { session }),
+        Driver.findByIdAndUpdate(driverId, { isOnRide: false }, { session }),
+      ]);
+
+      walletUpdate = await settleCompletedRideWallet({ rideId: ride._id }, { session });
+      await consumeUserSubscriptionRide({ ride, session });
+      const settledRide = await Ride.findById(ride._id).session(session).select('completedAt driverEarnings estimatedDistanceMeters');
+
+      await incrementDriverTodaySummaryForCompletedRide({
+        driverId,
+        completedAt: settledRide?.completedAt || ride.completedAt,
+        driverEarnings: settledRide?.driverEarnings,
+        distanceMeters: settledRide?.estimatedDistanceMeters,
+      }, { session });
+
+      await processCompletedRideReferralReward(ride, { session });
+      await processCompletedDriverReferralReward(ride, { session });
+    }
+
+    await session.commitTransaction();
+
+    const populatedRide = await populateRideRealtime(ride._id);
+    if (populatedRide) {
+      populatedRide.$locals = populatedRide.$locals || {};
+      populatedRide.$locals.walletUpdate = walletUpdate;
+    }
+
+    return populatedRide;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  if (!config.allowedCurrent.includes(ride.liveStatus)) {
-    throw new ApiError(409, `Ride cannot move from ${ride.liveStatus} to ${nextStatus}`);
-  }
-
-  ride.liveStatus = nextStatus;
-  ride.status = config.persistedStatus;
-
-  if (nextStatus === RIDE_LIVE_STATUS.ACCEPTED) {
-    ride.arrivedAt = null;
-  }
-
-  if (nextStatus === RIDE_LIVE_STATUS.ARRIVING && !ride.arrivedAt) {
-    ride.arrivedAt = new Date();
-  }
-
-  if (nextStatus === RIDE_LIVE_STATUS.STARTED && !ride.startedAt) {
-    ride.startedAt = new Date();
-  }
-
-  if (paymentMethod !== undefined && paymentMethod !== null && String(paymentMethod).trim()) {
-    ride.paymentMethod = normalizeRidePaymentMethod(paymentMethod);
-  }
-
-  if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
-    ride.completedAt = new Date();
-  }
-
-  await ride.save();
-  await syncDeliveryWithRide(ride);
-
-  let walletUpdate = null;
-
-  if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
-    await Promise.all([
-      User.findByIdAndUpdate(ride.userId, { currentRideId: null }),
-      Driver.findByIdAndUpdate(driverId, { isOnRide: false }),
-    ]);
-
-    walletUpdate = await settleCompletedRideWallet({ rideId: ride._id });
-    await consumeUserSubscriptionRide({ ride });
-    const settledRide = await Ride.findById(ride._id).select('completedAt driverEarnings estimatedDistanceMeters');
-
-    await incrementDriverTodaySummaryForCompletedRide({
-      driverId,
-      completedAt: settledRide?.completedAt || ride.completedAt,
-      driverEarnings: settledRide?.driverEarnings,
-      distanceMeters: settledRide?.estimatedDistanceMeters,
-    });
-
-    await processCompletedRideReferralReward(ride);
-    await processCompletedDriverReferralReward(ride);
-  }
-
-  const populatedRide = await populateRideRealtime(ride._id);
-  populatedRide.$locals.walletUpdate = walletUpdate;
-
-  return populatedRide;
 };
 
 export const appendRideMessage = async ({ rideId, role, senderId, message }) => {

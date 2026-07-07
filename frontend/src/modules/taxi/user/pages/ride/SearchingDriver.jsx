@@ -220,6 +220,7 @@ const SearchingDriver = () => {
     [routeState],
   );
   const activeRideIdRef = useRef('');
+  const isCancelledRef = useRef(false);
   const searchNonce = String(routeState.searchNonce || '');
   const isDriverBidRide = biddingSummary.pricingNegotiationMode === 'driver_bid';
   const isUserIncrementRide = biddingSummary.pricingNegotiationMode === 'user_increment_only';
@@ -634,7 +635,15 @@ const SearchingDriver = () => {
           scheduledAt: routeState.scheduledAt || null,
         }, rideRequestConfig);
 
-        if (disposed) {
+        if (disposed || isCancelledRef.current) {
+          const payload = response?.data || response;
+          const ride = payload?.data?.ride || payload?.ride || payload;
+          const rideId = ride?._id || ride?.id || payload?.realtime?.rideId;
+          if (rideId) {
+            api.patch(`/rides/${rideId}/cancel`).catch((err) => {
+              console.error('Failed to cancel phantom ride request:', err);
+            });
+          }
           return;
         }
 
@@ -747,6 +756,7 @@ const SearchingDriver = () => {
 
   const handleCancel = async () => {
     clearTimeout(timerRef.current);
+    isCancelledRef.current = true;
 
     const rideId = activeRideIdRef.current;
 

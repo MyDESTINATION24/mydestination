@@ -164,14 +164,14 @@ export const syncDriverTodaySummaryDocument = async (driver, { now = new Date() 
   return nextSummary;
 };
 
-export const incrementDriverTodaySummaryForCompletedRide = async ({ driverId, completedAt, driverEarnings, distanceMeters }) => {
+export const incrementDriverTodaySummaryForCompletedRide = async ({ driverId, completedAt, driverEarnings, distanceMeters }, options = {}) => {
   if (!driverId) {
     return;
   }
 
   const now = completedAt ? new Date(completedAt) : new Date();
   const todayKey = toIstDayKey(now);
-  const driver = await Driver.findById(driverId).select('_id todaySummary incentiveTracking');
+  const driver = await Driver.findById(driverId).session(options.session).select('_id todaySummary incentiveTracking');
 
   if (!driver) {
     return;
@@ -194,5 +194,6 @@ export const incrementDriverTodaySummaryForCompletedRide = async ({ driverId, co
         todaySummary: nextSummary,
       },
     },
+    { session: options.session },
   );
 };
