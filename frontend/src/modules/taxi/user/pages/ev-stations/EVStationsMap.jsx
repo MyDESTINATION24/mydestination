@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../../admin/utils/googleMaps';
 import { getClosestEVStations } from '../../services/evStationService';
-import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
+import evStationImg from '@/assets/3d images/AutoCab/ev_station_marker.png';
 
 const EVStationsMap = () => {
   const navigate = useNavigate();
