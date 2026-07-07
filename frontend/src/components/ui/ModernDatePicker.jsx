@@ -10,7 +10,8 @@ const ModernDatePicker = ({
     minDate,
     placeholder = "Select Date",
     onClear,
-    align = "left"
+    align = "left",
+    customTrigger
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(date ? new Date(date) : new Date());
@@ -55,21 +56,21 @@ const ModernDatePicker = ({
 
     const renderHeader = () => {
         return (
-            <div className="flex items-center justify-between mb-4 px-2">
+            <div className="flex items-center justify-between mb-2 px-1">
                 <button
                     onClick={(e) => { e.stopPropagation(); prevMonth(); }}
                     className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 >
-                    <ChevronLeft size={20} className="text-gray-600" />
+                    <ChevronLeft size={16} className="text-gray-600" />
                 </button>
-                <div className="font-bold text-gray-800 text-sm">
+                <div className="font-bold text-gray-800 text-xs">
                     {format(currentMonth, 'MMMM yyyy')}
                 </div>
                 <button
                     onClick={(e) => { e.stopPropagation(); nextMonth(); }}
                     className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 >
-                    <ChevronRight size={20} className="text-gray-600" />
+                    <ChevronRight size={16} className="text-gray-600" />
                 </button>
             </div>
         );
@@ -82,13 +83,13 @@ const ModernDatePicker = ({
 
         for (let i = 0; i < 7; i++) {
             days.push(
-                <div key={i} className="text-[10px] uppercase font-bold text-gray-400 text-center py-2">
+                <div key={i} className="text-[9px] uppercase font-bold text-gray-400 text-center py-1">
                     {format(addDays(startDate, i), dateFormat)}
                 </div>
             );
         }
 
-        return <div className="grid grid-cols-7 mb-2">{days}</div>;
+        return <div className="grid grid-cols-7 mb-1">{days}</div>;
     };
 
     const renderCells = () => {
@@ -115,9 +116,9 @@ const ModernDatePicker = ({
                     <div
                         key={day}
                         className={`
-                            relative h-9 rounded-lg flex items-center justify-center text-sm cursor-pointer transition-all
+                            relative h-7.5 rounded-md flex items-center justify-center text-xs cursor-pointer transition-all
                             ${!isCurrentMonth ? "text-gray-300" : isDisabled ? "text-gray-300 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"}
-                            ${isSelected ? "bg-surface text-white hover:bg-surface font-bold shadow-md" : ""}
+                            ${isSelected ? "bg-surface text-white hover:bg-surface font-bold shadow-sm" : ""}
                             ${isToday(day) && !isSelected ? "border border-surface text-surface font-bold" : ""}
                         `}
                         onClick={(e) => {
@@ -131,7 +132,7 @@ const ModernDatePicker = ({
                 day = addDays(day, 1);
             }
             rows.push(
-                <div className="grid grid-cols-7 gap-1 mb-1" key={day}>
+                <div className="grid grid-cols-7 gap-0.5 mb-0.5" key={day}>
                     {days}
                 </div>
             );
@@ -144,28 +145,34 @@ const ModernDatePicker = ({
         <div className="relative" ref={containerRef}>
             {label && <label className="text-xs text-gray-500 block mb-1 font-medium">{label}</label>}
 
-            <div
-                onClick={() => setIsOpen(!isOpen)}
-                className={`
-                    w-full bg-white border rounded-xl p-2.5 text-sm flex items-center justify-between cursor-pointer transition-all
-                    ${isOpen ? 'border-surface ring-2 ring-surface/10' : 'border-gray-200 hover:border-surface/50'}
-                `}
-            >
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <Calendar size={16} className={`shrink-0 ${date ? 'text-surface' : 'text-gray-400'}`} />
-                    <span className={`truncate ${date ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
-                        {date ? format(new Date(date), 'dd MMM, yyyy') : placeholder}
-                    </span>
+            {customTrigger ? (
+                <div onClick={() => setIsOpen(!isOpen)} className="w-full cursor-pointer">
+                    {customTrigger(isOpen)}
                 </div>
-                {date && onClear && (
-                    <div
-                        onClick={(e) => { e.stopPropagation(); onClear(); }}
-                        className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-red-500 transition-colors"
-                    >
-                        <X size={14} />
+            ) : (
+                <div
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`
+                        w-full bg-white border rounded-xl p-2.5 text-sm flex items-center justify-between cursor-pointer transition-all
+                        ${isOpen ? 'border-surface ring-2 ring-surface/10' : 'border-gray-200 hover:border-surface/50'}
+                    `}
+                >
+                    <div className="flex items-center gap-2 overflow-hidden">
+                        <Calendar size={16} className={`shrink-0 ${date ? 'text-surface' : 'text-gray-400'}`} />
+                        <span className={`truncate ${date ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+                            {date ? format(new Date(date), 'dd MMM, yyyy') : placeholder}
+                        </span>
                     </div>
-                )}
-            </div>
+                    {date && onClear && (
+                        <div
+                            onClick={(e) => { e.stopPropagation(); onClear(); }}
+                            className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                            <X size={14} />
+                        </div>
+                    )}
+                </div>
+            )}
 
             <AnimatePresence>
                 {isOpen && (
@@ -174,7 +181,7 @@ const ModernDatePicker = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className={`absolute top-full z-50 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-[280px] sm:w-[320px] ${align === 'right' ? 'right-0' : 'left-0'}`}
+                        className={`absolute top-full z-50 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 p-3 w-[240px] sm:w-[260px] ${align === 'right' ? 'right-0' : 'left-0'}`}
                     >
                         {renderHeader()}
                         {renderDays()}

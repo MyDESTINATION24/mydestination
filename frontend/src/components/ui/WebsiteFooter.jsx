@@ -136,15 +136,14 @@ const WebsiteFooter = () => {
         </div>
       </div>
 
-      {/* Copyright + Payment Bar */}
-      <div className="bg-white border-t border-gray-200 py-2 -mx-6 -mb-8 md:-mx-8 md:-mb-8">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:grid md:grid-cols-4 items-center justify-center gap-2 md:gap-6">
+      <div className="bg-white border-t border-gray-200 py-2 -mx-6 -mb-8 md:-mx-8 md:-mb-8 px-6 md:px-8">
+        <div className="max-w-7xl mx-auto flex flex-col md:grid md:grid-cols-4 items-center gap-2 md:gap-8 w-full">
           <p className="m-0 text-[8px] text-[#065f46] font-medium text-center md:text-left md:col-span-3">
             Copyright &copy; {new Date().getFullYear()}{' '}
             <strong className="text-[#065f46] font-bold text-[9px] tracking-wide">My DESTINATION<sup className="text-[6px]">®</sup></strong>
             {' '}<span className="font-medium">| All Rights Reserved.</span>
           </p>
-          <div className="flex items-center justify-center md:justify-start flex-wrap gap-1 md:col-span-1">
+          <div className="flex items-center justify-center md:justify-start flex-nowrap gap-1 md:col-span-1">
             {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
               <div style={{ background: '#f8f9fa', borderRadius: '3px', padding: '1px 3px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px', border: '1px solid #e5e7eb' }}>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" style={{ height: '7px', objectFit: 'contain' }} />
