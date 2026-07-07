@@ -1178,6 +1178,7 @@ function App() {
                 <Route path="airways/routes" element={<AdminAirwaysRouteManager />} />
                 <Route path="airways/routes/create" element={<AdminAirwaysRouteManager mode="create" />} />
                 <Route path="airways/routes/edit/:id" element={<AdminAirwaysRouteManager mode="edit" />} />
+                <Route path="airways/routes/details/:id" element={<AdminAirwaysRouteManager mode="details" />} />
                 <Route path="airways/bookings" element={<AdminAirwaysBookingManager />} />
                 <Route path="tours" element={<AdminTourManager />} />
                 <Route path="tours/create" element={<AdminTourManager mode="create" />} />
