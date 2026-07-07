@@ -4,7 +4,6 @@ import {
   ArrowLeft, 
   MapPin, 
   Zap, 
-  BatteryCharging, 
   Search, 
   Navigation, 
   RefreshCw, 
@@ -16,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../../admin/utils/googleMaps';
 import { getClosestEVStations } from '../../services/evStationService';
-import evStationImg from '@/assets/3d images/AutoCab/ev_station_marker.png';
+import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
 
 const EVStationsMap = () => {
   const navigate = useNavigate();
@@ -130,7 +129,7 @@ const EVStationsMap = () => {
           </button>
           <div>
             <h1 className="text-lg font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-              <BatteryCharging size={22} className="text-blue-600 animate-pulse" />
+              <img src={evStationImg} alt="EV Station" className="w-6 h-6 object-contain" />
               EV Charging Network
             </h1>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Find charging stations near you</p>
