@@ -42,13 +42,13 @@ const ProfileEdit = () => {
           email: user.email || '',
           profileImage: user.profileImage || '',
           profileImagePublicId: user.profileImagePublicId || '',
-          address: user.address || {
-            street: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            country: 'India',
-            coordinates: { lat: null, lng: null }
+          address: {
+            street: user.address?.street || '',
+            city: user.address?.city || '',
+            state: user.address?.state || '',
+            zipCode: user.address?.zipCode || '',
+            country: user.address?.country || 'India',
+            coordinates: user.address?.coordinates || { lat: null, lng: null }
           }
         });
       } catch (error) {

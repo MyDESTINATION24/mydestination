@@ -29,13 +29,13 @@ const resolveSeatPrice = (bus, seat) => {
 
 const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
   if (!rows?.length) return null;
-
+ 
   return (
-    <div className="w-full bg-white rounded-[28px] p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] border border-slate-100">
-      <div className="flex justify-between items-center mb-5 pb-5 border-b border-dashed border-slate-100">
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] px-2 py-1 bg-slate-50 rounded">{title}</span>
-        <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-r-transparent border-b-transparent transform rotate-45 flex items-center justify-center">
-          <div className="w-6 h-6 rounded-full border-2 border-slate-200" />
+    <div className="w-full bg-white rounded-[28px] p-5 shadow-[0_8px_30px_rgba(15,23,42,0.03)] border border-bus-light-border/40">
+      <div className="flex justify-between items-center mb-5 pb-5 border-b border-dashed border-bus-light-border/50">
+        <span className="text-[10px] font-black text-bus-dark uppercase tracking-[0.2em] px-2 py-1 bg-bus-light rounded">{title}</span>
+        <div className="w-10 h-10 rounded-full border-4 border-bus-light-border border-r-transparent border-b-transparent transform rotate-45 flex items-center justify-center">
+          <div className="w-6 h-6 rounded-full border-2 border-bus-light-border" />
         </div>
       </div>
 
@@ -64,12 +64,12 @@ const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
                   onClick={() => onToggle(seat)}
                   className={`relative flex w-full items-center justify-center border-2 transition-all ${
                     isBooked
-                      ? 'cursor-not-allowed border-slate-300 bg-slate-200'
+                      ? 'cursor-not-allowed border-slate-200 bg-slate-100'
                       : isSelected
-                        ? 'border-slate-900 bg-slate-900 shadow-[0_6px_16px_rgba(2,6,23,0.22)]'
+                        ? 'border-bus-primary bg-bus-primary shadow-[0_6px_16px_rgba(249,115,22,0.22)]'
                         : isSleeper
-                          ? 'border-blue-200 bg-blue-50 hover:border-blue-300'
-                          : 'border-slate-300 bg-white hover:border-orange-300'
+                          ? 'border-bus-light-border bg-bus-light hover:border-bus-accent/60'
+                          : 'border-slate-200 bg-white hover:border-bus-accent'
                   }`}
                   style={{
                     minHeight: isSleeper ? '52px' : '44px',
@@ -82,13 +82,13 @@ const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
                     <>
                       <div
                         className={`absolute left-1.5 top-1/2 h-[72%] w-2 -translate-y-1/2 rounded-full transition-colors ${
-                          isBooked ? 'bg-slate-400' : isSelected ? 'bg-orange-300' : 'bg-blue-200'
+                          isBooked ? 'bg-slate-300' : isSelected ? 'bg-bus-accent' : 'bg-bus-medium/40'
                         }`}
                       />
                       <div className="flex w-full items-center justify-center px-3 pl-5">
                         <span
                           className={`text-[10px] font-black leading-none ${
-                            isSelected ? 'text-white' : isBooked ? 'text-slate-500' : 'text-slate-700'
+                            isSelected ? 'text-white' : isBooked ? 'text-slate-400' : 'text-bus-dark'
                           }`}
                         >
                           {seat.label || seat.id}
@@ -97,8 +97,8 @@ const SeatDeck = ({ title, rows, selectedSeatIds, onToggle }) => {
                     </>
                   ) : (
                     <>
-                      <div className={`absolute -top-1 h-2 w-full rounded-t-sm transition-colors ${isBooked ? 'bg-slate-400' : isSelected ? 'bg-orange-400' : 'bg-slate-200'}`} />
-                      <span className={`text-[9px] font-black leading-none ${isSelected ? 'text-white' : isBooked ? 'text-slate-500' : 'text-slate-600'}`}>
+                      <div className={`absolute -top-1 h-2 w-full rounded-t-sm transition-colors ${isBooked ? 'bg-slate-300' : isSelected ? 'bg-bus-accent' : 'bg-bus-light-border'}`} />
+                      <span className={`text-[9px] font-black leading-none ${isSelected ? 'text-white' : isBooked ? 'text-slate-400' : 'text-bus-dark'}`}>
                         {seat.label || seat.id}
                       </span>
                     </>
@@ -173,32 +173,32 @@ const BusSeats = () => {
   const totalFare = selectedSeats.reduce((sum, seat) => sum + Number(seat.price || 0), 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32">
-      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
+    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32">
+      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
+            className="w-9 h-9 rounded-xl border border-bus-light-border bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
           >
-            <ArrowLeft size={18} className="text-slate-900" />
+            <ArrowLeft size={18} className="text-bus-darker" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-slate-900 truncate">Select Seats</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            <h1 className="text-lg font-bold text-bus-darker truncate">Select Seats</h1>
+            <p className="text-[10px] font-bold text-bus-dark/60 uppercase tracking-wider mt-0.5">
               {bus?.operator} • {fromCity} to {toCity}
             </p>
           </div>
         </div>
       </div>
-
+ 
       <div className="px-5 pt-6 space-y-6">
         {loading ? (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-12 flex flex-col items-center gap-4 text-slate-500">
-            <Loader2 size={32} className="animate-spin text-slate-400" />
-            <p className="text-sm font-bold text-slate-400">Loading seat map...</p>
+          <div className="bg-white rounded-3xl border border-bus-light-border/40 shadow-sm p-12 flex flex-col items-center gap-4 text-bus-dark/60">
+            <Loader2 size={32} className="animate-spin text-bus-primary" />
+            <p className="text-sm font-bold text-bus-dark/65">Loading seat map...</p>
           </div>
         ) : null}
-
+ 
         {!loading && error ? (
           <div className="bg-rose-50 border border-rose-100 rounded-2xl p-4 text-sm font-bold text-rose-600">
             {error}
@@ -220,55 +220,55 @@ const BusSeats = () => {
               onToggle={toggleSeat}
             />
 
-            <div className="grid grid-cols-2 gap-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+            <div className="grid grid-cols-2 gap-3 rounded-2xl border border-bus-light-border/40 bg-white p-4 shadow-sm">
               {seatLegend.map((item) => (
                 <div key={item.key} className="flex items-center gap-2">
                   <div
                     className={`h-4 w-4 ${
-                      item.key === 'sleeper' ? 'rounded-xl border border-blue-200 bg-blue-50' : 'rounded border-2'
+                      item.key === 'sleeper' ? 'rounded-xl border border-bus-light-border bg-bus-light' : 'rounded border-2'
                     } ${
                       item.key === 'available'
                         ? 'border-slate-200 bg-white'
                         : item.key === 'selected'
-                          ? 'border-slate-900 bg-slate-900'
+                          ? 'border-bus-primary bg-bus-primary'
                           : item.key === 'booked'
-                            ? 'border-slate-200 bg-slate-200'
+                            ? 'border-slate-200 bg-slate-100'
                             : ''
                     }`}
                   />
-                  <span className="text-[10px] font-bold uppercase text-slate-500">{item.label}</span>
+                  <span className="text-[10px] font-bold uppercase text-bus-dark/70">{item.label}</span>
                 </div>
               ))}
             </div>
           </>
         ) : null}
       </div>
-
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-slate-100 z-30">
+ 
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30">
         <AnimatePresence>
           {selectedSeats.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
-              className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between mb-4 border border-slate-100"
+              className="bg-bus-light rounded-2xl p-4 flex items-center justify-between mb-4 border border-bus-light-border/60"
             >
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <p className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider mb-1">
                   {selectedSeats.length} Seat{selectedSeats.length > 1 ? 's' : ''} Selected
                 </p>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-bus-darker">
                   {selectedSeats.map((seat) => seat.label || seat.id).join(', ')}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Total</p>
-                <p className="text-xl font-bold text-slate-900">₹{totalFare}</p>
+                <p className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider mb-1">Total</p>
+                <p className="text-xl font-bold text-bus-darker">₹{totalFare}</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
+ 
         <motion.button
           disabled={selectedSeats.length === 0 || !!error || loading}
           whileTap={{ scale: 0.98 }}
@@ -284,7 +284,7 @@ const BusSeats = () => {
           }
           className={`w-full py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 transition-all ${
             selectedSeats.length > 0 && !error && !loading
-              ? 'bg-slate-900 text-white shadow-lg active:scale-95'
+              ? 'bg-bus-primary text-white shadow-lg shadow-bus-primary/20 hover:bg-bus-primary-hover active:scale-95'
               : 'bg-slate-100 text-slate-400 cursor-not-allowed'
           }`}
         >

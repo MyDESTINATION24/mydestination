@@ -27,7 +27,7 @@ const services = [
     bgLight: 'bg-yellow-50',
     cardBg: 'bg-yellow-50/50',
     textColor: 'text-yellow-600',
-    path: '/taxi',
+    path: '/taxi/user',
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'
   },
   {

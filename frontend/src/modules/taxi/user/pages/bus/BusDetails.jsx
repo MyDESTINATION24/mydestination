@@ -232,67 +232,67 @@ const BusDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32">
-      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
+    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32">
+      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
+            className="w-9 h-9 rounded-xl border border-bus-light-border bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
           >
-            <ArrowLeft size={18} className="text-slate-900" />
+            <ArrowLeft size={18} className="text-bus-darker" />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-slate-900 truncate">Passenger Details</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            <h1 className="text-lg font-bold text-bus-darker truncate">Passenger Details</h1>
+            <p className="text-[10px] font-bold text-bus-dark/60 uppercase tracking-wider mt-0.5">
               {selectedSeats.length} Seat(s) • {fromCity} to {toCity}
             </p>
           </div>
         </div>
       </div>
-
+ 
       <div className="px-5 pt-6 space-y-6">
-        <div className="bg-slate-900 rounded-3xl p-6 text-white shadow-xl shadow-slate-200">
+        <div className="bg-gradient-to-br from-bus-primary to-bus-accent rounded-3xl p-6 text-white shadow-xl shadow-bus-primary/10">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{formatTravelDate(date)} • {bus.departure}</p>
+              <p className="text-[10px] font-bold text-bus-light/70 uppercase tracking-wider mb-2">{formatTravelDate(date)} • {bus.departure}</p>
               <h3 className="text-xl font-bold leading-tight">{bus.operator}</h3>
-              <p className="text-sm font-medium text-slate-400 mt-1">{bus.type}</p>
+              <p className="text-sm font-medium text-bus-light/80 mt-1">{bus.type}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Seats</p>
+              <p className="text-[10px] font-bold text-bus-light/70 uppercase tracking-wider mb-1">Seats</p>
               <p className="text-base font-bold">{selectedSeats.map((seat) => seat.label || seat.id).join(', ')}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
+ 
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-bus-light-border/40 space-y-6">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Primary Passenger</h3>
-              <p className="mt-1 text-xs font-semibold text-slate-500">Choose who is travelling, then confirm the details below.</p>
+              <h3 className="text-lg font-bold text-bus-darker">Primary Passenger</h3>
+              <p className="mt-1 text-xs font-semibold text-bus-dark/60">Choose who is travelling, then confirm the details below.</p>
             </div>
             {profileLoading ? (
-              <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">
+              <div className="flex items-center gap-2 rounded-full bg-bus-light px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-bus-primary">
                 <Loader2 size={12} className="animate-spin" /> Loading
               </div>
             ) : null}
           </div>
-
+ 
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={applySelfProfile}
               className={`rounded-2xl border px-4 py-3 text-left transition-all ${
                 travellerMode === 'self'
-                  ? 'border-slate-900 bg-slate-900 text-white shadow-lg'
-                  : 'border-slate-200 bg-slate-50 text-slate-700'
+                  ? 'border-bus-primary bg-bus-primary text-white shadow-lg shadow-bus-primary/20'
+                  : 'border-bus-light-border/80 bg-bus-light/50 text-bus-dark'
               }`}
             >
               <p className="text-[10px] font-black uppercase tracking-[0.18em]">Self</p>
-              <p className={`mt-1 text-sm font-black ${travellerMode === 'self' ? 'text-white' : 'text-slate-900'}`}>
+              <p className={`mt-1 text-sm font-black ${travellerMode === 'self' ? 'text-white' : 'text-bus-darker'}`}>
                 Use my profile
               </p>
-              <p className={`mt-1 text-[11px] font-semibold ${travellerMode === 'self' ? 'text-white/70' : 'text-slate-500'}`}>
+              <p className={`mt-1 text-[11px] font-semibold ${travellerMode === 'self' ? 'text-white/70' : 'text-bus-dark/60'}`}>
                 Name, phone, and email auto-fill from your account.
               </p>
             </button>
@@ -301,20 +301,20 @@ const BusDetails = () => {
               onClick={switchToSomeoneElse}
               className={`rounded-2xl border px-4 py-3 text-left transition-all ${
                 travellerMode === 'other'
-                  ? 'border-slate-900 bg-slate-900 text-white shadow-lg'
-                  : 'border-slate-200 bg-slate-50 text-slate-700'
+                  ? 'border-bus-primary bg-bus-primary text-white shadow-lg shadow-bus-primary/20'
+                  : 'border-bus-light-border/80 bg-bus-light/50 text-bus-dark'
               }`}
             >
               <p className="text-[10px] font-black uppercase tracking-[0.18em]">Other</p>
-              <p className={`mt-1 text-sm font-black ${travellerMode === 'other' ? 'text-white' : 'text-slate-900'}`}>
+              <p className={`mt-1 text-sm font-black ${travellerMode === 'other' ? 'text-white' : 'text-bus-darker'}`}>
                 Book for someone else
               </p>
-              <p className={`mt-1 text-[11px] font-semibold ${travellerMode === 'other' ? 'text-white/70' : 'text-slate-500'}`}>
+              <p className={`mt-1 text-[11px] font-semibold ${travellerMode === 'other' ? 'text-white/70' : 'text-bus-dark/60'}`}>
                 Enter passenger details manually.
               </p>
             </button>
           </div>
-
+ 
           {travellerMode === 'self' && profileData ? (
             <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[12px] font-bold text-emerald-700">
               {profileData.email
@@ -322,42 +322,42 @@ const BusDetails = () => {
                 : 'Profile phone and name are filled. Add an email if you want the e-ticket mailed too.'}
             </div>
           ) : null}
-
+ 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Full Name</label>
-              <div className="flex min-w-0 items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
-                <User size={16} className="shrink-0 text-slate-400" />
+              <label className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider ml-1">Full Name</label>
+              <div className="flex min-w-0 items-center gap-3 bg-bus-light/40 border border-bus-light-border/50 rounded-2xl px-4 py-3">
+                <User size={16} className="shrink-0 text-bus-accent" />
                 <input
                   type="text"
                   placeholder="Enter full name"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
             </div>
-
+ 
             <div className="flex gap-4">
               <div className="flex-1 space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Age</label>
+                <label className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider ml-1">Age</label>
                 <input
                   type="number"
                   placeholder="Age"
                   value={age}
                   onChange={(event) => setAge(event.target.value)}
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm font-bold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="w-full bg-bus-light/40 border border-bus-light-border/50 rounded-2xl px-4 py-3 text-sm font-bold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
               <div className="flex-[2] space-y-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Gender</label>
-                <div className="flex bg-slate-50 border border-slate-100 rounded-2xl p-1">
+                <label className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider ml-1">Gender</label>
+                <div className="flex bg-bus-light/40 border border-bus-light-border/50 rounded-2xl p-1">
                   {['Male', 'Female', 'Other'].map((item) => (
                     <button
                       key={item}
                       type="button"
                       onClick={() => setGender(item)}
-                      className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${gender === item ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                      className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${gender === item ? 'bg-white text-bus-darker shadow-sm' : 'text-bus-dark/70'}`}
                     >
                       {item}
                     </button>
@@ -367,43 +367,43 @@ const BusDetails = () => {
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
+ 
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-bus-light-border/40 space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-slate-900">Contact Info</h3>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 px-2 py-1 rounded-full">For e-ticket</span>
+            <h3 className="text-lg font-bold text-bus-darker">Contact Info</h3>
+            <span className="text-[9px] font-bold text-bus-dark/65 uppercase tracking-wider bg-bus-light px-2 py-1 rounded-full">For e-ticket</span>
           </div>
-
+ 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Mobile Number</label>
-              <div className="flex min-w-0 items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
-                <Phone size={16} className="shrink-0 text-slate-400" />
+              <label className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider ml-1">Mobile Number</label>
+              <div className="flex min-w-0 items-center gap-3 bg-bus-light/40 border border-bus-light-border/50 rounded-2xl px-4 py-3">
+                <Phone size={16} className="shrink-0 text-bus-accent" />
                 <input
                   type="tel"
                   placeholder="Mobile number"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
             </div>
-
+ 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">Email ID</label>
-              <div className="flex min-w-0 items-center gap-3 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3">
-                <Mail size={16} className="shrink-0 text-slate-400" />
+              <label className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider ml-1">Email ID</label>
+              <div className="flex min-w-0 items-center gap-3 bg-bus-light/40 border border-bus-light-border/50 rounded-2xl px-4 py-3">
+                <Mail size={16} className="shrink-0 text-bus-accent" />
                 <input
                   type="email"
                   placeholder="Email address"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="min-w-0 flex-1 bg-transparent text-sm font-bold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
             </div>
           </div>
-
+ 
           {error && (
             <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-xs font-bold text-rose-600">
               {error}
@@ -411,24 +411,24 @@ const BusDetails = () => {
           )}
         </div>
       </div>
-
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-slate-100 z-30">
+ 
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30">
         <div className="flex items-center justify-between mb-4 px-1">
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Payable Amount</p>
-            <p className="text-2xl font-bold text-slate-900">₹{Number(totalFare || 0)}</p>
+            <p className="text-[10px] font-bold text-bus-dark/50 uppercase tracking-wider mb-1">Payable Amount</p>
+            <p className="text-2xl font-bold text-bus-darker">₹{Number(totalFare || 0)}</p>
           </div>
           <div className="flex items-center gap-1.5 bg-emerald-50 px-3 py-1 rounded-full">
             <Check size={12} className="text-emerald-600" strokeWidth={3} />
             <p className="text-[10px] font-bold text-emerald-700">Taxes included</p>
           </div>
         </div>
-
+ 
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleContinue}
           disabled={isPaying}
-          className="w-full bg-slate-900 text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 transition-all"
+          className="w-full bg-bus-primary hover:bg-bus-primary-hover text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-bus-primary/20 disabled:opacity-70 transition-all"
         >
           {isPaying ? <Loader2 size={20} className="animate-spin" /> : 'Pay Now'}
           {!isPaying && <ChevronRight size={18} />}

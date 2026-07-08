@@ -140,24 +140,24 @@ const BusBookings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32">
+    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32">
       {/* Header */}
-      <div className="bg-white px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm">
+      <div className="bg-white px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
         <div className="flex items-center gap-4">
           <button
             type="button"
             onClick={() => navigate(`${routePrefix || '/taxi/user'}`)}
-            className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors"
+            className="w-10 h-10 rounded-full bg-bus-light flex items-center justify-center text-bus-dark hover:bg-bus-light-border transition-colors"
           >
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1">
-            <h1 className="text-lg font-bold text-slate-900">Bus Bookings</h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Your travel history</p>
+            <h1 className="text-lg font-bold text-bus-darker">Bus Bookings</h1>
+            <p className="text-[10px] font-bold text-bus-dark/60 uppercase tracking-wider">Your travel history</p>
           </div>
         </div>
       </div>
-
+ 
       <div className="px-4 pt-6 space-y-4">
         {/* Compact Filters */}
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
@@ -168,46 +168,46 @@ const BusBookings = () => {
               onClick={() => setActiveFilter(filter.id)}
               className={`shrink-0 px-4 py-2 rounded-xl text-[11px] font-bold transition-all border ${
                 activeFilter === filter.id
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-200'
-                  : 'bg-white text-slate-500 border-slate-100 hover:border-slate-200'
+                  ? 'bg-bus-primary text-white border-bus-primary shadow-md shadow-bus-primary/20'
+                  : 'bg-white text-bus-dark border-bus-light-border/80 hover:border-bus-accent/40'
               }`}
             >
               {filter.label}
             </button>
           ))}
         </div>
-
+ 
         {/* List Content */}
         <div className="space-y-3">
           {loading ? (
-            <div className="bg-white rounded-2xl p-10 text-center border border-slate-100 shadow-sm">
-              <Loader2 size={24} className="mx-auto animate-spin text-slate-400 mb-2" />
-              <p className="text-xs font-bold text-slate-900">Loading trips...</p>
+            <div className="bg-white rounded-2xl p-10 text-center border border-bus-light-border/40 shadow-sm">
+              <Loader2 size={24} className="mx-auto animate-spin text-bus-primary mb-2" />
+              <p className="text-xs font-bold text-bus-darker">Loading trips...</p>
             </div>
           ) : null}
-
+ 
           {!loading && error ? (
             <div className="bg-rose-50 border border-rose-100 rounded-xl p-3 text-center">
               <p className="text-xs font-bold text-rose-600">{error}</p>
             </div>
           ) : null}
-
+ 
           {!loading && !error && bookings.length === 0 ? (
-            <div className="bg-white rounded-3xl p-10 text-center border border-slate-100 shadow-sm">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BusFront size={32} className="text-slate-300" />
+            <div className="bg-white rounded-3xl p-10 text-center border border-bus-light-border/40 shadow-sm">
+              <div className="w-16 h-16 bg-bus-light rounded-full flex items-center justify-center mx-auto mb-4">
+                <BusFront size={32} className="text-bus-accent" />
               </div>
-              <h3 className="text-md font-bold text-slate-900">No bookings yet</h3>
-              <p className="text-xs text-slate-500 mt-1">Book your next journey now!</p>
+              <h3 className="text-md font-bold text-bus-darker">No bookings yet</h3>
+              <p className="text-xs text-bus-dark/70 mt-1">Book your next journey now!</p>
               <button 
                 onClick={() => navigate(`${routePrefix}/bus`)}
-                className="mt-4 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold"
+                className="mt-4 px-5 py-2.5 bg-bus-primary hover:bg-bus-primary-hover text-white rounded-xl text-xs font-bold shadow-lg shadow-bus-primary/10 transition-colors"
               >
                 Book Now
               </button>
             </div>
           ) : null}
-
+ 
           <AnimatePresence mode="popLayout">
             {!loading && !error && bookings.map((booking, index) => (
               <motion.div
@@ -217,58 +217,58 @@ const BusBookings = () => {
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ delay: index * 0.03 }}
                 onClick={() => navigate(`${routePrefix}/profile/bus-bookings/${booking.id}`)}
-                className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden active:scale-[0.99] transition-transform cursor-pointer"
+                className="bg-white rounded-2xl border border-bus-light-border/50 hover:border-bus-accent/40 shadow-sm overflow-hidden active:scale-[0.99] transition-transform cursor-pointer"
               >
                 {/* Header Row: PNR & Status */}
-                <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <div className="px-4 py-2 bg-bus-light/40 border-b border-bus-light-border/40 flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">PNR</p>
-                    <p className="text-[11px] font-black tracking-widest text-slate-900">{booking.bookingCode}</p>
+                    <p className="text-[9px] font-bold text-bus-dark/50 uppercase tracking-widest">PNR</p>
+                    <p className="text-[11px] font-black tracking-widest text-bus-darker">{booking.bookingCode}</p>
                   </div>
                   <div className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${statusTone[booking.status] || 'bg-white text-slate-400 border-slate-200'}`}>
                     {booking.status}
                   </div>
                 </div>
-
+ 
                 <div className="p-4">
                   {/* Route & Times */}
                   <div className="flex items-center justify-between gap-3 mb-4">
                     <div className="flex-1">
-                      <p className="text-sm font-black text-slate-900 truncate">{booking.bus?.fromCity || 'From'}</p>
-                      <p className="text-[10px] font-bold text-slate-500 mt-0.5">{booking.bus?.departure || '--:--'}</p>
+                      <p className="text-sm font-black text-bus-darker truncate">{booking.bus?.fromCity || 'From'}</p>
+                      <p className="text-[10px] font-bold text-bus-dark/70 mt-0.5">{booking.bus?.departure || '--:--'}</p>
                     </div>
                     <div className="flex flex-col items-center px-1">
-                      <div className="w-12 h-[1px] bg-slate-100 relative">
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-slate-200 rounded-full" />
+                      <div className="w-12 h-[1px] bg-bus-light-border relative">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-bus-accent rounded-full" />
                       </div>
-                      <BusFront size={12} className="text-slate-300 mt-1" />
+                      <BusFront size={12} className="text-bus-accent mt-1" />
                     </div>
                     <div className="flex-1 text-right">
-                      <p className="text-sm font-black text-slate-900 truncate">{booking.bus?.toCity || 'To'}</p>
-                      <p className="text-[10px] font-bold text-slate-500 mt-0.5">{booking.bus?.arrival || '--:--'}</p>
+                      <p className="text-sm font-black text-bus-darker truncate">{booking.bus?.toCity || 'To'}</p>
+                      <p className="text-[10px] font-bold text-bus-dark/70 mt-0.5">{booking.bus?.arrival || '--:--'}</p>
                     </div>
                   </div>
-
+ 
                   {/* Trip Details Bar */}
-                  <div className="flex items-center justify-between gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <div className="flex items-center justify-between gap-2 p-2.5 bg-bus-light/30 rounded-xl border border-bus-light-border/40">
                     <div className="flex items-center gap-1.5">
-                      <CalendarDays size={12} className="text-slate-400" />
-                      <p className="text-[10px] font-black text-slate-900">{booking.travelDate || 'NA'}</p>
+                      <CalendarDays size={12} className="text-bus-accent" />
+                      <p className="text-[10px] font-black text-bus-dark">{booking.travelDate || 'NA'}</p>
                     </div>
-                    <div className="w-[1px] h-3 bg-slate-200" />
+                    <div className="w-[1px] h-3 bg-bus-light-border" />
                     <div className="flex items-center gap-1.5">
-                      <Ticket size={12} className="text-slate-400" />
-                      <p className="text-[10px] font-black text-slate-900">{(booking.activeSeatLabels || []).join(', ') || 'NA'}</p>
+                      <Ticket size={12} className="text-bus-accent" />
+                      <p className="text-[10px] font-black text-bus-dark">{(booking.activeSeatLabels || []).join(', ') || 'NA'}</p>
                     </div>
-                    <div className="w-[1px] h-3 bg-slate-200" />
+                    <div className="w-[1px] h-3 bg-bus-light-border" />
                     <div className="flex items-center gap-1.5">
-                      <p className="text-[10px] font-black text-slate-900">{formatMoney(booking.amount, booking.currency)}</p>
+                      <p className="text-[10px] font-black text-bus-darker">{formatMoney(booking.amount, booking.currency)}</p>
                     </div>
                   </div>
-
+ 
                   {/* Rating or Footer Row */}
                   {booking.review?.tripCompleted ? (
-                    <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between">
+                    <div className="mt-3 pt-3 border-t border-bus-light-border/30 flex items-center justify-between">
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((score) => {
                           const activeScore = Number(booking.review?.userRating || 0);
@@ -288,18 +288,18 @@ const BusBookings = () => {
                             </button>
                           );
                         })}
-                        <span className="ml-1 text-[9px] font-bold text-slate-400 uppercase">
+                        <span className="ml-1 text-[9px] font-bold text-bus-dark/50 uppercase">
                           {booking.review?.userRating ? 'Rated' : 'Rate trip'}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-900 uppercase">
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-bus-primary uppercase">
                         Details <MoveRight size={10} />
                       </div>
                     </div>
                   ) : (
-                    <div className="mt-3 pt-3 border-t border-slate-50 flex items-center justify-between">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Booked {formatDateTime(booking.createdAt)}</p>
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-slate-900 uppercase">
+                    <div className="mt-3 pt-3 border-t border-bus-light-border/30 flex items-center justify-between">
+                      <p className="text-[9px] font-bold text-bus-dark/50 uppercase tracking-tight">Booked {formatDateTime(booking.createdAt)}</p>
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-bus-primary uppercase">
                         Details <MoveRight size={10} />
                       </div>
                     </div>
@@ -309,26 +309,26 @@ const BusBookings = () => {
             ))}
           </AnimatePresence>
         </div>
-
+ 
         {/* Pagination */}
         {!loading && !error && pagination.totalPages > 1 ? (
-          <div className="flex items-center justify-between py-2 px-4 bg-white rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex items-center justify-between py-2 px-4 bg-white rounded-2xl border border-bus-light-border/40 shadow-sm">
             <button
               type="button"
               disabled={!pagination.hasPrevPage}
               onClick={() => setPage((current) => Math.max(1, current - 1))}
-              className="p-2 rounded-lg bg-slate-50 text-slate-900 disabled:opacity-30"
+              className="p-2 rounded-lg bg-bus-light text-bus-dark disabled:opacity-30"
             >
               <ChevronLeft size={16} />
             </button>
-            <p className="text-[10px] font-black text-slate-900 uppercase">
+            <p className="text-[10px] font-black text-bus-dark uppercase">
               Page {pagination.page} / {pagination.totalPages}
             </p>
             <button
               type="button"
               disabled={!pagination.hasNextPage}
               onClick={() => setPage((current) => Math.min(pagination.totalPages, current + 1))}
-              className="p-2 rounded-lg bg-slate-50 text-slate-900 disabled:opacity-30"
+              className="p-2 rounded-lg bg-bus-light text-bus-dark disabled:opacity-30"
             >
               <ChevronRight size={16} />
             </button>

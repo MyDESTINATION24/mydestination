@@ -236,56 +236,56 @@ const BusList = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto bg-[linear-gradient(180deg,#fff7ed_0%,#fffaf7_16%,#f8fafc_100%)] font-sans pb-10">
-      <div className="sticky top-0 z-20 border-b border-orange-100/70 bg-white/92 px-4 pb-4 pt-10 shadow-[0_6px_20px_rgba(15,23,42,0.05)] backdrop-blur-md">
+    <div className="min-h-screen max-w-lg mx-auto bg-[linear-gradient(180deg,var(--bus-light)_0%,var(--bus-bg)_16%,#f8fafc_100%)] font-sans pb-10">
+      <div className="sticky top-0 z-20 border-b border-bus-light-border/70 bg-white/92 px-4 pb-4 pt-10 shadow-[0_6px_20px_rgba(15,23,42,0.05)] backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm active:scale-95 transition-all"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-bus-light-border bg-white shadow-sm active:scale-95 transition-all"
           >
-            <ArrowLeft size={18} className="text-slate-900" />
+            <ArrowLeft size={18} className="text-bus-darker" />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-base font-black text-slate-900">
-              {fromCity} <span className="text-slate-300">→</span> {toCity}
+            <h1 className="truncate text-base font-black text-bus-darker">
+              {fromCity} <span className="text-bus-medium">→</span> {toCity}
             </h1>
-            <p className="mt-0.5 text-xs font-semibold text-slate-500">{visibleBuses.length || 0} buses</p>
+            <p className="mt-0.5 text-xs font-semibold text-bus-dark/70">{visibleBuses.length || 0} buses</p>
           </div>
-          <div className="rounded-2xl border border-orange-100 bg-orange-50 px-3 py-2 text-right">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-orange-400">{formatTravelDate(date)}</p>
+          <div className="rounded-2xl border border-bus-light-border bg-bus-light px-3 py-2 text-right">
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-bus-primary">{formatTravelDate(date)}</p>
           </div>
         </div>
       </div>
-
+ 
       <div className="space-y-4 px-4 pt-5">
         {loading ? (
-          <div className="rounded-3xl border border-slate-100 bg-white p-12 text-slate-500 shadow-sm">
-            <Loader2 size={32} className="mx-auto animate-spin text-slate-400" />
-            <p className="mt-4 text-center text-sm font-bold text-slate-400">Finding available buses...</p>
+          <div className="rounded-3xl border border-bus-light-border/30 bg-white p-12 text-bus-dark/50 shadow-sm">
+            <Loader2 size={32} className="mx-auto animate-spin text-bus-primary" />
+            <p className="mt-4 text-center text-sm font-bold text-bus-dark/50">Finding available buses...</p>
           </div>
         ) : null}
-
+ 
         {!loading && error ? (
           <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm font-bold text-rose-600">
             {error}
           </div>
         ) : null}
-
+ 
         {!loading && !error && visibleBuses.length === 0 ? (
-          <div className="rounded-3xl border border-slate-100 bg-white p-12 text-center shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">No buses found</h2>
-            <p className="mt-2 text-sm font-medium text-slate-500">
+          <div className="rounded-3xl border border-bus-light-border/30 bg-white p-12 text-center shadow-sm">
+            <h2 className="text-xl font-bold text-bus-darker">No buses found</h2>
+            <p className="mt-2 text-sm font-medium text-bus-dark/60">
               {showDealsOnly || showHighlyRatedOnly || sortBy !== 'recommended' || selectedCompany !== 'all'
                 ? 'Try changing your filters to see more buses.'
                 : 'Try searching for a different date or route.'}
             </p>
           </div>
         ) : null}
-
+ 
         {!loading && !error && buses.length > 0 ? (
           <>
             <div className="grid grid-cols-3 gap-3">
-              <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,#f59e0b_0%,#f97316_100%)] p-4 text-white shadow-[0_10px_24px_rgba(249,115,22,0.18)]">
+              <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,var(--bus-accent)_0%,var(--bus-primary)_100%)] p-4 text-white shadow-[0_10px_24px_rgba(249,115,22,0.18)]">
                 <div className="flex items-center justify-between">
                   <BusFront size={22} />
                   <Sparkles size={16} className="text-white/80" />
@@ -293,32 +293,32 @@ const BusList = () => {
                 <p className="mt-6 text-lg font-black leading-none">Bus</p>
                 <p className="mt-1 text-xs font-semibold text-white/80">Best routes today</p>
               </div>
-              <div className="rounded-[22px] border border-rose-100 bg-[radial-gradient(circle_at_top_left,#ffe4e6_0%,#fff1f2_45%,#ffffff_100%)] p-4 shadow-sm">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 text-rose-500">
+              <div className="rounded-[22px] border border-bus-light-border bg-[radial-gradient(circle_at_top_left,var(--bus-light)_0%,var(--bus-bg)_45%,#ffffff_100%)] p-4 shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-bus-light text-bus-primary">
                   <TicketPercent size={16} />
                 </div>
-                <p className="mt-4 text-sm font-black leading-tight text-slate-900">Free Cancellation</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-500">On selected buses</p>
+                <p className="mt-4 text-sm font-black leading-tight text-bus-darker">Free Cancellation</p>
+                <p className="mt-1 text-[11px] font-semibold text-bus-dark/50">On selected buses</p>
               </div>
-              <div className="rounded-[22px] border border-emerald-100 bg-[radial-gradient(circle_at_top_left,#dcfce7_0%,#f0fdf4_45%,#ffffff_100%)] p-4 shadow-sm">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+              <div className="rounded-[22px] border border-bus-light-border bg-[radial-gradient(circle_at_top_left,var(--bus-light)_0%,#fffbeb_45%,#ffffff_100%)] p-4 shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-bus-light text-bus-dark">
                   <BadgePercent size={16} />
                 </div>
-                <p className="mt-4 text-sm font-black leading-tight text-slate-900">Special Deals</p>
-                <p className="mt-1 text-[11px] font-semibold text-slate-500">Save more today</p>
+                <p className="mt-4 text-sm font-black leading-tight text-bus-darker">Special Deals</p>
+                <p className="mt-1 text-[11px] font-semibold text-bus-dark/50">Save more today</p>
               </div>
             </div>
-
+ 
             <div ref={sortMenuRef} className="relative pb-1">
-              <div className="flex gap-2 overflow-x-auto">
+              <div className="flex gap-2 overflow-x-auto no-scrollbar">
                 <div className="shrink-0">
                   <button
                     type="button"
                     onClick={() => setIsSortMenuOpen((current) => !current)}
                     className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold shadow-sm transition ${
                       isSortMenuOpen
-                        ? 'border-slate-300 bg-slate-50 text-slate-900'
-                        : 'border-slate-200 bg-white text-slate-700'
+                        ? 'border-bus-accent/40 bg-bus-light text-bus-darker'
+                        : 'border-bus-light-border/80 bg-white text-bus-dark'
                     }`}
                   >
                     <SlidersHorizontal size={14} />
@@ -330,8 +330,8 @@ const BusList = () => {
                   onClick={() => setShowDealsOnly((current) => !current)}
                   className={`inline-flex shrink-0 items-center rounded-xl border px-4 py-2 text-xs font-bold shadow-sm transition ${
                     showDealsOnly
-                      ? 'border-orange-200 bg-orange-50 text-orange-700'
-                      : 'border-slate-200 bg-white text-slate-700'
+                      ? 'border-bus-accent/30 bg-bus-light text-bus-primary'
+                      : 'border-bus-light-border/80 bg-white text-bus-dark'
                   }`}
                 >
                   Deals
@@ -341,25 +341,25 @@ const BusList = () => {
                   onClick={() => setShowHighlyRatedOnly((current) => !current)}
                   className={`inline-flex shrink-0 items-center rounded-xl border px-4 py-2 text-xs font-bold shadow-sm transition ${
                     showHighlyRatedOnly
-                      ? 'border-amber-200 bg-amber-50 text-amber-700'
-                      : 'border-slate-200 bg-white text-slate-700'
+                      ? 'border-bus-accent/30 bg-bus-light text-bus-primary'
+                      : 'border-bus-light-border/80 bg-white text-bus-dark'
                   }`}
                 >
                   Highly Rated
                 </button>
               </div>
-
+ 
               {isSortMenuOpen ? (
                 <div
-                  className="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-[min(20rem,calc(100vw-2rem))] rounded-[20px] border border-slate-200 bg-white p-2 shadow-[0_18px_48px_rgba(15,23,42,0.14)]"
+                  className="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-[min(20rem,calc(100vw-2rem))] rounded-[20px] border border-bus-light-border/60 bg-white p-2 shadow-[0_18px_48px_rgba(15,23,42,0.08)]"
                 >
-                  <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                  <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
                     Sort buses by
                   </p>
                   <div className="space-y-1">
                     {SORT_OPTIONS.map((option) => {
                       const isActive = sortBy === option.id;
-
+ 
                       return (
                         <button
                           key={option.id}
@@ -367,8 +367,8 @@ const BusList = () => {
                           onClick={() => handleSortSelect(option.id)}
                           className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
                             isActive
-                              ? 'bg-slate-900 text-white'
-                              : 'bg-white text-slate-700 hover:bg-slate-50'
+                              ? 'bg-bus-primary text-white'
+                              : 'bg-white text-bus-dark hover:bg-bus-light'
                           }`}
                         >
                           <span>{option.label}</span>
@@ -377,21 +377,21 @@ const BusList = () => {
                       );
                     })}
                   </div>
-
+ 
                   {busCompanies.length > 0 ? (
                     <>
-                      <div className="mx-1 my-2 h-px bg-slate-100" />
-                      <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">
+                      <div className="mx-1 my-2 h-px bg-bus-light-border/60" />
+                      <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
                         Bus company
                       </p>
-                      <div className="max-h-56 space-y-1 overflow-y-auto">
+                      <div className="max-h-56 space-y-1 overflow-y-auto no-scrollbar">
                         <button
                           type="button"
                           onClick={() => setSelectedCompany('all')}
                           className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
                             selectedCompany === 'all'
-                              ? 'bg-slate-900 text-white'
-                              : 'bg-white text-slate-700 hover:bg-slate-50'
+                              ? 'bg-bus-primary text-white'
+                              : 'bg-white text-bus-dark hover:bg-bus-light'
                           }`}
                         >
                           <span>All companies</span>
@@ -399,7 +399,7 @@ const BusList = () => {
                         </button>
                         {busCompanies.map((company) => {
                           const isActive = selectedCompany === company;
-
+ 
                           return (
                             <button
                               key={company}
@@ -407,8 +407,8 @@ const BusList = () => {
                               onClick={() => setSelectedCompany(company)}
                               className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
                                 isActive
-                                  ? 'bg-slate-900 text-white'
-                                  : 'bg-white text-slate-700 hover:bg-slate-50'
+                                  ? 'bg-bus-primary text-white'
+                                  : 'bg-white text-bus-dark hover:bg-bus-light'
                               }`}
                             >
                               <span className="truncate pr-3">{company}</span>
@@ -424,12 +424,12 @@ const BusList = () => {
             </div>
           </>
         ) : null}
-
+ 
         {!loading && !error
           ? visibleBuses.map((bus, index) => {
               const rated = hasBusRating(bus);
               const topAmenities = Array.isArray(bus.amenities) ? bus.amenities.slice(0, 2) : [];
-
+ 
               return (
                 <motion.button
                   key={bus.id}
@@ -438,45 +438,45 @@ const BusList = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   onClick={() => handleSelect(bus)}
-                  className="w-full rounded-[24px] border border-slate-200/80 bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.06)] transition-transform active:scale-[0.98]"
+                  className="w-full rounded-[24px] border border-bus-light-border/60 bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.03)] transition-transform active:scale-[0.98] hover:border-bus-accent/40"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-end gap-2">
-                            <p className="text-2xl font-black leading-none text-slate-900">{bus.departure}</p>
-                            <p className="pb-0.5 text-sm font-bold text-slate-400">→</p>
-                            <p className="text-2xl font-black leading-none text-slate-700">{bus.arrival}</p>
+                            <p className="text-2xl font-black leading-none text-bus-darker">{bus.departure}</p>
+                            <p className="pb-0.5 text-sm font-bold text-bus-dark/40">→</p>
+                            <p className="text-2xl font-black leading-none text-bus-dark">{bus.arrival}</p>
                           </div>
-                          <p className="mt-1 text-xs font-semibold text-slate-500">
+                          <p className="mt-1 text-xs font-semibold text-bus-dark/70">
                             {formatDurationBrief(bus.duration)} {bus.availableSeats > 0 ? `• ${bus.availableSeats} Seats` : ''}
                           </p>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className="text-2xl font-black leading-none text-slate-900">₹{Number(bus.price || 0).toLocaleString('en-IN')}</p>
-                          <p className="mt-1 text-[11px] font-semibold text-slate-400">Onwards</p>
+                          <p className="text-2xl font-black leading-none text-bus-darker">₹{Number(bus.price || 0).toLocaleString('en-IN')}</p>
+                          <p className="mt-1 text-[11px] font-semibold text-bus-dark/45">Onwards</p>
                         </div>
                       </div>
                     </div>
                   </div>
-
-                  <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-slate-500">
-                    <Clock3 size={13} className="text-slate-400" />
+ 
+                  <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-bus-dark/70">
+                    <Clock3 size={13} className="text-bus-accent" />
                     <span>{bus.type}</span>
                     <span>•</span>
                     <span>{bus.busName || getBusCompany(bus)}</span>
                   </div>
-
+ 
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate text-[15px] font-black text-slate-900">{getBusCompany(bus) || 'Bus Service'}</h3>
-                      <p className="mt-0.5 truncate text-xs font-semibold text-slate-500">
+                      <h3 className="truncate text-[15px] font-black text-bus-darker">{getBusCompany(bus) || 'Bus Service'}</h3>
+                      <p className="mt-0.5 truncate text-xs font-semibold text-bus-dark/70">
                         {topAmenities.length > 0 ? topAmenities.join(' • ') : (bus.routeName || `${fromCity} to ${toCity}`)}
                       </p>
                     </div>
                     {rated ? (
-                      <div className="shrink-0 rounded-xl bg-amber-400 px-2.5 py-1.5 text-white shadow-sm">
+                      <div className="shrink-0 rounded-xl bg-bus-accent px-2.5 py-1.5 text-white shadow-sm">
                         <div className="flex items-center gap-1">
                           <Star size={12} className="fill-current" />
                           <span className="text-sm font-black">{getBusRating(bus).toFixed(1)}</span>
@@ -492,17 +492,23 @@ const BusList = () => {
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {bus.availableSeats > 0 ? (
-                      <span className="rounded-full bg-orange-50 px-3 py-1 text-[10px] font-black text-orange-600">
+                      <span className="rounded-full bg-bus-light px-3 py-1 text-[10px] font-black text-bus-primary">
                         {bus.availableSeats} seats left
                       </span>
                     ) : null}
+                    {bus.femaleBookingsCount > 3 ? (
+                      <span className="rounded-full bg-rose-50 border border-rose-100 px-3 py-1 text-[10px] font-black text-rose-600 flex items-center gap-1.5 shadow-sm">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        <span>👩 {bus.femaleBookingsCount} women travelling</span>
+                      </span>
+                    ) : null}
                     {topAmenities.map((amenity) => (
-                      <span key={amenity} className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold text-slate-600">
+                      <span key={amenity} className="rounded-full bg-bus-light px-3 py-1 text-[10px] font-bold text-bus-dark">
                         {amenity}
                       </span>
                     ))}
                   </div>
-
+ 
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <div className="flex min-w-0 flex-wrap gap-2">
                       {isHighlyRatedBus(bus) ? (
@@ -521,7 +527,7 @@ const BusList = () => {
                         </span>
                       ) : null}
                     </div>
-                    <div className="flex items-center gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-900">
+                    <div className="flex items-center gap-1 text-xs font-black uppercase tracking-[0.14em] text-bus-primary">
                       Details <ChevronRight size={16} />
                     </div>
                   </div>

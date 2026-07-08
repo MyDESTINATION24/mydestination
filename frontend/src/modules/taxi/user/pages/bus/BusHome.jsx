@@ -312,28 +312,28 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
-      <header className="bg-white px-5 pt-14 pb-4 sticky top-0 z-20 border-b border-slate-100 shadow-sm md:pt-10">
+    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
+      <header className="bg-white px-5 pt-14 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm md:pt-10">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl border border-slate-200 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
+            className="w-9 h-9 rounded-xl border border-bus-light-border/80 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
           >
-            <ArrowLeft size={18} className="text-slate-900" />
+            <ArrowLeft size={18} className="text-bus-darker" />
           </button>
           <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Bus Tickets</p>
-            <h1 className="text-xl font-bold text-slate-900">Book your journey</h1>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-bus-dark/60">Bus Tickets</p>
+            <h1 className="text-xl font-bold text-bus-darker">Book your journey</h1>
           </div>
         </div>
       </header>
-
+ 
       <div className="px-5 pt-6 space-y-6">
-        <div className="rounded-3xl bg-slate-900 p-6 text-white shadow-xl shadow-slate-200">
+        <div className="rounded-3xl bg-gradient-to-br from-bus-primary to-bus-accent p-6 text-white shadow-xl shadow-bus-primary/10">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-2xl font-bold leading-tight">Travel with ease</h2>
-              <p className="mt-2 text-sm text-slate-300 font-medium">
+              <p className="mt-2 text-sm text-bus-light/80 font-medium">
                 Find and book bus tickets for your preferred routes in just a few clicks.
               </p>
             </div>
@@ -341,48 +341,48 @@ const BusHome = () => {
               <BusFront size={24} className="text-white" />
             </div>
           </div>
-
-          <div className="mt-6 grid grid-cols-3 gap-4 border-t border-white/10 pt-4">
+ 
+          <div className="mt-6 grid grid-cols-3 gap-4 border-t border-white/20 pt-4">
             <div>
-              <p className="text-[10px] font-bold uppercase text-slate-400">Routes</p>
+              <p className="text-[10px] font-bold uppercase text-bus-light/60">Routes</p>
               <p className="mt-1 text-lg font-bold">{routeSuggestions.length || 0}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase text-slate-400">Cities</p>
+              <p className="text-[10px] font-bold uppercase text-bus-light/60">Cities</p>
               <p className="mt-1 text-lg font-bold">{cityOptions.length || 0}</p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase text-slate-400">Date</p>
+              <p className="text-[10px] font-bold uppercase text-bus-light/60">Date</p>
               <p className="mt-1 text-sm font-bold">{formatTravelDate(date) || 'Choose'}</p>
             </div>
           </div>
         </div>
-
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
+ 
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-bus-light-border/40 space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-bus-light text-bus-primary flex items-center justify-center">
               <Search size={20} />
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-slate-900">Search Buses</h3>
-              <p className="text-xs text-slate-500 font-medium">Find available buses on your route</p>
+             <div>
+              <h3 className="text-lg font-bold text-bus-darker">Search Buses</h3>
+              <p className="text-xs text-bus-dark/60 font-medium">Find available buses on your route</p>
             </div>
           </div>
-
+ 
           <div className="space-y-4">
             <div className="relative">
-              <div className="absolute left-4 top-4 text-slate-400">
+              <div className="absolute left-4 top-4 text-bus-accent">
                 <MapPin size={16} />
               </div>
-              <div className="pl-12 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">From</label>
+              <div className="pl-12 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40">
+                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">From</label>
                 <input
                   type="text"
                   list="bus-route-cities"
                   value={fromCity}
                   onChange={(event) => setFromCity(event.target.value)}
                   placeholder="Enter source city"
-                  className="w-full bg-transparent text-base font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="w-full bg-transparent text-base font-semibold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
               
@@ -390,48 +390,48 @@ const BusHome = () => {
                 <button
                   type="button"
                   onClick={swapCities}
-                  className="w-10 h-10 rounded-full bg-white border border-slate-200 text-slate-600 flex items-center justify-center shadow-sm active:rotate-180 transition-transform duration-300"
+                  className="w-10 h-10 rounded-full bg-white border border-bus-light-border/80 text-bus-primary flex items-center justify-center shadow-sm active:rotate-180 transition-transform duration-300"
                 >
                   <ArrowRightLeft size={16} />
                 </button>
               </div>
             </div>
-
+ 
             <div className="relative">
-              <div className="absolute left-4 top-4 text-slate-400">
+              <div className="absolute left-4 top-4 text-bus-accent">
                 <MapPin size={16} />
               </div>
-              <div className="pl-12 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">To</label>
+              <div className="pl-12 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40">
+                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">To</label>
                 <input
                   type="text"
                   list="bus-route-cities"
                   value={toCity}
                   onChange={(event) => setToCity(event.target.value)}
                   placeholder="Enter destination city"
-                  className="w-full bg-transparent text-base font-semibold text-slate-900 focus:outline-none placeholder:text-slate-300"
+                  className="w-full bg-transparent text-base font-semibold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
                 />
               </div>
             </div>
-
+ 
             <button
               type="button"
               onClick={openCalendar}
-              className="w-full flex items-center gap-4 pl-4 pr-4 py-3 bg-slate-50 rounded-2xl border border-slate-100 text-left"
+              className="w-full flex items-center gap-4 pl-4 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40 text-left"
             >
-              <div className="text-slate-400">
+              <div className="text-bus-accent">
                 <Calendar size={16} />
               </div>
               <div className="flex-1">
-                <label className="block text-[10px] font-bold uppercase text-slate-400 mb-0.5">Date of Journey</label>
-                <span className="text-base font-semibold text-slate-900">{formatTravelDate(date) || 'Choose date'}</span>
+                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">Date of Journey</label>
+                <span className="text-base font-semibold text-bus-darker">{formatTravelDate(date) || 'Choose date'}</span>
               </div>
-              <span className="text-xs font-bold text-slate-400">Change</span>
+              <span className="text-xs font-bold text-bus-primary">Change</span>
             </button>
           </div>
-
+ 
           <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Quick dates</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-bus-dark/60">Quick dates</p>
             <div className="flex flex-wrap gap-2">
               {quickDates.map((item) => (
                 <button
@@ -440,8 +440,8 @@ const BusHome = () => {
                   onClick={() => setDate(item.value)}
                   className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
                     date === item.value
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-50 text-slate-600 border border-slate-100 hover:border-slate-300'
+                      ? 'bg-bus-primary text-white shadow-md shadow-bus-primary/20'
+                      : 'bg-bus-light/50 text-bus-dark border border-bus-light-border/70 hover:border-bus-accent/40'
                   }`}
                 >
                   {item.label}
@@ -449,13 +449,13 @@ const BusHome = () => {
               ))}
             </div>
           </div>
-
+ 
           <datalist id="bus-route-cities">
             {cityOptions.map((city, index) => (
               <option key={getListKey(city, index, 'city')} value={city} />
             ))}
           </datalist>
-
+ 
           <div className="space-y-4">
             {matchingRoute && (
               <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 flex items-center justify-between">
@@ -468,29 +468,29 @@ const BusHome = () => {
                 </span>
               </div>
             )}
-
+ 
             {hasTypedInvalidRoute && (
-              <div className="rounded-2xl bg-slate-50 border border-slate-100 px-4 py-3 text-xs font-bold text-slate-500">
+              <div className="rounded-2xl bg-bus-light border border-bus-light-border px-4 py-3 text-xs font-bold text-bus-dark/70">
                 This specific route is not available. Please check the list below.
               </div>
             )}
-
+ 
             {error && (
               <div className="rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-xs font-bold text-rose-600">
                 {error}
               </div>
             )}
-
+ 
             {!busEnabled && (
               <div className="rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs font-bold text-amber-700">
                 Bus service is currently disabled.
               </div>
             )}
-
+ 
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleSearch}
-              className="w-full bg-slate-900 text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-slate-200 active:scale-95 transition-all"
+              className="w-full bg-bus-primary text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-bus-primary/20 hover:bg-bus-primary-hover active:scale-95 transition-all"
             >
               Search Buses <ChevronRight size={18} />
             </motion.button>
@@ -499,46 +499,46 @@ const BusHome = () => {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-900">Popular Routes</h3>
-            {routesLoading && <Loader2 size={18} className="animate-spin text-slate-400" />}
+            <h3 className="text-lg font-bold text-bus-darker">Popular Routes</h3>
+            {routesLoading && <Loader2 size={18} className="animate-spin text-bus-primary" />}
           </div>
-
+ 
           <div className="space-y-3">
             {featuredRoutes.map((route, index) => (
               <button
                 key={getRouteKey(route, index)}
                 type="button"
                 onClick={() => fillRoute(route)}
-                className="w-full rounded-2xl border border-slate-100 bg-white px-4 py-4 text-left shadow-sm active:scale-[0.99] transition-transform"
+                className="w-full rounded-2xl border border-bus-light-border/40 bg-white px-4 py-4 text-left shadow-sm active:scale-[0.99] transition-transform hover:border-bus-accent/40"
               >
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <h4 className="text-base font-bold text-slate-900 truncate">
+                    <h4 className="text-base font-bold text-bus-darker truncate">
                       {route.fromCity} → {route.toCity}
                     </h4>
-                    <p className="mt-1 text-xs font-medium text-slate-500 truncate">
+                    <p className="mt-1 text-xs font-medium text-bus-dark/60 truncate">
                       {route.operatorName || 'Multiple operators available'}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-[10px] font-bold uppercase text-slate-400">From</p>
-                    <p className="text-lg font-bold text-slate-900">₹{Number(route.startingPrice || 0)}</p>
+                    <p className="text-[10px] font-bold uppercase text-bus-dark/45">From</p>
+                    <p className="text-lg font-bold text-bus-darker">₹{Number(route.startingPrice || 0)}</p>
                   </div>
                 </div>
               </button>
             ))}
           </div>
-
+ 
           {!routesLoading && !featuredRoutes.length && !routesError && (
-            <p className="text-center py-8 text-sm font-medium text-slate-400">No active routes found.</p>
+            <p className="text-center py-8 text-sm font-medium text-bus-dark/50">No active routes found.</p>
           )}
-
+ 
           {routesError && (
             <p className="text-center py-8 text-sm font-medium text-rose-500">{routesError}</p>
           )}
         </div>
       </div>
-
+ 
       {calendarOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm flex items-end justify-center p-4">
           <motion.div 
@@ -548,43 +548,43 @@ const BusHome = () => {
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-[10px] font-bold uppercase text-slate-400 mb-1">Select Journey Date</p>
-                <h3 className="text-xl font-bold text-slate-900">{monthLabel}</h3>
+                <p className="text-[10px] font-bold uppercase text-bus-dark/50 mb-1">Select Journey Date</p>
+                <h3 className="text-xl font-bold text-bus-darker">{monthLabel}</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setCalendarOpen(false)}
-                className="w-10 h-10 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-100 transition-colors"
+                className="w-10 h-10 rounded-full bg-bus-light text-bus-accent flex items-center justify-center hover:bg-bus-light-border transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-
+ 
             <div className="flex items-center justify-between gap-4 mb-6">
               <button
                 type="button"
                 onClick={() => setCalendarMonth((current) => addMonths(current, -1))}
-                className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                className="w-10 h-10 rounded-xl border border-bus-light-border flex items-center justify-center text-bus-dark hover:bg-bus-light"
               >
                 <ChevronLeft size={20} />
               </button>
               <div className="flex-1 text-center">
-                <span className="text-sm font-bold text-slate-900 px-4 py-2 bg-slate-50 rounded-full">
+                <span className="text-sm font-bold text-bus-darker px-4 py-2 bg-bus-light rounded-full">
                   {formatTravelDate(date)}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setCalendarMonth((current) => addMonths(current, 1))}
-                className="w-10 h-10 rounded-xl border border-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                className="w-10 h-10 rounded-xl border border-bus-light-border flex items-center justify-center text-bus-dark hover:bg-bus-light"
               >
                 <ChevronRight size={20} />
               </button>
             </div>
-
+ 
             <div className="grid grid-cols-7 gap-1 mb-6">
               {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
-                <div key={i} className="text-center text-[10px] font-bold text-slate-400 py-2">
+                <div key={i} className="text-center text-[10px] font-bold text-bus-dark/50 py-2">
                   {day}
                 </div>
               ))}
@@ -593,7 +593,7 @@ const BusHome = () => {
                 const isCurrentMonth = day.getMonth() === calendarMonth.getMonth();
                 const isDisabled = key < getTodayDate();
                 const isSelected = key === date;
-
+ 
                 return (
                   <button
                     key={key}
@@ -602,12 +602,12 @@ const BusHome = () => {
                     onClick={() => selectCalendarDate(day)}
                     className={`aspect-square rounded-xl text-sm font-bold transition-all flex items-center justify-center ${
                       isSelected
-                        ? 'bg-slate-900 text-white shadow-lg'
+                        ? 'bg-bus-primary text-white shadow-lg shadow-bus-primary/20'
                         : isDisabled
                           ? 'text-slate-200'
                           : isCurrentMonth
-                            ? 'text-slate-800 hover:bg-slate-50'
-                            : 'text-slate-300'
+                            ? 'text-bus-darker hover:bg-bus-light'
+                            : 'text-bus-dark/30'
                     }`}
                   >
                     {day.getDate()}
@@ -615,7 +615,7 @@ const BusHome = () => {
                 );
               })}
             </div>
-
+ 
             <div className="flex gap-3">
               <button
                 type="button"
@@ -623,14 +623,14 @@ const BusHome = () => {
                   setDate(getTodayDate());
                   setCalendarOpen(false);
                 }}
-                className="flex-1 py-3 rounded-2xl bg-slate-50 text-slate-700 text-sm font-bold border border-slate-100"
+                className="flex-1 py-3 rounded-2xl bg-bus-light text-bus-dark text-sm font-bold border border-bus-light-border hover:bg-bus-light-border/60 transition-colors"
               >
                 Tomorrow
               </button>
               <button
                 type="button"
                 onClick={() => setCalendarOpen(false)}
-                className="flex-1 py-3 rounded-2xl bg-slate-900 text-white text-sm font-bold"
+                className="flex-1 py-3 rounded-2xl bg-bus-primary hover:bg-bus-primary-hover text-white text-sm font-bold shadow-md shadow-bus-primary/10 transition-colors"
               >
                 Confirm
               </button>
@@ -638,7 +638,7 @@ const BusHome = () => {
           </motion.div>
         </div>
       )}
-
+ 
       <BottomNavbar />
     </div>
   );
