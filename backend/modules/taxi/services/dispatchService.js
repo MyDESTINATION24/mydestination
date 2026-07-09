@@ -208,7 +208,7 @@ const settleUserCancellationFee = async (ride, session) => {
     title: `Ride cancellation fee for booking ${String(ride._id).slice(-6)}`,
     referenceKey: `${feeReferenceBase}:user-debit`,
     session,
-    requireSufficientFunds: true,
+    requireSufficientFunds: false,
   });
 
   let driverCredit = { status: 'skipped', walletResult: null };
@@ -996,6 +996,24 @@ const dispatchAttempt = async (rideId, attemptIndex = 0) => {
   }
 };
 
+const scheduleScheduledDispatch = (rideId, callback, delayMs) => {
+  const MAX_TIMEOUT_MS = 2147483647;
+  const key = String(rideId);
+
+  if (delayMs > MAX_TIMEOUT_MS) {
+    const timer = setTimeout(() => {
+      scheduleScheduledDispatch(rideId, callback, delayMs - MAX_TIMEOUT_MS);
+    }, MAX_TIMEOUT_MS);
+    scheduledDispatchTimers.set(key, timer);
+  } else {
+    const timer = setTimeout(() => {
+      scheduledDispatchTimers.delete(key);
+      callback();
+    }, delayMs);
+    scheduledDispatchTimers.set(key, timer);
+  }
+};
+
 export const startDispatchFlow = async (ride) => {
   stopDispatchFlow(ride._id);
 
@@ -1006,14 +1024,15 @@ export const startDispatchFlow = async (ride) => {
 
   if (!shouldDispatchImmediately && scheduledAt && Number.isFinite(delayMs) && delayMs > 0) {
     const rideId = String(ride._id);
-    const timer = setTimeout(() => {
-      scheduledDispatchTimers.delete(rideId);
-      dispatchAttempt(ride._id, 0).catch((error) => {
-        console.error('Scheduled dispatch failed', error);
-      });
-    }, delayMs);
-
-    scheduledDispatchTimers.set(rideId, timer);
+    scheduleScheduledDispatch(
+      rideId,
+      () => {
+        dispatchAttempt(ride._id, 0).catch((error) => {
+          console.error('Scheduled dispatch failed', error);
+        });
+      },
+      delayMs,
+    );
     return;
   }
 
@@ -1028,7 +1047,11 @@ export const restoreScheduledDispatches = async () => {
   }).select('_id scheduledAt');
 
   for (const ride of rides) {
-    await startDispatchFlow(ride);
+    try {
+      await startDispatchFlow(ride);
+    } catch (error) {
+      console.error(`Failed to restore scheduled dispatch for ride ${ride._id}:`, error);
+    }
   }
 };
 
@@ -1064,6 +1087,11 @@ export const notifyLateAvailableDriver = async (driverId) => {
     }
 
     const dispatchConfig = await resolveTransportDispatchConfig();
+
+    if (dispatchConfig.dispatchType === 'one_by_one' && dispatchState.driverIds.length > 0) {
+      continue;
+    }
+
     const attemptIndex = Number.isInteger(dispatchState.radiusIndex) ? dispatchState.radiusIndex : 0;
     const radius = getAttemptRadiusMeters(
       dispatchConfig.baseDistanceMeters || dispatchConfig.maxDistanceMeters,

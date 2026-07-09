@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronRight, Edit2, PlaneTakeoff, Plus, Route, Save, Search, Trash2, Image as ImageIcon, Upload } from 'lucide-react';
+import { ChevronRight, Edit2, PlaneTakeoff, Plus, Route, Save, Search, Trash2, Image as ImageIcon, Upload, Eye, Clock, ArrowRight, ChevronLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
@@ -22,7 +22,8 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
 
   const isCreate = modeProp === 'create' || location.pathname.endsWith('/create');
   const isEdit = modeProp === 'edit' || location.pathname.includes('/edit/');
-  const isList = !isCreate && !isEdit;
+  const isDetails = modeProp === 'details' || location.pathname.includes('/details/');
+  const isList = !isCreate && !isEdit && !isDetails;
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -65,7 +66,7 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
     };
 
     loadSingle();
-  }, [id, isCreate, isList]);
+  }, [id, isCreate, isList, isDetails]);
 
   const airwayMap = useMemo(
     () => new Map(airways.map((item) => [item.id, item])),
@@ -215,7 +216,7 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
 
   if (isList) {
     return (
-      <div className="min-h-screen bg-[#F3F4F9] font-sans">
+      <div className="min-h-screen bg-[#F3F4F9] font-sans pb-12">
         <div className="border-b border-gray-100 bg-white px-8 py-5 flex items-center justify-between">
           <h1 className="text-[14px] font-black uppercase tracking-tight text-slate-800">Airway Routes</h1>
           <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
@@ -226,7 +227,7 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
         </div>
 
         <div className="p-8 lg:p-10">
-          <div className="mx-auto max-w-7xl rounded-[28px] border border-slate-200 bg-white shadow-sm">
+          <div className="mx-auto max-w-7xl rounded-[28px] border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="flex flex-col gap-4 border-b border-slate-100 px-8 py-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <h2 className="text-lg font-black text-slate-900">Route Matrix</h2>
@@ -255,89 +256,448 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
               </div>
             </div>
 
-            <div className="grid gap-5 p-8 lg:grid-cols-2">
-              {loading ? (
-                <div className="text-sm font-semibold text-slate-500">Loading routes...</div>
-              ) : filteredRoutes.length === 0 ? (
-                <div className="text-sm font-semibold text-slate-500">No airway routes found.</div>
-              ) : (
-                filteredRoutes.map((item) => {
-                  const routeAirways = (Array.isArray(item.airwayIds) && item.airwayIds.length > 0
-                    ? item.airwayIds
-                    : item.airwayId
-                      ? [item.airwayId]
-                      : [])
-                    .map((entry) => airwayMap.get(entry))
-                    .filter(Boolean);
-                  return (
-                    <div key={item.id} className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-6 shadow-sm">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex gap-4">
-                          {item.image ? (
-                             <img src={item.image} alt={item.routeName} className="h-16 w-16 rounded-2xl object-cover shadow-sm border border-white" />
-                          ) : (
-                            <div className="h-16 w-16 rounded-2xl bg-sky-50 flex items-center justify-center text-sky-600 shadow-sm border border-white shrink-0">
-                               <PlaneTakeoff size={24} />
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/75">
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Flight / Route</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Airlines</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Sector</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Departure & Arrival</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Distance & Duration</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Operating Days</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {loading ? (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="w-4 h-4 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></span>
+                          Loading airway routes...
+                        </div>
+                      </td>
+                    </tr>
+                  ) : filteredRoutes.length === 0 ? (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-10 text-center text-sm font-semibold text-slate-500">
+                        No airway routes found.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredRoutes.map((item) => {
+                      const routeAirways = (Array.isArray(item.airwayIds) && item.airwayIds.length > 0
+                        ? item.airwayIds
+                        : item.airwayId
+                          ? [item.airwayId]
+                          : [])
+                        .map((entry) => airwayMap.get(entry))
+                        .filter(Boolean);
+                      
+                      const statusColors = {
+                        scheduled: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+                        seasonal: 'bg-amber-50 text-amber-700 border-amber-100',
+                        paused: 'bg-rose-50 text-rose-700 border-rose-100',
+                      };
+                      const statusClass = statusColors[item.routeStatus] || 'bg-slate-50 text-slate-700 border-slate-100';
+
+                      return (
+                        <tr key={item.id} className="group hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              {item.image ? (
+                                <img src={item.image} alt={item.routeName} className="h-10 w-10 rounded-xl object-cover border border-slate-100 shrink-0 animate-in fade-in zoom-in-95 duration-200" />
+                              ) : (
+                                <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-100 shrink-0">
+                                  <PlaneTakeoff size={18} />
+                                </div>
+                              )}
+                              <div>
+                                <p className="font-semibold text-slate-900 text-[13px]">{item.routeName}</p>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{item.flightNumber}</p>
+                              </div>
                             </div>
-                          )}
-                          <div>
-                            <p className="text-[11px] font-black uppercase tracking-wider text-slate-400">
-                              {routeAirways.length > 0 ? routeAirways.map((entry) => entry.airlineName).join(', ') : 'Airway'}
-                            </p>
-                            <h3 className="mt-1 text-lg font-black text-slate-900 leading-tight">{item.routeName}</h3>
-                            <p className="mt-1 text-[11px] font-bold text-slate-500 uppercase tracking-widest">{item.flightNumber} | {item.originAirport} to {item.destinationAirport}</p>
-                          </div>
-                        </div>
-                        <div className="rounded-2xl bg-white p-3 text-slate-400 shadow-sm border border-slate-100">
-                          <ImageIcon size={18} />
-                        </div>
-                      </div>
-
-                      <div className="mt-5 grid gap-3 md:grid-cols-3">
-                        <div className="rounded-2xl bg-white p-4 shadow-sm">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Duration</p>
-                          <p className="mt-2 text-sm font-black text-slate-900">{item.durationMinutes} mins</p>
-                        </div>
-                        <div className="rounded-2xl bg-white p-4 shadow-sm">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Distance</p>
-                          <p className="mt-2 text-sm font-black text-slate-900">{item.distanceKm} km</p>
-                        </div>
-                        <div className="rounded-2xl bg-white p-4 shadow-sm">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Schedule</p>
-                          <p className="mt-2 text-sm font-black text-slate-900">{item.departureTime} to {item.arrivalTime}</p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {(item.operatingDays || []).map((day) => (
-                          <span key={day} className="rounded-full bg-slate-900 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
-                            {day}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div className="mt-5 flex justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/taxi/admin/airways/routes/edit/${item.id}`)}
-                          className="rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-900"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(item.id)}
-                          className="rounded-xl border border-rose-200 p-2 text-rose-500 transition hover:bg-rose-50"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="max-w-[150px] truncate">
+                              <p className="text-[12px] font-bold text-slate-700">
+                                {routeAirways.length > 0 ? routeAirways.map((entry) => entry.airlineName).join(', ') : 'None'}
+                              </p>
+                              <p className="text-[10px] text-slate-400 font-semibold truncate">
+                                {routeAirways.length > 0 ? routeAirways.map((entry) => entry.aircraftModel).join(', ') : ''}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+                              <span className="font-extrabold text-slate-900">{item.originAirport}</span>
+                              <ArrowRight size={12} className="text-slate-400" />
+                              <span className="font-extrabold text-slate-900">{item.destinationAirport}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-[12px] font-bold text-slate-800 flex items-center gap-1.5">
+                                <Clock size={11} className="text-indigo-500" />
+                                {item.departureTime} - {item.arrivalTime}
+                              </p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="text-[12px] font-semibold text-slate-700">{item.distanceKm} km</p>
+                              <p className="text-[10px] text-slate-400 font-bold">{item.durationMinutes} mins</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-wrap gap-1 max-w-[150px]">
+                              {(item.operatingDays || []).map((day) => (
+                                <span key={day} className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] font-bold text-slate-600 uppercase">
+                                  {day}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusClass}`}>
+                              {item.routeStatus}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/taxi/admin/airways/routes/details/${item.id}`)}
+                                className="rounded-lg border border-slate-100 bg-white p-1.5 text-slate-500 shadow-sm transition hover:border-indigo-200 hover:text-indigo-600 hover:bg-indigo-50/10 active:scale-95"
+                                title="View Details"
+                              >
+                                <Eye size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/taxi/admin/airways/routes/edit/${item.id}`)}
+                                className="rounded-lg border border-slate-100 bg-white p-1.5 text-slate-500 shadow-sm transition hover:border-amber-200 hover:text-amber-600 hover:bg-amber-50/10 active:scale-95"
+                                title="Edit"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(item.id)}
+                                className="rounded-lg border border-rose-100 bg-white p-1.5 text-rose-500 shadow-sm transition hover:bg-rose-50 hover:text-rose-700 active:scale-95"
+                                title="Delete"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isDetails) {
+    const routeAirways = (Array.isArray(formData.airwayIds) && formData.airwayIds.length > 0
+      ? formData.airwayIds
+      : formData.airwayId
+        ? [formData.airwayId]
+        : [])
+      .map((entry) => airwayMap.get(entry))
+      .filter(Boolean);
+
+    const statusColors = {
+      scheduled: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      seasonal: 'bg-amber-50 text-amber-700 border-amber-100',
+      paused: 'bg-rose-50 text-rose-700 border-rose-100',
+    };
+    const statusClass = statusColors[formData.routeStatus] || 'bg-slate-50 text-slate-700 border-slate-100';
+
+    return (
+      <div className="min-h-screen bg-[#F3F4F9] font-sans pb-12 animate-in fade-in duration-300">
+        <div className="border-b border-gray-100 bg-white px-8 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/taxi/admin/airways/routes')}
+              className="flex items-center gap-1.5 text-xs text-slate-500 font-bold hover:text-slate-900 transition mr-2 bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 active:scale-95"
+            >
+              <ChevronLeft size={16} /> Back to Routes
+            </button>
+            <h1 className="text-[14px] font-black uppercase tracking-tight text-slate-800">Route Details</h1>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-gray-400">
+            <span>Airways</span>
+            <ChevronRight size={12} className="opacity-30" />
+            <span>Routes</span>
+            <ChevronRight size={12} className="opacity-30" />
+            <span className="text-gray-500">Details</span>
+          </div>
+        </div>
+
+        <div className="p-8 lg:p-10 max-w-7xl mx-auto">
+          {loading ? (
+            <div className="flex items-center justify-center min-h-[400px]">
+              <span className="w-8 h-8 border-4 border-slate-300 border-t-slate-800 rounded-full animate-spin"></span>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Header card */}
+              <div className="bg-white rounded-[32px] border border-slate-200 p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                  {formData.image ? (
+                    <img src={formData.image} alt={formData.routeName} className="h-20 w-20 rounded-[24px] object-cover border border-slate-100 shadow-sm" />
+                  ) : (
+                    <div className="h-20 w-20 rounded-[24px] bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm shrink-0">
+                      <PlaneTakeoff size={36} />
+                    </div>
+                  )}
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusClass}`}>
+                        {formData.routeStatus}
+                      </span>
+                      <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-full px-2.5 py-0.5 tracking-wider">
+                        {formData.flightNumber}
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2 leading-tight">{formData.routeName}</h2>
+                    <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">
+                      ID: {formData.id}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/taxi/admin/airways/routes/edit/${formData.id}`)}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:bg-slate-50 shadow-sm active:scale-95"
+                  >
+                    <Edit2 size={16} />
+                    Edit Route
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!window.confirm('Delete this airway route?')) return;
+                      try {
+                        await deleteAdminAirwayRoute(formData.id);
+                        toast.success('Route deleted.');
+                        navigate('/taxi/admin/airways/routes');
+                      } catch {
+                        toast.error('Failed to delete route.');
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-rose-50 border border-rose-100 px-5 py-3 text-sm font-black text-rose-600 transition hover:bg-rose-100 shadow-sm active:scale-95"
+                  >
+                    <Trash2 size={16} />
+                    Delete Route
+                  </button>
+                </div>
+              </div>
+
+              {/* Main Content Grid */}
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Left Columns (Sector Details & parameters) */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Route Parameters / Info */}
+                  <div className="bg-white rounded-[32px] border border-slate-200 p-6 sm:p-8 shadow-sm">
+                    <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-4 mb-6">Route Parameters</h3>
+                    
+                    {/* Connection illustration */}
+                    <div className="bg-slate-50/70 rounded-3xl p-6 border border-slate-100 mb-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                      <div className="text-center sm:text-left">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Origin</p>
+                        <p className="text-3xl font-black text-slate-900 mt-1">{formData.originAirport}</p>
+                      </div>
+                      <div className="flex-1 flex items-center justify-center gap-2">
+                        <div className="h-0.5 bg-slate-200 flex-1 relative hidden sm:block">
+                          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-300"></div>
+                        </div>
+                        <div className="bg-white p-3 rounded-full border border-slate-200 text-slate-500 shadow-sm">
+                          <PlaneTakeoff size={20} className="rotate-45" />
+                        </div>
+                        <div className="h-0.5 bg-slate-200 flex-1 relative hidden sm:block">
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-300"></div>
+                        </div>
+                      </div>
+                      <div className="text-center sm:text-right">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Destination</p>
+                        <p className="text-3xl font-black text-slate-900 mt-1">{formData.destinationAirport}</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Departure</p>
+                        <p className="mt-2 text-base font-black text-slate-900 flex items-center gap-1.5">
+                          <Clock size={16} className="text-indigo-500" />
+                          {formData.departureTime}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Arrival</p>
+                        <p className="mt-2 text-base font-black text-slate-900 flex items-center gap-1.5">
+                          <Clock size={16} className="text-indigo-500" />
+                          {formData.arrivalTime}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Distance</p>
+                        <p className="mt-2 text-base font-black text-slate-900">{formData.distanceKm} km</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-100 bg-slate-50/30 p-4">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Duration</p>
+                        <p className="mt-2 text-base font-black text-slate-900">{formData.durationMinutes} mins</p>
+                      </div>
+                    </div>
+
+                    {/* Operating Days */}
+                    <div className="mt-8">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-3">Operating Days</p>
+                      <div className="flex flex-wrap gap-2">
+                        {DAY_OPTIONS.map((day) => {
+                          const active = formData.operatingDays.includes(day);
+                          return (
+                            <span
+                              key={day}
+                              className={`rounded-full px-4 py-2 text-[11px] font-black uppercase tracking-wider border ${
+                                active
+                                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                                  : 'bg-white border-slate-100 text-slate-300'
+                              }`}
+                            >
+                              {day}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    {formData.notes && (
+                      <div className="mt-8 border-t border-slate-100 pt-6">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Route Notes / Remarks</p>
+                        <p className="text-sm font-semibold text-slate-600 bg-slate-50 p-4 rounded-2xl border border-slate-100">{formData.notes}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Route Gallery */}
+                  {formData.gallery && formData.gallery.length > 0 && (
+                    <div className="bg-white rounded-[32px] border border-slate-200 p-6 sm:p-8 shadow-sm">
+                      <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-4 mb-6">Route Gallery</h3>
+                      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+                        {formData.gallery.map((img, idx) => (
+                          <div key={idx} className="group relative aspect-square overflow-hidden rounded-[24px] border border-slate-200 bg-white">
+                            <img src={img} alt={`Gallery ${idx}`} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Columns (Assigned Airway details & seat inventory) */}
+                <div className="space-y-6">
+                  {/* Airway Details */}
+                  <div className="bg-white rounded-[32px] border border-slate-200 p-6 sm:p-8 shadow-sm">
+                    <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-4 mb-6">Assigned Airway</h3>
+                    {routeAirways.length === 0 ? (
+                      <div className="text-sm font-semibold text-slate-500">No airway operator assigned.</div>
+                    ) : (
+                      <div className="space-y-6">
+                        {routeAirways.map((airway, idx) => (
+                          <div key={airway.id || idx} className={`${idx > 0 ? 'border-t border-slate-100 pt-6' : ''}`}>
+                            <div className="flex items-center gap-3">
+                              {airway.image ? (
+                                <img src={airway.image} alt={airway.airlineName} className="h-12 w-12 rounded-2xl object-cover border border-slate-100 shadow-sm" />
+                              ) : (
+                                <div className="h-12 w-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
+                                  <PlaneTakeoff size={20} />
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="font-extrabold text-slate-900 text-[14px] leading-tight">{airway.airlineName}</h4>
+                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{airway.airlineCode} | {airway.aircraftModel}</p>
+                              </div>
+                            </div>
+
+                            <div className="mt-5 space-y-3.5 text-[12px] font-semibold text-slate-600">
+                              {airway.registrationCode && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                  <span className="text-slate-400">Registration Code</span>
+                                  <span className="text-slate-900 font-extrabold">{airway.registrationCode}</span>
+                                </div>
+                              )}
+                              {airway.baseAirport && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                  <span className="text-slate-400">Base Airport</span>
+                                  <span className="text-slate-900 font-extrabold">{airway.baseAirport}</span>
+                                </div>
+                              )}
+                              {airway.pilotName && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                  <span className="text-slate-400">Pilot Name</span>
+                                  <span className="text-slate-900 font-extrabold">{airway.pilotName}</span>
+                                </div>
+                              )}
+                              {airway.pilotPhone && (
+                                <div className="flex justify-between border-b border-slate-50 pb-2">
+                                  <span className="text-slate-400">Pilot Contact</span>
+                                  <span className="text-slate-900 font-extrabold">{airway.pilotPhone}</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between border-b border-slate-50 pb-2">
+                                <span className="text-slate-400">Base Price</span>
+                                <span className="text-slate-900 font-extrabold text-indigo-600">₹{airway.basePrice}</span>
+                              </div>
+                              <div className="flex justify-between border-b border-slate-50 pb-2">
+                                <span className="text-slate-400">Service Tax</span>
+                                <span className="text-slate-900 font-extrabold">{airway.serviceTaxPercent}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Seat Inventory Card */}
+                  <div className="bg-white rounded-[32px] border border-slate-200 p-6 sm:p-8 shadow-sm">
+                    <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest border-b border-slate-100 pb-4 mb-6">Seat Inventory</h3>
+                    {Object.keys(formData.seatInventory || {}).length === 0 ? (
+                      <div className="text-sm font-semibold text-slate-500">No seat inventory allocated.</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {Object.entries(formData.seatInventory || {}).map(([cabin, count]) => (
+                          <div key={cabin} className="rounded-2xl border border-slate-100 bg-slate-50/50 p-4 flex items-center justify-between shadow-sm">
+                            <div>
+                              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Cabin Class</p>
+                              <p className="mt-1 text-sm font-extrabold text-slate-800">{cabin}</p>
+                            </div>
+                            <div className="bg-white px-4 py-2 rounded-xl border border-slate-100 text-center shadow-sm">
+                              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Allocated</p>
+                              <p className="mt-0.5 text-base font-black text-slate-900">{count} Seats</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

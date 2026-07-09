@@ -297,11 +297,14 @@ export const topUpDriverWallet = async ({ driverId, amount, metadata = {} }) => 
   }
 };
 
-export const settleCompletedRideWallet = async ({ rideId }) => {
-  const session = await mongoose.startSession();
+export const settleCompletedRideWallet = async ({ rideId }, options = {}) => {
+  const session = options.session || (await mongoose.startSession());
+  const isOuterSession = !!options.session;
 
   try {
-    session.startTransaction();
+    if (!isOuterSession) {
+      session.startTransaction();
+    }
 
     const ride = await Ride.findOneAndUpdate(
       { _id: rideId, walletSettledAt: null, driverId: { $ne: null } },
@@ -310,7 +313,9 @@ export const settleCompletedRideWallet = async ({ rideId }) => {
     );
 
     if (!ride) {
-      await session.commitTransaction();
+      if (!isOuterSession) {
+        await session.commitTransaction();
+      }
       return null;
     }
 
@@ -338,7 +343,9 @@ export const settleCompletedRideWallet = async ({ rideId }) => {
     await ride.save({ session });
 
     if (!amount) {
-      await session.commitTransaction();
+      if (!isOuterSession) {
+        await session.commitTransaction();
+      }
       return null;
     }
 
@@ -362,15 +369,21 @@ export const settleCompletedRideWallet = async ({ rideId }) => {
       session,
     });
 
-    await session.commitTransaction();
+    if (!isOuterSession) {
+      await session.commitTransaction();
+    }
     return {
       ...result,
       ride,
     };
   } catch (error) {
-    await session.abortTransaction();
+    if (!isOuterSession) {
+      await session.abortTransaction();
+    }
     throw error;
   } finally {
-    session.endSession();
+    if (!isOuterSession) {
+      session.endSession();
+    }
   }
 };

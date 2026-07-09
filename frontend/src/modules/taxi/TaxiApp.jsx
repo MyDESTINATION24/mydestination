@@ -440,6 +440,14 @@ const clearUserSession = () => {
   clearLocalUserSession();
 };
 
+const BusThemeLayout = () => {
+  return (
+    <div className="bus-theme">
+      <Outlet />
+    </div>
+  );
+};
+
 const UserProtectedRoute = () => {
   const location = useLocation();
 
@@ -724,7 +732,7 @@ function App() {
             <Toaster position="top-right" />
             <Routes>
               {/* Static / Public routes */}
-              <Route index element={<Navigate to="/taxi/home" replace />} />
+              <Route index element={<Navigate to="/taxi/user" replace />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="faq" element={<FaqPage />} />
@@ -808,11 +816,13 @@ function App() {
                 path="cab/spiritual-confirm"
                 element={<SpiritualTripConfirm />}
               />
-              <Route path="bus" element={<BusHome />} />
-              <Route path="bus/list" element={<BusList />} />
-              <Route path="bus/seats" element={<BusSeats />} />
-              <Route path="bus/details" element={<BusDetails />} />
-              <Route path="bus/confirm" element={<BusConfirm />} />
+              <Route element={<BusThemeLayout />}>
+                <Route path="bus" element={<BusHome />} />
+                <Route path="bus/list" element={<BusList />} />
+                <Route path="bus/seats" element={<BusSeats />} />
+                <Route path="bus/details" element={<BusDetails />} />
+                <Route path="bus/confirm" element={<BusConfirm />} />
+              </Route>
               <Route path="tours" element={<ComingSoon />} />
 
               <Route path="activity" element={<Activity />} />
@@ -971,12 +981,14 @@ function App() {
                 path="user/cab/spiritual-confirm"
                 element={<SpiritualTripConfirm />}
               />
-              <Route path="user/bus" element={<BusHome />} />
-              <Route path="user/bus/list" element={<BusList />} />
-              <Route path="user/bus/seats" element={<BusSeats />} />
-              <Route path="user/bus/details" element={<BusPreview />} />
-              <Route path="user/bus/checkout" element={<BusDetails />} />
-              <Route path="user/bus/confirm" element={<BusConfirm />} />
+              <Route element={<BusThemeLayout />}>
+                <Route path="user/bus" element={<BusHome />} />
+                <Route path="user/bus/list" element={<BusList />} />
+                <Route path="user/bus/seats" element={<BusSeats />} />
+                <Route path="user/bus/details" element={<BusPreview />} />
+                <Route path="user/bus/checkout" element={<BusDetails />} />
+                <Route path="user/bus/confirm" element={<BusConfirm />} />
+              </Route>
               <Route path="user/tours" element={<ComingSoon />} />
 
               <Route path="user/activity" element={<Activity />} />
@@ -1001,14 +1013,16 @@ function App() {
                 path="user/profile/addresses"
                 element={<AddressSettings />}
               />
-              <Route
-                path="user/profile/bus-bookings"
-                element={<BusBookings />}
-              />
-              <Route
-                path="user/profile/bus-bookings/:id"
-                element={<BusBookingDetail />}
-              />
+              <Route element={<BusThemeLayout />}>
+                <Route
+                  path="user/profile/bus-bookings"
+                  element={<BusBookings />}
+                />
+                <Route
+                  path="user/profile/bus-bookings/:id"
+                  element={<BusBookingDetail />}
+                />
+              </Route>
               <Route
                 path="user/profile/subscriptions"
                 element={<UserSubscriptions />}
@@ -1178,6 +1192,7 @@ function App() {
                 <Route path="airways/routes" element={<AdminAirwaysRouteManager />} />
                 <Route path="airways/routes/create" element={<AdminAirwaysRouteManager mode="create" />} />
                 <Route path="airways/routes/edit/:id" element={<AdminAirwaysRouteManager mode="edit" />} />
+                <Route path="airways/routes/details/:id" element={<AdminAirwaysRouteManager mode="details" />} />
                 <Route path="airways/bookings" element={<AdminAirwaysBookingManager />} />
                 <Route path="tours" element={<AdminTourManager />} />
                 <Route path="tours/create" element={<AdminTourManager mode="create" />} />

@@ -39,6 +39,15 @@ body {
   
   --shadow-premium: 0 10px 40px -10px rgba(0,0,0,0.1);
   --shadow-soft: 0 4px 20px -2px rgba(0,0,0,0.05);
+
+  --color-bus-primary: var(--bus-primary, #F97316);
+  --color-bus-primary-hover: var(--bus-primary-hover, #EA580C);
+  --color-bus-light: var(--bus-light, #FFF7ED);
+  --color-bus-light-border: var(--bus-light-border, #FFEDD5);
+  --color-bus-medium: var(--bus-medium, #FDBA74);
+  --color-bus-accent: var(--bus-accent, #FB923C);
+  --color-bus-dark: var(--bus-dark, #C2410C);
+  --color-bus-darker: var(--bus-darker, #7C2D12);
 }
 
 /* Class-based scrollbar hiding for specific mobile-optimized views */
@@ -72,6 +81,33 @@ body {
 .driver-theme .bg-primary { background-color: var(--color-primary); }
 .driver-theme .border-primary { border-color: var(--color-primary); }
 .driver-theme .shadow-premium { --tw-shadow: 0 10px 40px -10px rgba(0,0,0,0.15); box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
+
+/* Premium Bus-Specific Theme Layer - Light Orange Theme */
+.bus-theme {
+    --bus-primary: #F97316;              /* Primary brand orange */
+    --bus-primary-hover: #EA580C;        /* Hover orange */
+    --bus-light: #FFF7ED;                /* Light orange bg */
+    --bus-light-border: #FFEDD5;         /* Light orange border */
+    --bus-medium: #FDBA74;               /* Medium orange indicator */
+    --bus-accent: #FB923C;               /* Accent orange */
+    --bus-dark: #C2410C;                 /* Dark orange text/label */
+    --bus-darker: #7C2D12;               /* Dark brown-orange text */
+    --bus-bg: #FFFBF7;                   /* Cream orange page background */
+    --bus-card-white: #FFFFFF;
+
+    background-color: var(--bus-bg);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Localize Tailwind's mapping for standard primary colors in the bus module */
+.bus-theme .bg-primary { background-color: var(--bus-primary); }
+.bus-theme .text-primary { color: var(--bus-primary); }
+.bus-theme .border-primary { border-color: var(--bus-primary); }
+.bus-theme .bg-primary-hover:hover { background-color: var(--bus-primary-hover); }
+.bus-theme .bg-primary-light { background-color: var(--bus-light); }
+.bus-theme .text-primary-dark { color: var(--bus-dark); }
+.bus-theme .border-primary-light-border { border-color: var(--bus-light-border); }
 
 .glass-morphism {
     background: rgba(255, 255, 255, 0.7);

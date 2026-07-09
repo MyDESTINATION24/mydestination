@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Helicopter as HelicopterIcon, Heart } from 'lucide-react';
 import logo from '../assets/rokologin-removebg-preview.png';
 import WebsiteHeader from '../components/ui/WebsiteHeader';
+import ModernDatePicker from '../components/ui/ModernDatePicker';
 import heroBg from '../assets/landing/hero_travel1.png';
 import coupleImg from '../assets/landing/landingPageImage.png';
 import destAmsterdam from '../assets/landing/dest_amsterdam.png';
@@ -634,37 +635,54 @@ const LandingPage = () => {
             </div>
 
             {/* Check In */}
-            <div className="flex-1 w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 focus-within:border-green-600 transition-colors duration-200">
-              <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
-                <Calendar size={18} strokeWidth={2} />
-              </div>
-              <div className="flex flex-col w-full pl-9 pr-2">
-                <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check In</span>
-                <input
-                  type="date"
-                  value={searchParams.checkIn}
-                  onChange={(e) => setSearchParams({ ...searchParams, checkIn: e.target.value })}
-                  onFocus={(e) => e.target.scrollIntoView({ block: 'nearest', behavior: 'auto' })}
-                  className="w-full text-gray-800 font-semibold text-sm focus:outline-none bg-transparent cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                />
-              </div>
+            <div className="flex-1 w-full">
+              <ModernDatePicker
+                date={searchParams.checkIn}
+                onChange={(newDate) => setSearchParams({ ...searchParams, checkIn: newDate })}
+                minDate={new Date().toISOString().split('T')[0]}
+                customTrigger={(isOpen) => (
+                  <div className={`w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 transition-colors duration-200 ${isOpen ? 'border-green-600 ring-2 ring-green-600/10' : 'hover:border-gray-400'}`}>
+                    <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
+                      <Calendar size={18} strokeWidth={2} />
+                    </div>
+                    <div className="flex flex-col w-full pl-9 pr-2 text-left">
+                      <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check In</span>
+                      <span className="text-gray-800 font-semibold text-sm">
+                        {searchParams.checkIn ? (() => {
+                          const [y, m, d] = searchParams.checkIn.split('-');
+                          return `${d}-${m}-${y}`;
+                        })() : 'dd-mm-yyyy'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              />
             </div>
 
             {/* Check Out */}
-            <div className="flex-1 w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 focus-within:border-green-600 transition-colors duration-200">
-              <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
-                <Calendar size={18} strokeWidth={2} />
-              </div>
-              <div className="flex flex-col w-full pl-9 pr-2">
-                <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check Out</span>
-                <input
-                  type="date"
-                  value={searchParams.checkOut}
-                  onChange={(e) => setSearchParams({ ...searchParams, checkOut: e.target.value })}
-                  onFocus={(e) => e.target.scrollIntoView({ block: 'nearest', behavior: 'auto' })}
-                  className="w-full text-gray-800 font-semibold text-sm focus:outline-none bg-transparent cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                />
-              </div>
+            <div className="flex-1 w-full">
+              <ModernDatePicker
+                date={searchParams.checkOut}
+                onChange={(newDate) => setSearchParams({ ...searchParams, checkOut: newDate })}
+                minDate={searchParams.checkIn ? new Date(new Date(searchParams.checkIn).getTime() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
+                align="right"
+                customTrigger={(isOpen) => (
+                  <div className={`w-full relative flex items-center px-4 py-2 bg-white rounded-xl border border-gray-300 transition-colors duration-200 ${isOpen ? 'border-green-600 ring-2 ring-green-600/10' : 'hover:border-gray-400'}`}>
+                    <div className="absolute left-4 text-green-700 pointer-events-none flex items-center justify-center">
+                      <Calendar size={18} strokeWidth={2} />
+                    </div>
+                    <div className="flex flex-col w-full pl-9 pr-2 text-left">
+                      <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check Out</span>
+                      <span className="text-gray-800 font-semibold text-sm">
+                        {searchParams.checkOut ? (() => {
+                          const [y, m, d] = searchParams.checkOut.split('-');
+                          return `${d}-${m}-${y}`;
+                        })() : 'dd-mm-yyyy'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              />
             </div>
 
             <button
@@ -1186,9 +1204,8 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-        {/* Copyright + Payment Bar — white/light thin bar */}
-        <div className="bg-white border-t border-gray-200 py-2 -mx-6 -mb-8 md:-mx-8 md:-mb-8">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 flex flex-col md:grid md:grid-cols-4 items-center justify-center gap-2 md:gap-6">
+        <div className="bg-white border-t border-gray-200 py-2 -mx-6 -mb-8 md:-mx-8 md:-mb-8 px-6 md:px-8">
+          <div className="max-w-7xl mx-auto flex flex-col md:grid md:grid-cols-4 items-center gap-2 md:gap-8 w-full">
             {/* Left: Copyright */}
             <p className="m-0 text-[8px] text-[#065f46] font-medium text-center md:text-left md:col-span-3">
               Copyright © {new Date().getFullYear()}{' '}
@@ -1197,7 +1214,7 @@ const LandingPage = () => {
             </p>
 
             {/* Right: Payment Icons */}
-            <div className="flex items-center justify-center md:justify-start flex-wrap gap-1 md:col-span-1">
+            <div className="flex items-center justify-center md:justify-start flex-nowrap gap-1 md:col-span-1">
               {/* Google Pay */}
               {(cmsData?.footer?.paymentMethods?.googlepay !== false) && (
                 <div style={{ background: '#f8f9fa', borderRadius: '3px', padding: '1px 3px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '12px', minWidth: '24px', border: '1px solid #e5e7eb' }}>
