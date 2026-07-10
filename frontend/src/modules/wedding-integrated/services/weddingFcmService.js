@@ -11,6 +11,7 @@
 
 import { initializeApp, getApps } from 'firebase/app';
 import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
+import { API_BASE_URL } from '../../shared/api/runtimeConfig';
 
 // ─── My Destination Firebase Config ──────────────────────────────────────────
 const WEDDING_FIREBASE_CONFIG = {
@@ -27,7 +28,7 @@ const WEDDING_VAPID_KEY = "BLlSpfs_lQPpBRv4bRBE901WirEQ2NCdlyAxhiTQmomjULeC-kaOb
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const LAST_WEDDING_FCM_KEY = 'lastWeddingFcmRegistration';
-const WEDDING_API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api');
+const WEDDING_API_BASE = API_BASE_URL;
 const WEDDING_FCM_ENDPOINT = `${WEDDING_API_BASE}/users/fcm-token`;
 
 // ─── Firebase App (named 'wedding' to avoid conflict with Taxi app) ───────────

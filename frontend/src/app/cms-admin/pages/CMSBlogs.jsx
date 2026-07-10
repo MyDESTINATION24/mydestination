@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Type, AlignLeft, Layout } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
 
 const CMSBlogs = () => {
   const [blogs, setBlogs] = useState([]);

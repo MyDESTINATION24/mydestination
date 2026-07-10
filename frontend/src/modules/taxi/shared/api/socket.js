@@ -2,7 +2,7 @@ import { io } from 'socket.io-client';
 import { BACKEND_ORIGIN, TAXI_SOCKET_PATH } from './runtimeConfig';
 import { getTaxiAdminToken, getTaxiUserToken, getTokenPayload } from '../authStorage';
 
-const SOCKET_ORIGIN = import.meta.env.VITE_SOCKET_URL || BACKEND_ORIGIN;
+const SOCKET_ORIGIN = BACKEND_ORIGIN || undefined;
 
 const getSessionItem = (key) => {
   try {

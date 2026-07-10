@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { buildAssetUrl, buildBackendUrl } from '../../../shared/api/runtimeConfig';
 
 const Motion = motion;
 const LIST_PATH = '/admin/promotions/banner-image';
@@ -38,17 +39,15 @@ const BannerImage = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const token = localStorage.getItem('adminToken') || '';
-  const backendOrigin = globalThis.__LEGACY_BACKEND_ORIGIN__ || 'http://localhost:5001';
-  const baseUrl = `${backendOrigin}/api/v1/admin`;
+  const backendOrigin = buildBackendUrl();
+  const baseUrl = buildBackendUrl('api/v1/admin');
 
   const resolveImageUrl = useCallback(
     (img) => {
       if (!img) return null;
-      if (img.startsWith('data:') || img.startsWith('http')) return img;
-      const rootUrl = baseUrl.replace('/api/v1/admin', '');
-      return `${rootUrl}/${img.startsWith('/') ? img.slice(1) : img}`;
+      return buildAssetUrl(img);
     },
-    [baseUrl],
+    [],
   );
 
   const fetchData = useCallback(async () => {

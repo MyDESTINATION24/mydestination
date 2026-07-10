@@ -18,6 +18,7 @@ import templeImg from '@/assets/3d images/AutoCab/temple.png';
 import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
 import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
 import api from '../../../shared/api/axiosInstance';
+import { buildAssetUrl } from '../../../shared/api/runtimeConfig';
 import { useSettings } from '../../../shared/context/SettingsContext';
 import { userService } from '../services/userService';
 import { getLocalUserToken } from '../services/authService';
@@ -116,9 +117,7 @@ const getScheduledCountdownLabel = (value, now = Date.now()) => {
 
 const resolveImageUrl = (img) => {
   if (!img) return '';
-  if (img.startsWith('data:') || img.startsWith('http')) return img;
-  const origin = globalThis.__LEGACY_BACKEND_ORIGIN__ || 'http://localhost:5000';
-  return `${origin}/${img.startsWith('/') ? img.slice(1) : img}`;
+  return buildAssetUrl(img);
 };
 
 const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {

@@ -6,8 +6,7 @@ import axios from 'axios';
 import { isWebView } from '../../utils/deviceDetect';
 import WebsiteHeader from '../../components/ui/WebsiteHeader';
 import WebsiteFooter from '../../components/ui/WebsiteFooter';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../shared/api/runtimeConfig';
 
 const BlogsPage = () => {
   const navigate = useNavigate();
