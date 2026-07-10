@@ -12,6 +12,7 @@ import { createDefaultBusinessSettings } from '../data/defaultBusinessSettings.j
 import { createDefaultAppSettings } from '../data/defaultAppSettings.js';
 import { Airport } from '../models/Airport.js';
 import { BusService } from '../models/BusService.js';
+import { BusBanner } from '../models/BusBanner.js';
 import { DriverNeededDocument } from '../models/DriverNeededDocument.js';
 import { GoodsType } from '../models/GoodsType.js';
 import { OwnerNeededDocument } from '../models/OwnerNeededDocument.js';
@@ -37,6 +38,7 @@ import { Zone } from '../../driver/models/Zone.js';
 import { Ride } from '../../user/models/Ride.js';
 import { UserSubscription } from '../../user/models/UserSubscription.js';
 import { AppLanguage } from '../models/AppLanguage.js';
+import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { RideModule } from '../models/RideModule.js';
 import { SubscriptionPlan } from '../models/SubscriptionPlan.js';
 import { TaxiAppModule } from '../models/TaxiAppModule.js';
@@ -9679,3 +9681,91 @@ export const buildDriverDutyReport = async (query = {}) => {
     }
     return results;
   };
+
+export const getBusBanners = async (query = {}) => {
+  const filter = {};
+  if (query.type) {
+    if (query.type === 'banner') {
+      filter.$or = [{ type: 'banner' }, { type: { $exists: false } }, { type: null }];
+    } else {
+      filter.type = query.type;
+    }
+  }
+  return await BusBanner.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+};
+
+export const createBusBanner = async (payload = {}) => {
+  let imageUrl = payload.imageUrl || '';
+  let imagePublicId = payload.imagePublicId || '';
+
+  if (payload.image && String(payload.image).startsWith('data:')) {
+    try {
+      const uploaded = await uploadDataUrlToCloudinary({
+        dataUrl: payload.image,
+        publicIdPrefix: 'bus-banner',
+      });
+      imageUrl = uploaded.secureUrl;
+      imagePublicId = uploaded.publicId;
+    } catch (error) {
+      console.warn('Cloudinary upload failed for bus banner:', error.message);
+      imageUrl = payload.image;
+    }
+  }
+
+  if (!imageUrl) {
+    throw new ApiError(400, 'Image URL or uploaded image is required');
+  }
+
+  return await BusBanner.create({
+    title: payload.title || '',
+    imageUrl,
+    imagePublicId,
+    linkUrl: payload.linkUrl || '',
+    isActive: payload.isActive !== false,
+    order: Number(payload.order || 0),
+    type: payload.type || 'banner',
+  });
+};
+
+export const updateBusBanner = async (id, payload = {}) => {
+  const item = await BusBanner.findById(id);
+  if (!item) {
+    throw new ApiError(404, 'Bus banner not found');
+  }
+
+  let imageUrl = payload.imageUrl;
+  let imagePublicId = payload.imagePublicId;
+
+  if (payload.image && String(payload.image).startsWith('data:')) {
+    try {
+      const uploaded = await uploadDataUrlToCloudinary({
+        dataUrl: payload.image,
+        publicIdPrefix: 'bus-banner',
+      });
+      imageUrl = uploaded.secureUrl;
+      imagePublicId = uploaded.publicId;
+    } catch (error) {
+      console.warn('Cloudinary upload failed for bus banner:', error.message);
+      imageUrl = payload.image;
+    }
+  }
+
+  if (payload.title !== undefined) item.title = payload.title;
+  if (imageUrl !== undefined) item.imageUrl = imageUrl;
+  if (imagePublicId !== undefined) item.imagePublicId = imagePublicId;
+  if (payload.linkUrl !== undefined) item.linkUrl = payload.linkUrl;
+  if (payload.isActive !== undefined) item.isActive = payload.isActive;
+  if (payload.order !== undefined) item.order = Number(payload.order || 0);
+  if (payload.type !== undefined) item.type = payload.type;
+
+  await item.save();
+  return item;
+};
+
+export const deleteBusBanner = async (id) => {
+  const deleted = await BusBanner.findByIdAndDelete(id);
+  if (!deleted) {
+    throw new ApiError(404, 'Bus banner not found');
+  }
+  return true;
+};

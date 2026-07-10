@@ -206,6 +206,10 @@ import {
   getAdmins,
   getTransportTypes,
   deleteFleetVehicle,
+  getBusBanners,
+  createBusBanner,
+  updateBusBanner,
+  deleteBusBanner,
 } from '../controllers/adminController.js';
 import {
   getPoolingVehicles,
@@ -347,6 +351,10 @@ adminRouter.get('/admin/bus-services', getBusServices);
 adminRouter.post('/admin/bus-services', createBusService);
 adminRouter.patch('/admin/bus-services/:id', updateBusService);
 adminRouter.delete('/admin/bus-services/:id', deleteBusService);
+adminRouter.get('/admin/bus-banners', getBusBanners);
+adminRouter.post('/admin/bus-banners', createBusBanner);
+adminRouter.patch('/admin/bus-banners/:id', updateBusBanner);
+adminRouter.delete('/admin/bus-banners/:id', deleteBusBanner);
 adminRouter.get('/admin/bus-bookings', getAdminBusBookings);
 adminRouter.get('/admin/bus-bookings/calendar', getAdminBusBookingCalendar);
 adminRouter.post('/admin/bus-bookings/manual', createAdminBusBooking);

@@ -221,6 +221,7 @@ export const normalizeBusCatalog = (catalog = []) =>
     return {
       ...fallbackDraft,
       ...bus,
+      id: bus.id || bus._id || fallbackDraft.id,
       ownerDriverId: bus.ownerDriverId || '',
       blueprint,
       seatPrice:

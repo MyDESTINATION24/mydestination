@@ -15,6 +15,7 @@ import {
   createPhonePeWalletTopupOrder,
   getBusSeatLayout,
   getBusRouteSuggestions,
+  getActiveBusBanners,
   getMyBusBookingById,
   listMyBusBookings,
   getUserWallet,
@@ -135,6 +136,7 @@ userRouter.post('/rental-advance/razorpay/order', authenticateOrResolveUser(['us
 userRouter.post('/rental-advance/razorpay/verify', authenticateOrResolveUser(['user']), asyncHandler(verifyRentalAdvancePayment));
 userRouter.post('/rental-advance/wallet', authenticateOrResolveUser(['user']), asyncHandler(payRentalAdvanceWithWallet));
 userRouter.get('/buses/routes', authenticateOrResolveUser(['user']), asyncHandler(getBusRouteSuggestions));
+userRouter.get('/buses/banners', asyncHandler(getActiveBusBanners));
 userRouter.get('/buses/search', authenticateOrResolveUser(['user']), asyncHandler(searchBuses));
 userRouter.get('/buses/:id/seats', authenticateOrResolveUser(['user']), asyncHandler(getBusSeatLayout));
 userRouter.get('/bus-bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyBusBookings));

@@ -706,6 +706,8 @@ const AdminLayout = () => {
             subItems: [
               { label: 'Fleet Manager', path: '/admin/bus-service', permission: 'bus_service.view' },
               { label: 'Bus Bookings', path: '/admin/bus-service/bookings', permission: 'bus_service.view' },
+              { label: 'Bus Banners', path: '/admin/bus-service/banners', permission: 'bus_service.view' },
+              { label: 'Bus Offers', path: '/admin/bus-service/offers', permission: 'bus_service.view' },
             ],
           },
           {

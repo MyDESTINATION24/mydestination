@@ -796,6 +796,20 @@ export const deleteBusService = asyncHandler(async (req, res) => {
   ok(res, { deleted: true });
 });
 
+export const getBusBanners = asyncHandler(async (req, res) =>
+  ok(res, { results: await adminService.getBusBanners(req.query) }),
+);
+export const createBusBanner = asyncHandler(async (req, res) =>
+  ok(res, await adminService.createBusBanner(req.body)),
+);
+export const updateBusBanner = asyncHandler(async (req, res) =>
+  ok(res, await adminService.updateBusBanner(req.params.id, req.body)),
+);
+export const deleteBusBanner = asyncHandler(async (req, res) => {
+  await adminService.deleteBusBanner(req.params.id);
+  ok(res, { deleted: true });
+});
+
 export const getAdminBusBookings = asyncHandler(async (req, res) => {
   const busServiceId = toCleanString(req.query?.busServiceId);
   const travelDate = normalizeBusTravelDate(req.query?.travelDate || req.query?.date);

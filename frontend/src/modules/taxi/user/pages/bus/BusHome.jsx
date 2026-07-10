@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
   Calendar,
@@ -113,6 +113,73 @@ const BusHome = () => {
   const [routesError, setRoutesError] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => getMonthStart(new Date(getTomorrowDate())));
+  const [banners, setBanners] = useState([]);
+  const [offers, setOffers] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(false);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadBanners = async () => {
+      setBannersLoading(true);
+      try {
+        const response = await userBusService.getBanners({ type: 'banner' });
+        if (!active) return;
+        const bannerList = response?.data?.results || response?.results || [];
+        setBanners(bannerList);
+      } catch (err) {
+        console.error('Failed to load bus banners:', err);
+      } finally {
+        if (active) {
+          setBannersLoading(false);
+        }
+      }
+    };
+
+    const loadOffers = async () => {
+      setOffersLoading(true);
+      try {
+        const response = await userBusService.getBanners({ type: 'offer' });
+        if (!active) return;
+        const offerList = response?.data?.results || response?.results || [];
+        setOffers(offerList);
+      } catch (err) {
+        console.error('Failed to load bus offers:', err);
+      } finally {
+        if (active) {
+          setOffersLoading(false);
+        }
+      }
+    };
+
+    loadBanners();
+    loadOffers();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentBannerIndex((prevIndex) => (prevIndex + 1) % banners.length);
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [banners]);
+
+  const handleBannerClick = (linkUrl) => {
+    if (!linkUrl) return;
+    if (linkUrl.startsWith('http')) {
+      window.open(linkUrl, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(linkUrl);
+    }
+  };
 
   useEffect(() => {
     if (!busEnabled) {
@@ -177,15 +244,29 @@ const BusHome = () => {
     routeSuggestions.length > 0 &&
     !matchingRoute;
 
-  const quickDates = useMemo(
-    () => [
-      { label: 'Today', value: getTodayDate() },
-      { label: 'Tomorrow', value: getDateOffset(1) },
-      { label: 'Day After', value: getDateOffset(2) },
-      { label: 'This Weekend', value: getNextWeekendDate() },
-    ],
-    [],
-  );
+  const horizontalQuickDates = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 3 }, (_, index) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + index);
+      const dateStr = formatDateKey(d);
+      return {
+        weekday: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        day: d.getDate(),
+        value: dateStr,
+      };
+    });
+  }, []);
+
+  const formatCalendarLabel = (dateStr) => {
+    if (!dateStr) return '';
+    const parsed = new Date(`${dateStr}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) return dateStr;
+    const weekday = parsed.toLocaleDateString('en-US', { weekday: 'short' });
+    const day = String(parsed.getDate()).padStart(2, '0');
+    const month = parsed.toLocaleDateString('en-US', { month: 'short' });
+    return `${weekday}, ${day} ${month}`;
+  };
 
   const filteredFromCities = useMemo(() => {
     const source = normalizeCity(fromCity);
@@ -312,230 +393,370 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
-      <header className="bg-white px-5 pt-14 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm md:pt-10">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-9 h-9 rounded-xl border border-bus-light-border/80 bg-white flex items-center justify-center shadow-sm active:scale-95 transition-all"
-          >
-            <ArrowLeft size={18} className="text-bus-darker" />
-          </button>
-          <div className="flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-bus-dark/60">Bus Tickets</p>
-            <h1 className="text-xl font-bold text-bus-darker">Book your journey</h1>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
+      <header className="bg-transparent px-5 pt-12 pb-2 sticky top-0 z-20 flex items-center gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white"
+        >
+          <ArrowLeft size={20} className="text-gray-800" />
+        </button>
+        <div className="flex-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80">Bus Tickets</p>
+          <h1 className="text-xl font-bold text-gray-900 leading-none">Book your journey</h1>
         </div>
       </header>
  
-      <div className="px-5 pt-6 space-y-6">
-        <div className="rounded-3xl bg-gradient-to-br from-bus-primary to-bus-accent p-6 text-white shadow-xl shadow-bus-primary/10">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold leading-tight">Travel with ease</h2>
-              <p className="mt-2 text-sm text-bus-light/80 font-medium">
-                Find and book bus tickets for your preferred routes in just a few clicks.
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-              <BusFront size={24} className="text-white" />
-            </div>
-          </div>
- 
-          <div className="mt-6 grid grid-cols-3 gap-4 border-t border-white/20 pt-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase text-bus-light/60">Routes</p>
-              <p className="mt-1 text-lg font-bold">{routeSuggestions.length || 0}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase text-bus-light/60">Cities</p>
-              <p className="mt-1 text-lg font-bold">{cityOptions.length || 0}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase text-bus-light/60">Date</p>
-              <p className="mt-1 text-sm font-bold">{formatTravelDate(date) || 'Choose'}</p>
+      <div className="px-5 pt-4 space-y-5">
+        {/* Source/Destination inputs */}
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative">
+          <div className="flex items-center gap-3 relative z-10">
+            <span className="w-5 h-5 flex items-center justify-center shrink-0">
+              <span className="w-2.5 h-2.5 rounded-full border-2 border-gray-400 bg-white" />
+            </span>
+            <div className="flex-1">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400/90 mb-0.5">Enter Departure</label>
+              <input
+                type="text"
+                list="bus-route-cities"
+                value={fromCity}
+                onChange={(event) => setFromCity(event.target.value)}
+                placeholder="Source city"
+                className="w-full bg-transparent text-base font-bold text-gray-800 focus:outline-none placeholder:text-gray-400 placeholder:font-normal"
+              />
             </div>
           </div>
-        </div>
- 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-bus-light-border/40 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-bus-light text-bus-primary flex items-center justify-center">
-              <Search size={20} />
-            </div>
-             <div>
-              <h3 className="text-lg font-bold text-bus-darker">Search Buses</h3>
-              <p className="text-xs text-bus-dark/60 font-medium">Find available buses on your route</p>
+
+          <div className="relative pl-8">
+            <div className="w-full h-px bg-gray-100/80" />
+            <div className="absolute left-2.5 -top-[18px] bottom-[10px] border-l border-dashed border-teal-500/40" />
+          </div>
+
+          <div className="flex items-center gap-3 relative z-10">
+            <span className="w-5 h-5 flex items-center justify-center text-teal-600 shrink-0">
+              <MapPin size={18} className="stroke-[2.5px]" />
+            </span>
+            <div className="flex-1">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-gray-400/90 mb-0.5">Enter Destination</label>
+              <input
+                type="text"
+                list="bus-route-cities"
+                value={toCity}
+                onChange={(event) => setToCity(event.target.value)}
+                placeholder="Destination city"
+                className="w-full bg-transparent text-base font-bold text-gray-800 focus:outline-none placeholder:text-gray-400 placeholder:font-normal"
+              />
             </div>
           </div>
- 
-          <div className="space-y-4">
-            <div className="relative">
-              <div className="absolute left-4 top-4 text-bus-accent">
-                <MapPin size={16} />
-              </div>
-              <div className="pl-12 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40">
-                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">From</label>
-                <input
-                  type="text"
-                  list="bus-route-cities"
-                  value={fromCity}
-                  onChange={(event) => setFromCity(event.target.value)}
-                  placeholder="Enter source city"
-                  className="w-full bg-transparent text-base font-semibold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
-                />
-              </div>
-              
-              <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10">
-                <button
-                  type="button"
-                  onClick={swapCities}
-                  className="w-10 h-10 rounded-full bg-white border border-bus-light-border/80 text-bus-primary flex items-center justify-center shadow-sm active:rotate-180 transition-transform duration-300"
-                >
-                  <ArrowRightLeft size={16} />
-                </button>
-              </div>
-            </div>
- 
-            <div className="relative">
-              <div className="absolute left-4 top-4 text-bus-accent">
-                <MapPin size={16} />
-              </div>
-              <div className="pl-12 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40">
-                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">To</label>
-                <input
-                  type="text"
-                  list="bus-route-cities"
-                  value={toCity}
-                  onChange={(event) => setToCity(event.target.value)}
-                  placeholder="Enter destination city"
-                  className="w-full bg-transparent text-base font-semibold text-bus-darker focus:outline-none placeholder:text-bus-medium/70"
-                />
-              </div>
-            </div>
- 
+
+          <div className="absolute right-5 top-[39%] -translate-y-1/2 z-20">
             <button
               type="button"
-              onClick={openCalendar}
-              className="w-full flex items-center gap-4 pl-4 pr-4 py-3 bg-bus-light/30 rounded-2xl border border-bus-light-border/40 text-left"
+              onClick={swapCities}
+              className="w-11 h-11 bg-white rounded-2xl shadow-md border border-gray-50 text-teal-600 flex items-center justify-center rotate-45 active:scale-95 transition-all hover:bg-gray-50"
             >
-              <div className="text-bus-accent">
-                <Calendar size={16} />
-              </div>
-              <div className="flex-1">
-                <label className="block text-[10px] font-bold uppercase text-bus-dark/55 mb-0.5">Date of Journey</label>
-                <span className="text-base font-semibold text-bus-darker">{formatTravelDate(date) || 'Choose date'}</span>
-              </div>
-              <span className="text-xs font-bold text-bus-primary">Change</span>
+              <ArrowRightLeft size={16} className="-rotate-45" />
             </button>
-          </div>
- 
-          <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-bus-dark/60">Quick dates</p>
-            <div className="flex flex-wrap gap-2">
-              {quickDates.map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => setDate(item.value)}
-                  className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
-                    date === item.value
-                      ? 'bg-bus-primary text-white shadow-md shadow-bus-primary/20'
-                      : 'bg-bus-light/50 text-bus-dark border border-bus-light-border/70 hover:border-bus-accent/40'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
- 
-          <datalist id="bus-route-cities">
-            {cityOptions.map((city, index) => (
-              <option key={getListKey(city, index, 'city')} value={city} />
-            ))}
-          </datalist>
- 
-          <div className="space-y-4">
-            {matchingRoute && (
-              <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Route size={14} className="text-emerald-600" />
-                  <span className="text-xs font-bold text-emerald-700">Route available</span>
-                </div>
-                <span className="text-xs font-bold text-emerald-700">
-                  Starts at ₹{Number(matchingRoute.startingPrice || 0)}
-                </span>
-              </div>
-            )}
- 
-            {hasTypedInvalidRoute && (
-              <div className="rounded-2xl bg-bus-light border border-bus-light-border px-4 py-3 text-xs font-bold text-bus-dark/70">
-                This specific route is not available. Please check the list below.
-              </div>
-            )}
- 
-            {error && (
-              <div className="rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-xs font-bold text-rose-600">
-                {error}
-              </div>
-            )}
- 
-            {!busEnabled && (
-              <div className="rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs font-bold text-amber-700">
-                Bus service is currently disabled.
-              </div>
-            )}
- 
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSearch}
-              className="w-full bg-bus-primary text-white py-4 rounded-2xl text-base font-bold flex items-center justify-center gap-2 shadow-lg shadow-bus-primary/20 hover:bg-bus-primary-hover active:scale-95 transition-all"
-            >
-              Search Buses <ChevronRight size={18} />
-            </motion.button>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-bus-darker">Popular Routes</h3>
-            {routesLoading && <Loader2 size={18} className="animate-spin text-bus-primary" />}
+        {/* Date Selection Card */}
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            {horizontalQuickDates.map((item) => {
+              const isSelected = date === item.value;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => setDate(item.value)}
+                  className={`flex flex-col items-center justify-center w-[4.25rem] py-2 rounded-2xl transition-all ${
+                    isSelected
+                      ? 'bg-[#0d9488] text-white font-bold shadow-md shadow-teal-500/10 scale-[1.03]'
+                      : 'bg-white text-gray-850 border border-gray-100 hover:bg-gray-50/50'
+                  }`}
+                >
+                  <span className={`text-[10px] uppercase font-bold tracking-wider ${isSelected ? 'text-teal-100/90' : 'text-gray-450'}`}>
+                    {item.weekday}
+                  </span>
+                  <span className="text-base font-black mt-0.5 leading-none">{item.day}</span>
+                </button>
+              );
+            })}
           </div>
- 
-          <div className="space-y-3">
+
+          <div className="h-10 w-px bg-gray-200/80 shrink-0" />
+
+          <button
+            type="button"
+            onClick={openCalendar}
+            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none"
+          >
+            <Calendar size={18} className="text-teal-600 shrink-0" />
+            <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
+              {formatCalendarLabel(date) || 'Select Date'}
+            </span>
+          </button>
+        </div>
+
+        <datalist id="bus-route-cities">
+          {cityOptions.map((city, index) => (
+            <option key={getListKey(city, index, 'city')} value={city} />
+          ))}
+        </datalist>
+
+        <div className="space-y-4">
+          {matchingRoute && (
+            <div className="rounded-2xl bg-emerald-50 border border-emerald-100 px-4 py-3 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2">
+                <Route size={14} className="text-emerald-600" />
+                <span className="text-xs font-bold text-emerald-700">Route available</span>
+              </div>
+              <span className="text-xs font-bold text-emerald-700">
+                Starts at ₹{Number(matchingRoute.startingPrice || 0)}
+              </span>
+            </div>
+          )}
+
+          {hasTypedInvalidRoute && (
+            <div className="rounded-2xl bg-bus-light border border-bus-light-border px-4 py-3 text-xs font-bold text-bus-dark/70 shadow-sm">
+              This specific route is not available. Please check the list below.
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-2xl bg-rose-50 border border-rose-100 px-4 py-3 text-xs font-bold text-rose-600 shadow-sm">
+              {error}
+            </div>
+          )}
+
+          {!busEnabled && (
+            <div className="rounded-2xl bg-amber-50 border border-amber-100 px-4 py-3 text-xs font-bold text-amber-700 shadow-sm">
+              Bus service is currently disabled.
+            </div>
+          )}
+
+          {/* Search Button */}
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSearch}
+            className="w-full bg-black hover:bg-slate-900 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-all"
+          >
+            <Search size={18} className="stroke-[2.5px]" />
+            <span>Search Buses</span>
+          </motion.button>
+
+          {/* Ticket Banner */}
+          <div className="bg-[#ccfbf1]/50 border border-teal-100/50 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <span className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-teal-600 shadow-sm shrink-0">
+                <Ticket size={16} className="fill-teal-50" />
+              </span>
+              <span className="text-xs font-black text-teal-800 tracking-wide">
+                Your next journey starts here
+              </span>
+            </div>
+            <ChevronRight size={16} className="text-teal-600 stroke-[2.5px]" />
+          </div>
+        </div>
+
+        {/* Banner Section (Dynamic Carousel / Skeleton Loading) */}
+        {bannersLoading ? (
+          <div className="w-full h-44 sm:h-52 rounded-[28px] bg-slate-100 animate-pulse mt-2" />
+        ) : banners.length > 0 ? (
+          <div className="relative overflow-hidden rounded-[28px] border border-teal-100/50 bg-white shadow-sm mt-2">
+            <div className="relative w-full h-44 sm:h-52 overflow-hidden">
+              <AnimatePresence initial={false} mode="wait">
+                <motion.img
+                  key={currentBannerIndex}
+                  src={banners[currentBannerIndex]?.imageUrl}
+                  alt={banners[currentBannerIndex]?.title || 'Promo Banner'}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  onClick={() => handleBannerClick(banners[currentBannerIndex]?.linkUrl)}
+                  className="w-full h-full object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+                />
+              </AnimatePresence>
+
+              {banners[currentBannerIndex]?.title && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-10">
+                  <p className="text-white text-xs font-bold truncate">
+                    {banners[currentBannerIndex]?.title}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {banners.length > 1 && (
+              <div className="absolute bottom-3 right-4 flex gap-1.5 z-10 bg-black/25 backdrop-blur-md px-2 py-1 rounded-full">
+                {banners.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentBannerIndex(idx)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/40'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        {/* Offers & Popular Routes Drawer Card */}
+        <div className="bg-white rounded-t-[36px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t border-gray-100/60 p-6 space-y-5 -mx-5 pb-10">
+          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2" />
+          
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-black text-gray-900">Offers & Promotions</h3>
+          </div>
+
+          {/* Horizontal Promo Scroll */}
+          {offersLoading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="w-72 h-32 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="h-3 bg-slate-200/80 rounded w-1/4" />
+                    <div className="h-4 bg-slate-200/80 rounded w-3/4" />
+                    <div className="h-3 bg-slate-200/80 rounded w-5/6" />
+                  </div>
+                  <div className="h-3 bg-slate-200/80 rounded w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : offers.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+              {offers.map((offer) => (
+                <div
+                  key={offer.id || offer._id}
+                  onClick={() => handleBannerClick(offer.linkUrl)}
+                  className="w-72 h-32 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
+                >
+                  <img
+                    src={offer.imageUrl}
+                    alt={offer.title || 'Offer Banner'}
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  />
+                  {offer.title && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 pt-6">
+                      <p className="text-white text-[11px] font-black truncate">
+                        {offer.title}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+              {/* Metro Ride Offer (From image) */}
+              <div className="w-72 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+                <div>
+                  <span className="bg-teal-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Special Offer
+                  </span>
+                  <h4 className="text-base font-black text-teal-900 mt-2.5 leading-snug">
+                    YOUR METRO RIDE IS ON US
+                  </h4>
+                  <p className="text-[11px] font-semibold text-teal-700/80 mt-1 leading-normal">
+                    Book a NueGo ticket in Hyderabad & Get a FREE Metro Ride to/from your boarding/drop point.
+                  </p>
+                </div>
+                <div className="border-t border-teal-100 pt-3 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-teal-800 uppercase tracking-widest">
+                    Show PNR at Counter
+                  </span>
+                  <ChevronRight size={14} className="text-teal-600" />
+                </div>
+              </div>
+
+              {/* Promo Offer 2 */}
+              <div className="w-72 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+                <div>
+                  <span className="bg-amber-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Save Big
+                  </span>
+                  <h4 className="text-base font-black text-amber-900 mt-2.5 leading-snug">
+                    Flat 10% Off on First Ride
+                  </h4>
+                  <p className="text-[11px] font-semibold text-amber-700/80 mt-1 leading-normal">
+                    Save up to ₹150 with code FIRSTBUS on all booking routes. Safe, clean, and reliable coaches.
+                  </p>
+                </div>
+                <div className="border-t border-amber-100 pt-3 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-amber-800 uppercase tracking-widest">
+                    Use Code: FIRSTBUS
+                  </span>
+                  <ChevronRight size={14} className="text-amber-600" />
+                </div>
+              </div>
+
+              {/* Promo Offer 3 */}
+              <div className="w-72 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+                <div>
+                  <span className="bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Flexibility
+                  </span>
+                  <h4 className="text-base font-black text-blue-900 mt-2.5 leading-snug">
+                    Free Booking Cancellations
+                  </h4>
+                  <p className="text-[11px] font-semibold text-blue-700/80 mt-1 leading-normal">
+                    Change of plans? Cancel your ticket for free up to 6 hours before departure on selected buses.
+                  </p>
+                </div>
+                <div className="border-t border-blue-100 pt-3 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">
+                    Terms & Conditions Apply
+                  </span>
+                  <ChevronRight size={14} className="text-blue-600" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Popular Routes List */}
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Available Routes</h4>
+              {routesLoading && <Loader2 size={14} className="animate-spin text-teal-600" />}
+            </div>
+            
             {featuredRoutes.map((route, index) => (
               <button
                 key={getRouteKey(route, index)}
                 type="button"
                 onClick={() => fillRoute(route)}
-                className="w-full rounded-2xl border border-bus-light-border/40 bg-white px-4 py-4 text-left shadow-sm active:scale-[0.99] transition-transform hover:border-bus-accent/40"
+                className="w-full rounded-2xl border border-gray-100 bg-white px-4 py-3.5 text-left shadow-sm active:scale-[0.99] transition-transform flex items-center justify-between hover:border-teal-500/30"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <h4 className="text-base font-bold text-bus-darker truncate">
-                      {route.fromCity} → {route.toCity}
-                    </h4>
-                    <p className="mt-1 text-xs font-medium text-bus-dark/60 truncate">
-                      {route.operatorName || 'Multiple operators available'}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-[10px] font-bold uppercase text-bus-dark/45">From</p>
-                    <p className="text-lg font-bold text-bus-darker">₹{Number(route.startingPrice || 0)}</p>
-                  </div>
+                <div className="min-w-0 pr-3">
+                  <h5 className="text-sm font-bold text-gray-800 truncate">
+                    {route.fromCity} → {route.toCity}
+                  </h5>
+                  <p className="mt-0.5 text-[10px] font-bold text-gray-400 truncate">
+                    {route.operatorName || 'Multiple operators available'}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-[9px] font-bold uppercase text-gray-400">From</p>
+                  <p className="text-base font-black text-[#0d9488]">₹{Number(route.startingPrice || 0)}</p>
                 </div>
               </button>
             ))}
+
+            {!routesLoading && !featuredRoutes.length && !routesError && (
+              <p className="text-center py-6 text-xs font-bold text-gray-400">No active routes found.</p>
+            )}
+
+            {routesError && (
+              <p className="text-center py-6 text-xs font-bold text-rose-500">{routesError}</p>
+            )}
           </div>
- 
-          {!routesLoading && !featuredRoutes.length && !routesError && (
-            <p className="text-center py-8 text-sm font-medium text-bus-dark/50">No active routes found.</p>
-          )}
- 
-          {routesError && (
-            <p className="text-center py-8 text-sm font-medium text-rose-500">{routesError}</p>
-          )}
         </div>
       </div>
  

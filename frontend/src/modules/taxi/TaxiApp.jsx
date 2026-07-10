@@ -258,6 +258,7 @@ const AdminBusServiceManager = lazy(() => import('./admin/pages/bus-service/BusS
 const AdminBusServiceDetails = lazy(() => import('./admin/pages/bus-service/BusServiceDetails'));
 const AdminBusBookingManager = lazy(() => import('./admin/pages/bus-service/BusBookingManager'));
 const AdminBusCommissionManager = lazy(() => import('./admin/pages/bus-service/BusCommissionManager'));
+const AdminBusBannerManager = lazy(() => import('./admin/pages/bus-service/BusBannerManager'));
 const AdminAirwaysManager = lazy(() => import('./admin/pages/airways/AirwaysManager'));
 const AdminAirwaysRouteManager = lazy(() => import('./admin/pages/airways/AirwaysRouteManager'));
 const AdminAirwaysBookingManager = lazy(() => import('./admin/pages/airways/AirwaysBookingManager'));
@@ -1185,6 +1186,8 @@ function App() {
                 <Route path="bus-service/edit/:id" element={<AdminBusServiceManager mode="edit" />} />
                 <Route path="bus-service/commission" element={<AdminBusCommissionManager />} />
                 <Route path="bus-service/bookings" element={<AdminBusBookingManager />} />
+                <Route path="bus-service/banners" element={<AdminBusBannerManager type="banner" />} />
+                <Route path="bus-service/offers" element={<AdminBusBannerManager type="offer" />} />
                 <Route path="bus-service/:id" element={<AdminBusServiceDetails />} />
                 <Route path="airways" element={<AdminAirwaysManager />} />
                 <Route path="airways/create" element={<AdminAirwaysManager mode="create" />} />

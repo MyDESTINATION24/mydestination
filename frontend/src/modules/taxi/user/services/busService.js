@@ -65,6 +65,7 @@ export const userBusService = {
     }),
 
   verifyBookingPayment: (payload) => api.post('/users/bus-bookings/verify', payload),
+  getBanners: (params = {}) => api.get('/users/buses/banners', { params }),
 };
 
 export default userBusService;
