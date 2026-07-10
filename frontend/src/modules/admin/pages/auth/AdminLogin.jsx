@@ -9,6 +9,8 @@ import { api } from '../../../../services/apiService';
 import useAdminStore from '../../../../app/admin/store/adminStore';
 
 import { adminService } from '../../services/adminService';
+import { adminService as taxiAdminService } from '../../../taxi/admin/services/adminService';
+import { setTaxiAdminSession } from '../../../taxi/shared/authStorage';
 import adminBg from '../../../../assets/admin_bg.png'; // Premium background image
 
 // ─── Shared unified admin login via main API ────────────────────────────────────
@@ -64,18 +66,16 @@ const PANELS = [
 
 // ─── Login logic per panel ────────────────────────────────────────────────────
 const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
-  // Use the robust unified backend auth for ALL panels
-  const response = await unifiedAdminLogin(email, password);
-  const payload = response?.data || response || {};
-  const authData = payload?.user ? payload : (payload?.data || payload || {});
-  
-  const token = authData.token || '';
-  const user = authData.user || {};
-
-  if (!token) throw new Error('Authentication failed: No token received');
-
   switch (panelKey) {
     case 'hotel': {
+      const response = await unifiedAdminLogin(email, password);
+      const payload = response?.data || response || {};
+      const authData = payload?.user ? payload : (payload?.data || payload || {});
+      const token = authData.token || '';
+      const user = authData.user || {};
+
+      if (!token) throw new Error('Authentication failed: No token received');
+
       localStorage.setItem('adminToken', token);
       localStorage.setItem('adminInfo', JSON.stringify(user));
       if (adminStoreLogin) {
@@ -84,28 +84,41 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
       return { redirectTo: '/admin/dashboard' };
     }
     case 'wedding': {
+      const response = await unifiedAdminLogin(email, password);
+      const payload = response?.data || response || {};
+      const authData = payload?.user ? payload : (payload?.data || payload || {});
+      const token = authData.token || '';
+      const user = authData.user || {};
+
+      if (!token) throw new Error('Authentication failed: No token received');
+
       localStorage.setItem('admin_token', token);
       localStorage.setItem('admin_user', JSON.stringify(user));
       return { redirectTo: '/wedding/admin/dashboard' };
     }
     case 'taxi': {
-      // Use Om bhaiya's original robust Taxi Admin Login API
-      const response = await api.post('/taxi/admin/login', { email, password });
+      const response = await taxiAdminService.login({ email, password });
       const payload = response?.data || response || {};
       const authData = payload?.admin ? payload : (payload?.data || payload || {});
-      
       const token = authData.token || '';
       const user = authData.admin || {};
-      
+
       if (!token) throw new Error('Taxi Admin authentication failed');
 
+      setTaxiAdminSession({ token, admin: user });
       localStorage.setItem('adminToken', token);
       localStorage.setItem('adminInfo', JSON.stringify(user));
-      localStorage.setItem('taxiAdminToken', token);
-      localStorage.setItem('taxiAdminInfo', JSON.stringify(user));
       return { redirectTo: '/taxi/admin' };
     }
     case 'cms': {
+      const response = await unifiedAdminLogin(email, password);
+      const payload = response?.data || response || {};
+      const authData = payload?.user ? payload : (payload?.data || payload || {});
+      const token = authData.token || '';
+      const user = authData.user || {};
+
+      if (!token) throw new Error('Authentication failed: No token received');
+
       localStorage.setItem('cmsToken', token);
       localStorage.setItem('adminInfo', JSON.stringify(user));
       return { redirectTo: '/cms-admin' };
