@@ -72,6 +72,7 @@ const parseDateKey = (value) => {
 
 const createToday = () => formatDateKey(new Date());
 const DAY_OPTIONS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const EMPTY_ARRAY = [];
 const createLocalScheduleId = () =>
   `schedule-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 const createScheduleDraft = () => ({
@@ -276,8 +277,14 @@ const BusDriverHome = () => {
   }, [navigate]);
 
   const busService = profile?.busService || null;
-  const schedules = Array.isArray(busService?.schedules) ? busService.schedules : [];
-  const routeStops = Array.isArray(busService?.route?.stops) ? busService.route.stops : [];
+  const schedules = useMemo(
+    () => (Array.isArray(busService?.schedules) ? busService.schedules : EMPTY_ARRAY),
+    [busService?.schedules],
+  );
+  const routeStops = useMemo(
+    () => (Array.isArray(busService?.route?.stops) ? busService.route.stops : EMPTY_ARRAY),
+    [busService?.route?.stops],
+  );
   const pickupStops = routeStops.filter((stop) => stop?.stopType === 'pickup' || stop?.stopType === 'both');
   const dropStops = routeStops.filter((stop) => stop?.stopType === 'drop' || stop?.stopType === 'both');
   const selectedSchedule =
