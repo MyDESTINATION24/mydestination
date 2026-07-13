@@ -384,6 +384,11 @@ const AdminSectionPlaceholder = () => {
 // A wrapper to handle conditional layouts (Mobile for User/Driver, Full for Admin)
 const MainLayout = ({ children }) => {
   const location = useLocation();
+  const adminShellPrefixes = [
+    '/taxi/admin',
+    '/taxi/user-import',
+    '/taxi/driver-import',
+  ];
   const staticPages = [
     '/taxi',
     '/taxi/',
@@ -399,11 +404,11 @@ const MainLayout = ({ children }) => {
     '/taxi/links'
   ];
   const isStaticPath = staticPages.includes(location.pathname);
-  const isAdminPath =
-    location.pathname.startsWith('/taxi/admin') ||
-    location.pathname.startsWith('/taxi/user-import') ||
-    location.pathname.startsWith('/taxi/driver-import') ||
-    location.pathname.startsWith('/taxi/owner');
+  // Only true admin/import surfaces should use the fixed admin shell.
+  // Driver, owner, and user routes need the normal scrollable app layout.
+  const isAdminPath = adminShellPrefixes.some((prefix) =>
+    location.pathname.startsWith(prefix)
+  );
 
   if (isAdminPath) {
     return <div className="redigo-admin-root h-screen bg-gray-50 overflow-hidden">{children}</div>;

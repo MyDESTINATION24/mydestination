@@ -33,6 +33,33 @@ const deriveOriginFromApiUrl = (value = '') => {
   return trimTrailingSlash(normalized.replace(/\/api(?:\/v1)?(?:\/taxi)?\/?$/, ''));
 };
 
+const normalizeSocketPathCandidate = (value = '') => {
+  const trimmed = String(value || '').trim();
+
+  if (!trimmed) {
+    return '/taxi/socket.io';
+  }
+
+  if (isAbsoluteUrl(trimmed)) {
+    try {
+      return `/${trimLeadingSlash(new URL(trimmed).pathname || 'taxi/socket.io')}`;
+    } catch {
+      return '/taxi/socket.io';
+    }
+  }
+
+  const schemeLessAbsolute = trimmed.match(/^(https?)\/\/(.+)$/i);
+  if (schemeLessAbsolute) {
+    try {
+      return `/${trimLeadingSlash(new URL(`${schemeLessAbsolute[1]}://${schemeLessAbsolute[2]}`).pathname || 'taxi/socket.io')}`;
+    } catch {
+      return '/taxi/socket.io';
+    }
+  }
+
+  return `/${trimLeadingSlash(trimmed)}`;
+};
+
 const DEFAULT_BACKEND_ORIGIN = (() => {
   const explicitOrigin = normalizeOriginCandidate(
     import.meta.env.VITE_BACKEND_ORIGIN || import.meta.env.VITE_SOCKET_URL || '',
@@ -74,7 +101,7 @@ export const BACKEND_LABEL = BACKEND_ORIGIN || DEFAULT_BACKEND_ORIGIN;
 export const TAXI_API_BASE_URL = trimTrailingSlash(
   import.meta.env.VITE_TAXI_API_URL || (BACKEND_ORIGIN ? `${BACKEND_ORIGIN}/api/taxi` : '/api/taxi'),
 );
-export const TAXI_SOCKET_PATH = import.meta.env.VITE_TAXI_SOCKET_PATH || '/taxi/socket.io';
+export const TAXI_SOCKET_PATH = normalizeSocketPathCandidate(import.meta.env.VITE_TAXI_SOCKET_PATH);
 export const ASSET_BASE_URL = trimTrailingSlash(
   normalizeOriginCandidate(import.meta.env.VITE_ASSET_BASE_URL) || BACKEND_ORIGIN,
 );
