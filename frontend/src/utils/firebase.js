@@ -44,6 +44,27 @@ const deleteIndexedDb = (name) =>
     }
   });
 
+const getMessagingServiceWorkerPath = () => {
+  if (typeof window === 'undefined') {
+    return '/firebase-messaging-sw.js';
+  }
+
+  return window.location.pathname.startsWith('/taxi')
+    ? '/taxi/firebase-messaging-sw.js'
+    : '/firebase-messaging-sw.js';
+};
+
+const registerMessagingServiceWorker = async () => {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return null;
+  }
+
+  const serviceWorkerPath = getMessagingServiceWorkerPath();
+  const scope = serviceWorkerPath.startsWith('/taxi/') ? '/taxi/' : '/';
+
+  return navigator.serviceWorker.register(serviceWorkerPath, { scope });
+};
+
 const resetFcmBrowserState = async () => {
   await Promise.all(FCM_INDEXED_DB_NAMES.map(deleteIndexedDb));
 
@@ -116,7 +137,11 @@ export const requestNotificationPermission = async () => {
     }
 
     try {
-      const token = await getToken(messagingInstance, { vapidKey: VAPID_KEY });
+      const serviceWorkerRegistration = await registerMessagingServiceWorker();
+      const token = await getToken(messagingInstance, {
+        vapidKey: VAPID_KEY,
+        ...(serviceWorkerRegistration ? { serviceWorkerRegistration } : {}),
+      });
       if (token) {
         console.log('[FCM] Web push token obtained.');
         return token;
@@ -130,7 +155,11 @@ export const requestNotificationPermission = async () => {
         await resetFcmBrowserState();
 
         try {
-          const retryToken = await getToken(messagingInstance, { vapidKey: VAPID_KEY });
+          const retryServiceWorkerRegistration = await registerMessagingServiceWorker();
+          const retryToken = await getToken(messagingInstance, {
+            vapidKey: VAPID_KEY,
+            ...(retryServiceWorkerRegistration ? { serviceWorkerRegistration: retryServiceWorkerRegistration } : {}),
+          });
           if (retryToken) {
             console.log('[FCM] Web push token obtained after FCM cache reset.');
             return retryToken;
