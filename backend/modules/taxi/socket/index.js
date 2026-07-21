@@ -44,7 +44,45 @@ export const configureTaxiSocketServer = (httpServer) => {
   const io = new Server(httpServer, {
     path: '/taxi/socket.io',
     cors: {
-      origin: env.corsOrigin === '*' ? true : env.corsOrigin.split(','),
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const allowedOrigins = [
+          'http://localhost:5173',
+          'http://127.0.0.1:5173',
+          'http://localhost:5174',
+          'http://127.0.0.1:5174',
+          'http://localhost:5175',
+          'http://127.0.0.1:5175',
+          'https://rukkoo.in',
+          'https://www.rukkoo.in',
+          'https://mydestination.in',
+          'https://www.mydestination.in'
+        ];
+        if (env.corsOrigin && env.corsOrigin !== '*') {
+          env.corsOrigin.split(',').forEach((o) => {
+            const trimmed = o.trim();
+            if (trimmed && !allowedOrigins.includes(trimmed)) {
+              allowedOrigins.push(trimmed);
+            }
+          });
+        }
+        const isAllowed =
+          env.corsOrigin === '*' ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.onrender.com') ||
+          origin.startsWith('http://192.168.') ||
+          origin.startsWith('http://10.') ||
+          origin.startsWith('http://172.') ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1');
+
+        if (isAllowed) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     },
   });

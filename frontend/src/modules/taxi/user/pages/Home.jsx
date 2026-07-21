@@ -17,6 +17,7 @@ import parcelImg from '@/assets/landing/parcel.png';
 import templeImg from '@/assets/3d images/AutoCab/temple.png';
 import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
 import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
+import poolingImg from '@/assets/3d images/AutoCab/pooling.png';
 import api from '../../../shared/api/axiosInstance';
 import { buildAssetUrl } from '../../../shared/api/runtimeConfig';
 import { useSettings } from '../../../shared/context/SettingsContext';
@@ -773,8 +774,8 @@ const Home = () => {
               <h3 className="text-2xl font-extrabold text-slate-900 mt-1">Book your travel</h3>
             </div>
 
-            {/* Grid of Ride, Bus, Delivery, Char Dham and Helicopter Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            {/* Grid of Ride, Pooling, Bus, Delivery, Char Dham, Helicopter, and EV Stations Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
@@ -802,6 +803,37 @@ const Home = () => {
                 <img
                   src={taxiImg}
                   alt="Ride"
+                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                />
+              </motion.div>
+
+              {/* Pooling Card */}
+              <motion.div
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/taxi/user/pooling')}
+                className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
+                  {/* Badge */}
+                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                    Share & Save
+                  </div>
+
+                  {/* Subtitle & Title */}
+                  <div className="mt-2">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Ride together, pay less</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                      Pooling <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                    </h4>
+                  </div>
+                </div>
+
+                {/* 3D Pooling Image */}
+                <img
+                  src={poolingImg}
+                  alt="Pooling"
                   className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
