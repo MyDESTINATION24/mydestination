@@ -5624,6 +5624,73 @@ export const deleteOngoingRide = async (rideId) => {
   };
 };
 
+export const listLocationVehicleTypes = async (locationId, queryParams = {}) => {
+  if (!mongoose.Types.ObjectId.isValid(String(locationId))) {
+    throw new ApiError(400, 'Invalid service location ID');
+  }
+
+  const zones = await Zone.find({ service_location_id: locationId }).select('_id').lean();
+  const zoneIds = zones.map((z) => z._id);
+
+  const query = {
+    $or: [
+      { service_location_id: locationId },
+      { zone_id: { $in: zoneIds } }
+    ],
+    active: 1
+  };
+
+  if (queryParams.transport_type) {
+    const normalizedTransportType = normalizeVehicleTransportType(queryParams.transport_type);
+    if (normalizedTransportType !== 'both') {
+      query.transport_type = { $in: [normalizedTransportType, 'both'] };
+    }
+  }
+
+  const setPrices = await SetPrice.find(query)
+    .populate('vehicle_type')
+    .populate('package_vehicle_prices.vehicle_type')
+    .lean();
+
+  const vehicleMap = new Map();
+
+  for (const price of setPrices) {
+    if (price.vehicle_type) {
+      const v = price.vehicle_type;
+      vehicleMap.set(String(v._id), v);
+    }
+    if (Array.isArray(price.package_vehicle_prices)) {
+      for (const vp of price.package_vehicle_prices) {
+        if (vp.vehicle_type && vp.active !== 0) {
+          const v = vp.vehicle_type;
+          vehicleMap.set(String(v._id), v);
+        }
+      }
+    }
+  }
+
+  const results = Array.from(vehicleMap.values()).map((item) => ({
+    ...item,
+    id: String(item._id),
+    icon: item.map_icon || item.icon || item.image || '',
+    map_icon: item.map_icon || item.icon || item.image || '',
+    delivery_category: item.delivery_category || '',
+  }));
+
+  return {
+    results,
+    paginator: {
+      data: results,
+      total: results.length,
+      current_page: 1,
+      last_page: 1,
+      per_page: results.length,
+      from: 1,
+      to: results.length
+    }
+  };
+};
+
 export const listVehicleTypes = async (queryParams = {}) => {
   const query = {};
   if (queryParams.transport_type) {

@@ -637,6 +637,11 @@ export const getIntercityTrips = asyncHandler(async (req, res) =>
 export const deleteOngoingRide = asyncHandler(async (req, res) =>
   ok(res, await adminService.deleteOngoingRide(req.params.id)),
 );
+export const getLocationVehicleTypes = asyncHandler(async (req, res) => {
+  const { locationId } = req.params;
+  ok(res, await adminService.listLocationVehicleTypes(locationId, req.query));
+});
+
 export const getVehicleTypes = asyncHandler(async (req, res) =>
   ok(res, await adminService.listVehicleTypes(req.query)),
 );

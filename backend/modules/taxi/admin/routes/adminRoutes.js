@@ -149,6 +149,7 @@ import {
   getVehiclePreferenceOptions,
   getVehicleTypeCatalog,
   getVehicleTypes,
+  getLocationVehicleTypes,
   getWithdrawals,
   getZones,
   loginAdmin,
@@ -334,6 +335,7 @@ adminRouter.post('/admin/service-stores', createServiceStore);
 adminRouter.patch('/admin/service-stores/:id', updateServiceStore);
 adminRouter.delete('/admin/service-stores/:id', deleteServiceStore);
 adminRouter.get('/common/ride_modules', getRideModules);
+adminRouter.get('/types/:locationId', authenticate(['admin']), getLocationVehicleTypes);
 adminRouter.get('/admin/types/vehicle-types/list', getVehicleTypes);
 adminRouter.get('/admin/types/vehicle-types', getVehicleTypeCatalog);
 adminRouter.post('/admin/types/vehicle-types', createVehicleType);
