@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSIntroVideo = () => {
   const [data, setData] = useState({
@@ -109,11 +110,11 @@ const CMSIntroVideo = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Banner Text</label>
-                <input 
-                type="text" 
-                value={data.bannerText || ''}
-                onChange={(e) => setData({...data, bannerText: e.target.value})}
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                <RichTextEditor
+                  value={data.bannerText || ''}
+                  onChange={(val) => setData({ ...data, bannerText: val })}
+                  placeholder="Destination events success"
+                  minHeight="90px"
                 />
             </div>
             <div className="space-y-1">
@@ -156,45 +157,45 @@ const CMSIntroVideo = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Facilities Subtitle</label>
-                    <input 
-                    type="text" 
-                    value={data.facilitiesSubtitle || ''}
-                    onChange={(e) => setData({...data, facilitiesSubtitle: e.target.value})}
-                    className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                    <RichTextEditor
+                      value={data.facilitiesSubtitle || ''}
+                      onChange={(val) => setData({ ...data, facilitiesSubtitle: val })}
+                      placeholder="FACILITIES"
+                      minHeight="90px"
                     />
                 </div>
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Facilities Title</label>
-                    <input 
-                    type="text" 
-                    value={data.facilitiesTitle || ''}
-                    onChange={(e) => setData({...data, facilitiesTitle: e.target.value})}
-                    className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                    <RichTextEditor
+                      value={data.facilitiesTitle || ''}
+                      onChange={(val) => setData({ ...data, facilitiesTitle: val })}
+                      placeholder="Core Features"
+                      minHeight="90px"
                     />
                 </div>
             </div>
 
             <div className="space-y-4">
                 {[0, 1, 2].map((index) => (
-                    <div key={index} className="p-4 border border-gray-100 bg-gray-50 rounded-sm">
-                        <h4 className="text-sm font-bold text-gray-700 mb-3">Feature {index + 1}</h4>
+                    <div key={index} className="p-4 border border-gray-100 bg-gray-50 rounded-sm space-y-4">
+                        <h4 className="text-sm font-bold text-gray-700">Feature {index + 1}</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Title</label>
-                                <input 
-                                type="text" 
-                                value={data.features?.[index]?.title || ''}
-                                onChange={(e) => handleFeatureChange(index, 'title', e.target.value)}
-                                className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
+                                <RichTextEditor
+                                  value={data.features?.[index]?.title || ''}
+                                  onChange={(val) => handleFeatureChange(index, 'title', val)}
+                                  placeholder="Feature Title"
+                                  minHeight="90px"
                                 />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
-                                <input 
-                                type="text" 
-                                value={data.features?.[index]?.description || ''}
-                                onChange={(e) => handleFeatureChange(index, 'description', e.target.value)}
-                                className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
+                                <RichTextEditor
+                                  value={data.features?.[index]?.description || ''}
+                                  onChange={(val) => handleFeatureChange(index, 'description', val)}
+                                  placeholder="Feature Description"
+                                  minHeight="90px"
                                 />
                             </div>
                             <div className="space-y-1">
@@ -202,7 +203,7 @@ const CMSIntroVideo = () => {
                                 <select
                                     value={data.features?.[index]?.iconType || 'Star'}
                                     onChange={(e) => handleFeatureChange(index, 'iconType', e.target.value)}
-                                    className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition bg-white"
+                                    className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition bg-white mt-1"
                                 >
                                     <option value="Star">Star (High Rating)</option>
                                     <option value="Moon">Moon (Quiet Hours)</option>

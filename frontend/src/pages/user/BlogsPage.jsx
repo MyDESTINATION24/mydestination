@@ -6,19 +6,56 @@ import axios from 'axios';
 import { isWebView } from '../../utils/deviceDetect';
 import WebsiteHeader from '../../components/ui/WebsiteHeader';
 import WebsiteFooter from '../../components/ui/WebsiteFooter';
+import SafeHTML from '../../components/common/SafeHTML';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+const DEFAULT_BLOGS = [
+  {
+    _id: 'default-1',
+    title: 'Escape the City: 7 Hidden Hill Stations Near You',
+    category: 'Travel Guides',
+    readTime: '6 min read',
+    badge: 'TRENDING',
+    image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+    excerpt: 'Weekend escapes that are closer than you think — curated hill stations, handpicked stays, and routes that actually work.',
+    content: 'If the city heat and noise are getting to you, it is time for a mountain getaway. We have mapped out 7 lesser-known hill stations that offer tranquil weather, stunning views, and minimal tourist crowds.',
+    date: 'March 2026'
+  },
+  {
+    _id: 'default-2',
+    title: 'Couple-Friendly Stays: What To Check Before You Book',
+    category: 'Stay Tips',
+    readTime: '4 min read',
+    badge: "EDITOR'S PICK",
+    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
+    excerpt: 'From ID policies to neighbourhood vibes — a simple checklist to make sure your next couple stay is calm, safe and drama-free.',
+    content: 'Booking stays as a couple requires checking a few basic items beforehand. Learn about local ID rules, policy terms for unmarried couples, and security features.',
+    date: 'March 2026'
+  },
+  {
+    _id: 'default-3',
+    title: 'How To Get Real Discounts (Beyond Flash Sales)',
+    category: 'Smart Booking',
+    readTime: '5 min read',
+    badge: 'SAVE MORE',
+    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80',
+    excerpt: 'Learn how wallet credits, off-peak dates and flexible policies can actually beat random promo codes.',
+    content: 'Promo codes look attractive on banners, but loyalty perks, off-season booking adjustments, direct owner negotiations, and wallet cashbacks are where the real savings hide.',
+    date: 'February 2026'
+  }
+];
+
 const BlogsPage = () => {
   const navigate = useNavigate();
-  const [blogs, setBlogs] = React.useState([]);
+  const [blogs, setBlogs] = React.useState(DEFAULT_BLOGS);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchBlogs = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/blogs`);
-        if (response.data.success) {
+        if (response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
           setBlogs(response.data.data);
         }
       } catch (error) {
@@ -122,12 +159,8 @@ const BlogsPage = () => {
                     </div>
                     <div className="p-5">
                       <p className="text-[11px] text-slate-400 mb-1">{blog.date || 'March 2026'}</p>
-                      <h3 className="text-base md:text-lg font-bold text-slate-800 mb-2 line-clamp-2 leading-snug">
-                        {blog.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-3 leading-relaxed">
-                        {blog.excerpt}
-                      </p>
+                      <SafeHTML html={blog.title} as="h3" className="text-base md:text-lg font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" />
+                      <SafeHTML html={blog.excerpt} as="p" className="text-sm text-slate-500 line-clamp-3 leading-relaxed" />
                     </div>
                   </div>
                   

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSPromoBanner = () => {
   const [promoData, setPromoData] = useState({
@@ -63,11 +64,9 @@ const CMSPromoBanner = () => {
       if (res.success) {
         const url = res.url || (res.files && res.files[0]?.url);
         if (url) {
-          // Update local state with new URL
           const updatedPromoData = { ...promoData, [field]: url };
           setPromoData(updatedPromoData);
 
-          // ✅ Auto-save to database immediately after image upload
           try {
             await apiService.put('/cms/landing-page', { latestTour: updatedPromoData });
             toast.success('Image uploaded & saved successfully');
@@ -97,49 +96,54 @@ const CMSPromoBanner = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Subtitle</label>
-            <input 
-              type="text" 
+            <RichTextEditor
               value={promoData.subtitle || ''}
-              onChange={(e) => setPromoData({...promoData, subtitle: e.target.value})}
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              onChange={(val) => setPromoData({ ...promoData, subtitle: val })}
+              placeholder="Last minute trip"
+              minHeight="90px"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Main Title</label>
-            <input 
-              type="text" 
+            <RichTextEditor
               value={promoData.title || ''}
-              onChange={(e) => setPromoData({...promoData, title: e.target.value})}
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              onChange={(val) => setPromoData({ ...promoData, title: val })}
+              placeholder="OUR LATEST TOUR"
+              minHeight="90px"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Date Text</label>
-            <input 
-              type="text" 
+            <RichTextEditor
               value={promoData.dateText || ''}
-              onChange={(e) => setPromoData({...promoData, dateText: e.target.value})}
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              onChange={(val) => setPromoData({ ...promoData, dateText: val })}
+              placeholder="Fri 15 March to Sun 17 March"
+              minHeight="90px"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Price Text</label>
-            <input 
-              type="text" 
+            <RichTextEditor
               value={promoData.priceText || ''}
-              onChange={(e) => setPromoData({...promoData, priceText: e.target.value})}
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              onChange={(val) => setPromoData({ ...promoData, priceText: val })}
+              placeholder="$125 per person"
+              minHeight="90px"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Button Text</label>
-            <input 
-              type="text" 
+            <RichTextEditor
               value={promoData.buttonText || ''}
-              onChange={(e) => setPromoData({...promoData, buttonText: e.target.value})}
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              onChange={(val) => setPromoData({ ...promoData, buttonText: val })}
+              placeholder="BOOK NOW"
+              minHeight="90px"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Button Link</label>
             <input 
@@ -149,6 +153,7 @@ const CMSPromoBanner = () => {
               className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Left Image</label>
             <div className="flex items-center gap-3">
@@ -171,6 +176,7 @@ const CMSPromoBanner = () => {
             </div>
             {uploadingField === 'leftImage' && <p className="text-xs text-emerald-600">Uploading...</p>}
           </div>
+
           <div className="space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Right Image</label>
             <div className="flex items-center gap-3">
@@ -193,6 +199,7 @@ const CMSPromoBanner = () => {
             </div>
             {uploadingField === 'rightImage' && <p className="text-xs text-emerald-600">Uploading...</p>}
           </div>
+
           <div className="space-y-1 md:col-span-2">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Background Image</label>
             <div className="flex items-center gap-3">

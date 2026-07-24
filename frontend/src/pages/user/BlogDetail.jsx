@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Loader2 } from 'lucide-react';
 import WebsiteHeader from '../../components/ui/WebsiteHeader';
 import WebsiteFooter from '../../components/ui/WebsiteFooter';
+import SafeHTML from '../../components/common/SafeHTML';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -84,9 +85,7 @@ const BlogDetail = () => {
             )}
           </div>
           
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-6 leading-snug">
-            {blog.title}
-          </h1>
+          <SafeHTML html={blog.title} as="h1" className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-6 leading-snug" />
 
           <div className="flex items-center gap-4 text-xs text-slate-500 mb-8 border-b border-slate-200 pb-6">
             <div className="flex items-center gap-2">
@@ -122,15 +121,11 @@ const BlogDetail = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-12 py-12">
         <div className="bg-white rounded-3xl p-6 md:p-10 border border-slate-200/60 shadow-xs mb-16">
           {/* Excerpt */}
-          <p className="text-base md:text-lg font-medium text-slate-655 mb-8 leading-relaxed italic border-l-4 border-emerald-850 pl-4">
-            {blog.excerpt}
-          </p>
+          <SafeHTML html={blog.excerpt} as="p" className="text-base md:text-lg font-medium text-slate-655 mb-8 leading-relaxed italic border-l-4 border-emerald-850 pl-4" />
 
           {/* Content Body */}
           <div className="prose prose-slate max-w-none">
-            <div className="whitespace-pre-wrap text-slate-700 text-sm md:text-base leading-relaxed tracking-wide">
-              {blog.content}
-            </div>
+            <SafeHTML html={blog.content} className="text-slate-700 text-sm md:text-base leading-relaxed tracking-wide" />
           </div>
         </div>
 

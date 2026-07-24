@@ -9,6 +9,7 @@ const ExclusiveOffers = () => {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     useEffect(() => {
         const fetchOffers = async () => {
@@ -25,6 +26,14 @@ const ExclusiveOffers = () => {
         };
         fetchOffers();
     }, []);
+
+    useEffect(() => {
+        if (offers.length <= 1) return;
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % offers.length);
+        }, 8000);
+        return () => clearInterval(timer);
+    }, [offers.length]);
 
     if (loading) {
         return (
@@ -58,14 +67,17 @@ const ExclusiveOffers = () => {
                 <div className="bg-accent/10 px-1.5 py-0.5 rounded text-[9px] font-bold text-accent">NEW</div>
             </h2>
 
-            {/* Horizontal manual scroll container */}
-            <div className="flex w-full overflow-x-auto no-scrollbar pb-3">
-                <div className="flex gap-3 px-5">
-                    {offers.map((offer) => (
+            {/* Horizontal auto-scroll container using website's fade logic */}
+            <div className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] mx-5 rounded-xl overflow-hidden shadow-md shadow-gray-200/50">
+                {offers.map((offer, index) => {
+                    const isActive = currentSlide === index;
+                    return (
                         <div
                             key={offer._id || offer.id}
                             onClick={() => handleOfferClick(offer)}
-                            className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] rounded-xl overflow-hidden shadow-md shadow-gray-200/50 cursor-pointer flex-shrink-0 active:scale-95 transition-transform"
+                            className={`absolute inset-0 w-full h-full cursor-pointer active:scale-95 transition-all duration-1000 ease-in-out ${
+                                isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+                            }`}
                         >
                             {/* Background Image */}
                             <img
@@ -92,8 +104,8 @@ const ExclusiveOffers = () => {
                                 </div>
                             </div>
                         </div>
-                    ))}
-                </div>
+                    );
+                })}
             </div>
         </section>
     );

@@ -161,7 +161,7 @@ const MyEnquiriesPage = () => {
             {enquiries.map((enq, index) => (
               <ScrollReveal key={enq._id} delay={index * 100}>
                 <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 overflow-hidden relative group hover:shadow-xl transition-shadow duration-500">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-slate-100 pb-5 mb-5">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 border-b border-slate-100 pb-3.5 mb-3.5">
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5 text-primary mb-1">
                         <MapPin className="w-3.5 h-3.5" />
@@ -183,19 +183,19 @@ const MyEnquiriesPage = () => {
                   </div>
 
                   {/* Body Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
                         <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg"><Calendar className="w-4 h-4"/></div>
                         <span>Date: <span className="text-slate-900 font-semibold">{formatDate(enq.weddingDate) || "Not Specified"}</span></span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                        <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg"><Mail className="w-4 h-4"/></div>
-                        <span>{enq.email}</span>
+                      <div className="flex items-center gap-3 text-sm text-slate-600 font-medium min-w-0">
+                        <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg flex-shrink-0"><Mail className="w-4 h-4"/></div>
+                        <span className="break-all">{enq.email}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-                        <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg"><Phone className="w-4 h-4"/></div>
-                        <span>{enq.phone}</span>
+                      <div className="flex items-center gap-3 text-sm text-slate-600 font-medium min-w-0">
+                        <div className="p-1.5 bg-slate-50 text-slate-400 rounded-lg flex-shrink-0"><Phone className="w-4 h-4"/></div>
+                        <span className="break-all">{enq.phone}</span>
                       </div>
                       {enq.services && enq.services.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-2">

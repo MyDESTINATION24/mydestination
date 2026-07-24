@@ -104,9 +104,6 @@ const PropertyDetailsPage = () => {
 
   // Reviews State
   const [reviews, setReviews] = useState([]);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [reviewData, setReviewData] = useState({ rating: 5, comment: '' });
-  const [submitReviewLoading, setSubmitReviewLoading] = useState(false);
 
   // Offers State
   const [offers, setOffers] = useState([]);
@@ -117,6 +114,7 @@ const PropertyDetailsPage = () => {
 
   const [showOffersModal, setShowOffersModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showAllAmenities, setShowAllAmenities] = useState(false);
 
   // Lock Body Scroll when Modal Open
   useEffect(() => {
@@ -305,29 +303,7 @@ const PropertyDetailsPage = () => {
     }
   };
 
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    if (!localStorage.getItem('token')) {
-      toast.error('Please login to submit a review');
-      return;
-    }
-    setSubmitReviewLoading(true);
-    try {
-      await reviewService.createReview({
-        propertyId: id,
-        ...reviewData
-      });
-      toast.success('Review submitted!');
-      setReviewData({ rating: 5, comment: '' });
-      setShowReviewForm(false);
-      fetchReviews();
-      loadPropertyDetails();
-    } catch (error) {
-      toast.error(error.message || 'Failed to submit review');
-    } finally {
-      setSubmitReviewLoading(false);
-    }
-  };
+
 
   useEffect(() => {
     setCurrentImageIndex(0);
@@ -624,7 +600,7 @@ const PropertyDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--color-hotel-bg)]">
+    <div className="min-h-screen bg-[var(--color-hotel-bg)]">
       {/* Header Image */}
       <div className="relative h-[40vh] md:h-[50vh] cursor-zoom-in group">
         <motion.div
@@ -722,7 +698,7 @@ const PropertyDetailsPage = () => {
 
       {/* Main Content Card */}
       <div className="max-w-5xl mx-auto px-0 md:px-5 -mt-16 relative z-10">
-        <div className="bg-white rounded-t-[40px] md:rounded-[40px] shadow-[0_-10px_60px_-15px_rgba(0,0,0,0.15)] p-5 pb-24 md:p-10 min-h-screen md:min-h-fit">
+        <div className="bg-white rounded-t-[40px] md:rounded-[40px] shadow-[0_-10px_60px_-15px_rgba(0,0,0,0.15)] p-5 pb-28 md:p-10">
 
           {/* Drag Handle Bar (for mobile feel) */}
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4 md:hidden opacity-60" />
@@ -783,7 +759,8 @@ const PropertyDetailsPage = () => {
                 {/* 3rd Card (Bottom Layer, Right Part Visible) */}
                 <div
                   onClick={() => {
-                    setStackIndices(prev => [prev[2], prev[1], prev[0]]);
+                    setCurrentImageIndex(stackIndices[2]);
+                    setShowImageModal(true);
                   }}
                   className="absolute inset-y-0 right-0 w-20 h-20 rounded-2xl overflow-hidden shadow-sm border border-white translate-x-3 translate-y-1 rotate-[8deg] opacity-40 z-0 cursor-pointer hover:opacity-60 transition-all"
                 >
@@ -793,7 +770,8 @@ const PropertyDetailsPage = () => {
                 {/* 2nd Card (Middle Layer, Left Part Visible) */}
                 <div
                   onClick={() => {
-                    setStackIndices(prev => [prev[1], prev[0], prev[2]]);
+                    setCurrentImageIndex(stackIndices[1]);
+                    setShowImageModal(true);
                   }}
                   className="absolute inset-y-0 left-0 w-20 h-20 rounded-2xl overflow-hidden shadow-md border border-white -translate-x-3 translate-y-2 rotate-[-8deg] opacity-70 z-10 cursor-pointer hover:opacity-90 transition-all"
                 >
@@ -801,7 +779,13 @@ const PropertyDetailsPage = () => {
                 </div>
 
                 {/* 1st Card (Top Layer, Centered) */}
-                <div className="absolute inset-0 w-20 h-20 rounded-2xl overflow-hidden shadow-xl border-2 border-white mx-auto z-20 transition-all duration-500">
+                <div 
+                  onClick={() => {
+                    setCurrentImageIndex(stackIndices[0]);
+                    setShowImageModal(true);
+                  }}
+                  className="absolute inset-0 w-20 h-20 rounded-2xl overflow-hidden shadow-xl border-2 border-white mx-auto z-20 transition-all duration-500 cursor-pointer hover:scale-105"
+                >
                   <img src={galleryImages[stackIndices[0]] || galleryImages[0]} className="w-full h-full object-cover" />
                 </div>
               </div>
@@ -817,23 +801,30 @@ const PropertyDetailsPage = () => {
 
             if (validAmenities.length === 0) return null;
 
+            const visibleAmenities = showAllAmenities ? validAmenities : validAmenities.slice(0, 4);
+
             return (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <h2 className="text-lg font-black text-textDark">{title}</h2>
-                  <button className="text-[10px] font-black text-surface flex items-center gap-1 uppercase tracking-widest hover:underline">
-                    See all <ChevronRight size={12} strokeWidth={3} />
-                  </button>
+                  {validAmenities.length > 4 && (
+                    <button 
+                      onClick={() => setShowAllAmenities(!showAllAmenities)}
+                      className="text-[10px] font-black text-surface flex items-center gap-1 uppercase tracking-widest hover:underline"
+                    >
+                      {showAllAmenities ? 'View Less' : 'See all'} <ChevronRight size={12} strokeWidth={3} className={showAllAmenities ? '-rotate-90 transition-transform' : 'transition-transform'}/>
+                    </button>
+                  )}
                 </div>
-                <div className="grid grid-cols-3 gap-3 md:gap-4">
-                  {validAmenities.slice(0, 9).map((item, idx) => {
-                    const { icon, color, bg } = getAmenityConfig(item);
+                <div className="grid grid-cols-4 md:grid-cols-5 gap-2 md:gap-3">
+                  {visibleAmenities.map((item, idx) => {
+                    const { icon, color, bg } = getAmenityConfig(item, 16);
                     return (
-                      <div key={idx} className="flex flex-col items-center justify-center p-4 bg-[var(--color-hotel-bg)] border border-gray-100 rounded-3xl gap-2 transition-all hover:shadow-md hover:bg-white active:scale-95 group">
-                        <div className={`w-10 h-10 rounded-2xl shadow-sm flex items-center justify-center transition-transform group-hover:scale-110 ${bg} ${color}`}>
+                      <div key={idx} className="flex flex-col items-center justify-center py-2.5 px-1 bg-[var(--color-hotel-bg)] border border-gray-100 rounded-2xl gap-1.5 transition-all hover:shadow-md hover:bg-white active:scale-95 group">
+                        <div className={`w-9 h-9 rounded-xl shadow-sm flex items-center justify-center transition-transform group-hover:scale-110 ${bg} ${color}`}>
                           {icon}
                         </div>
-                        <span className="text-[10px] font-black text-gray-800 text-center line-clamp-1">{item}</span>
+                        <span className="text-[9px] md:text-[10px] font-bold text-gray-800 text-center line-clamp-1 px-1">{item}</span>
                       </div>
                     );
                   })}
@@ -1077,7 +1068,7 @@ const PropertyDetailsPage = () => {
               {/* Dynamic Guest/Room Inputs */}
               <div className="col-span-2 md:col-span-2 space-y-4">
                 {!isWholeUnit && (
-                  <div className="flex items-center justify-between p-3 bg-[var(--color-hotel-bg)] rounded-xl">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-200/60 last:border-0">
                     <div>
                       <label className="text-sm font-bold text-gray-800 block">{getUnitLabel()}</label>
                       <p className="text-[10px] text-gray-500">Based on availability</p>
@@ -1085,14 +1076,14 @@ const PropertyDetailsPage = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setGuests(prev => ({ ...prev, rooms: Math.max(1, prev.rooms - 1) }))}
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform"
+                        className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform"
                       >
                         -
                       </button>
-                      <span className="w-4 text-center font-bold">{guests.rooms}</span>
+                      <span className="w-4 text-center font-bold text-sm">{guests.rooms}</span>
                       <button
                         onClick={() => setGuests(prev => ({ ...prev, rooms: Math.min((selectedRoom?.inventoryType === 'bed' ? (selectedRoom?.totalInventory * (selectedRoom?.bedsPerRoom || 1)) : selectedRoom?.totalInventory) || 10, prev.rooms + 1) }))}
-                        className="w-8 h-8 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform"
+                        className="w-7 h-7 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform"
                       >
                         +
                       </button>
@@ -1100,12 +1091,12 @@ const PropertyDetailsPage = () => {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between p-3 bg-[var(--color-hotel-bg)] rounded-xl">
+                <div className="flex items-center justify-between py-2 border-b border-gray-200/60 last:border-0">
                   <div>
                     <label className="text-sm font-bold text-gray-800 block">Adults</label>
                     <p className="text-[10px] text-gray-500">Ages 12+</p>
                     {guests.adults > baseAdultsPerUnit * guests.rooms && (
-                      <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md mt-1 inline-block border border-orange-100 animate-pulse">
+                      <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded mt-1 inline-block border border-orange-100">
                         ₹{selectedRoom?.pricing?.extraAdultPrice || 0} Extra charge
                       </span>
                     )}
@@ -1114,15 +1105,15 @@ const PropertyDetailsPage = () => {
                     <button
                       onClick={() => setGuests(prev => ({ ...prev, adults: Math.max(1, prev.adults - 1) }))}
                       disabled={isBedBased}
-                      className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform disabled:opacity-50"
+                      className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform disabled:opacity-50"
                     >
                       -
                     </button>
-                    <span className="w-4 text-center font-bold">{guests.adults}</span>
+                    <span className="w-4 text-center font-bold text-sm">{guests.adults}</span>
                     <button
                       onClick={() => setGuests(prev => ({ ...prev, adults: Math.min((selectedRoom?.maxAdults || 10) * guests.rooms, prev.adults + 1) }))}
                       disabled={isBedBased}
-                      className="w-8 h-8 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform disabled:opacity-50"
+                      className="w-7 h-7 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform disabled:opacity-50"
                     >
                       +
                     </button>
@@ -1130,12 +1121,12 @@ const PropertyDetailsPage = () => {
                 </div>
 
                 {!isBedBased && (
-                  <div className="flex items-center justify-between p-3 bg-[var(--color-hotel-bg)] rounded-xl">
+                  <div className="flex items-center justify-between py-2 border-b border-gray-200/60 last:border-0">
                     <div>
                       <label className="text-sm font-bold text-gray-800 block">Children</label>
                       <p className="text-[10px] text-gray-500">Ages 0-11</p>
                       {guests.children > baseChildrenPerUnit * guests.rooms && (
-                        <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md mt-1 inline-block border border-orange-100 animate-pulse">
+                        <span className="text-[9px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded mt-1 inline-block border border-orange-100">
                           ₹{selectedRoom?.pricing?.extraChildPrice || 0} Extra charge
                         </span>
                       )}
@@ -1143,14 +1134,14 @@ const PropertyDetailsPage = () => {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => setGuests(prev => ({ ...prev, children: Math.max(0, prev.children - 1) }))}
-                        className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform"
+                        className="w-7 h-7 rounded-full border border-gray-200 flex items-center justify-center bg-white text-gray-600 active:scale-90 transition-transform"
                       >
                         -
                       </button>
-                      <span className="w-4 text-center font-bold">{guests.children}</span>
+                      <span className="w-4 text-center font-bold text-sm">{guests.children}</span>
                       <button
                         onClick={() => setGuests(prev => ({ ...prev, children: Math.min((selectedRoom?.maxChildren || 10) * guests.rooms, prev.children + 1) }))}
-                        className="w-8 h-8 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform"
+                        className="w-7 h-7 rounded-full border border-surface flex items-center justify-center bg-white text-surface active:scale-90 transition-transform"
                       >
                         +
                       </button>
@@ -1203,21 +1194,30 @@ const PropertyDetailsPage = () => {
                     <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-green-100 rounded-full opacity-50" />
                   </div>
                 ) : (
-                  /* Carousel of Top 3 Offers */
-                  <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar snap-x">
-                    {offers.slice(0, 3).map((offer) => (
-                      <div
-                        key={offer._id}
-                        onClick={() => handleApplyOffer(offer)}
-                        className="min-w-[200px] bg-white border border-gray-200 rounded-lg p-3 cursor-pointer hover:border-surface transition-all snap-center relative overflow-hidden group"
-                      >
-                        <div className={`absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-white rounded-bl-lg ${offer.bg || 'bg-black'}`}>
-                          {offer.code}
+                  <div className="flex overflow-x-auto gap-2 pb-2 hide-scrollbar snap-x">
+                    {offers.slice(0, 3).map((offer, idx) => {
+                      const colors = [
+                        { bg: 'bg-blue-50', border: 'border-blue-200', title: 'text-blue-950', sub: 'text-blue-800 font-semibold', badge: 'bg-blue-600' },
+                        { bg: 'bg-orange-50', border: 'border-orange-200', title: 'text-orange-950', sub: 'text-orange-800 font-semibold', badge: 'bg-orange-600' },
+                        { bg: 'bg-emerald-50', border: 'border-emerald-200', title: 'text-emerald-950', sub: 'text-emerald-800 font-semibold', badge: 'bg-emerald-600' },
+                        { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-950', sub: 'text-purple-800 font-semibold', badge: 'bg-purple-600' }
+                      ];
+                      const theme = colors[idx % colors.length];
+
+                      return (
+                        <div
+                          key={offer._id}
+                          onClick={() => handleApplyOffer(offer)}
+                          className={`min-w-[180px] ${theme.bg} border ${theme.border} rounded-lg p-2.5 cursor-pointer hover:shadow-md transition-all snap-center relative overflow-hidden group`}
+                        >
+                          <div className={`absolute top-0 right-0 px-2 py-0.5 text-[9px] font-bold text-white rounded-bl-lg shadow-sm ${theme.badge}`}>
+                            {offer.code}
+                          </div>
+                          <p className={`font-bold text-xs mt-1 ${theme.title}`}>{offer.title}</p>
+                          <p className={`text-[9px] line-clamp-1 mt-0.5 ${theme.sub}`}>{offer.subtitle}</p>
                         </div>
-                        <p className="font-bold text-xs text-gray-800 mt-2">{offer.title}</p>
-                        <p className="text-[10px] text-gray-500 line-clamp-1">{offer.subtitle}</p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1330,12 +1330,12 @@ const PropertyDetailsPage = () => {
                       }
                     }
 
-                    if (!displayValue) return null;
-
                     return (
-                      <div key={idx} className="flex items-center gap-2 bg-[var(--color-hotel-bg)] px-3 py-2 rounded-lg border border-gray-100">
-                        <Shield size={14} className="text-gray-400" />
-                        <span>{rule.label}: <span className="font-semibold text-textDark">{displayValue}</span></span>
+                      <div key={idx} className="flex items-center gap-1.5 bg-white px-2 py-1.5 rounded-md border border-gray-200 shadow-sm">
+                        <Shield size={12} className="text-gray-400 shrink-0" />
+                        <span className="text-[10px] sm:text-xs text-gray-600 leading-tight">
+                          {rule.label}: <span className="font-bold text-textDark">{displayValue}</span>
+                        </span>
                       </div>
                     );
                   })}
@@ -1373,19 +1373,19 @@ const PropertyDetailsPage = () => {
           {property.nearbyPlaces && property.nearbyPlaces.length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-bold text-textDark mb-4">Nearby Places</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                 {property.nearbyPlaces.map((place, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-[var(--color-hotel-bg)] rounded-xl border border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-white rounded-lg shadow-sm text-surface">
-                        <MapPin size={16} />
+                  <div key={idx} className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 bg-surface/10 rounded-lg text-surface">
+                        <MapPin size={14} />
                       </div>
                       <div>
-                        <p className="font-bold text-sm text-textDark">{place.name}</p>
-                        <p className="text-xs text-gray-500 capitalize">{place.type}</p>
+                        <p className="font-bold text-[13px] text-textDark leading-tight">{place.name}</p>
+                        <p className="text-[10px] text-gray-500 capitalize leading-tight">{place.type}</p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-surface bg-surface/5 px-2 py-1 rounded-md">
+                    <span className="text-[10px] font-bold text-surface bg-surface/5 px-2 py-1 rounded-md">
                       {place.distanceKm} km
                     </span>
                   </div>
@@ -1395,7 +1395,7 @@ const PropertyDetailsPage = () => {
           )}
 
           {/* User Reviews Section */}
-          <div className="mb-6">
+          <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <h2 className="text-lg font-bold text-textDark">Guest Reviews</h2>
@@ -1406,86 +1406,41 @@ const PropertyDetailsPage = () => {
                   <Star size={14} className="fill-honey text-honey" />
                 </div>
               </div>
-              <button
-                onClick={() => setShowReviewForm(!showReviewForm)}
-                className="text-xs font-bold text-surface border border-surface px-3 py-1.5 rounded bg-surface/5 hover:bg-surface hover:text-white transition-all flex items-center gap-1.5"
-              >
-                <MessageSquare size={14} /> <span>Write a Review</span>
-              </button>
             </div>
-
-            {/* Review Form */}
-            {showReviewForm && (
-              <div className="bg-[var(--color-hotel-bg)] p-4 rounded-xl border border-gray-200 mb-6 animate-fadeIn">
-                <h3 className="font-bold text-gray-800 mb-3">Rate your experience</h3>
-                <form onSubmit={handleReviewSubmit}>
-                  <div className="flex gap-2 mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setReviewData({ ...reviewData, rating: star })}
-                        className="focus:outline-none"
-                      >
-                        <Star
-                          size={24}
-                          className={`${reviewData.rating >= star ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} transition-colors`}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                  <textarea
-                    value={reviewData.comment}
-                    onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })}
-                    placeholder="Share your experience..."
-                    rows={3}
-                    className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-surface outline-none mb-3"
-                    required
-                  />
-                  <div className="flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowReviewForm(false)}
-                      className="px-4 py-2 text-gray-500 font-medium hover:text-gray-700"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={submitReviewLoading}
-                      className="px-6 py-2 bg-black text-white rounded-lg font-bold disabled:opacity-50"
-                    >
-                      {submitReviewLoading ? 'Submitting...' : 'Submit Review'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
 
             {/* Reviews Display - Carousel if > 3 */}
             {reviews.length === 0 ? (
-              <div className="text-center py-8 bg-[var(--color-hotel-bg)] rounded-xl border border-dotted border-gray-300">
-                <p className="text-gray-500">No reviews yet. Be the first to share your experience!</p>
+              <div className="text-center py-6 bg-[var(--color-hotel-bg)] rounded-xl border border-dotted border-gray-300">
+                <p className="text-gray-500 text-sm">No reviews yet. Be the first to share your experience!</p>
               </div>
             ) : (
               // Simple Scrollable Row for simplicity and UX
               <div className="flex overflow-x-auto pb-4 gap-4 snap-x hide-scrollbar">
                 {reviews.slice(0, 3).map((review) => (
-                  <div key={review._id} className="min-w-[280px] md:min-w-[320px] max-w-[320px] bg-white p-4 rounded-xl border border-gray-100 shadow-sm snap-center flex-shrink-0">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-surface/10 flex items-center justify-center text-surface font-bold text-lg">
-                        {review.userId?.name?.charAt(0) || 'U'}
+                  <div key={review._id} className="min-w-[280px] md:min-w-[320px] max-w-[320px] bg-gradient-to-br from-white to-gray-50/80 p-4 rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] snap-center flex-shrink-0 relative overflow-hidden group hover:shadow-md transition-all">
+                    
+                    {/* Subtle Quote Decoration */}
+                    <div className="absolute -top-4 -right-2 text-surface/5 rotate-12 scale-150 pointer-events-none">
+                      <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 11C14 12.1046 13.1046 13 12 13C10.8954 13 10 12.1046 10 11C10 9.89543 10.8954 9 12 9C13.1046 9 14 9.89543 14 11ZM20 11C20 12.1046 19.1046 13 18 13C16.8954 13 16 12.1046 16 11C16 9.89543 16.8954 9 18 9C19.1046 9 20 9.89543 20 11ZM21 15C21 16.6569 19.6569 18 18 18C16.3431 18 15 16.6569 15 15C15 13.3431 16.3431 12 18 12C19.6569 12 21 13.3431 21 15ZM15 15C15 16.6569 13.6569 18 12 18C10.3431 18 9 16.6569 9 15C9 13.3431 10.3431 12 12 12C13.6569 12 15 13.3431 15 15ZM9 15C9 16.6569 7.65685 18 6 18C4.34315 18 3 16.6569 3 15C3 13.3431 4.34315 12 6 12C7.65685 12 9 13.3431 9 15Z" />
+                        <path fillRule="evenodd" clipRule="evenodd" d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z" />
+                      </svg>
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-3 relative z-10">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-surface/20 to-surface/5 flex items-center justify-center text-surface font-black text-sm border border-surface/10 shadow-inner">
+                        {review.userId?.name?.charAt(0)?.toUpperCase() || 'U'}
                       </div>
                       <div>
-                        <p className="font-bold text-gray-800 text-sm line-clamp-1">{review.userId?.name || 'User'}</p>
-                        <p className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</p>
+                        <p className="font-bold text-gray-900 text-sm line-clamp-1 leading-tight">{review.userId?.name || 'User'}</p>
+                        <p className="text-[10px] text-gray-500 font-medium mt-0.5">{new Date(review.createdAt).toLocaleDateString()}</p>
                       </div>
-                      <div className="ml-auto flex items-center gap-1 bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold">
-                        {review.rating} <Star size={10} className="fill-yellow-500 text-yellow-500" />
+                      <div className="ml-auto flex items-center gap-1 bg-yellow-400/10 text-yellow-700 px-2.5 py-1 rounded-lg text-xs font-black shadow-sm border border-yellow-400/20">
+                        {review.rating} <Star size={12} className="fill-yellow-500 text-yellow-500" />
                       </div>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
-                      "{review.comment}"
+                    <p className="text-gray-600 text-[13px] leading-relaxed line-clamp-3 relative z-10 font-medium">
+                      {review.comment}
                     </p>
                   </div>
                 ))}

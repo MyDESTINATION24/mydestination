@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Helicopter as HelicopterIcon, Heart } from 'lucide-react';
+import { MapPin, Star, DollarSign, Info, Navigation, CheckCircle, Car, CarTaxiFront, Activity, Hotel, Umbrella, HandCoins, Briefcase, ChevronLeft, ChevronRight, Play, User, Calendar, Moon, Wifi, Coffee, Shield, ChevronDown, Camera, Glasses, Helicopter, Helicopter as HelicopterIcon, Heart, ArrowRight, Clock } from 'lucide-react';
 import logo from '../assets/rokologin-removebg-preview.png';
 import WebsiteHeader from '../components/ui/WebsiteHeader';
 import ModernDatePicker from '../components/ui/ModernDatePicker';
@@ -20,6 +20,7 @@ import bagImg from '../assets/landing/bag.png';
 import { Facebook, Twitter, Instagram, Menu, X, Phone, Mail, MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../services/apiService';
+import SafeHTML from '../components/common/SafeHTML';
 
 const DestinationCard = ({ dest, fadeUp }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -77,12 +78,10 @@ const DestinationCard = ({ dest, fadeUp }) => {
         <ImageWrapper>
           <img src={dest.img || dest.image} alt={dest.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700 ease-in-out" />
         </ImageWrapper>
-        <h3 className="text-[15px] font-black text-gray-900 mb-3">{dest.title}</h3>
+        <SafeHTML html={dest.title} as="h3" className="text-[15px] font-black text-gray-900 mb-3" />
 
         <div className="flex flex-col items-center justify-start">
-          <p className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto h-[54px] overflow-hidden mb-1">
-            {displayText}
-          </p>
+          <SafeHTML html={displayText} as="p" className="text-[11px] text-gray-500 leading-relaxed max-w-[90%] mx-auto h-[54px] overflow-hidden mb-1" />
           {isLong && (
             <button
               onClick={() => setIsModalOpen(true)}
@@ -133,9 +132,9 @@ const DestinationCard = ({ dest, fadeUp }) => {
 
               {/* Details */}
               <div className="p-6 text-left flex flex-col flex-grow overflow-y-auto">
-                <h3 className="text-xl font-black text-gray-900 mb-3">{dest.title}</h3>
+                <SafeHTML html={dest.title} as="h3" className="text-xl font-black text-gray-900 mb-3" />
                 <div className="text-sm text-gray-600 leading-relaxed flex-grow overflow-y-auto pr-1">
-                  {descriptionText}
+                  <SafeHTML html={descriptionText} />
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center flex-shrink-0">
@@ -286,6 +285,50 @@ const LandingPage = () => {
     navigate(targetPath);
   };
 
+  const [blogs, setBlogs] = useState([
+    {
+      _id: 'default-1',
+      title: 'Escape the City: 7 Hidden Hill Stations Near You',
+      category: 'Travel Guides',
+      readTime: '6 min read',
+      badge: 'TRENDING',
+      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
+      excerpt: 'Weekend escapes that are closer than you think — curated hill stations, handpicked stays, and routes that actually work.',
+      date: 'March 2026'
+    },
+    {
+      _id: 'default-2',
+      title: 'Couple-Friendly Stays: What To Check Before You Book',
+      category: 'Stay Tips',
+      readTime: '4 min read',
+      badge: "EDITOR'S PICK",
+      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
+      excerpt: 'From ID policies to neighbourhood vibes — a simple checklist to make sure your next couple stay is calm, safe and drama-free.',
+      date: 'March 2026'
+    },
+    {
+      _id: 'default-3',
+      title: 'How To Get Real Discounts (Beyond Flash Sales)',
+      category: 'Smart Booking',
+      readTime: '5 min read',
+      badge: 'SAVE MORE',
+      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80',
+      excerpt: 'Learn how wallet credits, off-peak dates and flexible policies can actually beat random promo codes.',
+      date: 'February 2026'
+    }
+  ]);
+
+  useEffect(() => {
+    import('axios').then(axiosModule => {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      axiosModule.default.get(`${API_BASE_URL}/blogs`).then(res => {
+        if (res.data?.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+          setBlogs(res.data.data);
+        }
+      }).catch(() => {});
+    });
+  }, []);
+
   useEffect(() => {
     import('../services/apiService').then(({ api }) => {
       api.get('/cms/landing-page').then(res => {
@@ -415,16 +458,18 @@ const LandingPage = () => {
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4 mt-16 pb-28 pointer-events-none">
           {(cmsData?.hero?.textBlocks && cmsData.hero.textBlocks.length > 0) ? (
             cmsData.hero.textBlocks.map((block, idx) => {
-              if (block.tag === 'h1') {
-                return <h1 key={idx} className="text-white text-2xl sm:text-4xl md:text-6xl font-black mt-6 md:mt-10 mb-2 md:mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-widest uppercase">{block.text}</h1>;
-              } else if (block.tag === 'h2') {
-                return <h2 key={idx} className="text-white text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-2 mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{block.text}</h2>;
-              } else if (block.tag === 'h3') {
-                return <h3 key={idx} className="text-white text-lg sm:text-2xl md:text-4xl mt-4 md:mt-6 mb-2 md:mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-serif">{block.text}</h3>;
-              } else if (block.tag === 'p') {
-                return <p key={idx} className="text-white/90 text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-medium mt-4 md:mt-6"><span dangerouslySetInnerHTML={{ __html: block.text.replace(/\n/g, '<br />') }} /></p>;
-              }
-              return null;
+              const tagClassMap = {
+                h1: 'text-2xl sm:text-4xl md:text-6xl font-black mt-2 mb-2 tracking-widest',
+                h2: 'text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-1 mb-1',
+                h3: 'text-lg sm:text-2xl md:text-4xl mt-2 mb-2 font-serif',
+                p: 'text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed font-medium mt-2'
+              };
+              const tagClass = tagClassMap[block.tag] || 'text-sm';
+              return (
+                <div key={idx} className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] pointer-events-auto my-1">
+                  <SafeHTML html={block.text} as={block.tag || 'div'} className={`inline-block text-white ${tagClass}`} />
+                </div>
+              );
             })
           ) : (
             <>
@@ -730,15 +775,11 @@ const LandingPage = () => {
       {/* 3. Top Destinations */}
       <section className="pt-2 pb-8 md:pt-6 md:pb-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h4 className="text-[15px] text-[#065f46]/80 font-serif mb-3">
-              {cmsData?.destinations?.sectionTitle || "Select your perfect trips"}
-            </h4>
+          <div className="text-center max-w-xl mx-auto mb-10 md:mb-16">
+            <SafeHTML html={cmsData?.destinations?.sectionSubtitle || "Select your perfect trips"} as="p" className="text-[15px] font-serif italic text-gray-500 mb-2" />
             <div className="flex items-center justify-center gap-3">
               <div className="h-[1px] w-12 bg-gray-400"></div>
-              <h2 className="text-2xl md:text-3xl font-black text-gray-900 tracking-wider uppercase">
-                {cmsData?.destinations?.sectionHeading || "TOP DESTINATION"}
-              </h2>
+              <SafeHTML html={cmsData?.destinations?.sectionHeading || "TOP DESTINATION"} as="h2" className="text-2xl md:text-3xl font-black text-gray-900 tracking-wider uppercase" />
             </div>
           </div>
 
@@ -774,10 +815,10 @@ const LandingPage = () => {
         </div>
 
         <div className="relative z-20 max-w-lg mx-auto px-4 py-8 md:py-0">
-          <p className="text-[15px] md:text-lg mb-3 font-serif italic text-white/90">{cmsData?.latestTour?.subtitle || "Last minute trip"}</p>
-          <h2 className="text-4xl md:text-6xl font-black tracking-widest mb-6 md:mb-10 text-white uppercase">{cmsData?.latestTour?.title || "OUR LATEST TOUR"}</h2>
-          <p className="text-sm md:text-base mb-2 opacity-90 font-medium tracking-wider">{cmsData?.latestTour?.dateText || "Fri 15 March to Sun 17 March"}</p>
-          <p className="text-lg md:text-2xl font-black mb-10 md:mb-12">{cmsData?.latestTour?.priceText || "$125 per person"}</p>
+          <SafeHTML html={cmsData?.latestTour?.subtitle || "Last minute trip"} as="p" className="text-[15px] md:text-lg mb-3 font-serif italic text-white/90" />
+          <SafeHTML html={cmsData?.latestTour?.title || "OUR LATEST TOUR"} as="h2" className="text-4xl md:text-6xl font-black tracking-widest mb-6 md:mb-10 text-white uppercase" />
+          <SafeHTML html={cmsData?.latestTour?.dateText || "Fri 15 March to Sun 17 March"} as="p" className="text-sm md:text-base mb-2 opacity-90 font-medium tracking-wider" />
+          <SafeHTML html={cmsData?.latestTour?.priceText || "$125 per person"} as="p" className="text-lg md:text-2xl font-black mb-10 md:mb-12" />
           <Link to={cmsData?.latestTour?.buttonLink || "/welcome"} className="inline-block bg-white text-[#0f172a] px-10 md:px-14 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest hover:bg-[#065f46] hover:text-white transition-all duration-300 shadow-2xl uppercase">
             {cmsData?.latestTour?.buttonText || "BOOK NOW"}
           </Link>
@@ -797,14 +838,14 @@ const LandingPage = () => {
           {/* Right Side - Premium Packages Info */}
           <motion.div variants={fadeUp} className="w-full lg:w-1/2 md:pl-8">
             <div className="mb-6">
-              <h4 className="text-[13px] md:text-sm font-bold text-[#065f46] tracking-widest uppercase mb-2">{cmsData?.travelTips?.sectionSubtitle || 'PLAN YOUR JOURNEY'}</h4>
-              <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">{cmsData?.travelTips?.sectionTitle || 'Premium Travel & Tours'}</h2>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4">
-                {cmsData?.travelTips?.description || <>Experience the spiritual awakening of our exclusive <strong>Char Dham Yatra</strong> packages, or customize your dream destination getaway. We provide end-to-end luxury travel solutions, from comfortable taxi fleets to premium hotel stays.</>}
-              </p>
+              <SafeHTML html={cmsData?.travelTips?.sectionSubtitle || 'PLAN YOUR JOURNEY'} as="h4" className="text-[13px] md:text-sm font-bold text-[#065f46] tracking-widest uppercase mb-2" />
+              <SafeHTML html={cmsData?.travelTips?.sectionTitle || 'Premium Travel & Tours'} as="h2" className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6" />
+              <div className="text-gray-600 text-sm md:text-base leading-relaxed mb-4">
+                <SafeHTML html={typeof cmsData?.travelTips?.description === 'string' ? cmsData.travelTips.description : ''} fallback={<>Experience the spiritual awakening of our exclusive <strong>Char Dham Yatra</strong> packages, or customize your dream destination getaway. We provide end-to-end luxury travel solutions, from comfortable taxi fleets to premium hotel stays.</>} />
+              </div>
               <ul className="space-y-3 mb-10 text-gray-600 text-sm md:text-base font-medium">
                 {(cmsData?.travelTips?.bulletPoints?.length > 0 ? cmsData.travelTips.bulletPoints : ['Custom Tour Packages', 'Luxury Taxi & Fleet Services', 'Handpicked Premium Hotels']).map((point, idx) => (
-                  <li key={idx} className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> {point}</li>
+                  <li key={idx} className="flex items-center gap-3"><CheckCircle size={18} className="text-[#065f46]" /> <SafeHTML html={point} as="span" /></li>
                 ))}
               </ul>
             </div>
@@ -859,7 +900,7 @@ const LandingPage = () => {
               <div className="w-full h-56 md:h-72 mb-6 overflow-hidden shadow-lg border border-gray-100">
                 <img src={cat.img} alt={cat.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
               </div>
-              <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-6 font-serif tracking-wide">{cat.title}</h3>
+              <SafeHTML html={cat.title} as="h3" className="text-xl md:text-2xl font-black text-gray-900 mb-6 font-serif tracking-wide" />
               <button
                 onClick={() => handleNavigation('/home')}
                 className="bg-black text-white px-10 md:px-12 py-3 text-[11px] md:text-xs font-bold tracking-widest hover:bg-gray-800 transition uppercase shadow-lg cursor-pointer"
@@ -886,9 +927,9 @@ const LandingPage = () => {
 
       {/* 7. Services Section */}
       <section id="feature" className="pt-2 pb-4 md:pb-12 max-w-6xl mx-auto px-4 text-center">
-        <p className="text-[#065f46] text-xs md:text-sm mb-1 md:mb-2 font-bold tracking-widest uppercase">{cmsData?.services?.sectionSubtitle || "We fulfill your needs"}</p>
+        <SafeHTML html={cmsData?.services?.sectionSubtitle || "We fulfill your needs"} as="p" className="text-[#065f46] text-xs md:text-sm mb-1 md:mb-2 font-bold tracking-widest uppercase" />
         <div className="relative inline-block mb-6 md:mb-20">
-          <h2 className="text-3xl md:text-5xl font-black tracking-widest text-gray-900 font-serif">{cmsData?.services?.sectionTitle || "SERVICES"}</h2>
+          <SafeHTML html={cmsData?.services?.sectionTitle || "SERVICES"} as="h2" className="text-3xl md:text-5xl font-black tracking-widest text-gray-900 font-serif" />
           <div className="absolute -left-16 top-1/2 w-12 h-[2px] bg-gray-200 hidden md:block"></div>
         </div>
 
@@ -908,10 +949,8 @@ const LandingPage = () => {
               <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center mb-4 md:mb-6 rounded-full bg-emerald-50 text-[#065f46] group-hover:bg-emerald-100 transition-colors duration-300">
                 <svc.icon size={32} strokeWidth={1.5} />
               </div>
-              <h4 className="text-lg md:text-xl font-black text-gray-900 mb-2 font-serif group-hover:text-green-700 transition-colors">{svc.title}</h4>
-              <p className="text-xs md:text-sm text-gray-500 leading-relaxed px-2 md:px-0 font-medium">
-                {svc.description}
-              </p>
+              <SafeHTML html={svc.title} as="h4" className="text-lg md:text-xl font-black text-gray-900 mb-2 font-serif group-hover:text-green-700 transition-colors" />
+              <SafeHTML html={svc.description} as="p" className="text-xs md:text-sm text-gray-500 leading-relaxed px-2 md:px-0 font-medium" />
             </motion.div>
           ))}
         </motion.div>
@@ -945,15 +984,9 @@ const LandingPage = () => {
 
           {/* Right Side: Text */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="w-full md:w-1/2 text-center md:text-left md:pl-8">
-            <h4 className="text-sm font-bold text-[#065f46] tracking-widest uppercase mb-4">
-              {cmsData?.essentialAccessories?.sectionSubtitle || 'PREPARE FOR YOUR TRIP'}
-            </h4>
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6">
-              {cmsData?.essentialAccessories?.sectionTitle || 'Essential Accessories'}
-            </h2>
-            <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-8">
-              {cmsData?.essentialAccessories?.description || "Don't forget to pack the essentials! From capturing beautiful moments with your camera, protecting your eyes with sunglasses, to carrying your belongings safely. We ensure you're fully prepared for the journey ahead."}
-            </p>
+            <SafeHTML html={cmsData?.essentialAccessories?.sectionSubtitle || 'PREPARE FOR YOUR TRIP'} as="h4" className="text-sm font-bold text-[#065f46] tracking-widest uppercase mb-4" />
+            <SafeHTML html={cmsData?.essentialAccessories?.sectionTitle || 'Essential Accessories'} as="h2" className="text-3xl md:text-5xl font-black text-gray-900 font-serif tracking-tight mb-6" />
+            <SafeHTML html={cmsData?.essentialAccessories?.description || "Don't forget to pack the essentials! From capturing beautiful moments with your camera, protecting your eyes with sunglasses, to carrying your belongings safely. We ensure you're fully prepared for the journey ahead."} as="p" className="text-gray-600 text-sm md:text-base leading-relaxed mb-8" />
           </motion.div>
         </div>
       </section>
@@ -965,9 +998,9 @@ const LandingPage = () => {
 
           {/* Header Section */}
           <div className="text-center mb-8 relative">
-            <h4 className="text-[14px] text-[#7a4b4b] font-serif mb-2">{cmsData?.aboutUs?.sectionSubtitle || 'our featured story'}</h4>
+            <SafeHTML html={cmsData?.aboutUs?.sectionSubtitle || 'our featured story'} as="h4" className="text-[14px] text-[#7a4b4b] font-serif mb-2" />
             <div className="flex items-center justify-center gap-4">
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-wider uppercase">{cmsData?.aboutUs?.sectionTitle || 'ABOUT US'}</h2>
+              <SafeHTML html={cmsData?.aboutUs?.sectionTitle || 'ABOUT US'} as="h2" className="text-3xl md:text-4xl font-black text-gray-900 tracking-wider uppercase" />
             </div>
           </div>
 
@@ -1016,11 +1049,9 @@ const LandingPage = () => {
                     </div>
 
                     <div className="w-full pl-0 lg:pl-8 lg:pr-2">
-                      <h3 className="text-[15px] md:text-[16px] font-semibold text-gray-800 mb-1.5 text-left">{item.title}</h3>
+                      <SafeHTML html={item.title} as="h3" className="text-[15px] md:text-[16px] font-semibold text-gray-800 mb-1.5 text-left" />
                       <div className="h-[1px] w-full bg-gray-300 mb-2"></div>
-                      <p className="text-[11px] md:text-[12px] text-gray-500 leading-relaxed text-left font-medium opacity-90">
-                        {item.description || item.desc}
-                      </p>
+                      <SafeHTML html={item.description || item.desc} as="p" className="text-[11px] md:text-[12px] text-gray-500 leading-relaxed text-left font-medium opacity-90" />
                     </div>
                   </div>
                 ))}
@@ -1064,16 +1095,12 @@ const LandingPage = () => {
           </div>
 
           <div className="relative z-10 max-w-3xl space-y-4 md:space-y-6 pt-10 pb-20">
-            <h4 className="text-sm md:text-base font-medium tracking-widest text-white/90">
-              {cmsData?.staff?.sectionSubtitle || "Tourism members"}
-            </h4>
+            <SafeHTML html={cmsData?.staff?.sectionSubtitle || "Tourism members"} as="h4" className="text-sm md:text-base font-medium tracking-widest text-white/90" />
             <div className="flex items-center justify-center gap-4">
               <div className="h-[1px] w-12 bg-white/50"></div>
-              <h2 className="text-4xl md:text-6xl font-black font-serif tracking-wide">{cmsData?.staff?.sectionTitle || "OUR STAFF"}</h2>
+              <SafeHTML html={cmsData?.staff?.sectionTitle || "OUR STAFF"} as="h2" className="text-4xl md:text-6xl font-black font-serif tracking-wide" />
             </div>
-            <p className="text-xs md:text-sm opacity-80 leading-relaxed max-w-2xl mx-auto font-medium">
-              {cmsData?.staff?.description || "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."}
-            </p>
+            <SafeHTML html={cmsData?.staff?.description || "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."} as="p" className="text-xs md:text-sm opacity-80 leading-relaxed max-w-2xl mx-auto font-medium" />
             <button onClick={() => setIsJoinModalOpen(true)} className="bg-white text-slate-900 px-8 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition shadow-lg mt-4">
               {cmsData?.staff?.buttonText || "JOIN NOW"}
             </button>
@@ -1093,11 +1120,9 @@ const LandingPage = () => {
                 <div className="aspect-[4/3] overflow-hidden mb-2 md:mb-3">
                   <img src={staff.image || staff.img} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
                 </div>
-                <h4 className="text-sm md:text-base font-bold text-gray-900 font-serif mb-0.5">{staff.name}</h4>
-                <p className="text-[10px] text-[#065f46] font-bold tracking-widest mb-2 uppercase">{staff.role}</p>
-                <p className="text-[10px] md:text-xs text-gray-500 mb-3 px-1 md:px-4 leading-snug flex-grow">
-                  {staff.description}
-                </p>
+                <SafeHTML html={staff.name} as="h4" className="text-sm md:text-base font-bold text-gray-900 font-serif mb-0.5" />
+                <SafeHTML html={staff.role} as="p" className="text-[10px] text-[#065f46] font-bold tracking-widest mb-2 uppercase" />
+                <SafeHTML html={staff.description} as="p" className="text-[10px] md:text-xs text-gray-500 mb-3 px-1 md:px-4 leading-snug flex-grow" />
                 <a
                   href={staff.email ? `mailto:${staff.email}` : '#'}
                   className="block text-center border border-gray-200 px-4 md:px-6 py-1.5 md:py-2 rounded-sm text-[9px] font-bold text-gray-500 hover:bg-[#065f46] hover:border-[#065f46] hover:text-white transition-all uppercase mb-1 md:mb-2 mx-auto w-fit tracking-widest"
@@ -1106,6 +1131,68 @@ const LandingPage = () => {
                 </a>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 9.5. Blogs & Stories Section */}
+      <section id="blogs" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">
+              Stories &amp; Insights
+            </p>
+            <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
+              Latest Blogs &amp; Travel Hacks
+            </h2>
+            <p className="text-sm text-slate-600 mt-3">
+              Handpicked travel guides, stay tips, and smart booking hacks from our team.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {blogs.slice(0, 3).map((blog) => (
+              <div 
+                key={blog._id} 
+                onClick={() => navigate(`/blogs/${blog._id}`)}
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col h-full"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img 
+                    src={blog.image} 
+                    alt={blog.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
+                  {blog.badge && (
+                    <span className="absolute top-3 left-3 bg-[#065f46] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+                      {blog.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                    <span className="font-semibold text-[#065f46] uppercase tracking-wider">{blog.category}</span>
+                    <span className="flex items-center gap-1"><Clock size={12} /> {blog.readTime || '5 min read'}</span>
+                  </div>
+                  <SafeHTML html={blog.title} as="h3" className="text-base md:text-lg font-bold text-slate-900 mb-2 line-clamp-2 leading-snug group-hover:text-[#065f46] transition-colors" />
+                  <SafeHTML html={blog.excerpt} as="p" className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4 flex-grow" />
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#065f46] group-hover:translate-x-1 transition-transform">
+                    <span>Read Article</span>
+                    <ArrowRight size={14} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link 
+              to="/blogs" 
+              className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
+            >
+              <span>Explore All Blogs</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </section>

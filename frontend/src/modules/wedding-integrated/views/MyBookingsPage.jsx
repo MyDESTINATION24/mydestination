@@ -19,7 +19,7 @@ const MyBookingsPage = () => {
     const fetchBookings = async () => {
       try {
         const response = await api.get('/wedding/my-enquiries');
-        setBookings(response.data);
+        setBookings(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         toast.error('Failed to load your bookings');
       } finally {
@@ -29,7 +29,8 @@ const MyBookingsPage = () => {
     fetchBookings();
   }, []);
   const getStatusStyles = (status) => {
-    switch (status.toLowerCase()) {
+    const s = typeof status === 'string' ? status.toLowerCase() : 'pending';
+    switch (s) {
       case 'confirmed':
         return {
           bg: 'bg-emerald-50',

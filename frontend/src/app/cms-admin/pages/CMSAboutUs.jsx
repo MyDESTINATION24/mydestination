@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Upload } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSAboutUs = () => {
   const [data, setData] = useState({
@@ -129,29 +130,27 @@ const CMSAboutUs = () => {
         {/* Headings */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg border-b pb-2">Section Headings</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Section Subtitle
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionSubtitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionSubtitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionSubtitle: val }))}
                 placeholder="our featured story"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Section Title
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionTitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionTitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionTitle: val }))}
                 placeholder="ABOUT US"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
           </div>
@@ -230,39 +229,37 @@ const CMSAboutUs = () => {
           </div>
 
           {data.milestones && data.milestones.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {data.milestones.map((item, idx) => (
-                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative">
+                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative space-y-4">
                   <button
                     type="button"
                     onClick={() => handleRemoveMilestone(idx)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition z-10"
                     title="Remove milestone"
                   >
                     <Trash2 size={18} />
                   </button>
 
-                  <h4 className="font-bold text-sm text-emerald-700 mb-3">Milestone {idx + 1}</h4>
+                  <h4 className="font-bold text-sm text-emerald-700">Milestone {idx + 1}</h4>
                   
                   <div className="grid grid-cols-1 gap-4 pr-8">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Title</label>
-                      <input
-                        type="text"
+                      <RichTextEditor
                         value={item.title || ''}
-                        onChange={(e) => handleMilestoneChange(idx, 'title', e.target.value)}
+                        onChange={(val) => handleMilestoneChange(idx, 'title', val)}
                         placeholder="e.g. Our never ending footsteps"
-                        className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:border-emerald-500 transition bg-white"
+                        minHeight="90px"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
-                      <textarea
-                        rows={2}
+                      <RichTextEditor
                         value={item.description || ''}
-                        onChange={(e) => handleMilestoneChange(idx, 'description', e.target.value)}
+                        onChange={(val) => handleMilestoneChange(idx, 'description', val)}
                         placeholder="Milestone description..."
-                        className="w-full border border-gray-300 p-2.5 text-sm focus:outline-none focus:border-emerald-500 transition bg-white"
+                        minHeight="110px"
                       />
                     </div>
                   </div>

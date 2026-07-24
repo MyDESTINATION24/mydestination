@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Trash2, Upload, Plus } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const DEFAULT_CATEGORIES = [
   { title: 'Hotels', type: 'hotel', image: '' },
@@ -114,19 +115,19 @@ const CMSCategories = () => {
         {/* Category Cards */}
         <div className="grid grid-cols-1 gap-6">
           {items.map((item, idx) => (
-            <div key={idx} className="border border-gray-200 rounded-sm p-5 bg-gray-50 relative">
+            <div key={idx} className="border border-gray-200 rounded-sm p-5 bg-gray-50 relative space-y-4">
 
               {/* Remove Button */}
               <button
                 type="button"
                 onClick={() => handleRemoveCategory(idx)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
+                className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition z-10"
                 title="Remove category"
               >
                 <Trash2 size={18} />
               </button>
 
-              <h4 className="font-bold text-sm text-emerald-700 mb-4">Category {idx + 1}</h4>
+              <h4 className="font-bold text-sm text-emerald-700">Category {idx + 1}</h4>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pr-6">
                 {/* Title */}
@@ -134,12 +135,11 @@ const CMSCategories = () => {
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                     Title (e.g. Hotels, Cars)
                   </label>
-                  <input
-                    type="text"
+                  <RichTextEditor
                     value={item.title || ''}
-                    onChange={(e) => handleItemChange(idx, 'title', e.target.value)}
+                    onChange={(val) => handleItemChange(idx, 'title', val)}
                     placeholder="Hotels"
-                    className="w-full border border-gray-200 p-2.5 text-sm focus:outline-none focus:border-emerald-500 transition"
+                    minHeight="90px"
                   />
                 </div>
 
@@ -172,7 +172,7 @@ const CMSCategories = () => {
                     {item.image ? (
                       <>
                         <div className="w-32 h-24 overflow-hidden border border-gray-200 shadow-sm rounded-sm">
-                          <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                          <img src={item.image} alt="" className="w-full h-full object-cover" />
                         </div>
                         <label className="cursor-pointer flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-sm text-xs font-bold transition">
                           <Upload size={14} /> Change Image
@@ -194,13 +194,6 @@ const CMSCategories = () => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Preview Note */}
-        <div className="bg-emerald-50 border border-emerald-100 rounded-sm p-4">
-          <p className="text-xs text-emerald-700 font-medium">
-            💡 <strong>Note:</strong> If no image is uploaded for a category, the default local image will be used. Changes will reflect on the landing page immediately after saving.
-          </p>
         </div>
 
         {/* Save */}

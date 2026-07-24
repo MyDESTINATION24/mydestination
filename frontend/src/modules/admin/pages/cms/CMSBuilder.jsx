@@ -7,30 +7,59 @@ import {
   Plus,
   Save,
   Globe,
-  Smartphone,
   Edit2,
   Trash2,
   Eye,
-  CheckCircle2,
-  AlertCircle
+  FileCode,
+  Edit3
 } from 'lucide-react';
+import AdminDocxTypographyCMS from '../../../../components/admin/AdminDocxTypographyCMS';
+import RichTextEditor from '../../../../components/common/RichTextEditor';
+
+const CMS_SECTIONS = [
+  { id: 'hero', name: 'Hero Section', placeholder: '<h1 style="color:#1e293b;">Explore World-Class Destinations</h1><p>Book premium luxury villas and hotels with seamless instant reservations.</p>' },
+  { id: 'destinations', name: 'Destinations & Tours', placeholder: '<h2 style="color:#2563eb;">Featured Premium Destinations</h2><p>Experience handpicked luxury locations tailored for your dream vacation.</p>' },
+  { id: 'promo', name: 'Promo Banner Text', placeholder: '<p style="color:#dc2626;"><strong>Special Offer:</strong> Get 25% Off on your first villa reservation!</p>' },
+  { id: 'features', name: 'Intro Video & Features', placeholder: '<h3>Why Choose My Destination?</h3><ul><li>Verified Luxury Properties</li><li>24/7 Dedicated Support</li></ul>' },
+  { id: 'services', name: 'Services & Text', placeholder: '<h3>Our Premium Services</h3><p>From private airport transfers to curated tour guides.</p>' },
+  { id: 'categories', name: 'Categories & Travel Types', placeholder: '<p>Explore Beach Villas, Mountain Retreats, and Heritage Stays.</p>' },
+  { id: 'accessories', name: 'Essential Accessories', placeholder: '<p>Everything you need for a comfortable stay.</p>' },
+  { id: 'about', name: 'About Us & Company Story', placeholder: '<h2>About My Destination</h2><p>Connecting travelers with world-class hospitality.</p>' },
+  { id: 'staff', name: 'Staff & Team Info', placeholder: '<p>Meet our experienced hospitality management team.</p>' },
+  { id: 'blogs', name: 'Manage Blogs & Articles', placeholder: '<h2>Top Travel Tips for 2026</h2><p>Discover hidden gems and travel guides.</p>' }
+];
 
 const CMSBuilder = () => {
-  const [activeTab, setActiveTab] = useState('Banners');
+  const [activeTab, setActiveTab] = useState('Rich Text Editor');
+  const [selectedSection, setSelectedSection] = useState('hero');
+  const [sectionContents, setSectionContents] = useState({
+    hero: '<h1 style="font-family:Poppins; color:#1e293b;">Explore World-Class Destinations</h1><p style="font-size:18px; color:#475569;">Book premium luxury villas and hotels with seamless instant reservations.</p>',
+    destinations: '<h2 style="color:#2563eb;">Featured Destinations</h2><p>Handpicked luxury locations for your dream trip.</p>',
+    promo: '<p style="color:#dc2626;"><strong>Exclusive:</strong> Get up to 30% Off on Weekend Bookings!</p>',
+    about: '<h2>About Our Platform</h2><p>Providing enterprise hospitality and luxury experiences across India.</p>'
+  });
+  const [saveMessage, setSaveMessage] = useState('');
+
+  const handleSaveSectionContent = () => {
+    setSaveMessage(`Successfully saved HTML content for section '${selectedSection}'!`);
+    setTimeout(() => setSaveMessage(''), 4000);
+  };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto pb-20">
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto pb-20 font-sans">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">CMS Builder</h1>
-          <p className="text-gray-400 font-bold text-[11px] mt-1 uppercase tracking-widest leading-none">Manage App Content & Legal Documents</p>
+          <p className="text-gray-400 font-bold text-[11px] mt-1 uppercase tracking-widest leading-none">
+            Manage Website Content, Rich Text & DOCX Documents
+          </p>
         </div>
         <div className="flex items-center gap-3">
            <button className="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-[13px] font-bold hover:bg-gray-50 flex items-center gap-2">
              <Eye size={16} /> Preview App
            </button>
-           <button className="bg-black text-white px-6 py-2 rounded-lg text-[13px] font-bold hover:opacity-90 transition-all shadow-sm flex items-center gap-2">
+           <button onClick={handleSaveSectionContent} className="bg-black text-white px-6 py-2 rounded-lg text-[13px] font-bold hover:opacity-90 transition-all shadow-sm flex items-center gap-2">
              <Save size={16} /> Publish Changes
            </button>
         </div>
@@ -40,6 +69,8 @@ const CMSBuilder = () => {
          {/* Left Side: Navigation Tabs */}
          <div className="w-64 shrink-0 space-y-2">
             {[
+               { id: 'Rich Text Editor', icon: <Edit3 size={18} />, count: null },
+               { id: 'DOCX Typography', icon: <FileCode size={18} />, count: null },
                { id: 'Banners', icon: <ImageIcon size={18} />, count: 3 },
                { id: 'FAQ', icon: <HelpCircle size={18} />, count: 12 },
                { id: 'Legal', icon: <FileText size={18} />, count: 4 },
@@ -72,13 +103,82 @@ const CMSBuilder = () => {
                   <Globe size={16} /> Sync Status
                </div>
                <p className="text-[11px] font-bold text-blue-800 leading-relaxed">
-                  Content automatically syncs to User & Driver mobile apps upon publishing.
+                  HTML content syncs immediately to website placeholders upon publishing.
                </p>
             </div>
          </div>
 
          {/* Right Side: Content Area */}
          <div className="flex-1">
+            {/* RICH TEXT EDITOR SECTION */}
+            {activeTab === 'Rich Text Editor' && (
+              <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6 animate-in fade-in duration-500">
+                <div className="flex justify-between items-center border-b pb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">Universal Rich Text Editor Workspace</h3>
+                    <p className="text-xs text-gray-500">Edit and format text for any CMS section separately.</p>
+                  </div>
+                  <button
+                    onClick={handleSaveSectionContent}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-indigo-700 transition-colors"
+                  >
+                    Save Section Content
+                  </button>
+                </div>
+
+                {saveMessage && (
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs font-medium">
+                    {saveMessage}
+                  </div>
+                )}
+
+                {/* Section Selector */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">Select CMS Section To Edit</label>
+                  <select
+                    value={selectedSection}
+                    onChange={(e) => setSelectedSection(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2.5 text-sm bg-slate-50 focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {CMS_SECTIONS.map((sec) => (
+                      <option key={sec.id} value={sec.id}>{sec.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Rich Text Editor Instance */}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-2">
+                    Formatted Content ({CMS_SECTIONS.find(s => s.id === selectedSection)?.name})
+                  </label>
+                  <RichTextEditor
+                    key={selectedSection} // Isolated instance per section
+                    value={sectionContents[selectedSection] || ''}
+                    onChange={(val) => setSectionContents({ ...sectionContents, [selectedSection]: val })}
+                    placeholder={CMS_SECTIONS.find(s => s.id === selectedSection)?.placeholder}
+                    minHeight="260px"
+                  />
+                </div>
+
+                {/* Live HTML Preview */}
+                <div className="p-4 bg-slate-50 border rounded-lg space-y-2">
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-widest">Saved HTML Preview</h4>
+                  <div
+                    className="prose max-w-none text-sm text-slate-800 p-3 bg-white border rounded"
+                    dangerouslySetInnerHTML={{ __html: sectionContents[selectedSection] || '<p class="text-gray-400 italic">No content set</p>' }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* DOCX TYPOGRAPHY SECTION */}
+            {activeTab === 'DOCX Typography' && (
+               <div className="space-y-6 animate-in fade-in duration-500">
+                  <AdminDocxTypographyCMS />
+               </div>
+            )}
+
+            {/* BANNERS SECTION */}
             {activeTab === 'Banners' && (
                <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="flex items-center justify-between">
@@ -89,7 +189,6 @@ const CMSBuilder = () => {
                   </div>
                   
                   <div className="grid grid-cols-2 gap-6">
-                     {/* Banner Card 1 */}
                      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm group">
                         <div className="h-32 bg-gray-900 relative">
                            <img src="https://images.unsplash.com/photo-1611095973763-4140154a0f8b?q=80&w=600" className="w-full h-full object-cover opacity-60" alt="Banner" />
@@ -105,7 +204,6 @@ const CMSBuilder = () => {
                         </div>
                      </div>
 
-                     {/* Banner Card 2 */}
                      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm group">
                         <div className="h-32 bg-gray-900 relative">
                            <div className="absolute inset-0 bg-primary/20"></div>
@@ -117,11 +215,11 @@ const CMSBuilder = () => {
                            <p className="text-[11px] font-bold text-gray-400 mt-1">Target: Driver App • Standard Banner</p>
                         </div>
                      </div>
-
                   </div>
                </div>
             )}
 
+            {/* LEGAL SECTION */}
             {activeTab === 'Legal' && (
                <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="flex items-center justify-between">
@@ -149,6 +247,7 @@ const CMSBuilder = () => {
                </div>
             )}
 
+            {/* FAQ SECTION */}
             {activeTab === 'FAQ' && (
                <div className="space-y-6 animate-in fade-in duration-500">
                   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -157,7 +256,7 @@ const CMSBuilder = () => {
                         <button className="text-[12px] font-black text-primary uppercase flex items-center gap-1 hover:underline">
                            <Plus size={14} strokeWidth={3} /> Add Question
                         </button>
-                     </div>
+                      </div>
                      <div className="divide-y divide-gray-50">
                         {[
                           { q: 'How is surge pricing calculated?', target: 'User App' },

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSHeroConfig = () => {
   const [heroData, setHeroData] = useState({
@@ -23,7 +24,6 @@ const CMSHeroConfig = () => {
       const res = await apiService.get('/cms/landing-page');
       if (res.data?.data?.hero) {
         const hero = res.data.data.hero;
-        // Migrate old data if textBlocks is empty
         if (!hero.textBlocks || hero.textBlocks.length === 0) {
           hero.textBlocks = [
             { text: hero.titleLines?.[0] || "We give you", tag: "h2" },
@@ -75,7 +75,6 @@ const CMSHeroConfig = () => {
           };
           setHeroData(updatedHeroData);
 
-          // Auto-save
           try {
             await apiService.put('/cms/landing-page', { hero: updatedHeroData });
             toast.success('Image uploaded & saved successfully');
@@ -98,7 +97,6 @@ const CMSHeroConfig = () => {
     const updatedHeroData = { ...heroData, backgroundImages: updatedImages };
     setHeroData(updatedHeroData);
     
-    // Auto-save
     try {
       await apiService.put('/cms/landing-page', { hero: updatedHeroData });
       toast.success('Image removed & saved successfully');
@@ -138,7 +136,7 @@ const CMSHeroConfig = () => {
       <form onSubmit={handleSave} className="bg-white p-6 md:p-8 rounded-sm border border-gray-200 shadow-sm space-y-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center border-b pb-2">
-            <h3 className="font-bold text-lg">Dynamic Text Blocks (Font Size Management)</h3>
+            <h3 className="font-bold text-lg">Dynamic Text Blocks & Formatting</h3>
             <button 
               type="button" 
               onClick={handleAddTextBlock}
@@ -147,27 +145,18 @@ const CMSHeroConfig = () => {
               + Add Text Line
             </button>
           </div>
-          <p className="text-xs text-gray-500 mb-4">Choose the tag (size) for each line to completely manage your fonts. H1 is the largest, P is the smallest.</p>
+          <p className="text-xs text-gray-500 mb-4">Edit text lines using the Rich Text Editor to completely manage fonts, size, and styling.</p>
           
           {(heroData.textBlocks || []).map((block, idx) => (
-            <div key={idx} className="flex flex-col md:flex-row gap-3 bg-gray-50 p-4 border border-gray-100 rounded-sm relative group">
+            <div key={idx} className="flex flex-col md:flex-row gap-3 bg-gray-50 p-4 border border-gray-100 rounded-sm relative group space-y-2 md:space-y-0">
               <div className="flex-1 space-y-1">
                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Text Content</label>
-                {block.tag === 'p' ? (
-                  <textarea 
-                    value={block.text}
-                    onChange={(e) => handleTextBlockChange(idx, 'text', e.target.value)}
-                    className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                    rows={2}
-                  />
-                ) : (
-                  <input 
-                    type="text" 
-                    value={block.text}
-                    onChange={(e) => handleTextBlockChange(idx, 'text', e.target.value)}
-                    className="w-full border border-gray-200 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                  />
-                )}
+                <RichTextEditor
+                  value={block.text || ''}
+                  onChange={(val) => handleTextBlockChange(idx, 'text', val)}
+                  placeholder="Enter line text..."
+                  minHeight="100px"
+                />
               </div>
               <div className="w-full md:w-48 space-y-1">
                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Font Size (Tag)</label>

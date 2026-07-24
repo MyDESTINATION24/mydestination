@@ -125,10 +125,10 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
   return (
     <div
       onClick={() => navigate(`/hotel/${_id}`)}
-      className={`group relative h-[260px] w-full rounded-[2.5rem] bg-white shadow-xl cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 p-2.5 ${className}`}
+      className={`group relative h-[240px] w-full rounded-[2.2rem] bg-white shadow-xl cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 p-2.5 ${className}`}
     >
       {/* Top Section: Image Area */}
-      <div className="relative h-[60%] w-full bg-[#f0f4f0] rounded-[2rem] overflow-hidden">
+      <div className="relative h-[66%] w-full bg-[#f0f4f0] rounded-[1.8rem] overflow-hidden">
         <img
           src={imageSrc}
           alt={displayName}
@@ -162,7 +162,7 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
       </div>
 
       {/* Bottom Section: Details */}
-      <div className="px-3 pt-1.5 flex flex-col gap-1.5 h-[40%]">
+      <div className="px-3 pt-1.5 flex flex-col gap-1.5 h-[34%]">
         {/* Title & Action Line */}
         <div className="flex justify-between items-baseline">
           <h3 className="text-lg font-black text-[#1a261a] truncate flex-1 pr-2 leading-tight">

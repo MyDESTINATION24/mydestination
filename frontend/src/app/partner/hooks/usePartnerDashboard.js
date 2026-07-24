@@ -30,23 +30,22 @@ const usePartnerDashboard = () => {
         const userData = JSON.parse(localStorage.getItem('user'));
         setUser(userData);
 
-        // Fetch Data in Parallel
+        // Fetch Data in Parallel safely
         const [propertiesData, bookingsData, walletData, reviewStats] = await Promise.all([
-          hotelService.getMyHotels(),
-          bookingService.getPartnerBookings(),
-          walletService.getWallet({ viewAs: 'partner' }), // Explicitly specify partner role
-          reviewService.getPartnerStats().catch(() => ({ pendingReviews: 0 })) // Handle error gracefully
+          hotelService.getMyHotels().catch(() => ({ properties: [] })),
+          bookingService.getPartnerBookings().catch(() => []),
+          walletService.getWallet({ viewAs: 'partner' }).catch(() => ({ wallet: { balance: 0 } })),
+          reviewService.getPartnerStats().catch(() => ({ pendingReviews: 0 }))
         ]);
 
         // 1. Process Properties
-        const properties = propertiesData.properties || [];
+        const properties = (propertiesData && propertiesData.properties) || [];
         const approvedProperties = properties.filter(p => p.status === 'approved').length;
         const pendingProperties = properties.filter(p => p.status === 'pending').length;
         const rejectedProperties = properties.filter(p => p.status === 'rejected').length;
 
         // 2. Process Bookings
-        // API returns an array directly for bookings
-        const bookings = Array.isArray(bookingsData) ? bookingsData : (bookingsData.bookings || []);
+        const bookings = Array.isArray(bookingsData) ? bookingsData : ((bookingsData && bookingsData.bookings) || []);
 
         // Calculate bookings this week
         const now = new Date();
@@ -54,8 +53,7 @@ const usePartnerDashboard = () => {
         const bookingsThisWeek = bookings.filter(b => new Date(b.createdAt) > oneWeekAgo).length;
 
         // 3. Process Wallet
-        // API returns nested wallet object: { wallet: { balance: ... } }
-        const walletBalance = walletData.wallet?.balance || 0;
+        const walletBalance = (walletData && walletData.wallet?.balance) || 0;
 
         // 4. Action Items logic
         const actions = [];
@@ -104,9 +102,7 @@ const usePartnerDashboard = () => {
         setActionItems(actions);
 
       } catch (err) {
-        console.error("Dashboard Fetch Error:", err);
         setError(err.message || 'Failed to load dashboard data');
-        toast.error('Could not load dashboard data');
       } finally {
         setLoading(false);
       }

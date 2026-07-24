@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Upload } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSStaff = () => {
   const [staffData, setStaffData] = useState({
@@ -138,53 +139,51 @@ const CMSStaff = () => {
         <div className="space-y-4">
           <h3 className="font-bold text-lg border-b pb-2">Section Text & Banner</h3>
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Section Subtitle</label>
-                <input 
-                  type="text" 
+                <RichTextEditor
                   value={staffData.sectionSubtitle || ''}
-                  onChange={(e) => setStaffData({...staffData, sectionSubtitle: e.target.value})}
-                  className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                  onChange={(val) => setStaffData({...staffData, sectionSubtitle: val})}
                   placeholder="Tourism members"
+                  minHeight="90px"
                 />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Section Title</label>
-                <input 
-                  type="text" 
+                <RichTextEditor
                   value={staffData.sectionTitle || ''}
-                  onChange={(e) => setStaffData({...staffData, sectionTitle: e.target.value})}
-                  className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                  onChange={(val) => setStaffData({...staffData, sectionTitle: val})}
+                  placeholder="OUR STAFF"
+                  minHeight="90px"
                 />
               </div>
             </div>
             
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
-              <textarea 
+              <RichTextEditor
                 value={staffData.description || ''}
-                onChange={(e) => setStaffData({...staffData, description: e.target.value})}
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
-                rows={2}
+                onChange={(val) => setStaffData({...staffData, description: val})}
+                placeholder="Our team of dedicated travel experts..."
+                minHeight="120px"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Button Text</label>
-                <input 
-                  type="text" 
+                <RichTextEditor
                   value={staffData.buttonText || ''}
-                  onChange={(e) => setStaffData({...staffData, buttonText: e.target.value})}
-                  className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                  onChange={(val) => setStaffData({...staffData, buttonText: val})}
                   placeholder="JOIN NOW"
+                  minHeight="90px"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Banner Background Image (Helicopter)</label>
-                <div className="flex items-center gap-3">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Banner Background Image</label>
+                <div className="flex items-center gap-3 mt-1">
                   {staffData.backgroundImage ? (
                     <>
                       <img src={staffData.backgroundImage} alt="" className="w-16 h-10 object-cover rounded-sm border shadow-sm" />
@@ -215,66 +214,57 @@ const CMSStaff = () => {
               onClick={handleAddItem}
               className="flex items-center gap-2 text-sm text-emerald-600 font-bold hover:text-emerald-800 transition"
             >
-              <Plus size={16} /> Add Staff
+              <Plus size={16} /> Add Staff Member
             </button>
           </div>
           
           {staffData.items && staffData.items.length > 0 ? (
             <div className="grid grid-cols-1 gap-6">
               {staffData.items.map((item, idx) => (
-                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative group">
+                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative group space-y-4">
                   <button 
                     type="button"
                     onClick={() => handleRemoveItem(idx)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition z-10"
                     title="Remove item"
                   >
                     <Trash2 size={18} />
                   </button>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pr-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Name</label>
-                      <input 
-                        type="text" 
+                      <RichTextEditor
                         value={item.name || ''}
-                        onChange={(e) => handleItemChange(idx, 'name', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
+                        onChange={(val) => handleItemChange(idx, 'name', val)}
+                        placeholder="John Doe"
+                        minHeight="90px"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Role</label>
-                      <input 
-                        type="text" 
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Role / Position</label>
+                      <RichTextEditor
                         value={item.role || ''}
-                        onChange={(e) => handleItemChange(idx, 'role', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Email</label>
-                      <input 
-                        type="email" 
-                        value={item.email || ''}
-                        onChange={(e) => handleItemChange(idx, 'email', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                        placeholder="contact@example.com"
+                        onChange={(val) => handleItemChange(idx, 'role', val)}
+                        placeholder="Tour Manager"
+                        minHeight="90px"
                       />
                     </div>
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
-                      <textarea 
+                      <RichTextEditor
                         value={item.description || ''}
-                        onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                        rows={2}
+                        onChange={(val) => handleItemChange(idx, 'description', val)}
+                        placeholder="Short bio..."
+                        minHeight="100px"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Image</label>
-                      <div className="flex items-center gap-3">
+                      <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Profile Image</label>
+                      <div className="flex items-center gap-3 mt-1">
                         {item.image ? (
                           <>
                             <img src={item.image} alt="" className="w-12 h-12 object-cover rounded-sm border shadow-sm" />

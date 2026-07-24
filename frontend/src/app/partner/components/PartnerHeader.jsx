@@ -13,26 +13,28 @@ const PartnerHeader = ({ title, subtitle, showMenu = true }) => {
     const [walletBalance, setWalletBalance] = useState(0);
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
         const fetchWallet = async () => {
             try {
                 const walletData = await walletService.getWallet({ viewAs: 'partner' });
-                if (walletData.success && walletData.wallet) {
-                    setWalletBalance(walletData.wallet.balance);
+                if (walletData && walletData.success && walletData.wallet) {
+                    setWalletBalance(walletData.wallet.balance || 0);
                 }
             } catch (error) {
-                console.error('Failed to fetch wallet', error);
+                // Ignore silent fetch errors if endpoint is unauthenticated
             }
         };
 
         const fetchNotifications = async () => {
             try {
-                // Fetch Notifications
                 const notifData = await hotelService.getNotifications(1, 1);
-                if (notifData.success && notifData.meta) {
-                    setUnreadCount(notifData.meta.unreadCount);
+                if (notifData && notifData.success && notifData.meta) {
+                    setUnreadCount(notifData.meta.unreadCount || 0);
                 }
             } catch (error) {
-                console.error('Failed to fetch notifications', error);
+                // Ignore silent fetch errors
             }
         };
 

@@ -6,6 +6,7 @@ import axios from 'axios';
 import { isWebView } from '../../utils/deviceDetect';
 import WebsiteHeader from '../../components/ui/WebsiteHeader';
 import WebsiteFooter from '../../components/ui/WebsiteFooter';
+import SafeHTML from '../../components/common/SafeHTML';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -111,12 +112,8 @@ const ArticlesPage = () => {
                       <p className="text-[11px] text-emerald-800 mb-2 font-bold flex items-center gap-1.5">
                         <Calendar size={12} /> {article.date || 'June 2026'}
                       </p>
-                      <h3 className="text-base md:text-lg font-bold text-slate-800 mb-2 line-clamp-2 leading-snug">
-                        {article.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 line-clamp-3 leading-relaxed">
-                        {article.excerpt}
-                      </p>
+                      <SafeHTML html={article.title} as="h3" className="text-base md:text-lg font-bold text-slate-800 mb-2 line-clamp-2 leading-snug" />
+                      <SafeHTML html={article.excerpt} as="p" className="text-sm text-slate-500 line-clamp-3 leading-relaxed" />
                     </div>
                   </div>
                   

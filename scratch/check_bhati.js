@@ -1,33 +1,14 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import path from 'path';
+const http = require('http');
 
-dotenv.config({ path: path.join(process.cwd(), 'backend', '.env') });
-
-const MONGODB_URL = process.env.MONGODB_URL;
-
-mongoose.connect(MONGODB_URL)
-  .then(async () => {
-    console.log('Connected to Cloud MongoDB!');
-    const User = mongoose.model('User', new mongoose.Schema({}, { strict: false }));
-    const bhati = await User.findOne({ email: /bhatiabhishek597/i });
-    if (bhati) {
-      console.log('User Record Found:');
-      console.log(JSON.stringify({
-        name: bhati.get('name'),
-        email: bhati.get('email'),
-        role: bhati.get('role'),
-        partnerApprovalStatus: bhati.get('partnerApprovalStatus'),
-        aadhaarFront: bhati.get('aadhaarFront') ? bhati.get('aadhaarFront').substring(0, 100) + '...' : null,
-        panCardImage: bhati.get('panCardImage') ? bhati.get('panCardImage').substring(0, 100) + '...' : null,
-        profileImage: bhati.get('profileImage') ? bhati.get('profileImage').substring(0, 100) + '...' : null,
-      }, null, 2));
-    } else {
-      console.log('User not found!');
+http.get('http://localhost:5000/api/cms/landing-page', (res) => {
+  let data = '';
+  res.on('data', chunk => data += chunk);
+  res.on('end', () => {
+    try {
+      const json = JSON.parse(data);
+      console.log("CMS HERO TEXTBLOCKS:", JSON.stringify(json?.data?.hero?.textBlocks, null, 2));
+    } catch (e) {
+      console.log("RAW:", data);
     }
-    process.exit(0);
-  })
-  .catch(err => {
-    console.error('Error connecting:', err);
-    process.exit(1);
   });
+}).on('error', err => console.error(err));

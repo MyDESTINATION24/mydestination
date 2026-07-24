@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Plus, Trash2 } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSDestinations = () => {
   const [destData, setDestData] = useState({
@@ -100,23 +101,23 @@ const CMSDestinations = () => {
         {/* Section Headers */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg border-b pb-2">Section Text</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Section Title (Subtitle)</label>
-              <input 
-                type="text" 
+              <RichTextEditor
                 value={destData.sectionTitle || ''}
-                onChange={(e) => setDestData({...destData, sectionTitle: e.target.value})}
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                onChange={(val) => setDestData({ ...destData, sectionTitle: val })}
+                placeholder="Select your perfect trips"
+                minHeight="100px"
               />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Section Heading (Main)</label>
-              <input 
-                type="text" 
+              <RichTextEditor
                 value={destData.sectionHeading || ''}
-                onChange={(e) => setDestData({...destData, sectionHeading: e.target.value})}
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                onChange={(val) => setDestData({ ...destData, sectionHeading: val })}
+                placeholder="TOP DESTINATION"
+                minHeight="100px"
               />
             </div>
           </div>
@@ -138,29 +139,29 @@ const CMSDestinations = () => {
           {destData.items && destData.items.length > 0 ? (
             <div className="grid grid-cols-1 gap-6">
               {destData.items.map((item, idx) => (
-                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative group">
+                <div key={idx} className="border border-gray-200 p-4 rounded-sm bg-gray-50 relative group space-y-4">
                   <button 
                     type="button"
                     onClick={() => handleRemoveItem(idx)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition z-10"
                     title="Remove item"
                   >
                     <Trash2 size={18} />
                   </button>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pr-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Title</label>
-                      <input 
-                        type="text" 
+                      <RichTextEditor
                         value={item.title || ''}
-                        onChange={(e) => handleItemChange(idx, 'title', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
+                        onChange={(val) => handleItemChange(idx, 'title', val)}
+                        placeholder="Wed in Goa, India"
+                        minHeight="90px"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Image</label>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 mt-1">
                         {item.image ? (
                           <>
                             <img src={item.image} alt="" className="w-12 h-12 object-cover rounded-sm border shadow-sm" />
@@ -181,14 +182,15 @@ const CMSDestinations = () => {
                       {uploadingIdx === idx && <p className="text-xs text-emerald-600">Uploading...</p>}
                     </div>
                   </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Description</label>
-                      <textarea 
+                      <RichTextEditor
                         value={item.description || ''}
-                        onChange={(e) => handleItemChange(idx, 'description', e.target.value)}
-                        className="w-full border border-gray-300 p-2 text-sm focus:outline-none focus:border-emerald-500 transition"
-                        rows={2}
+                        onChange={(val) => handleItemChange(idx, 'description', val)}
+                        placeholder="Experience the vibrant nightlife, pristine beaches..."
+                        minHeight="120px"
                       />
                     </div>
                     <div className="space-y-1">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Type, AlignLeft, Layout } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -42,6 +43,10 @@ const CMSBlogs = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFieldChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -60,7 +65,7 @@ const CMSBlogs = () => {
       data.append('title', formData.title);
       data.append('excerpt', formData.excerpt);
       data.append('content', formData.content);
-      data.append('category', 'Travel Guides'); // Set default categories for compatibility
+      data.append('category', 'Travel Guides');
       data.append('readTime', '5 min read');
       data.append('badge', 'NEW');
       
@@ -98,22 +103,19 @@ const CMSBlogs = () => {
     setFormData({
       title: blog.title,
       image: blog.image,
-      excerpt: blog.excerpt || '',
-      content: blog.content || ''
+      excerpt: blog.excerpt,
+      content: blog.content
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this blog?')) {
-      try {
-        await axios.delete(`${API_BASE_URL}/blogs/${id}`);
-        toast.success('Blog deleted successfully');
-        fetchBlogs();
-      } catch (error) {
-        console.error('Error deleting blog:', error);
-        toast.error('Failed to delete blog');
-      }
+    if (!window.confirm('Are you sure you want to delete this blog?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/blogs/${id}`);
+      toast.success('Blog deleted successfully');
+      fetchBlogs();
+    } catch (error) {
+      toast.error('Failed to delete blog');
     }
   };
 
@@ -131,21 +133,11 @@ const CMSBlogs = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-black text-gray-900 tracking-widest uppercase">Blogs Manager</h2>
-          <p className="text-sm text-gray-500">Manage blog posts displayed on the website.</p>
-        </div>
-        <div className="bg-emerald-50 border border-emerald-100 rounded-sm p-4 flex items-center gap-3">
-          <div className="p-2 bg-emerald-800 text-white rounded-sm">
-            <Layout size={20} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Total Blogs</p>
-            <p className="text-lg font-black text-gray-900">{blogs.length}</p>
-          </div>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-black text-gray-900 tracking-widest uppercase">Manage Blogs</h2>
+        <p className="text-sm text-gray-500">Create, edit, and delete travel blog articles with full rich text formatting.</p>
       </div>
 
       {/* Input Form */}
@@ -161,14 +153,11 @@ const CMSBlogs = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-2">
                 <Type size={14} /> Blog Title
               </label>
-              <input
-                type="text"
-                name="title"
+              <RichTextEditor
                 value={formData.title}
-                onChange={handleInputChange}
+                onChange={(val) => handleFieldChange('title', val)}
                 placeholder="Enter title..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-sm px-4 py-2.5 outline-none focus:border-emerald-800 transition text-sm text-gray-900 font-medium"
-                required
+                minHeight="90px"
               />
             </div>
 
@@ -234,14 +223,11 @@ const CMSBlogs = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-2">
                 <AlignLeft size={14} /> Excerpt / Short Description
               </label>
-              <textarea
-                name="excerpt"
+              <RichTextEditor
                 value={formData.excerpt}
-                onChange={handleInputChange}
-                rows={3}
+                onChange={(val) => handleFieldChange('excerpt', val)}
                 placeholder="Brief summary of the blog post..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-sm px-4 py-2.5 outline-none focus:border-emerald-800 transition text-sm text-gray-900 font-medium resize-none"
-                required
+                minHeight="100px"
               />
             </div>
 
@@ -249,14 +235,11 @@ const CMSBlogs = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block flex items-center gap-2">
                 <AlignLeft size={14} /> Full Description / Content
               </label>
-              <textarea
-                name="content"
+              <RichTextEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                rows={6}
+                onChange={(val) => handleFieldChange('content', val)}
                 placeholder="Write the full blog post content here..."
-                className="w-full bg-gray-50 border border-gray-200 rounded-sm px-4 py-2.5 outline-none focus:border-emerald-800 transition text-sm text-gray-900 font-medium resize-y"
-                required
+                minHeight="200px"
               />
             </div>
 
@@ -305,12 +288,12 @@ const CMSBlogs = () => {
               >
                 <div>
                   <div className="h-40 bg-gray-50 overflow-hidden relative">
-                    <img src={blog.image} alt={blog.title} className="w-full h-full object-cover" />
+                    <img src={blog.image} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="p-4">
                     <p className="text-[10px] text-gray-400 font-semibold mb-1">{blog.date}</p>
-                    <h4 className="font-bold text-gray-800 line-clamp-2 leading-tight mb-2 h-10">{blog.title}</h4>
-                    <p className="text-xs text-gray-500 line-clamp-3">{blog.excerpt}</p>
+                    <h4 className="font-bold text-gray-800 line-clamp-2 leading-tight mb-2 h-10">{blog.title?.replace(/<[^>]*>/g, '')}</h4>
+                    <p className="text-xs text-gray-500 line-clamp-3">{blog.excerpt?.replace(/<[^>]*>/g, '')}</p>
                   </div>
                 </div>
                 

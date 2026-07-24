@@ -244,219 +244,216 @@ const BookingCheckoutPage = () => {
           </div>
         </div>
 
-        {/* 2. Trip Details */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-bold text-surface mb-4 text-sm">Your Trip</h3>
-          <div className="grid grid-cols-2 gap-y-4">
-            <div>
-              <p className="text-xs text-gray-500 font-medium mb-1">Dates</p>
-              <p className="text-sm font-bold text-surface">{priceBreakdown?.nights} Nights</p>
-              <p className="text-xs text-gray-600">{dates.checkIn} - {dates.checkOut}</p>
+        {/* 2. Trip & Price Details */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
+          <div>
+            <h3 className="font-bold text-surface mb-3 text-sm">Your Trip</h3>
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-surface font-bold">
+                <span>{priceBreakdown?.nights} Nights</span>
+                <span className="text-gray-300">•</span>
+                <span>{guests.adults} Adults, {guests.children} Children</span>
+                <span className="text-gray-300">•</span>
+                <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-semibold">
+                  {selectedRoom.type || selectedRoom.name}
+                </span>
+              </div>
+              <div className="text-[10px] sm:text-xs text-gray-500">
+                {dates.checkIn} - {dates.checkOut} | {guests.rooms} Room(s)
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-500 font-medium mb-1">Guests</p>
-              <p className="text-sm font-bold text-surface">{guests.adults} Adults, {guests.children} Children</p>
-              <p className="text-xs text-gray-600">{guests.rooms} Room(s)</p>
-            </div>
-            <div className="col-span-2">
-              <p className="text-xs text-gray-500 font-medium mb-1">Room Type</p>
-              <p className="text-sm font-bold text-surface">{selectedRoom.type || selectedRoom.name}</p>
+          </div>
+
+          <div className="border-t border-gray-100 pt-5">
+            <h3 className="font-bold text-surface mb-4 text-sm">Price Details</h3>
+            <div className="space-y-3">
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Base Price ({priceBreakdown?.nights} nights)</span>
+                <span>₹{priceBreakdown?.totalBasePrice?.toLocaleString()}</span>
+              </div>
+              {(priceBreakdown?.totalExtraAdultCharge > 0) && (
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Extra Adults Charges</span>
+                  <span>₹{priceBreakdown.totalExtraAdultCharge.toLocaleString()}</span>
+                </div>
+              )}
+              {(priceBreakdown?.totalExtraChildCharge > 0) && (
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>Extra Children Charges</span>
+                  <span>₹{priceBreakdown.totalExtraChildCharge.toLocaleString()}</span>
+                </div>
+              )}
+              {(priceBreakdown?.discountAmount > 0) && (
+                <div className="flex justify-between text-sm text-green-700 font-medium">
+                  <span className="flex items-center gap-1"><Tag size={12} /> Coupon Discount</span>
+                  <span>- ₹{priceBreakdown.discountAmount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Taxes & Fees ({taxRate || 0}%)</span>
+                <span>₹{priceBreakdown?.taxAmount?.toLocaleString()}</span>
+              </div>
+
+              {(useWallet && ['online', 'prepaid'].includes(paymentMethod) && walletDeduction > 0) && (
+                <div className="flex justify-between text-sm text-blue-700 font-medium">
+                  <span className="flex items-center gap-1"><Wallet size={12} /> Wallet Balance Used</span>
+                  <span>- ₹{walletDeduction.toLocaleString()}</span>
+                </div>
+              )}
+
+              {paymentMethod === 'prepaid' && (
+                <>
+                  <div className="flex justify-between text-sm text-green-700 font-medium border-t border-gray-100 pt-2">
+                    <span className="flex items-center gap-1"><Tag size={12} /> Prepaid Discount (5%)</span>
+                    <span>- ₹{prepaidDiscountAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-surface">
+                    <span>New Total</span>
+                    <span className="line-through text-xs text-gray-400 mr-2">₹{baseTotalAmount.toLocaleString()}</span>
+                    <span className="font-bold">₹{discountedTotalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Advance Payable Now (30%)</span>
+                    <span>₹{advanceAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Balance Payable at Hotel</span>
+                    <span>₹{hotelAmount.toLocaleString()}</span>
+                  </div>
+                </>
+              )}
+
+              <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
+                <span className="font-bold text-surface">Total Payable Now</span>
+                <span className="text-xl font-black text-surface">
+                  ₹{remainingPayable.toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 3. Price Breakdown */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-bold text-surface mb-4 text-sm">Price Details</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Base Price ({priceBreakdown?.nights} nights)</span>
-              <span>₹{priceBreakdown?.totalBasePrice?.toLocaleString()}</span>
-            </div>
-            {(priceBreakdown?.totalExtraAdultCharge > 0) && (
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Extra Adults Charges</span>
-                <span>₹{priceBreakdown.totalExtraAdultCharge.toLocaleString()}</span>
-              </div>
-            )}
-            {(priceBreakdown?.totalExtraChildCharge > 0) && (
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Extra Children Charges</span>
-                <span>₹{priceBreakdown.totalExtraChildCharge.toLocaleString()}</span>
-              </div>
-            )}
-            {(priceBreakdown?.discountAmount > 0) && (
-              <div className="flex justify-between text-sm text-green-700 font-medium">
-                <span className="flex items-center gap-1"><Tag size={12} /> Coupon Discount</span>
-                <span>- ₹{priceBreakdown.discountAmount.toLocaleString()}</span>
-              </div>
-            )}
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Taxes & Fees ({taxRate || 0}%)</span>
-              <span>₹{priceBreakdown?.taxAmount?.toLocaleString()}</span>
-            </div>
-
-            {(useWallet && ['online', 'prepaid'].includes(paymentMethod) && walletDeduction > 0) && (
-              <div className="flex justify-between text-sm text-blue-700 font-medium">
-                <span className="flex items-center gap-1"><Wallet size={12} /> Wallet Balance Used</span>
-                <span>- ₹{walletDeduction.toLocaleString()}</span>
-              </div>
-            )}
-
-            {paymentMethod === 'prepaid' && (
-              <>
-                <div className="flex justify-between text-sm text-green-700 font-medium border-t border-gray-100 pt-2">
-                  <span className="flex items-center gap-1"><Tag size={12} /> Prepaid Discount (5%)</span>
-                  <span>- ₹{prepaidDiscountAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm text-surface">
-                  <span>New Total</span>
-                  <span className="line-through text-xs text-gray-400 mr-2">₹{baseTotalAmount.toLocaleString()}</span>
-                  <span className="font-bold">₹{discountedTotalAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Advance Payable Now (30%)</span>
-                  <span>₹{advanceAmount.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Balance Payable at Hotel</span>
-                  <span>₹{hotelAmount.toLocaleString()}</span>
-                </div>
-              </>
-            )}
-
-            <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
-              <span className="font-bold text-surface">Total Payable Now</span>
-              <span className="text-xl font-black text-surface">
-                ₹{remainingPayable.toLocaleString()}
+        {/* 3. Wallet & Payment Options */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
+          {/* Wallet Section */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-surface text-sm flex items-center gap-2">
+                <Wallet size={18} className="text-blue-600" />
+                Use Wallet Balance
+              </h3>
+              <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
+                Available: ₹{walletBalance.toLocaleString()}
               </span>
             </div>
+
+            <label className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${useWallet && ['online', 'prepaid'].includes(paymentMethod) ? 'border-blue-600 bg-blue-50/20' : 'border-gray-100'}`}>
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 pointer-events-none"
+                  checked={useWallet}
+                  disabled={walletBalance <= 0 || !['online', 'prepaid'].includes(paymentMethod)}
+                  onChange={() => { }} // Handled by parent div if needed, but safer on input change
+                />
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (!['online', 'prepaid'].includes(paymentMethod)) {
+                      toast.error("Wallet can only be used with Online or Prepaid Payment");
+                      return;
+                    }
+                    if (walletBalance > 0) setUseWallet(!useWallet);
+                  }}
+                ></div>
+              </div>
+              <div className="flex-1 opacity-100">
+                <p className="text-sm font-semibold text-surface">Pay using Wallet</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {!['online', 'prepaid'].includes(paymentMethod)
+                    ? "Select an online payment method to use wallet balance."
+                    : walletBalance > 0
+                      ? `Use ₹${Math.min(walletBalance, totalAmountForWallet).toLocaleString()} from your wallet.`
+                      : "Insufficient balance."}
+                </p>
+              </div>
+            </label>
           </div>
-        </div>
 
-        {/* Wallet Section */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-surface text-sm flex items-center gap-2">
-              <Wallet size={18} className="text-blue-600" />
-              Use Wallet Balance
-            </h3>
-            <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
-              Available: ₹{walletBalance.toLocaleString()}
-            </span>
-          </div>
-
-          <label className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${useWallet && ['online', 'prepaid'].includes(paymentMethod) ? 'border-blue-600 bg-blue-50/20' : 'border-gray-100'}`}>
-            <div className="relative flex items-center">
-              <input
-                type="checkbox"
-                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 border-gray-300 pointer-events-none"
-                checked={useWallet}
-                disabled={walletBalance <= 0 || !['online', 'prepaid'].includes(paymentMethod)}
-                onChange={() => { }} // Handled by parent div if needed, but safer on input change
-              />
-              <div
-                className="absolute inset-0 cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (!['online', 'prepaid'].includes(paymentMethod)) {
-                    toast.error("Wallet can only be used with Online or Prepaid Payment");
-                    return;
-                  }
-                  if (walletBalance > 0) setUseWallet(!useWallet);
-                }}
-              ></div>
-            </div>
-            <div className="flex-1 opacity-100">
-              <p className="text-sm font-semibold text-surface">Pay using Wallet</p>
-              <p className="text-xs text-gray-500 mt-0.5">
-                {!['online', 'prepaid'].includes(paymentMethod)
-                  ? "Select an online payment method to use wallet balance."
-                  : walletBalance > 0
-                    ? `Use ₹${Math.min(walletBalance, totalAmountForWallet).toLocaleString()} from your wallet.`
-                    : "Insufficient balance."}
-              </p>
-            </div>
-          </label>
-        </div>
-
-        {/* 4. Payment Options */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h3 className="font-bold text-surface mb-4 text-sm">Payment Method</h3>
-          <div className="space-y-3">
-            {/* Option 1: Pay at Hotel */}
-            <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'pay_at_hotel' ? 'border-surface bg-white' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
-              <input
-                type="radio"
-                name="payment"
-                className="mt-1"
-                checked={paymentMethod === 'pay_at_hotel'}
-                onChange={() => {
-                  setPaymentMethod('pay_at_hotel');
-                  setUseWallet(false); // Reset wallet usage if switching to Pay at Hotel 
-                }}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-surface text-sm">Pay at Hotel</span>
-                  <Building size={16} className="text-gray-500" />
-                </div>
-                <p className="text-xs text-gray-500 leading-relaxed">
-                  Pay the full amount when you check-in at the property. No upfront payment required.
-                </p>
-              </div>
-            </label>
-
-            {/* Option 2: Prepaid */}
-            <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'prepaid' ? 'border-surface bg-white shadow-sm' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
-              <input
-                type="radio"
-                name="payment"
-                className="mt-1"
-                checked={paymentMethod === 'prepaid'}
-                onChange={() => setPaymentMethod('prepaid')}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-surface text-sm">Prepaid (Save 5%)</span>
-                  <div className="flex gap-2">
-                    <Tag size={16} className="text-green-600" />
+          {/* Payment Options Section */}
+          <div className="border-t border-gray-100 pt-5">
+            <h3 className="font-bold text-surface mb-4 text-sm">Payment Method</h3>
+            <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+              {/* Option 1: Pay at Hotel */}
+              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'pay_at_hotel' ? 'bg-gray-50/40' : 'bg-white'}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  className="mt-1"
+                  checked={paymentMethod === 'pay_at_hotel'}
+                  onChange={() => {
+                    setPaymentMethod('pay_at_hotel');
+                    setUseWallet(false); // Reset wallet usage if switching to Pay at Hotel 
+                  }}
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="font-bold text-surface text-sm">Pay at Hotel</span>
+                    <Building size={15} className="text-gray-400" />
                   </div>
+                  <p className="text-[11px] text-gray-500 leading-normal">
+                    Pay full amount at check-in. No prepayment needed.
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed mb-2">
-                  Pay 30% securely now and get a 5% discount on your booking. Pay the remaining 70% at the hotel.
-                </p>
-                <div className="flex gap-2 mt-1">
-                  <span className="bg-green-100 text-green-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Extra Savings</span>
-                </div>
-              </div>
-            </label>
+              </label>
 
-            {/* Option 3: Pay Now */}
-            <label className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === 'online' ? 'border-surface bg-white' : 'border-gray-100 hover:border-gray-200 bg-white'}`}>
-              <input
-                type="radio"
-                name="payment"
-                className="mt-1"
-                checked={paymentMethod === 'online'}
-                onChange={() => setPaymentMethod('online')}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-bold text-surface text-sm">Pay Now</span>
-                  <div className="flex gap-2">
-                    <CreditCard size={16} className="text-gray-500" />
+              {/* Option 2: Prepaid */}
+              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'prepaid' ? 'bg-gray-50/40' : 'bg-white'}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  className="mt-1"
+                  checked={paymentMethod === 'prepaid'}
+                  onChange={() => setPaymentMethod('prepaid')}
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-surface text-sm">Prepaid</span>
+                      <span className="bg-green-100 text-green-700 text-[8px] uppercase font-bold px-1.5 py-0.5 rounded">Save 5%</span>
+                    </div>
+                    <Tag size={15} className="text-green-600" />
                   </div>
+                  <p className="text-[11px] text-gray-500 leading-normal">
+                    Pay 30% now (save 5%), remaining 70% at the hotel.
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 leading-relaxed mb-2">
-                  Secure online payment via UPI, Card, or Netbanking.
-                </p>
-                {/* Badges */}
-                <div className="flex gap-2">
-                  <span className="bg-blue-100 text-blue-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded">Secure</span>
+              </label>
+
+              {/* Option 3: Pay Now */}
+              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'online' ? 'bg-gray-50/40' : 'bg-white'}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  className="mt-1"
+                  checked={paymentMethod === 'online'}
+                  onChange={() => setPaymentMethod('online')}
+                />
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-surface text-sm">Pay Now</span>
+                      <span className="bg-blue-100 text-blue-700 text-[8px] uppercase font-bold px-1.5 py-0.5 rounded">Secure</span>
+                    </div>
+                    <CreditCard size={15} className="text-gray-400" />
+                  </div>
+                  <p className="text-[11px] text-gray-500 leading-normal">
+                    Secure online payment via UPI, Cards, Netbanking.
+                  </p>
                 </div>
-              </div>
-            </label>
+              </label>
+            </div>
           </div>
         </div>
 

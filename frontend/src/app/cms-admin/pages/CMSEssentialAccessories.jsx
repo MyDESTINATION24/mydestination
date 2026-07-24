@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Upload } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSEssentialAccessories = () => {
   const [data, setData] = useState({
@@ -88,29 +89,27 @@ const CMSEssentialAccessories = () => {
         {/* Headings */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg border-b pb-2">Section Headings</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Section Subtitle (small label above title)
+                Section Subtitle
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionSubtitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionSubtitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionSubtitle: val }))}
                 placeholder="PREPARE FOR YOUR TRIP"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Section Title (main heading)
+                Section Title
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionTitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionTitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionTitle: val }))}
                 placeholder="Essential Accessories"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
           </div>
@@ -119,12 +118,11 @@ const CMSEssentialAccessories = () => {
         {/* Description */}
         <div className="space-y-2">
           <h3 className="font-bold text-lg border-b pb-2">Description</h3>
-          <textarea
-            rows={4}
+          <RichTextEditor
             value={data.description || ''}
-            onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(val) => setData(prev => ({ ...prev, description: val }))}
             placeholder="Describe travel accessories..."
-            className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+            minHeight="140px"
           />
         </div>
 

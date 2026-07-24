@@ -96,7 +96,7 @@ const WebsiteHeader = () => {
             <a onClick={(e) => handleScrollTo(e, 'about')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">ABOUT US</a>
             <a onClick={(e) => handleScrollTo(e, 'staff')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">OUR STAFF</a>
             <Link to="/articles" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">ARTICLES</Link>
-            <Link to="/blogs" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">BLOGS</Link>
+            <a onClick={(e) => handleScrollTo(e, 'blogs')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">BLOGS</a>
             <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">LOGIN</Link>
             <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center">REGISTER</Link>
           </div>

@@ -5,10 +5,13 @@ import {
   Plus,
   MoreVertical,
   Layout,
-  Globe
+  Globe,
+  Edit3
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useSettings } from '../../../../shared/context/SettingsContext';
+import RichTextEditor from '../../../../components/common/RichTextEditor';
+import SafeHTML from '../../../../components/common/SafeHTML';
 
 const HeaderFooter = () => {
   const { settings } = useSettings();
@@ -23,6 +26,10 @@ const HeaderFooter = () => {
     footerText: '#ffffff'
   });
 
+  const [footerAboutHtml, setFooterAboutHtml] = useState(
+    '<p style="color:#ffffff; font-family:Inter;"><strong>My Destination</strong> is India’s premier luxury hospitality and travel reservation platform.</p>'
+  );
+
   const [pages] = useState([
     { title: 'Home', language: 'English' },
     { title: 'Inicio', language: 'Spanish' }
@@ -32,7 +39,7 @@ const HeaderFooter = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      toast.success('Landing site color settings updated');
+      toast.success('Landing site color & footer settings updated');
     }, 1000);
   };
 
@@ -51,7 +58,7 @@ const HeaderFooter = () => {
            <span className="text-gray-700 font-medium">Index</span>
         </div>
         <div className="flex items-center justify-between">
-           <h1 className="text-xl font-semibold text-gray-900 tracking-tight italic decoration-indigo-200">Index</h1>
+           <h1 className="text-xl font-semibold text-gray-900 tracking-tight italic">Header & Footer Settings</h1>
         </div>
       </div>
 
@@ -65,20 +72,8 @@ const HeaderFooter = () => {
               </div>
               <div>
                  <h3 className="text-sm font-semibold text-gray-900 tracking-tight">Landingsite Color Settings</h3>
-                 <p className="text-xs text-gray-400 font-medium italic italic underline-offset-4">Configure the primary branding colors for your landing page header and footer</p>
+                 <p className="text-xs text-gray-400 font-medium">Configure primary branding colors for landing page header and footer</p>
               </div>
-           </div>
-           
-           <div className="flex items-center gap-4 mb-4 bg-gray-50 p-4 rounded-lg border border-gray-100 border-dashed">
-              <div className="w-8 h-8 rounded-md shadow-sm border border-white" style={{ backgroundColor: '#0ab39c' }}></div>
-              <input 
-                value="#0ab39c" 
-                readOnly
-                className="w-24 border border-gray-200 rounded-md px-2 py-1.5 text-xs font-black text-gray-400 text-center bg-white outline-none" 
-              />
-              <span className="text-xs font-semibold text-gray-400 italic">
-                (You can choose and copy color code from here and paste to below input fields)
-              </span>
            </div>
 
            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -98,13 +93,38 @@ const HeaderFooter = () => {
                  <label className={labelClass}>Landingsite Footer Background Color</label>
                  <input className={inputClass} value={colors.footerBg} onChange={(e) => setColors({...colors, footerBg: e.target.value})} />
               </div>
+           </div>
+        </div>
+
+        {/* Rich Text Editor for Footer Text */}
+        <div className={cardClass}>
+           <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
+              <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600">
+                 <Edit3 size={18} />
+              </div>
               <div>
-                 <label className={labelClass}>Landingsite Footer Text Color</label>
-                 <input className={inputClass} value={colors.footerText} onChange={(e) => setColors({...colors, footerText: e.target.value})} />
+                 <h3 className="text-sm font-semibold text-gray-900 tracking-tight">Footer Rich Text & Description</h3>
+                 <p className="text-xs text-gray-400 font-medium">Format footer copyright, brand story, and contact details</p>
               </div>
            </div>
 
-           <div className="flex justify-end mt-8 border-t border-gray-50 pt-6">
+           <div className="space-y-4">
+              <label className={labelClass}>Footer Text & Copyright Content</label>
+              <RichTextEditor
+                value={footerAboutHtml}
+                onChange={setFooterAboutHtml}
+                placeholder="Enter footer brand summary or copyright HTML..."
+                minHeight="140px"
+              />
+
+              {/* Preview Box */}
+              <div className="p-4 rounded-lg bg-slate-900 text-white space-y-2 mt-4">
+                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Live Footer Preview</span>
+                 <SafeHTML html={footerAboutHtml} />
+              </div>
+           </div>
+
+           <div className="flex justify-end mt-6 border-t border-gray-50 pt-4">
               <button 
                 onClick={handleUpdate}
                 disabled={loading}
@@ -115,7 +135,7 @@ const HeaderFooter = () => {
            </div>
         </div>
 
-        {/* Preview Section */}
+        {/* Page Registry Section */}
         <div className={cardClass}>
            <div className="flex items-center gap-3 mb-8">
               <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -123,46 +143,8 @@ const HeaderFooter = () => {
               </div>
               <div>
                  <h3 className="text-sm font-semibold text-gray-900 tracking-tight">Header-Footer Page Registry</h3>
-                 <p className="text-xs text-gray-400 font-medium italic italic decoration-indigo-200 underline-offset-4">Manage navigational static pages throughout your landing site</p>
+                 <p className="text-xs text-gray-400 font-medium">Manage navigational static pages throughout landing site</p>
               </div>
-              <button className="ml-auto flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 shadow-sm transition-all">
-                 <Plus size={14} /> Add New Translation
-              </button>
-           </div>
-
-           {/* Preview Mockup */}
-           <div className="mb-10 bg-gray-50 rounded-xl p-8 border border-gray-100 shadow-inner">
-              <div className="w-full bg-white rounded-lg p-5 border border-gray-200 shadow-sm flex items-center justify-between">
-                 {appLogo ? (
-                   <img src={appLogo} alt={`${appName} logo`} className="h-5 opacity-80" />
-                 ) : (
-                   <span className="text-sm font-black tracking-tight text-slate-900">{appName}</span>
-                 )}
-                 <nav className="flex gap-8">
-                    <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-widest underline decoration-2 underline-offset-8 cursor-pointer">Home</span>
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-600 transition-colors">About Us</span>
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-600 transition-colors">Driver</span>
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gray-600 transition-colors">User</span>
-                 </nav>
-                 <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
-                       <Loader2 size={12} className="text-indigo-600 animate-spin-slow" />
-                    </div>
-                    <button className="bg-indigo-600 text-white text-[10px] font-bold px-5 py-2 rounded-lg uppercase tracking-widest shadow-sm">Reserve Your Ride</button>
-                 </div>
-              </div>
-              <div className="h-1 bg-gray-900/5 mt-4 rounded-full w-full"></div>
-           </div>
-
-           {/* Table Component */}
-           <div className="flex items-center justify-between mb-4 px-2">
-              <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
-                 Show <select className="border-none bg-gray-100 rounded px-2 py-1 text-xs font-bold text-gray-700 outline-none"><option>10</option></select> entries
-              </div>
-              <div className="flex-1 text-center">
-                 <a href="#" className="text-emerald-600 text-xs font-bold underline underline-offset-4 decoration-emerald-200 hover:text-emerald-700 transition-all">How It Works ?</a>
-              </div>
-              <div className="w-[100px]"></div>
            </div>
 
            <div className="overflow-hidden border border-gray-100 rounded-xl shadow-sm">
@@ -185,7 +167,7 @@ const HeaderFooter = () => {
                              </span>
                           </td>
                           <td className="px-6 py-5 text-right">
-                             <button className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-indigo-600 hover:border-indigo-100 hover:bg-indigo-50 transition-all shadow-sm">
+                             <button className="w-9 h-9 flex items-center justify-center rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-indigo-600 shadow-sm">
                                 <MoreVertical size={16} />
                              </button>
                           </td>

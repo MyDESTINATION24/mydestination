@@ -2,22 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { api as apiService } from '../../../services/apiService';
 import toast from 'react-hot-toast';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 // ─── Validation Rules ────────────────────────────────────────────────────────
 const RULES = {
   companyName: {
     required: true,
-    maxLen: 60,
-    pattern: /^[a-zA-Z0-9\s\-_.&']+$/,
-    patternMsg: 'Only letters, numbers, spaces and basic symbols allowed',
   },
   companyDescription: {
     required: true,
-    maxLen: 300,
   },
   address: {
     required: true,
-    maxLen: 150,
   },
   phone: {
     required: false,
@@ -36,39 +32,26 @@ const RULES = {
   },
   paymentNote: {
     required: false,
-    maxLen: 200,
   },
   copyrightText: {
     required: false,
-    maxLen: 120,
   },
 };
 
 const validate = (field, value) => {
   const rule = RULES[field];
   if (!rule) return null;
-  if (rule.required && !value?.trim()) return 'This field is required';
-  if (value && rule.maxLen && value.length > rule.maxLen)
-    return `Max ${rule.maxLen} characters allowed (${value.length}/${rule.maxLen})`;
+  if (rule.required && !value?.replace(/<[^>]*>/g, '')?.trim()) return 'This field is required';
   if (value && rule.pattern && !rule.pattern.test(value))
     return rule.patternMsg;
   return null;
 };
 
-const FieldMessage = ({ error, value, maxLen }) => {
+const FieldMessage = ({ error }) => {
   if (error) {
     return (
       <p className="flex items-center gap-1 text-[11px] text-red-500 font-semibold mt-1">
         <AlertCircle size={11} /> {error}
-      </p>
-    );
-  }
-  if (value && maxLen) {
-    const pct = value.length / maxLen;
-    const color = pct > 0.9 ? 'text-red-400' : pct > 0.7 ? 'text-amber-500' : 'text-gray-400';
-    return (
-      <p className={`text-[11px] mt-1 text-right ${color}`}>
-        {value.length} / {maxLen}
       </p>
     );
   }
@@ -100,70 +83,67 @@ const CMSFooter = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchConfig(); }, []);
+  useEffect(() => {
+    fetchConfig();
+  }, []);
 
   const fetchConfig = async () => {
     try {
       const res = await apiService.get('/cms/landing-page');
       if (res.data?.data?.footer) {
-        const fetched = res.data.data.footer;
         setFooterData(prev => ({
           ...prev,
-          ...fetched,
+          ...res.data.data.footer,
           paymentMethods: {
             ...prev.paymentMethods,
-            ...(fetched.paymentMethods || {})
+            ...(res.data.data.footer.paymentMethods || {})
           }
         }));
       }
-    } catch {
+    } catch (error) {
       toast.error('Failed to load footer configuration');
     } finally {
       setLoading(false);
     }
   };
 
-  // Live validation on every change
   const handleChange = (field, value) => {
-    // Phone: block non-numeric non-special chars while typing
-    if (field === 'phone' || field === 'whatsapp') {
-      // Allow only digits, hard block after 10
-      const cleaned = value.replace(/\D/g, '').slice(0, 10);
-      setFooterData(prev => ({ ...prev, [field]: cleaned }));
-      setErrors(prev => ({ ...prev, [field]: validate(field, cleaned) }));
-      setTouched(prev => ({ ...prev, [field]: true }));
-      return;
-    }
-
-    // MaxLen hard-block: don't allow more chars than limit
-    const rule = RULES[field];
-    if (rule?.maxLen && value.length > rule.maxLen) return;
-
     setFooterData(prev => ({ ...prev, [field]: value }));
     if (touched[field]) {
-      setErrors(prev => ({ ...prev, [field]: validate(field, value) }));
+      const err = validate(field, value);
+      setErrors(prev => ({ ...prev, [field]: err }));
     }
   };
 
   const handleBlur = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-    setErrors(prev => ({ ...prev, [field]: validate(field, footerData[field]) }));
+    const err = validate(field, footerData[field]);
+    setErrors(prev => ({ ...prev, [field]: err }));
   };
 
   const isFormValid = () => {
-    const allErrors = Object.keys(RULES).map(f => validate(f, footerData[f]));
-    return allErrors.every(e => e === null);
+    const fieldsToValidate = ['companyName', 'companyDescription', 'address', 'phone', 'whatsapp', 'email'];
+    for (const field of fieldsToValidate) {
+      const err = validate(field, footerData[field]);
+      if (err) return false;
+    }
+    return true;
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
 
-    // Mark all fields touched and show all errors on submit
-    const newTouched = Object.fromEntries(Object.keys(RULES).map(f => [f, true]));
-    const newErrors = Object.fromEntries(Object.keys(RULES).map(f => [f, validate(f, footerData[f])]));
-    setTouched(newTouched);
+    const allTouched = Object.keys(RULES).reduce((acc, k) => ({ ...acc, [k]: true }), {});
+    setTouched(allTouched);
+
+    const newErrors = {};
+    Object.keys(RULES).forEach(k => {
+      const err = validate(k, footerData[k]);
+      if (err) newErrors[k] = err;
+    });
     setErrors(newErrors);
-    if (Object.values(newErrors).some(e => e !== null)) {
+
+    if (Object.keys(newErrors).length > 0) {
       toast.error('Please fix validation errors before saving');
       return;
     }
@@ -171,33 +151,21 @@ const CMSFooter = () => {
     setSaving(true);
     try {
       await apiService.put('/cms/landing-page', { footer: footerData });
-      toast.success('Footer updated successfully!');
-    } catch {
-      toast.error('Failed to update footer');
+      toast.success('Footer configuration updated successfully!');
+    } catch (error) {
+      toast.error('Failed to update footer configuration');
     } finally {
       setSaving(false);
     }
   };
 
-  const inputClass = (field) => {
-    const hasError = touched[field] && errors[field];
-    const isValid = touched[field] && !errors[field] && footerData[field];
-    return `w-full border p-3 text-sm focus:outline-none transition ${
-      hasError
-        ? 'border-red-400 bg-red-50 focus:border-red-500'
-        : isValid
-        ? 'border-emerald-400 bg-emerald-50/30 focus:border-emerald-500'
-        : 'border-gray-200 focus:border-emerald-500'
-    }`;
-  };
-
-  if (loading) return <div className="p-8 text-gray-500">Loading...</div>;
+  if (loading) return <div className="text-sm text-gray-500 p-4">Loading...</div>;
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-5xl">
       <div className="mb-6">
         <h2 className="text-2xl font-black text-gray-900 tracking-widest uppercase">Footer Settings</h2>
-        <p className="text-sm text-gray-500">Edit the footer section of the landing page — company info, contact details, and copyright.</p>
+        <p className="text-sm text-gray-500">Edit the footer section of the landing page — company info, contact details, and copyright with rich text formatting.</p>
       </div>
 
       <form onSubmit={handleSave} noValidate className="bg-white p-6 md:p-8 rounded-sm border border-gray-200 shadow-sm space-y-6">
@@ -212,15 +180,13 @@ const CMSFooter = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Company Name <span className="text-red-400">*</span>
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={footerData.companyName || ''}
-                onChange={(e) => handleChange('companyName', e.target.value)}
-                onBlur={() => handleBlur('companyName')}
+                onChange={(val) => handleChange('companyName', val)}
                 placeholder="My DESTINATION"
-                className={inputClass('companyName')}
+                minHeight="90px"
               />
-              <FieldMessage error={touched.companyName && errors.companyName} value={footerData.companyName} maxLen={RULES.companyName.maxLen} />
+              <FieldMessage error={touched.companyName && errors.companyName} />
             </div>
 
             {/* Company Description */}
@@ -228,15 +194,13 @@ const CMSFooter = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Company Description <span className="text-red-400">*</span>
               </label>
-              <textarea
+              <RichTextEditor
                 value={footerData.companyDescription || ''}
-                onChange={(e) => handleChange('companyDescription', e.target.value)}
-                onBlur={() => handleBlur('companyDescription')}
-                rows={3}
+                onChange={(val) => handleChange('companyDescription', val)}
                 placeholder="Short description shown in footer..."
-                className={`${inputClass('companyDescription')} resize-none`}
+                minHeight="120px"
               />
-              <FieldMessage error={touched.companyDescription && errors.companyDescription} value={footerData.companyDescription} maxLen={RULES.companyDescription.maxLen} />
+              <FieldMessage error={touched.companyDescription && errors.companyDescription} />
             </div>
           </div>
         </div>
@@ -251,15 +215,13 @@ const CMSFooter = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Address <span className="text-red-400">*</span>
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={footerData.address || ''}
-                onChange={(e) => handleChange('address', e.target.value)}
-                onBlur={() => handleBlur('address')}
+                onChange={(val) => handleChange('address', val)}
                 placeholder="1 My Address, My Street, City..."
-                className={inputClass('address')}
+                minHeight="90px"
               />
-              <FieldMessage error={touched.address && errors.address} value={footerData.address} maxLen={RULES.address.maxLen} />
+              <FieldMessage error={touched.address && errors.address} />
             </div>
 
             {/* Phone */}
@@ -273,10 +235,10 @@ const CMSFooter = () => {
                 placeholder="9876543210"
                 maxLength={10}
                 inputMode="numeric"
-                className={inputClass('phone')}
+                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
               <p className="text-[10px] text-gray-400 mt-0.5">{(footerData.phone || '').length} / 10 digits</p>
-              <FieldMessage error={touched.phone && errors.phone} value={null} maxLen={null} />
+              <FieldMessage error={touched.phone && errors.phone} />
               {!errors.phone && footerData.phone && touched.phone && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
                   <CheckCircle2 size={11} /> Valid phone number
@@ -295,10 +257,10 @@ const CMSFooter = () => {
                 placeholder="9876543210"
                 maxLength={10}
                 inputMode="numeric"
-                className={inputClass('whatsapp')}
+                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
               <p className="text-[10px] text-gray-400 mt-0.5">{(footerData.whatsapp || '').length} / 10 digits</p>
-              <FieldMessage error={touched.whatsapp && errors.whatsapp} value={null} maxLen={null} />
+              <FieldMessage error={touched.whatsapp && errors.whatsapp} />
               {!errors.whatsapp && footerData.whatsapp && touched.whatsapp && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
                   <CheckCircle2 size={11} /> Valid WhatsApp number
@@ -315,9 +277,9 @@ const CMSFooter = () => {
                 onChange={(e) => handleChange('email', e.target.value.trim())}
                 onBlur={() => handleBlur('email')}
                 placeholder="contact@mydestination.com"
-                className={inputClass('email')}
+                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
-              <FieldMessage error={touched.email && errors.email} value={null} maxLen={null} />
+              <FieldMessage error={touched.email && errors.email} />
               {!errors.email && footerData.email && touched.email && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
                   <CheckCircle2 size={11} /> Valid email address
@@ -337,15 +299,13 @@ const CMSFooter = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Payment Note <span className="text-gray-300 font-normal normal-case">(shown under "Pay safely with us")</span>
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={footerData.paymentNote || ''}
-                onChange={(e) => handleChange('paymentNote', e.target.value)}
-                onBlur={() => handleBlur('paymentNote')}
+                onChange={(val) => handleChange('paymentNote', val)}
                 placeholder="The payment is encrypted and transmitted securely..."
-                className={inputClass('paymentNote')}
+                minHeight="90px"
               />
-              <FieldMessage error={touched.paymentNote && errors.paymentNote} value={footerData.paymentNote} maxLen={RULES.paymentNote.maxLen} />
+              <FieldMessage error={touched.paymentNote && errors.paymentNote} />
             </div>
 
             {/* Copyright Text */}
@@ -353,15 +313,13 @@ const CMSFooter = () => {
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                 Copyright Text <span className="text-gray-300 font-normal normal-case">(leave blank for auto year)</span>
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={footerData.copyrightText || ''}
-                onChange={(e) => handleChange('copyrightText', e.target.value)}
-                onBlur={() => handleBlur('copyrightText')}
+                onChange={(val) => handleChange('copyrightText', val)}
                 placeholder={`© ${new Date().getFullYear()} My DESTINATION. All rights reserved.`}
-                className={inputClass('copyrightText')}
+                minHeight="90px"
               />
-              <FieldMessage error={touched.copyrightText && errors.copyrightText} value={footerData.copyrightText} maxLen={RULES.copyrightText.maxLen} />
+              <FieldMessage error={touched.copyrightText && errors.copyrightText} />
             </div>
 
             {/* Payment Methods Selection */}

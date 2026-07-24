@@ -398,13 +398,20 @@ const UserProtectedRoute = ({ children }) => {
 };
 
 const PublicOrProtectedRoute = ({ children }) => {
+  const location = useLocation();
   const token = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const user = userRaw ? JSON.parse(userRaw) : null;
-  // For both Browser and WebView:
-  // If a partner is logged in and tries to access user-facing public routes,
-  // redirect them to the partner dashboard. Otherwise allow access.
-  if (token && user?.role === 'partner') {
+
+  // Public marketing & content pages (blogs, articles, about, contact, etc.) are accessible by everyone
+  const isPublicContentPage = 
+    location.pathname.startsWith('/blogs') ||
+    location.pathname.startsWith('/articles') ||
+    location.pathname.startsWith('/about') ||
+    location.pathname.startsWith('/contact') ||
+    location.pathname.startsWith('/partner-landing');
+
+  if (!isPublicContentPage && token && user?.role === 'partner') {
     return <Navigate to="/hotel/dashboard" replace />;
   }
 
@@ -765,9 +772,9 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/taxi/*" element={<TaxiApp />} />
             <Route path="/login" element={<UserPublicRoute redirectTo="/home"><UserLogin /></UserPublicRoute>} />
-            <Route path="/wedding/login" element={<Navigate to="/login" replace />} />
+            <Route path="/wedding/login" element={<UserPublicRoute redirectTo="/wedding"><UserLogin theme="wedding" /></UserPublicRoute>} />
             <Route path="/signup" element={<UserPublicRoute redirectTo="/home"><UserSignup /></UserPublicRoute>} />
-            <Route path="/wedding/signup" element={<Navigate to="/signup" replace />} />
+            <Route path="/wedding/signup" element={<UserPublicRoute redirectTo="/wedding"><UserSignup theme="wedding" /></UserPublicRoute>} />
             <Route path="/r/:referralCode" element={<ReferralHandler />} />
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/terms" element={<TermsPage />} />
@@ -924,6 +931,7 @@ function App() {
                 <Route path="saved" element={<WeddingSavedDestinationsPage />} />
                 <Route path="my-enquiries" element={<WeddingMyEnquiriesPage />} />
                 <Route path="account" element={<WeddingAccountSettingsPage />} />
+                <Route path="settings" element={<WeddingAccountSettingsPage />} />
                 <Route path="payment/status" element={<WeddingPaymentStatus />} />
                 <Route path="wallet" element={<WalletPage />} />
               </Route>

@@ -3,6 +3,7 @@ import { api as apiService } from '../../../services/apiService';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
 import { Plus, Trash2, Upload } from 'lucide-react';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
 const CMSTravelTips = () => {
   const [data, setData] = useState({
@@ -115,29 +116,27 @@ const CMSTravelTips = () => {
         {/* Section Heading Text */}
         <div className="space-y-4">
           <h3 className="font-bold text-lg border-b pb-2">Section Headings</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Section Subtitle (small label above title)
+                Section Subtitle
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionSubtitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionSubtitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionSubtitle: val }))}
                 placeholder="PLAN YOUR JOURNEY"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
             <div className="space-y-1">
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                Section Title (main heading)
+                Section Title
               </label>
-              <input
-                type="text"
+              <RichTextEditor
                 value={data.sectionTitle || ''}
-                onChange={(e) => setData(prev => ({ ...prev, sectionTitle: e.target.value }))}
+                onChange={(val) => setData(prev => ({ ...prev, sectionTitle: val }))}
                 placeholder="Premium Travel & Tours"
-                className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+                minHeight="90px"
               />
             </div>
           </div>
@@ -146,18 +145,17 @@ const CMSTravelTips = () => {
         {/* Description */}
         <div className="space-y-2">
           <h3 className="font-bold text-lg border-b pb-2">Description</h3>
-          <textarea
-            rows={4}
+          <RichTextEditor
             value={data.description || ''}
-            onChange={(e) => setData(prev => ({ ...prev, description: e.target.value }))}
+            onChange={(val) => setData(prev => ({ ...prev, description: val }))}
             placeholder="Describe your travel services..."
-            className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+            minHeight="140px"
           />
         </div>
 
         {/* Image Upload */}
         <div className="space-y-3">
-          <h3 className="font-bold text-lg border-b pb-2">Section Image (Round Image on Left)</h3>
+          <h3 className="font-bold text-lg border-b pb-2">Section Image</h3>
           <div className="flex items-start gap-6 flex-wrap">
             {data.image ? (
               <div className="flex flex-col items-start gap-3">
@@ -186,16 +184,14 @@ const CMSTravelTips = () => {
         {/* Button Text */}
         <div className="space-y-2">
           <h3 className="font-bold text-lg border-b pb-2">Button</h3>
-          <div className="max-w-sm space-y-1">
+          <div className="max-w-md space-y-1">
             <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">Button Text</label>
-            <input
-              type="text"
+            <RichTextEditor
               value={data.buttonText || ''}
-              onChange={(e) => setData(prev => ({ ...prev, buttonText: e.target.value }))}
+              onChange={(val) => setData(prev => ({ ...prev, buttonText: val }))}
               placeholder="BOOK CAB NOW"
-              className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
+              minHeight="90px"
             />
-            <p className="text-xs text-gray-400">Note: Button will link to the taxi/cab booking page.</p>
           </div>
         </div>
 
@@ -213,21 +209,22 @@ const CMSTravelTips = () => {
           </div>
 
           {data.bulletPoints && data.bulletPoints.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {data.bulletPoints.map((point, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <span className="text-emerald-600 font-bold text-sm shrink-0">✓</span>
-                  <input
-                    type="text"
-                    value={point}
-                    onChange={(e) => handleBulletChange(idx, e.target.value)}
-                    placeholder={`Feature ${idx + 1}`}
-                    className="flex-1 border border-gray-200 p-2.5 text-sm focus:outline-none focus:border-emerald-500 transition"
-                  />
+                <div key={idx} className="flex items-start gap-3 bg-gray-50 p-3 border rounded-sm">
+                  <span className="text-emerald-600 font-bold text-sm mt-2">✓</span>
+                  <div className="flex-1">
+                    <RichTextEditor
+                      value={point || ''}
+                      onChange={(val) => handleBulletChange(idx, val)}
+                      placeholder={`Feature ${idx + 1}`}
+                      minHeight="90px"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveBullet(idx)}
-                    className="text-gray-400 hover:text-red-500 transition shrink-0"
+                    className="text-gray-400 hover:text-red-500 transition mt-2"
                     title="Remove"
                   >
                     <Trash2 size={16} />
