@@ -221,6 +221,7 @@ export const normalizeBusCatalog = (catalog = []) =>
     return {
       ...fallbackDraft,
       ...bus,
+      id: bus.id || bus._id || fallbackDraft.id,
       ownerDriverId: bus.ownerDriverId || '',
       blueprint,
       seatPrice:
@@ -302,5 +303,25 @@ export const upsertAdminBus = async (payload) => {
 
 export const deleteAdminBus = async (busId) => {
   await api.delete(`/admin/bus-services/${busId}`);
+  return true;
+};
+
+export const getAdminBusBanners = async (params = {}) => {
+  const response = await api.get('/admin/bus-banners', { params });
+  return response?.data?.results || response?.results || response || [];
+};
+
+export const createAdminBusBanner = async (payload) => {
+  const response = await api.post('/admin/bus-banners', payload);
+  return response?.data || response;
+};
+
+export const updateAdminBusBanner = async (id, payload) => {
+  const response = await api.patch(`/admin/bus-banners/${id}`, payload);
+  return response?.data || response;
+};
+
+export const deleteAdminBusBanner = async (id) => {
+  await api.delete(`/admin/bus-banners/${id}`);
   return true;
 };

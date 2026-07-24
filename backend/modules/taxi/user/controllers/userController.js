@@ -6,6 +6,7 @@ import { UserWallet } from '../models/UserWallet.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
 import { Notification } from '../../admin/promotions/models/Notification.js';
 import { BusService } from '../../admin/models/BusService.js';
+import { BusBanner } from '../../admin/models/BusBanner.js';
 import { Driver } from '../../driver/models/Driver.js';
 import { comparePassword, hashPassword, signAccessToken } from '../services/authService.js';
 import { env } from '../../../../config/env.js';
@@ -2391,6 +2392,30 @@ export const searchBuses = async (req, res) => {
     data: {
       travelDate,
       results,
+    },
+  });
+};
+
+export const getActiveBusBanners = async (req, res) => {
+  const filter = { isActive: true };
+  if (req.query.type) {
+    if (req.query.type === 'banner') {
+      filter.$or = [{ type: 'banner' }, { type: { $exists: false } }, { type: null }];
+    } else {
+      filter.type = req.query.type;
+    }
+  }
+  const items = await BusBanner.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+  res.status(200).json({
+    success: true,
+    data: {
+      results: items.map(item => ({
+        id: String(item._id),
+        title: item.title || '',
+        imageUrl: item.imageUrl || '',
+        linkUrl: item.linkUrl || '',
+        type: item.type || 'banner',
+      })),
     },
   });
 };

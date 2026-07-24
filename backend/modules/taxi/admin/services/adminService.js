@@ -12,6 +12,7 @@ import { createDefaultBusinessSettings } from '../data/defaultBusinessSettings.j
 import { createDefaultAppSettings } from '../data/defaultAppSettings.js';
 import { Airport } from '../models/Airport.js';
 import { BusService } from '../models/BusService.js';
+import { BusBanner } from '../models/BusBanner.js';
 import { DriverNeededDocument } from '../models/DriverNeededDocument.js';
 import { GoodsType } from '../models/GoodsType.js';
 import { OwnerNeededDocument } from '../models/OwnerNeededDocument.js';
@@ -37,6 +38,7 @@ import { Zone } from '../../driver/models/Zone.js';
 import { Ride } from '../../user/models/Ride.js';
 import { UserSubscription } from '../../user/models/UserSubscription.js';
 import { AppLanguage } from '../models/AppLanguage.js';
+import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { RideModule } from '../models/RideModule.js';
 import { SubscriptionPlan } from '../models/SubscriptionPlan.js';
 import { TaxiAppModule } from '../models/TaxiAppModule.js';
@@ -5622,6 +5624,73 @@ export const deleteOngoingRide = async (rideId) => {
   };
 };
 
+export const listLocationVehicleTypes = async (locationId, queryParams = {}) => {
+  if (!mongoose.Types.ObjectId.isValid(String(locationId))) {
+    throw new ApiError(400, 'Invalid service location ID');
+  }
+
+  const zones = await Zone.find({ service_location_id: locationId }).select('_id').lean();
+  const zoneIds = zones.map((z) => z._id);
+
+  const query = {
+    $or: [
+      { service_location_id: locationId },
+      { zone_id: { $in: zoneIds } }
+    ],
+    active: 1
+  };
+
+  if (queryParams.transport_type) {
+    const normalizedTransportType = normalizeVehicleTransportType(queryParams.transport_type);
+    if (normalizedTransportType !== 'both') {
+      query.transport_type = { $in: [normalizedTransportType, 'both'] };
+    }
+  }
+
+  const setPrices = await SetPrice.find(query)
+    .populate('vehicle_type')
+    .populate('package_vehicle_prices.vehicle_type')
+    .lean();
+
+  const vehicleMap = new Map();
+
+  for (const price of setPrices) {
+    if (price.vehicle_type) {
+      const v = price.vehicle_type;
+      vehicleMap.set(String(v._id), v);
+    }
+    if (Array.isArray(price.package_vehicle_prices)) {
+      for (const vp of price.package_vehicle_prices) {
+        if (vp.vehicle_type && vp.active !== 0) {
+          const v = vp.vehicle_type;
+          vehicleMap.set(String(v._id), v);
+        }
+      }
+    }
+  }
+
+  const results = Array.from(vehicleMap.values()).map((item) => ({
+    ...item,
+    id: String(item._id),
+    icon: item.map_icon || item.icon || item.image || '',
+    map_icon: item.map_icon || item.icon || item.image || '',
+    delivery_category: item.delivery_category || '',
+  }));
+
+  return {
+    results,
+    paginator: {
+      data: results,
+      total: results.length,
+      current_page: 1,
+      last_page: 1,
+      per_page: results.length,
+      from: 1,
+      to: results.length
+    }
+  };
+};
+
 export const listVehicleTypes = async (queryParams = {}) => {
   const query = {};
   if (queryParams.transport_type) {
@@ -9679,3 +9748,91 @@ export const buildDriverDutyReport = async (query = {}) => {
     }
     return results;
   };
+
+export const getBusBanners = async (query = {}) => {
+  const filter = {};
+  if (query.type) {
+    if (query.type === 'banner') {
+      filter.$or = [{ type: 'banner' }, { type: { $exists: false } }, { type: null }];
+    } else {
+      filter.type = query.type;
+    }
+  }
+  return await BusBanner.find(filter).sort({ order: 1, createdAt: -1 }).lean();
+};
+
+export const createBusBanner = async (payload = {}) => {
+  let imageUrl = payload.imageUrl || '';
+  let imagePublicId = payload.imagePublicId || '';
+
+  if (payload.image && String(payload.image).startsWith('data:')) {
+    try {
+      const uploaded = await uploadDataUrlToCloudinary({
+        dataUrl: payload.image,
+        publicIdPrefix: 'bus-banner',
+      });
+      imageUrl = uploaded.secureUrl;
+      imagePublicId = uploaded.publicId;
+    } catch (error) {
+      console.warn('Cloudinary upload failed for bus banner:', error.message);
+      imageUrl = payload.image;
+    }
+  }
+
+  if (!imageUrl) {
+    throw new ApiError(400, 'Image URL or uploaded image is required');
+  }
+
+  return await BusBanner.create({
+    title: payload.title || '',
+    imageUrl,
+    imagePublicId,
+    linkUrl: payload.linkUrl || '',
+    isActive: payload.isActive !== false,
+    order: Number(payload.order || 0),
+    type: payload.type || 'banner',
+  });
+};
+
+export const updateBusBanner = async (id, payload = {}) => {
+  const item = await BusBanner.findById(id);
+  if (!item) {
+    throw new ApiError(404, 'Bus banner not found');
+  }
+
+  let imageUrl = payload.imageUrl;
+  let imagePublicId = payload.imagePublicId;
+
+  if (payload.image && String(payload.image).startsWith('data:')) {
+    try {
+      const uploaded = await uploadDataUrlToCloudinary({
+        dataUrl: payload.image,
+        publicIdPrefix: 'bus-banner',
+      });
+      imageUrl = uploaded.secureUrl;
+      imagePublicId = uploaded.publicId;
+    } catch (error) {
+      console.warn('Cloudinary upload failed for bus banner:', error.message);
+      imageUrl = payload.image;
+    }
+  }
+
+  if (payload.title !== undefined) item.title = payload.title;
+  if (imageUrl !== undefined) item.imageUrl = imageUrl;
+  if (imagePublicId !== undefined) item.imagePublicId = imagePublicId;
+  if (payload.linkUrl !== undefined) item.linkUrl = payload.linkUrl;
+  if (payload.isActive !== undefined) item.isActive = payload.isActive;
+  if (payload.order !== undefined) item.order = Number(payload.order || 0);
+  if (payload.type !== undefined) item.type = payload.type;
+
+  await item.save();
+  return item;
+};
+
+export const deleteBusBanner = async (id) => {
+  const deleted = await BusBanner.findByIdAndDelete(id);
+  if (!deleted) {
+    throw new ApiError(404, 'Bus banner not found');
+  }
+  return true;
+};

@@ -3,8 +3,7 @@ import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Type, AlignLeft, Layo
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import RichTextEditor from '../../../components/common/RichTextEditor';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
 
 const CMSArticles = () => {
   const [articles, setArticles] = useState([]);

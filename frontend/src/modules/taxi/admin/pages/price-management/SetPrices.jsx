@@ -32,7 +32,7 @@ import {
   Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
-import { API_BASE_URL } from '../../../../shared/api/runtimeConfig';
+import { TAXI_API_BASE_URL as API_BASE_URL } from '../../../shared/api/runtimeConfig';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTaxiTransportTypes } from '../../../../shared/hooks/useTaxiTransportTypes';
 

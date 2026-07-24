@@ -18,6 +18,75 @@ const app = initializeApp(firebaseConfig);
 
 let messaging = null;
 
+const FCM_INDEXED_DB_NAMES = [
+  'firebase-messaging-database',
+  'fcm_token_details_db',
+];
+
+const isIndexedDbVersionError = (error) =>
+  error?.name === 'VersionError' ||
+  String(error?.message || '').includes('The requested version');
+
+const deleteIndexedDb = (name) =>
+  new Promise((resolve) => {
+    if (typeof indexedDB === 'undefined') {
+      resolve();
+      return;
+    }
+
+    try {
+      const request = indexedDB.deleteDatabase(name);
+      request.onsuccess = () => resolve();
+      request.onerror = () => resolve();
+      request.onblocked = () => resolve();
+    } catch {
+      resolve();
+    }
+  });
+
+const getMessagingServiceWorkerPath = () => {
+  if (typeof window === 'undefined') {
+    return '/firebase-messaging-sw.js';
+  }
+
+  return window.location.pathname.startsWith('/taxi')
+    ? '/taxi/firebase-messaging-sw.js'
+    : '/firebase-messaging-sw.js';
+};
+
+const registerMessagingServiceWorker = async () => {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return null;
+  }
+
+  const serviceWorkerPath = getMessagingServiceWorkerPath();
+  const scope = serviceWorkerPath.startsWith('/taxi/') ? '/taxi/' : '/';
+
+  return navigator.serviceWorker.register(serviceWorkerPath, { scope });
+};
+
+const resetFcmBrowserState = async () => {
+  await Promise.all(FCM_INDEXED_DB_NAMES.map(deleteIndexedDb));
+
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    return;
+  }
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(
+      registrations
+        .filter((registration) =>
+          String(registration?.active?.scriptURL || registration?.waiting?.scriptURL || registration?.installing?.scriptURL || '')
+            .includes('firebase-messaging-sw.js')
+        )
+        .map((registration) => registration.unregister())
+    );
+  } catch {
+    // Best-effort cleanup only.
+  }
+};
+
 const getMessagingInstance = () => {
   // Firebase Web Messaging requires serviceWorker support.
   // Flutter WebViews do NOT support service workers, so skip in that context.
@@ -68,7 +137,11 @@ export const requestNotificationPermission = async () => {
     }
 
     try {
-      const token = await getToken(messagingInstance, { vapidKey: VAPID_KEY });
+      const serviceWorkerRegistration = await registerMessagingServiceWorker();
+      const token = await getToken(messagingInstance, {
+        vapidKey: VAPID_KEY,
+        ...(serviceWorkerRegistration ? { serviceWorkerRegistration } : {}),
+      });
       if (token) {
         console.log('[FCM] Web push token obtained.');
         return token;
@@ -77,6 +150,26 @@ export const requestNotificationPermission = async () => {
         return null;
       }
     } catch (error) {
+      if (isIndexedDbVersionError(error)) {
+        console.warn('[FCM] Messaging cache version mismatch detected. Resetting browser FCM state and retrying once.');
+        await resetFcmBrowserState();
+
+        try {
+          const retryServiceWorkerRegistration = await registerMessagingServiceWorker();
+          const retryToken = await getToken(messagingInstance, {
+            vapidKey: VAPID_KEY,
+            ...(retryServiceWorkerRegistration ? { serviceWorkerRegistration: retryServiceWorkerRegistration } : {}),
+          });
+          if (retryToken) {
+            console.log('[FCM] Web push token obtained after FCM cache reset.');
+            return retryToken;
+          }
+        } catch (retryError) {
+          console.error('[FCM] Error getting FCM token after cache reset:', retryError);
+          return null;
+        }
+      }
+
       console.error('[FCM] Error getting FCM token:', error);
       return null;
     }

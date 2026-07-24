@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../../services/apiService';
 import toast from 'react-hot-toast';
 import { Eye, CheckCircle, XCircle, Trash2, Mail, Download, X } from 'lucide-react';
+import { buildAssetUrl } from '../../../shared/api/runtimeConfig';
 
 const AdminCareerApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -80,9 +81,7 @@ const AdminCareerApplications = () => {
 
   const getFileUrl = (imgPath) => {
     if (!imgPath) return '';
-    return imgPath.startsWith('http') 
-      ? imgPath 
-      : `${(import.meta.env.VITE_API_URL || 'http://localhost:5001').replace('/api', '')}${imgPath.replace(/\\/g, '/')}`;
+    return buildAssetUrl(imgPath);
   };
 
   if (loading) {

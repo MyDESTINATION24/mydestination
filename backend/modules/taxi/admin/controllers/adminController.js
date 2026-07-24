@@ -637,6 +637,11 @@ export const getIntercityTrips = asyncHandler(async (req, res) =>
 export const deleteOngoingRide = asyncHandler(async (req, res) =>
   ok(res, await adminService.deleteOngoingRide(req.params.id)),
 );
+export const getLocationVehicleTypes = asyncHandler(async (req, res) => {
+  const { locationId } = req.params;
+  ok(res, await adminService.listLocationVehicleTypes(locationId, req.query));
+});
+
 export const getVehicleTypes = asyncHandler(async (req, res) =>
   ok(res, await adminService.listVehicleTypes(req.query)),
 );
@@ -793,6 +798,20 @@ export const updateBusService = asyncHandler(async (req, res) =>
 );
 export const deleteBusService = asyncHandler(async (req, res) => {
   await adminService.deleteBusService(req.params.id);
+  ok(res, { deleted: true });
+});
+
+export const getBusBanners = asyncHandler(async (req, res) =>
+  ok(res, { results: await adminService.getBusBanners(req.query) }),
+);
+export const createBusBanner = asyncHandler(async (req, res) =>
+  ok(res, await adminService.createBusBanner(req.body)),
+);
+export const updateBusBanner = asyncHandler(async (req, res) =>
+  ok(res, await adminService.updateBusBanner(req.params.id, req.body)),
+);
+export const deleteBusBanner = asyncHandler(async (req, res) => {
+  await adminService.deleteBusBanner(req.params.id);
   ok(res, { deleted: true });
 });
 
