@@ -160,20 +160,20 @@ const AirwaysHome = () => {
         <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
         
-        <div className="absolute top-12 md:top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
-           <div className="h-12 px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-3">
+        <div className="absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center gap-3 z-50">
+           <div className="h-11 sm:h-12 min-w-0 px-3.5 sm:px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-2 sm:gap-3">
               <Sparkles size={16} className="text-sky-300" />
-              <span className="text-[11px] font-black text-white uppercase tracking-widest">My Desination Airways</span>
+              <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider sm:tracking-widest truncate">My Destination Airways</span>
            </div>
-           <button onClick={() => navigate('/taxi/user')} className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white">
+           <button onClick={() => navigate('/taxi/user')} className="h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white">
               <ArrowLeft size={20} />
            </button>
         </div>
 
-        <div className="absolute bottom-16 left-6 right-6">
+        <div className="absolute bottom-16 left-5 right-5 sm:left-6 sm:right-6">
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <p className="text-sky-300 text-[10px] font-black uppercase tracking-[0.3em]">Luxury Sky Transfers</p>
-              <h2 className="text-white text-4xl font-['Outfit'] font-black mt-2 leading-tight drop-shadow-2xl">Elite Travels</h2>
+              <h2 className="text-white text-3xl sm:text-4xl font-['Outfit'] font-black mt-2 leading-tight drop-shadow-2xl">Elite Travels</h2>
            </motion.div>
         </div>
       </div>
@@ -181,22 +181,22 @@ const AirwaysHome = () => {
       <div className="mx-auto max-w-lg px-5">
         {/* Floating Search Panel */}
         <div className="-mt-10 relative z-10">
-           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[40px] bg-white p-8 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
-              <div className="space-y-5">
-                 <div className="grid grid-cols-2 gap-4">
+           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[32px] sm:rounded-[40px] bg-white p-5 sm:p-8 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
+              <div className="space-y-4 sm:space-y-5">
+                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-1.5 relative">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">From</label>
                        <div className="relative">
-                          <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-500" />
-                          <input value={searchForm.origin} onChange={(e) => setSearchForm({...searchForm, origin: e.target.value.toUpperCase()})} onFocus={() => setActiveInput('origin')} onBlur={() => setTimeout(() => setActiveInput(null), 200)} placeholder="Origin" className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black outline-none focus:ring-2 focus:ring-sky-100 transition-all" />
+                          <MapPin size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-sky-500" />
+                          <input value={searchForm.origin} onChange={(e) => setSearchForm({...searchForm, origin: e.target.value.toUpperCase()})} onFocus={() => setActiveInput('origin')} onBlur={() => setTimeout(() => setActiveInput(null), 200)} placeholder="Origin" className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-sky-100 transition-all" />
                        </div>
                        <SuggestionsDropdown items={originSuggestions} visible={activeInput === 'origin'} onSelect={(v) => setSearchForm({...searchForm, origin: v})} />
                     </div>
                     <div className="space-y-1.5 relative">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">To</label>
                        <div className="relative">
-                          <MapPin size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500" />
-                          <input value={searchForm.destination} onChange={(e) => setSearchForm({...searchForm, destination: e.target.value.toUpperCase()})} onFocus={() => setActiveInput('destination')} onBlur={() => setTimeout(() => setActiveInput(null), 200)} placeholder="Dest" className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black outline-none focus:ring-2 focus:ring-orange-100 transition-all" />
+                          <MapPin size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-orange-500" />
+                          <input value={searchForm.destination} onChange={(e) => setSearchForm({...searchForm, destination: e.target.value.toUpperCase()})} onFocus={() => setActiveInput('destination')} onBlur={() => setTimeout(() => setActiveInput(null), 200)} placeholder="Dest" className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-orange-100 transition-all" />
                        </div>
                        <SuggestionsDropdown items={destinationSuggestions} visible={activeInput === 'destination'} onSelect={(v) => setSearchForm({...searchForm, destination: v})} />
                     </div>
@@ -204,11 +204,11 @@ const AirwaysHome = () => {
                  <div className="space-y-1.5">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Departure</label>
                     <div className="relative">
-                       <CalendarDays size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                       <input type="date" value={searchForm.travelDate} onChange={(e) => setSearchForm({...searchForm, travelDate: e.target.value})} className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black outline-none focus:ring-2 focus:ring-slate-100 transition-all" />
+                       <CalendarDays size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                       <input type="date" value={searchForm.travelDate} onChange={(e) => setSearchForm({...searchForm, travelDate: e.target.value})} className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-slate-100 transition-all" />
                     </div>
                  </div>
-                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-16 rounded-3xl bg-slate-950 text-white font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-14 sm:h-16 rounded-3xl bg-slate-950 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
                     <Search size={20} />
                     Explore Routes
                  </button>
@@ -225,19 +225,19 @@ const AirwaysHome = () => {
                      <h3 className="text-xl font-black text-slate-950 uppercase tracking-tight">Popular Sectors</h3>
                      <Zap size={20} className="text-sky-500" />
                   </div>
-                  <div className="flex gap-5 overflow-x-auto no-scrollbar pb-4">
+                  <div className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4">
                      {featuredSectors.map((s) => (
-                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="min-w-[280px] h-[400px] relative rounded-[40px] overflow-hidden group">
+                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
                           <img src={s.image} alt={s.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                          <div className="absolute bottom-8 left-8 right-8 text-left">
-                             <div className="flex items-center gap-2 text-white/60 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
-                                <span>{s.origin}</span>
-                                <div className="h-px w-4 bg-white/20" />
-                                <span>{s.destination}</span>
+                          <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 text-left">
+                             <div className="flex items-center gap-2 text-white/60 text-[9px] font-black uppercase tracking-[0.15em] mb-2">
+                                <span className="truncate">{s.origin}</span>
+                                <div className="h-px w-3 shrink-0 bg-white/20" />
+                                <span className="truncate">{s.destination}</span>
                              </div>
-                             <h4 className="text-white text-2xl font-['Outfit'] font-black leading-tight">{s.name}</h4>
-                             <p className="text-sky-300 text-lg font-black mt-4">{formatCurrency(s.price)}</p>
+                             <h4 className="text-white text-lg sm:text-2xl font-['Outfit'] font-black leading-tight break-words">{s.name}</h4>
+                             <p className="text-sky-300 text-base sm:text-lg font-black mt-3 sm:mt-4">{formatCurrency(s.price)}</p>
                           </div>
                        </button>
                      ))}
@@ -246,14 +246,14 @@ const AirwaysHome = () => {
                )}
 
                <section className="grid grid-cols-2 gap-4">
-                  <div className="p-6 rounded-[32px] bg-white border border-slate-100 shadow-sm">
+                  <div className="p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] bg-white border border-slate-100 shadow-sm">
                      <ShieldCheck size={24} className="text-sky-500 mb-4" />
-                     <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Safe Skies</h4>
+                     <h4 className="text-[13px] sm:text-sm font-black text-slate-950 uppercase tracking-wider sm:tracking-widest">Safe Skies</h4>
                      <p className="text-[10px] font-bold text-slate-400 mt-2 leading-relaxed">Certified air fleet with top safety ratings.</p>
                   </div>
-                  <div className="p-6 rounded-[32px] bg-white border border-slate-100 shadow-sm">
+                  <div className="p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] bg-white border border-slate-100 shadow-sm">
                      <Clock3 size={24} className="text-orange-500 mb-4" />
-                     <h4 className="text-sm font-black text-slate-950 uppercase tracking-widest">Fast Track</h4>
+                     <h4 className="text-[13px] sm:text-sm font-black text-slate-950 uppercase tracking-wider sm:tracking-widest">Fast Track</h4>
                      <p className="text-[10px] font-bold text-slate-400 mt-2 leading-relaxed">Skip the hills. Reach in minutes, not hours.</p>
                   </div>
                </section>
@@ -273,42 +273,42 @@ const AirwaysHome = () => {
                <div className="space-y-6">
                   {loading ? [...Array(3)].map((_, i) => <div key={i} className="h-48 rounded-[40px] bg-white animate-pulse border border-slate-50" />) 
                   : flattenedFlights.length > 0 ? flattenedFlights.map((f, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-[40px] bg-white border border-slate-100 p-8 shadow-sm hover:shadow-xl transition-all">
-                       <div className="flex justify-between items-center mb-8">
-                          <div className="flex items-center gap-3">
-                             <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden">
+                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm hover:shadow-xl transition-all">
+                       <div className="flex justify-between items-center gap-3 mb-6 sm:mb-8">
+                          <div className="flex min-w-0 items-center gap-3">
+                             <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden">
                                 {f.image ? <img src={f.image} className="h-full w-full object-cover" /> : <PlaneTakeoff size={24} className="text-sky-500" />}
                              </div>
-                             <div>
-                                <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest">{f.selectedAirway.airlineName}</p>
-                                <h4 className="text-base font-black text-slate-950 mt-1">#{f.flightNumber}</h4>
+                             <div className="min-w-0">
+                                <p className="text-[10px] font-black text-sky-600 uppercase tracking-widest truncate">{f.selectedAirway.airlineName}</p>
+                                <h4 className="text-sm sm:text-base font-black text-slate-950 mt-1 truncate">#{f.flightNumber}</h4>
                              </div>
                           </div>
-                          <div className="text-right">
-                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Price</p>
-                             <p className="text-2xl font-black text-slate-950 mt-1">{formatCurrency(f.totalPrice)}</p>
+                          <div className="shrink-0 text-right">
+                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</p>
+                             <p className="text-xl sm:text-2xl font-black text-slate-950 mt-1">{formatCurrency(f.totalPrice)}</p>
                           </div>
                        </div>
 
-                       <div className="flex items-center justify-between bg-slate-50 rounded-[32px] p-6 mb-8">
-                          <div className="text-center">
-                             <p className="text-lg font-black text-slate-950">{formatTimeLabel(f.departureTime)}</p>
-                             <p className="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-widest">{f.originAirport}</p>
+                       <div className="flex items-center justify-between gap-2 bg-slate-50 rounded-[24px] sm:rounded-[32px] p-4 sm:p-6 mb-6 sm:mb-8">
+                          <div className="min-w-0 flex-1 text-center">
+                             <p className="text-base sm:text-lg font-black text-slate-950">{formatTimeLabel(f.departureTime)}</p>
+                             <p className="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-wider break-words">{f.originAirport}</p>
                           </div>
-                          <div className="flex flex-col items-center gap-1.5 flex-1 max-w-[120px]">
+                          <div className="flex shrink-0 flex-col items-center gap-1.5 w-16 sm:w-[120px]">
                              <Zap size={14} className="text-sky-500" />
                              <div className="h-px w-full bg-slate-200 relative">
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]" />
                              </div>
                              <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{f.durationMinutes}m</span>
                           </div>
-                          <div className="text-center">
-                             <p className="text-lg font-black text-slate-950">{formatTimeLabel(f.arrivalTime)}</p>
-                             <p className="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-widest">{f.destinationAirport}</p>
+                          <div className="min-w-0 flex-1 text-center">
+                             <p className="text-base sm:text-lg font-black text-slate-950">{formatTimeLabel(f.arrivalTime)}</p>
+                             <p className="text-[9px] font-black text-slate-400 uppercase mt-1 tracking-wider break-words">{f.destinationAirport}</p>
                           </div>
                        </div>
 
-                       <button onClick={() => navigate(`/taxi/user/airways/routes/${f.id}`, { state: { travelDate: appliedFilters.travelDate, selectedAirwayId: f.selectedAirway.id } })} className="w-full h-16 rounded-[28px] bg-slate-950 text-white font-black text-sm uppercase tracking-widest shadow-lg shadow-slate-950/20 active:scale-95 transition-all">
+                       <button onClick={() => navigate(`/taxi/user/airways/routes/${f.id}`, { state: { travelDate: appliedFilters.travelDate, selectedAirwayId: f.selectedAirway.id } })} className="w-full h-14 sm:h-16 rounded-[24px] sm:rounded-[28px] bg-slate-950 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-slate-950/20 active:scale-95 transition-all">
                           Select Flight
                        </button>
                     </motion.div>

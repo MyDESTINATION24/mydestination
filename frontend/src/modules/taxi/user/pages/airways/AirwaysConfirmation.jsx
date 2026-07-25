@@ -23,7 +23,8 @@ import {
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 
-const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
+// Rounded, matching the sector cards and the booking screen.
+const formatCurrency = (value) => `Rs. ${Math.round(Number(value) || 0).toLocaleString('en-IN')}`;
 
 const formatTravelDate = (value) => {
   const parsed = value ? new Date(value) : null;
@@ -146,43 +147,46 @@ const AirwaysConfirmation = () => {
           className="relative filter drop-shadow-[0_32px_64px_rgba(15,23,42,0.12)]"
         >
           {/* Main Ticket Body */}
-          <div className="bg-white rounded-[48px] overflow-hidden">
+          <div className="bg-white rounded-[32px] sm:rounded-[48px] overflow-hidden">
              {/* Header Section */}
-             <div className="p-8 pb-10 border-b border-dashed border-slate-100 relative">
-                <div className="flex items-center justify-between mb-8">
-                   <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 shadow-sm">
+             <div className="p-5 pb-8 sm:p-8 sm:pb-10 border-b border-dashed border-slate-100 relative">
+                <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+                   <div className="flex min-w-0 items-center gap-3">
+                      <div className="h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100 shadow-sm">
                          <PlaneTakeoff size={24} />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Operator</p>
-                         <p className="text-[13px] font-black text-slate-950 mt-0.5">{booking.airwayName}</p>
+                         <p className="text-[13px] font-black text-slate-950 mt-0.5 truncate">{booking.airwayName}</p>
                       </div>
                    </div>
-                   <div className="text-right">
+                   <div className="shrink-0 text-right">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Flight</p>
                       <p className="text-[13px] font-black text-sky-600 mt-0.5">{booking.flightNumber}</p>
                    </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-4">
-                   <div className="space-y-1">
-                      <p className="text-4xl font-['Outfit'] font-black text-slate-950 leading-none">{booking.originAirport}</p>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">{booking.routeName.split(' to ')[0]}</p>
+                {/* min-w-0 lets the name columns shrink: flex children default to
+                    min-width:auto and would otherwise force the row wider than
+                    the screen. Airports here are full place names, not IATA codes. */}
+                <div className="flex items-start justify-between gap-2 sm:gap-4">
+                   <div className="min-w-0 flex-1 space-y-1">
+                      <p className="text-xl sm:text-4xl font-['Outfit'] font-black text-slate-950 leading-none break-words">{booking.originAirport}</p>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] break-words">{booking.routeName.split(' to ')[0]}</p>
                    </div>
-                   <div className="flex flex-col items-center gap-2 flex-1 max-w-[120px]">
-                      <div className="flex items-center gap-2 w-full">
-                         <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+                   <div className="flex shrink-0 flex-col items-center gap-2 w-14 sm:w-[120px] pt-1">
+                      <div className="flex items-center gap-1.5 sm:gap-2 w-full">
+                         <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-200" />
                          <div className="h-px flex-1 bg-slate-100" />
-                         <Zap size={14} className="text-sky-500" />
+                         <Zap size={14} className="shrink-0 text-sky-500" />
                          <div className="h-px flex-1 bg-slate-100" />
-                         <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+                         <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-200" />
                       </div>
-                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Non-Stop</span>
+                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.15em] sm:tracking-[0.2em]">Non-Stop</span>
                    </div>
-                   <div className="text-right space-y-1">
-                      <p className="text-4xl font-['Outfit'] font-black text-slate-950 leading-none">{booking.destinationAirport}</p>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em]">{booking.routeName.split(' to ')[1]}</p>
+                   <div className="min-w-0 flex-1 text-right space-y-1">
+                      <p className="text-xl sm:text-4xl font-['Outfit'] font-black text-slate-950 leading-none break-words">{booking.destinationAirport}</p>
+                      <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-[0.1em] break-words">{booking.routeName.split(' to ')[1]}</p>
                    </div>
                 </div>
 
@@ -192,54 +196,54 @@ const AirwaysConfirmation = () => {
              </div>
 
              {/* Details Section */}
-             <div className="p-8 pt-10 space-y-8">
-                <div className="grid grid-cols-2 gap-y-8">
-                   <div>
+             <div className="p-5 pt-8 sm:p-8 sm:pt-10 space-y-6 sm:space-y-8">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-y-8">
+                   <div className="min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Departure</p>
                       <div className="flex items-center gap-2 mt-1">
-                         <CalendarDays size={14} className="text-slate-300" />
-                         <p className="text-sm font-black text-slate-950">{formatTravelDate(booking.travelDate)}</p>
+                         <CalendarDays size={14} className="shrink-0 text-slate-300" />
+                         <p className="text-sm font-black text-slate-950 truncate">{formatTravelDate(booking.travelDate)}</p>
                       </div>
                    </div>
-                   <div className="text-right">
+                   <div className="min-w-0 text-right">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Time</p>
                       <div className="flex items-center justify-end gap-2 mt-1">
-                         <Clock3 size={14} className="text-slate-300" />
-                         <p className="text-sm font-black text-slate-950">{formatTimeLabel(booking.departureTime)}</p>
+                         <Clock3 size={14} className="shrink-0 text-slate-300" />
+                         <p className="text-sm font-black text-slate-950 truncate">{formatTimeLabel(booking.departureTime)}</p>
                       </div>
                    </div>
-                   <div>
+                   <div className="min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Passenger</p>
                       <div className="flex items-center gap-2 mt-1">
-                         <UserRound size={14} className="text-slate-300" />
-                         <p className="text-sm font-black text-slate-950 truncate max-w-[120px]">{booking.customerName}</p>
+                         <UserRound size={14} className="shrink-0 text-slate-300" />
+                         <p className="text-sm font-black text-slate-950 truncate">{booking.customerName}</p>
                       </div>
                    </div>
-                   <div className="text-right">
+                   <div className="min-w-0 text-right">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Seats</p>
                       <div className="flex items-center justify-end gap-2 mt-1">
-                         <Users size={14} className="text-slate-300" />
-                         <p className="text-sm font-black text-slate-950">{booking.seatCount} Seat(s)</p>
+                         <Users size={14} className="shrink-0 text-slate-300" />
+                         <p className="text-sm font-black text-slate-950 truncate">{booking.seatCount} Seat(s)</p>
                       </div>
                    </div>
                 </div>
 
-                <div className="p-6 rounded-[32px] bg-slate-50 flex items-center justify-between border border-slate-100">
-                   <div>
+                <div className="p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] bg-slate-50 flex items-center justify-between gap-3 border border-slate-100">
+                   <div className="min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Booking Code</p>
-                      <p className="text-base font-black text-slate-950 mt-1">#{booking.bookingCode}</p>
+                      <p className="text-sm sm:text-base font-black text-slate-950 mt-1 break-all">#{booking.bookingCode}</p>
                    </div>
-                   <div className="h-16 w-16 bg-white rounded-2xl border border-slate-200 flex items-center justify-center p-2">
+                   <div className="h-14 w-14 sm:h-16 sm:w-16 shrink-0 bg-white rounded-2xl border border-slate-200 flex items-center justify-center p-2">
                       <Ticket size={32} className="text-slate-100" />
                    </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                   <div>
+                <div className="flex items-center justify-between gap-3">
+                   <div className="min-w-0">
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Fare</p>
-                      <p className="text-3xl font-['Outfit'] font-black text-sky-600 mt-1">{formatCurrency(booking.totalFare)}</p>
+                      <p className="text-2xl sm:text-3xl font-['Outfit'] font-black text-sky-600 mt-1 break-words">{formatCurrency(booking.totalFare)}</p>
                    </div>
-                   <div className="text-right">
+                   <div className="shrink-0 text-right">
                       <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Payment Status</p>
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest">
                          <ShieldCheck size={12} />
