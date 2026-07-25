@@ -30,10 +30,20 @@ const tourSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    // Display text, e.g. "06 Days / 05 Nights". Never used for pricing.
     duration: {
       type: String,
       required: true,
       trim: true,
+    },
+    // The number the fare is actually multiplied by. Kept separate from
+    // `duration` because admins format that field freely ("6 Days/5 Nights",
+    // "06/05") and a parser deciding a price is how a 6-day package ended up
+    // billing for one. 0 means "fall back to parsing the text".
+    durationDays: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     meals: {
       type: String,
@@ -114,12 +124,13 @@ export const Tour =
   mongoose.models.TaxiTour ||
   mongoose.model('TaxiTour', tourSchema);
 
-// `duration` is free text the admin types ("6 Days / 5 Nights"), so the day
-// count has to be recovered from it. This used to happen in the browser only,
-// which meant the client and server could disagree about the price.
-// ponytail: heuristic over free text -- add a real durationDays field to the
-// schema + admin form if admins start typing formats this misses (e.g. "6N/7D").
+// Prefers the explicit durationDays field. The text parsing below only exists
+// for tours created before that field did -- it misses formats like "06/05",
+// which is exactly the bug it caused.
 export const getTourDurationDays = (tour = {}) => {
+  const explicit = Number(tour.durationDays);
+  if (Number.isFinite(explicit) && explicit > 0) return Math.floor(explicit);
+
   const match = String(tour.duration || '').match(/(\d+)\s*Days?/i);
   if (match) return Number(match[1]);
   return Array.isArray(tour.itinerary) && tour.itinerary.length ? tour.itinerary.length : 1;

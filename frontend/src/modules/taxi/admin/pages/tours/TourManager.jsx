@@ -406,6 +406,24 @@ const TourManager = ({ mode: modeProp = null }) => {
                   <div>
                     <label className={labelClass}>Tour Duration</label>
                     <input className={inputClass} value={formData.duration} onChange={(event) => setField('duration', event.target.value)} placeholder="e.g. 06 Days / 05 Nights" />
+                    <p className="mt-1 text-[11px] text-slate-400">Shown to customers. Not used for pricing.</p>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Billable Days</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className={inputClass}
+                      value={formData.durationDays}
+                      onChange={(event) => setField('durationDays', event.target.value)}
+                      placeholder="e.g. 6"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400">
+                      {formData.priceType === 'per_day'
+                        ? 'Price per day is multiplied by this. Leave 0 to read the day count from the text above.'
+                        : 'Ignored while pricing is set to Total Package.'}
+                    </p>
                   </div>
 
                   <div>

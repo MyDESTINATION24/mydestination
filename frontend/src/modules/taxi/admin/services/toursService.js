@@ -7,6 +7,7 @@ export const createTourDraft = () => ({
   name: '',
   overview: '',
   duration: '',
+  durationDays: 0,
   meals: '',
   helicopterType: '',
   startPoint: '',
@@ -30,6 +31,7 @@ export const upsertAdminTour = async (payload = {}) => {
   const normalizedPayload = {
     ...payload,
     price: Number(payload.price || 0),
+    durationDays: Number(payload.durationDays || 0),
   };
 
   if (payload.id) {

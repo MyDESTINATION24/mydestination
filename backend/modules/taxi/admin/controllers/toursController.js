@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Tour } from '../models/Tour.js';
+import { Tour, getTourDurationDays } from '../models/Tour.js';
 import { TourBooking } from '../models/TourBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
@@ -52,6 +52,7 @@ const normalizeTourPayload = (payload = {}, existing = null) => {
     name: toText(payload.name || existing?.name),
     overview: toText(payload.overview || existing?.overview),
     duration: toText(payload.duration || existing?.duration),
+    durationDays: Math.max(0, Math.floor(toNumber(payload.durationDays, existing?.durationDays || 0))),
     meals: toText(payload.meals || existing?.meals),
     helicopterType: toText(payload.helicopterType || existing?.helicopterType),
     startPoint: toText(payload.startPoint || existing?.startPoint),
@@ -81,6 +82,7 @@ const serializeTour = (item = {}) => ({
   name: item.name || '',
   overview: item.overview || '',
   duration: item.duration || '',
+  durationDays: getTourDurationDays(item),
   meals: item.meals || '',
   helicopterType: item.helicopterType || '',
   startPoint: item.startPoint || '',

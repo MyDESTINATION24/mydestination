@@ -2,6 +2,18 @@
 import assert from 'node:assert/strict';
 import { calculateTourFare, getTourDurationDays } from './Tour.js';
 
+// the explicit field wins over anything in the text
+assert.equal(getTourDurationDays({ durationDays: 6, duration: '2 Days' }), 6);
+assert.equal(getTourDurationDays({ durationDays: 7, duration: '06/05' }), 7);
+// 0 / absent means "fall back to parsing the text"
+assert.equal(getTourDurationDays({ durationDays: 0, duration: '3 Days' }), 3);
+// the format that caused the bug: unparseable, so it needs the explicit field
+assert.equal(getTourDurationDays({ duration: '06/05' }), 1);
+assert.equal(
+  calculateTourFare({ price: 50000, priceType: 'per_day', duration: '06/05', durationDays: 6 }, 1).subtotal,
+  300000,
+);
+
 // day extraction from the free-text duration field
 assert.equal(getTourDurationDays({ duration: '6 Days / 5 Nights' }), 6);
 assert.equal(getTourDurationDays({ duration: '2Day' }), 2);
