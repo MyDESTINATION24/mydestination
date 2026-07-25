@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Tour } from '../../admin/models/Tour.js';
+import { Tour, calculateTourFare, getTourDurationDays } from '../../admin/models/Tour.js';
 import { TourBooking } from '../../admin/models/TourBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
@@ -17,6 +17,7 @@ const serializeTour = (item = {}) => ({
   name: item.name || '',
   overview: item.overview || '',
   duration: item.duration || '',
+  durationDays: getTourDurationDays(item),
   meals: item.meals || '',
   helicopterType: item.helicopterType || '',
   startPoint: item.startPoint || '',
@@ -77,7 +78,6 @@ export const createUserTourBooking = asyncHandler(async (req, res) => {
     customerPhone,
     customerEmail,
     numberOfPassengers,
-    totalFare,
     travelDate,
     paymentMethod,
     notes,
@@ -96,6 +96,9 @@ export const createUserTourBooking = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
   const bookingCode = `TR-${new mongoose.Types.ObjectId().toString().slice(-8).toUpperCase()}`;
 
+  const passengers = Math.max(1, Math.floor(toNumber(numberOfPassengers, 1)));
+  const { total } = calculateTourFare(tour, passengers);
+
   const booking = await TourBooking.create({
     bookingCode,
     userId,
@@ -104,8 +107,8 @@ export const createUserTourBooking = asyncHandler(async (req, res) => {
     customerName,
     customerPhone: customerPhone || '',
     customerEmail: customerEmail || '',
-    numberOfPassengers: toNumber(numberOfPassengers, 1),
-    totalFare: toNumber(totalFare, 0),
+    numberOfPassengers: passengers,
+    totalFare: total,
     travelDate: new Date(travelDate),
     paymentMethod: paymentMethod || 'reserve',
     paymentStatus: 'pending',

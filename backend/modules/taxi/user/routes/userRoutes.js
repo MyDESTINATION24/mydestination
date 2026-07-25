@@ -161,9 +161,11 @@ userRouter.post('/airways/bookings', authenticateOrResolveUser(['user']), asyncH
 userRouter.get('/airways/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyAirwayBooking));
 
 userRouter.get('/tours', asyncHandler(getUserTours));
-userRouter.get('/tours/:id', asyncHandler(getUserTourById));
+// Must stay above '/tours/:id' -- Express matches in order, so the literal
+// 'bookings' segment was being swallowed as an id and cast-erroring to a 500.
 userRouter.post('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(createUserTourBooking));
 userRouter.get('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyTourBookings));
 userRouter.get('/tours/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyTourBooking));
+userRouter.get('/tours/:id', asyncHandler(getUserTourById));
 
 userRouter.get('/ev-stations/closest', asyncHandler(getClosestEVStations));
