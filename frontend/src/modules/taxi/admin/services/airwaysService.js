@@ -64,6 +64,7 @@ export const createAirwayRouteDraft = () => ({
     'Helicopter Cabin': 6,
   },
   routeStatus: 'scheduled',
+  isFeatured: false,
   notes: '',
   image: '',
   gallery: [],

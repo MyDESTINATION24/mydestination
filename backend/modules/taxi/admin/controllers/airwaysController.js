@@ -113,6 +113,7 @@ const normalizeRoutePayload = (payload = {}, existing = null, airway = null) => 
   routeStatus: ['scheduled', 'seasonal', 'paused'].includes(toText(payload.routeStatus || existing?.routeStatus).toLowerCase())
     ? toText(payload.routeStatus || existing?.routeStatus).toLowerCase()
     : 'scheduled',
+  isFeatured: payload.isFeatured === undefined ? Boolean(existing?.isFeatured) : Boolean(payload.isFeatured),
   notes: toText(payload.notes || existing?.notes),
   image: toText(payload.image || existing?.image),
   gallery: Array.isArray(payload.gallery) ? payload.gallery.map(item => toText(item)).filter(Boolean) : (Array.isArray(existing?.gallery) ? existing.gallery : []),
@@ -182,6 +183,7 @@ const serializeRoute = (item = {}, airwayMap = new Map()) => {
       Object.entries(seatInventoryObject).map(([key, value]) => [key, Number(value || 0)]),
     ),
     routeStatus: item.routeStatus || 'scheduled',
+    isFeatured: Boolean(item.isFeatured),
     notes: item.notes || '',
     image: item.image || '',
     gallery: Array.isArray(item.gallery) ? item.gallery : [],

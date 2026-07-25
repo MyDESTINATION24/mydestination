@@ -173,6 +173,7 @@ const serializeRoute = (route = {}, airway = null) => {
     operatingDays: Array.isArray(route.operatingDays) ? route.operatingDays : [],
     seatInventory: getSeatInventoryObject(route.seatInventory),
     routeStatus: route.routeStatus || 'scheduled',
+    isFeatured: Boolean(route.isFeatured),
     notes: route.notes || '',
     image: route.image || '',
     gallery: Array.isArray(route.gallery) ? route.gallery : [],

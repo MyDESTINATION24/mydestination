@@ -71,6 +71,14 @@ const airwayRouteSchema = new mongoose.Schema(
       enum: ['scheduled', 'seasonal', 'paused'],
       default: 'scheduled',
     },
+    // Drives the "Popular Sectors" cards on the Airways home screen. Those
+    // used to be a hardcoded array in the page, so admins could not change
+    // the price shown there.
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
     notes: {
       type: String,
       default: '',

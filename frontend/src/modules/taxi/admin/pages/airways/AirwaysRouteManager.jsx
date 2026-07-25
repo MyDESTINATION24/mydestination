@@ -772,6 +772,20 @@ const AirwaysRouteManager = ({ mode: modeProp = null }) => {
               </select>
             </div>
             <div>
+              <label className={labelClass}>Popular Sector</label>
+              <label className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4 accent-sky-500"
+                  checked={Boolean(formData.isFeatured)}
+                  onChange={(event) => setField('isFeatured', event.target.checked)}
+                />
+                <span className="text-sm font-semibold text-slate-700">
+                  Show on the Airways home screen
+                </span>
+              </label>
+            </div>
+            <div>
               <label className={labelClass}>Origin Airport</label>
               <input className={inputClass} value={formData.originAirport} onChange={(event) => setField('originAirport', event.target.value.toUpperCase())} />
             </div>
