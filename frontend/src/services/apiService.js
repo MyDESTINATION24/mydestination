@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../shared/api/runtimeConfig';
+import { clearAllAuth } from '../shared/auth/clearAllAuth';
 
 // Base URL configuration
 const API_URL = API_BASE_URL;
@@ -29,7 +30,10 @@ api.interceptors.request.use((config) => {
   } else if (path.startsWith('/admin') || path.startsWith('/cms-admin')) {
     effectiveToken = localStorage.getItem('cmsToken') || adminToken || token;
   } else {
-    effectiveToken = token || adminToken;
+    // Never fall back to an admin token on a user-facing path: after
+    // authService.logout() that made a "logged out" browser keep signing
+    // every request as the admin.
+    effectiveToken = token;
   }
 
   if (effectiveToken) {
@@ -173,8 +177,7 @@ export const authService = {
 
   // Logout
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    clearAllAuth();
   }
 };
 

@@ -7,6 +7,7 @@ import logoImg from "../assets/logo.png";
 import { weddingService } from "../../../services/weddingService";
 import { weddingEnquiryService } from "../../../services/apiService";
 import { installWeddingFcmRegistration, onWeddingMessage, registerWeddingFcmToken } from "../services/weddingFcmService";
+import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
 
 const navLinks = [
@@ -92,8 +93,7 @@ const WeddingLayout = () => {
   }, []); // Run once on mount
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearAllAuth();
     setUser(null);
     toast.success("Logged out successfully");
     setMobileSidebarOpen(false);

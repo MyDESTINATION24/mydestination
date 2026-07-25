@@ -39,7 +39,9 @@ const tomorrowDateValue = () => {
   return next.toISOString().slice(0, 10);
 };
 
-const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
+// Round: fares are base + a percentage tax, so they land on fractions of a
+// rupee and toLocaleString would render "Rs. 8,499.75" on the price cards.
+const formatCurrency = (value) => `Rs. ${Math.round(Number(value) || 0).toLocaleString('en-IN')}`;
 
 const formatTravelDate = (value) => {
   if (!value) return 'Pick a travel date';
@@ -94,10 +96,23 @@ const AirwaysHome = () => {
     loadAll();
   }, []);
 
-  const featuredSectors = [
-    { id: 'sec-1', name: 'Kedarnath Yatra', origin: 'DEHRADUN', destination: 'KEDARNATH', image: kedarnathImg, price: '8500', rating: '4.9' },
-    { id: 'sec-2', name: 'Valley of Flowers', origin: 'GOVINDGHAT', destination: 'GHANGARIA', image: premiumHeliHero, price: '3200', rating: '4.8' },
-  ];
+  // Admin-controlled: any route flagged "Popular Sector" in the airway route
+  // manager. Was a hardcoded array, so the prices shown here could not be
+  // changed from the admin panel.
+  const featuredSectors = useMemo(
+    () =>
+      allRoutes
+        .filter((route) => route.isFeatured)
+        .map((route) => ({
+          id: route.id,
+          name: route.routeName,
+          origin: route.originAirport,
+          destination: route.destinationAirport,
+          image: route.image || kedarnathImg,
+          price: route.totalFare,
+        })),
+    [allRoutes],
+  );
 
   const originSuggestions = useMemo(() => {
     const query = searchForm.origin.trim().toLowerCase();
@@ -204,6 +219,7 @@ const AirwaysHome = () => {
         <AnimatePresence mode="wait">
           {view === 'home' ? (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-12 space-y-10">
+               {featuredSectors.length > 0 && (
                <section>
                   <div className="flex items-center justify-between mb-6">
                      <h3 className="text-xl font-black text-slate-950 uppercase tracking-tight">Popular Sectors</h3>
@@ -227,6 +243,7 @@ const AirwaysHome = () => {
                      ))}
                   </div>
                </section>
+               )}
 
                <section className="grid grid-cols-2 gap-4">
                   <div className="p-6 rounded-[32px] bg-white border border-slate-100 shadow-sm">

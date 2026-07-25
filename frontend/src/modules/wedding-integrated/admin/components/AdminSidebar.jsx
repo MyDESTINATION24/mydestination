@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { adminStyles } from '../theme/themeConfig';
 import toast from 'react-hot-toast';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/wedding/admin/dashboard' },
@@ -66,9 +67,9 @@ const AdminSidebar = () => {
   const [expanded, setExpanded] = useState(true); // Keep vendors expanded by default if active
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token");
+    clearAllAuth();
     toast.success("Successfully logged out");
-    navigate("/admin/login");
+    navigate("/wedding/admin/login");
   };
 
   return (

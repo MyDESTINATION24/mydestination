@@ -6,6 +6,7 @@ import { getSupportConversations, markSupportMessagesRead } from '../../shared/c
 import { adminService } from '../services/adminService';
 import { hasAdminPermission } from '../constants/adminAccess';
 import toast from 'react-hot-toast';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import {
   BarChart3,
   Bell,
@@ -1222,8 +1223,7 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     socketService.disconnect();
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminInfo');
+    clearAllAuth();
     setIsUserMenuOpen(false);
     navigate('/admin/login');
   };

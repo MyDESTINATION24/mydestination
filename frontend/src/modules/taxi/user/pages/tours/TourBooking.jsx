@@ -58,12 +58,8 @@ const TourBooking = () => {
     loadTourAndProfile();
   }, [id, navigate]);
 
-  // Extract duration days from duration string
-  const tourDays = useMemo(() => {
-    if (!tour) return 1;
-    const match = tour.duration.match(/(\d+)\s*Days?/i);
-    return match ? Number(match[1]) : (tour.itinerary?.length || 1);
-  }, [tour]);
+  // Server-derived, so the quote shown here always matches what gets charged.
+  const tourDays = Number(tour?.durationDays) || 1;
 
   // Calculate pricing breakdown
   const invoice = useMemo(() => {
@@ -124,7 +120,6 @@ const TourBooking = () => {
         customerPhone,
         customerEmail,
         numberOfPassengers: passengerNames.length,
-        totalFare: invoice.total,
         travelDate,
         paymentMethod,
         notes,

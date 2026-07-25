@@ -1329,8 +1329,6 @@ const AdminLayout = () => {
   const handleLogout = () => {
     socketService.disconnect();
     clearTaxiAdminSession();
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminInfo');
     setIsUserMenuOpen(false);
     navigate('/taxi/admin/login');
   };

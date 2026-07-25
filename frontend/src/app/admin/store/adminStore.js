@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import axios from 'axios';
 import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const API_URL = API_BASE_URL;
 
@@ -50,7 +51,7 @@ const useAdminStore = create((set, get) => ({
   },
 
   logout: () => {
-    localStorage.removeItem('adminToken');
+    clearAllAuth();
     set({ admin: null, token: null, isAuthenticated: false });
   },
 

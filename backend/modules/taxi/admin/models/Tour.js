@@ -113,3 +113,30 @@ tourSchema.index({ status: 1 });
 export const Tour =
   mongoose.models.TaxiTour ||
   mongoose.model('TaxiTour', tourSchema);
+
+// `duration` is free text the admin types ("6 Days / 5 Nights"), so the day
+// count has to be recovered from it. This used to happen in the browser only,
+// which meant the client and server could disagree about the price.
+// ponytail: heuristic over free text -- add a real durationDays field to the
+// schema + admin form if admins start typing formats this misses (e.g. "6N/7D").
+export const getTourDurationDays = (tour = {}) => {
+  const match = String(tour.duration || '').match(/(\d+)\s*Days?/i);
+  if (match) return Number(match[1]);
+  return Array.isArray(tour.itinerary) && tour.itinerary.length ? tour.itinerary.length : 1;
+};
+
+export const TOUR_TAX_RATE = 0.05;
+
+// Authoritative fare. Never trust a client-supplied total: the booking endpoint
+// took `totalFare` straight off the request body, so a crafted request could
+// book any package for whatever it liked.
+export const calculateTourFare = (tour = {}, numberOfPassengers = 1) => {
+  const price = Math.max(0, Number(tour.price) || 0);
+  const passengers = Math.max(1, Math.floor(Number(numberOfPassengers) || 1));
+  const days = tour.priceType === 'per_day' ? getTourDurationDays(tour) : 1;
+
+  const subtotal = price * days * passengers;
+  const tax = Math.round(subtotal * TOUR_TAX_RATE);
+
+  return { subtotal, tax, total: subtotal + tax };
+};

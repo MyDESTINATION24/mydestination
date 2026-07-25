@@ -1,7 +1,7 @@
 import api from "../../../shared/api/axiosInstance";
+import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
 const STORAGE_KEY = "driverRegistrationSession";
-const DRIVER_AUTH_KEYS = ["token", "driverToken", "driverInfo", "role", "driverRole", "chatRole"];
 const readSessionValue = (key) => {
   try {
     return sessionStorage.getItem(key) || "";
@@ -14,12 +14,6 @@ const writeSessionValue = (key, value) => {
     sessionStorage.setItem(key, value);
   } catch {}
 };
-const removeSessionValue = (key) => {
-  try {
-    sessionStorage.removeItem(key);
-  } catch {}
-};
-
 const readStoredSession = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -46,11 +40,7 @@ export const clearDriverRegistrationSession = () => {
 };
 
 export const clearDriverAuthState = () => {
-  clearDriverRegistrationSession();
-  DRIVER_AUTH_KEYS.forEach((key) => {
-    removeSessionValue(key);
-    localStorage.removeItem(key);
-  });
+  clearAllAuth();
 };
 
 export const persistDriverAuthSession = ({ token = "", role = "driver" } = {}) => {

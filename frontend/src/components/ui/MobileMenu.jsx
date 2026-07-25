@@ -6,6 +6,7 @@ import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
 const taxiLogo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
 import { userService } from '../../services/apiService';
 import { isWebView } from '../../utils/deviceDetect';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -137,7 +138,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
     );
 
     const handleLogout = () => {
-        localStorage.clear();
+        clearAllAuth();
         onClose();
         navigate('/login');
     };
