@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { api } from "../../../../services/apiService";
 import toast from "react-hot-toast";
+import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
 const AuthContext = createContext(null);
 
@@ -63,9 +64,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("vendor_token");
-    localStorage.removeItem("vendor_user");
-    localStorage.removeItem("token");
+    clearAllAuth();
     setUser(null);
     toast.success("Successfully logged out");
   };

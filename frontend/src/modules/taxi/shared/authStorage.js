@@ -1,3 +1,5 @@
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
+
 const TAXI_USER_TOKEN_KEY = 'token';
 const TAXI_ADMIN_TOKEN_KEY = 'taxiAdminToken';
 const TAXI_USER_INFO_KEY = 'user';
@@ -60,11 +62,7 @@ export const setTaxiUserSession = ({ token = '', user = null } = {}) => {
 };
 
 export const clearTaxiUserSession = () => {
-  localStorage.removeItem(TAXI_USER_TOKEN_KEY);
-  localStorage.removeItem(TAXI_USER_INFO_KEY);
-  localStorage.removeItem('userInfo');
-  localStorage.removeItem('role');
-  localStorage.removeItem('chatRole');
+  clearAllAuth();
 };
 
 export const getTaxiUserInfo = () => {
@@ -119,7 +117,5 @@ export const getTaxiAdminInfo = () => {
 };
 
 export const clearTaxiAdminSession = () => {
-  localStorage.removeItem(TAXI_ADMIN_TOKEN_KEY);
-  localStorage.removeItem(TAXI_ADMIN_INFO_KEY);
-  localStorage.removeItem('adminInfo');
+  clearAllAuth();
 };

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { adminStyles } from '../theme/themeConfig';
 import toast from 'react-hot-toast';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const AdminHeader = ({ title = "Dashboard" }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -20,9 +21,9 @@ const AdminHeader = ({ title = "Dashboard" }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token");
+    clearAllAuth();
     toast.success("Successfully logged out");
-    navigate("/admin/login");
+    navigate("/wedding/admin/login");
   };
 
   // Close dropdown when clicking outside

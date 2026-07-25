@@ -10,14 +10,6 @@ export const getLocalUserToken = readLocalUserToken;
 
 export const clearLocalUserSession = () => {
   clearTaxiUserSession();
-
-  if (String(localStorage.getItem('role') || '').toLowerCase() === 'user') {
-    localStorage.removeItem('role');
-  }
-
-  if (String(localStorage.getItem('chatRole') || '').toLowerCase() === 'user') {
-    localStorage.removeItem('chatRole');
-  }
 };
 
 export const withUserAuth = (config = {}) => {

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, Car, Heart, ChevronRight, Compass, LogOut, Helicopter, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import chardhamImg from '@/assets/airways/kedarnath.png';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const services = [
   {
@@ -74,7 +75,7 @@ const SuperAppDashboard = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   const handleLogout = () => {
-    localStorage.clear();
+    clearAllAuth();
     toast.success("Logged out successfully");
     navigate('/login');
   };

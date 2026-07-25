@@ -1,13 +1,19 @@
 import React from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, Navigate, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify, Briefcase, Info } from 'lucide-react';
 import logo from '../../../assets/rokologin-removebg-preview.png';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const CMSLayout = () => {
   const navigate = useNavigate();
 
+  // Guard: /cms-admin and every child route had no auth check at all.
+  if (!localStorage.getItem('cmsToken')) {
+    return <Navigate to="/cms-admin/login" replace />;
+  }
+
   const handleLogout = () => {
-    localStorage.removeItem('cmsToken');
+    clearAllAuth();
     navigate('/admin/login');
   };
 

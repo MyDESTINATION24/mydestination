@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, LogOut, Trash2, UserPlus, AlertCircle } from 'lucide-react';
 import { userService } from '../../services/apiService';
 import toast from 'react-hot-toast';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const SettingsPage = () => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const SettingsPage = () => {
     const [isDeleting, setIsDeleting] = useState(false);
 
     const handleLogout = () => {
-        localStorage.clear();
+        clearAllAuth();
         toast.success("Logged out successfully");
         navigate('/login');
     };
@@ -22,7 +23,7 @@ const SettingsPage = () => {
             const res = await userService.deleteAccount();
             if (res.success) {
                 toast.success("Account deleted successfully");
-                localStorage.clear();
+                clearAllAuth();
                 navigate('/login');
             }
         } catch (err) {

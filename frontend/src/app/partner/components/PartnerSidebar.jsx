@@ -9,6 +9,7 @@ import {
     ChevronRight, Wallet, Bell, Settings, Edit3, Info, Phone, Calendar
 } from 'lucide-react';
 import usePartnerStore from '../store/partnerStore';
+import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import logo from '../../../assets/rokologin-removebg-preview.png';
 
 const PartnerSidebar = ({ isOpen, onClose }) => {
@@ -51,7 +52,7 @@ const PartnerSidebar = ({ isOpen, onClose }) => {
 
     const handleLogout = () => {
         // Clear everything
-        localStorage.clear();
+        clearAllAuth();
         usePartnerStore.getState().resetForm();
         onClose();
         navigate('/hotel/login');
