@@ -208,7 +208,7 @@ const PoolingConfirm = () => {
   const vehicleImage = (vehicle.images && vehicle.images.length > 0) ? vehicle.images[0] : taxiImg;
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-32 font-sans selection:bg-indigo-100">
+    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-32 font-sans selection:bg-emerald-100">
       <AnimatePresence mode="wait">
         {isBooked ? (
           <motion.div
@@ -303,7 +303,7 @@ const PoolingConfirm = () => {
                     <div className="min-w-0 flex-1">
                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Vehicle Info</p>
                       <p className="mt-1 text-xl font-black text-slate-900 truncate">{vehicle.name}</p>
-                      <p className="mt-0.5 text-xs font-bold uppercase tracking-[0.15em] text-indigo-600">{vehicle.vehicleNumber}</p>
+                      <p className="mt-0.5 text-xs font-bold uppercase tracking-[0.15em] text-emerald-600">{vehicle.vehicleNumber}</p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-slate-600">
                           <Armchair size={10} />
@@ -317,7 +317,7 @@ const PoolingConfirm = () => {
                 <div className="rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Trip Details</p>
-                    <div className="flex items-center gap-1 text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+                    <div className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase tracking-widest">
                       <MapPinned size={12} />
                       Track Route
                     </div>
@@ -397,7 +397,7 @@ const PoolingConfirm = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <h1 className="text-xl font-black tracking-tight text-slate-900">Confirm Ride</h1>
-                    <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-indigo-600">
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-600">
                       Step 3/3
                     </span>
                   </div>
@@ -416,11 +416,11 @@ const PoolingConfirm = () => {
                 <div className="overflow-hidden rounded-[44px] border border-white bg-white shadow-[0_32px_64px_-16px_rgba(15,23,42,0.1)]">
                   {/* Vehicle Header with Image */}
                   <div className="relative bg-slate-900 px-8 py-10 text-white overflow-hidden">
-                    <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-indigo-600/20 blur-3xl" />
+                    <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-emerald-600/20 blur-3xl" />
                     
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] backdrop-blur-md border border-white/5">
-                        <ShieldCheck size={12} className="text-indigo-400" />
+                        <ShieldCheck size={12} className="text-emerald-400" />
                         Verified Ride
                       </div>
                       <div className="flex flex-col items-end">
@@ -440,11 +440,11 @@ const PoolingConfirm = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-2xl font-black leading-tight truncate">{vehicle.name}</h2>
-                        <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-indigo-400">{vehicle.vehicleNumber}</p>
+                        <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-emerald-400">{vehicle.vehicleNumber}</p>
                         <div className="mt-4 flex items-center gap-3">
                           <div className="flex -space-x-2">
                             {[...Array(Math.min(3, selectedSeats.length))].map((_, i) => (
-                              <div key={i} className="h-6 w-6 rounded-full border-2 border-slate-900 bg-indigo-500 flex items-center justify-center text-[10px] font-black">
+                              <div key={i} className="h-6 w-6 rounded-full border-2 border-slate-900 bg-emerald-500 flex items-center justify-center text-[10px] font-black">
                                 <Armchair size={10} />
                               </div>
                             ))}
@@ -490,10 +490,10 @@ const PoolingConfirm = () => {
 
                     <div className="relative flex items-start gap-6 pt-2">
                       <div className="relative flex flex-col items-center pt-1.5">
-                        <div className="z-10 h-3.5 w-3.5 rounded-full border-[3px] border-indigo-500 bg-white" />
+                        <div className="z-10 h-3.5 w-3.5 rounded-full border-[3px] border-emerald-500 bg-white" />
                         <div className="h-20 w-0.5 border-l-2 border-dashed border-slate-100" />
-                        <div className="z-10 h-3.5 w-3.5 rounded-full bg-indigo-600 ring-4 ring-indigo-50" />
-                        <Navigation size={14} className="absolute -bottom-7 text-indigo-600 animate-bounce" />
+                        <div className="z-10 h-3.5 w-3.5 rounded-full bg-emerald-600 ring-4 ring-emerald-50" />
+                        <Navigation size={14} className="absolute -bottom-7 text-emerald-600 animate-bounce" />
                       </div>
                       <div className="flex-1 space-y-10">
                         <div>
@@ -523,7 +523,7 @@ const PoolingConfirm = () => {
               >
                 <div className="mb-8 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm">
                       <Ticket size={18} />
                     </div>
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Price Details</h3>
@@ -565,11 +565,11 @@ const PoolingConfirm = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="group relative overflow-hidden rounded-[32px] border-2 border-dashed border-slate-200 bg-white p-6 transition-all hover:border-indigo-300 hover:bg-indigo-50/10"
+                className="group relative overflow-hidden rounded-[32px] border-2 border-dashed border-slate-200 bg-white p-6 transition-all hover:border-emerald-300 hover:bg-emerald-50/10"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-5">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-slate-50 text-slate-900 shadow-inner group-hover:bg-white group-hover:text-indigo-600 transition-colors">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-slate-50 text-slate-900 shadow-inner group-hover:bg-white group-hover:text-emerald-600 transition-colors">
                       <CreditCard size={26} />
                     </div>
                     <div>

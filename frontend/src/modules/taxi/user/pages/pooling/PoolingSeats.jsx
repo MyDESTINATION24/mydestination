@@ -24,7 +24,7 @@ import taxiImg from '../../../../assets/3d images/AutoCab/taxi.png';
 
 const SEAT_LEGEND = [
   { key: 'available', label: 'Available', color: 'bg-white border-slate-200 text-slate-400' },
-  { key: 'selected', label: 'Selected', color: 'bg-indigo-600 border-indigo-600 text-white shadow-indigo-200 shadow-lg' },
+  { key: 'selected', label: 'Selected', color: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200 shadow-lg' },
   { key: 'booked', label: 'Booked', color: 'bg-slate-100 border-slate-100 text-slate-300' },
   { key: 'driver', label: 'Driver', color: 'bg-slate-900 border-slate-900 text-slate-400' },
 ];
@@ -154,7 +154,7 @@ const PoolingSeats = () => {
           <motion.div 
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="h-24 w-24 rounded-full border-[3px] border-slate-100 border-t-indigo-600" 
+            className="h-24 w-24 rounded-full border-[3px] border-slate-100 border-t-emerald-600" 
           />
           <Car className="absolute text-slate-900" size={32} />
         </div>
@@ -170,7 +170,7 @@ const PoolingSeats = () => {
   const vehicleImage = (selectedVehicle?.images && selectedVehicle.images.length > 0) ? selectedVehicle.images[0] : taxiImg;
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-40 font-sans selection:bg-indigo-100">
+    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-40 font-sans selection:bg-emerald-100">
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 pb-6 pt-12">
         <div className="mb-6 flex items-center gap-4">
           <button
@@ -183,7 +183,7 @@ const PoolingSeats = () => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black tracking-tight text-slate-900">Select Seats</h1>
-              <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-indigo-600">
+              <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest text-emerald-600">
                 Step 2/3
               </span>
             </div>
@@ -225,7 +225,7 @@ const PoolingSeats = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 relative overflow-hidden rounded-[40px] border border-white bg-white p-6 shadow-xl shadow-slate-200/50 group"
         >
-          <div className="absolute right-0 top-0 -mr-12 -mt-12 h-40 w-40 rounded-full bg-indigo-50 blur-3xl group-hover:bg-indigo-100 transition-colors" />
+          <div className="absolute right-0 top-0 -mr-12 -mt-12 h-40 w-40 rounded-full bg-emerald-50 blur-3xl group-hover:bg-emerald-100 transition-colors" />
           <div className="relative z-10 flex items-center gap-6">
             <div className="relative h-24 w-32 overflow-hidden rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center">
               <img src={vehicleImage} alt={selectedVehicle?.name} className="h-20 w-auto object-contain transform group-hover:scale-110 transition-transform duration-500" />
@@ -239,7 +239,7 @@ const PoolingSeats = () => {
               <p className="mt-1 text-[11px] font-bold text-slate-500 uppercase tracking-widest">{selectedVehicle?.vehicleNumber}</p>
               
               <div className="mt-3 flex items-center gap-2">
-                <div className="flex items-center gap-1 text-[9px] font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-widest">
+                <div className="flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-widest">
                   <ShieldCheck size={10} />
                   Top Rated
                 </div>
@@ -316,8 +316,8 @@ const PoolingSeats = () => {
                             : isBooked
                               ? 'cursor-not-allowed border-2 border-slate-100 bg-slate-50 text-slate-200'
                               : isSelected
-                                ? 'border-2 border-indigo-600 bg-indigo-600 text-white shadow-[0_12px_24px_-8px_rgba(79,70,229,0.5)] scale-110'
-                                : 'border-2 border-slate-200 bg-white text-slate-400 hover:border-indigo-300 hover:shadow-lg active:scale-95'
+                                ? 'border-2 border-emerald-600 bg-emerald-600 text-white shadow-[0_12px_24px_-8px_rgba(79,70,229,0.5)] scale-110'
+                                : 'border-2 border-slate-200 bg-white text-slate-400 hover:border-emerald-300 hover:shadow-lg active:scale-95'
                         }`}
                       >
                         {item.type === 'driver' ? (
@@ -327,7 +327,7 @@ const PoolingSeats = () => {
                         )}
 
                         {/* Seat Number Tooltip/Badge */}
-                        <span className={`absolute -bottom-6 text-[9px] font-black uppercase tracking-tighter transition-colors ${isSelected ? 'text-indigo-600' : 'text-slate-300'}`}>
+                        <span className={`absolute -bottom-6 text-[9px] font-black uppercase tracking-tighter transition-colors ${isSelected ? 'text-emerald-600' : 'text-slate-300'}`}>
                           {item.label || (item.type === 'driver' ? 'DRV' : `S${idx + 1}`)}
                         </span>
 
@@ -385,15 +385,15 @@ const PoolingSeats = () => {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8 rounded-3xl border border-indigo-100 bg-indigo-50/50 p-5"
+              className="mb-8 rounded-3xl border border-emerald-100 bg-emerald-50/50 p-5"
             >
               <div className="flex items-start gap-4">
-                <div className="mt-1 rounded-xl bg-indigo-100 p-2 text-indigo-600">
+                <div className="mt-1 rounded-xl bg-emerald-100 p-2 text-emerald-600">
                   <ShieldCheck size={18} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-700">Secure Reservation</p>
-                  <p className="mt-1.5 text-xs font-semibold leading-relaxed text-indigo-800">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">Secure Reservation</p>
+                  <p className="mt-1.5 text-xs font-semibold leading-relaxed text-emerald-800">
                     Select up to {maxSeats} {maxSeats === 1 ? 'seat' : 'seats'} for your group. Seats are locked instantly upon selection.
                   </p>
                 </div>
@@ -427,7 +427,7 @@ const PoolingSeats = () => {
                   <button
                     type="button"
                     onClick={handleContinue}
-                    className="group flex h-16 items-center gap-3 rounded-[24px] bg-white px-6 text-sm font-black text-slate-900 transition-all hover:bg-indigo-50 active:scale-95"
+                    className="group flex h-16 items-center gap-3 rounded-[24px] bg-white px-6 text-sm font-black text-slate-900 transition-all hover:bg-emerald-50 active:scale-95"
                   >
                     CONTINUE
                     <div className="rounded-full bg-slate-900 p-1 text-white group-hover:translate-x-1 transition-transform">
