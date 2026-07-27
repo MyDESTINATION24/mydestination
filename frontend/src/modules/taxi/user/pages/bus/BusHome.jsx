@@ -393,8 +393,8 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] max-w-lg mx-auto font-sans pb-32 relative overflow-hidden">
-      <header className="bg-transparent px-5 pt-12 pb-2 sticky top-0 z-20 flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-5xl font-sans pb-32 lg:pb-16 relative overflow-hidden">
+      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-8 sticky top-0 z-20 flex items-center gap-3">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white"
@@ -407,7 +407,7 @@ const BusHome = () => {
         </div>
       </header>
  
-      <div className="px-5 pt-4 space-y-5">
+      <div className="px-5 pt-4 space-y-5 lg:px-8">
         {/* Source/Destination inputs */}
         <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative">
           <div className="flex items-center gap-3 relative z-10">

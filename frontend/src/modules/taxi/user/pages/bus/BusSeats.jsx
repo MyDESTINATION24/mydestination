@@ -173,8 +173,8 @@ const BusSeats = () => {
   const totalFare = selectedSeats.reduce((sum, seat) => sum + Number(seat.price || 0), 0);
 
   return (
-    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32">
-      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
+    <div className="min-h-screen bg-bus-light/20 mx-auto w-full max-w-lg lg:max-w-6xl font-sans pb-32 lg:pb-12">
+      <div className="bg-white px-5 pt-10 pb-4 lg:px-8 lg:pt-6 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -191,7 +191,10 @@ const BusSeats = () => {
         </div>
       </div>
  
-      <div className="px-5 pt-6 space-y-6">
+      {/* Below lg this is a plain column with a fixed CTA bar. From lg the
+          summary moves into a sticky right rail so the seat map gets the width. */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8 lg:px-8">
+      <div className="px-5 pt-6 space-y-6 lg:px-0">
         {loading ? (
           <div className="bg-white rounded-3xl border border-bus-light-border/40 shadow-sm p-12 flex flex-col items-center gap-4 text-bus-dark/60">
             <Loader2 size={32} className="animate-spin text-bus-primary" />
@@ -244,7 +247,7 @@ const BusSeats = () => {
         ) : null}
       </div>
  
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30 lg:sticky lg:top-24 lg:bottom-auto lg:left-auto lg:translate-x-0 lg:mt-6 lg:w-full lg:max-w-none lg:rounded-3xl lg:border lg:border-bus-light-border/40 lg:p-5 lg:shadow-sm">
         <AnimatePresence>
           {selectedSeats.length > 0 && (
             <motion.div
@@ -290,6 +293,7 @@ const BusSeats = () => {
         >
           Proceed to Payment <ChevronRight size={18} />
         </motion.button>
+      </div>
       </div>
     </div>
   );
