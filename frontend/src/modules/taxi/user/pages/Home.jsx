@@ -931,6 +931,52 @@ const Home = () => {
                 />
               </motion.div>
 
+              {/* Trekking Card */}
+              <motion.div
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/taxi/user/tours?category=trek')}
+                className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
+                  <div className="bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-indigo-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                    Guided Groups
+                  </div>
+
+                  <div className="mt-2">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Himalayan Trails</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-indigo-600 transition-colors">
+                      Trekking <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                    </h4>
+                  </div>
+                </div>
+
+                {/* Inline peaks: the other cards use 3D renders, but there is no
+                    trek asset in the repo and the Kedarnath photo reads as a
+                    temple. Drop a PNG in here when the 3D set gets one. */}
+                <svg
+                  viewBox="0 0 100 80"
+                  aria-hidden="true"
+                  className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                >
+                  <defs>
+                    <linearGradient id="trekBack" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#c7d2fe" />
+                      <stop offset="100%" stopColor="#818cf8" />
+                    </linearGradient>
+                    <linearGradient id="trekFront" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#4338ca" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M12 70 L38 24 L64 70 Z" fill="url(#trekBack)" />
+                  <path d="M38 24 L47 40 L38 46 L29 40 Z" fill="#eef2ff" />
+                  <path d="M46 70 L70 32 L94 70 Z" fill="url(#trekFront)" />
+                  <path d="M70 32 L78 46 L70 51 L62 46 Z" fill="#f8fafc" />
+                </svg>
+              </motion.div>
+
               {/* Helicopter Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}

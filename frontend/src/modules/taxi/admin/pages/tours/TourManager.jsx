@@ -13,6 +13,25 @@ const inputClass =
   'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-400/5';
 const labelClass = 'mb-2 block text-[10px] font-bold uppercase tracking-wider text-slate-400';
 
+// Comma-separated text in, string[] out. Holds its own draft text so a trailing
+// comma survives typing; callers pass key={...} to reset it when a record loads.
+const CommaListField = ({ label, value = [], onChange, placeholder = '', hint = '' }) => {
+  const [text, setText] = useState((value || []).join(', '));
+
+  const handleChange = (next) => {
+    setText(next);
+    onChange(next.split(',').map((item) => item.trim()).filter(Boolean));
+  };
+
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <input className={inputClass} value={text} onChange={(event) => handleChange(event.target.value)} placeholder={placeholder} />
+      {hint ? <p className="mt-1 text-[11px] text-slate-400">{hint}</p> : null}
+    </div>
+  );
+};
+
 const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
 
 const TourManager = ({ mode: modeProp = null }) => {
@@ -393,11 +412,33 @@ const TourManager = ({ mode: modeProp = null }) => {
                 </div>
 
                 <div className="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Package Type</label>
+                    <select className={inputClass} value={formData.category} onChange={(event) => setField('category', event.target.value)}>
+                      <option value="yatra">Pilgrim Yatra</option>
+                      <option value="trek">Trek</option>
+                    </select>
+                    <p className="mt-1 text-[11px] text-slate-400">Picks the customer tab and which fields below apply.</p>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Total Spots</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className={inputClass}
+                      value={formData.capacity}
+                      onChange={(event) => setField('capacity', event.target.value)}
+                      placeholder="e.g. 60"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400">Bookings stop once this is reached. 0 means unlimited.</p>
+                  </div>
+
                   <div className="md:col-span-2">
                     <label className={labelClass}>Tour Name</label>
                     <input className={inputClass} value={formData.name} onChange={(event) => setField('name', event.target.value)} placeholder="e.g. Chardham Yatra by Helicopter" />
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label className={labelClass}>Overview Description</label>
                     <textarea className={`${inputClass} min-h-28`} value={formData.overview} onChange={(event) => setField('overview', event.target.value)} placeholder="Provide a premium pilgrimage experience overview..." />
@@ -479,6 +520,147 @@ const TourManager = ({ mode: modeProp = null }) => {
                   </div>
                 </div>
               </div>
+
+              {/* Card 1b: Trek-only fields */}
+              {formData.category === 'trek' && (
+                <div className="rounded-[32px] border border-emerald-200 bg-emerald-50/30 p-8 shadow-sm space-y-6">
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900">Trek Details</h2>
+                    <p className="mt-1 text-sm font-medium text-slate-500">
+                      Shown on the trek detail screen. Only applies while Package Type is set to Trek.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Difficulty</label>
+                      <select className={inputClass} value={formData.difficulty} onChange={(event) => setField('difficulty', event.target.value)}>
+                        <option value="">Not set</option>
+                        <option value="easy">Easy</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="difficult">Difficult</option>
+                        <option value="expedition">Expedition</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Base Camp</label>
+                      <input className={inputClass} value={formData.baseCamp} onChange={(event) => setField('baseCamp', event.target.value)} placeholder="e.g. Sankri" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Max Altitude (m)</label>
+                      <input type="number" min="0" className={inputClass} value={formData.maxAltitudeM} onChange={(event) => setField('maxAltitudeM', event.target.value)} placeholder="e.g. 3810" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Trail Distance (km)</label>
+                      <input type="number" min="0" className={inputClass} value={formData.trailDistanceKm} onChange={(event) => setField('trailDistanceKm', event.target.value)} placeholder="e.g. 20" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Min Group Size</label>
+                      <input type="number" min="0" className={inputClass} value={formData.minGroupSize} onChange={(event) => setField('minGroupSize', event.target.value)} placeholder="e.g. 4" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Max Per Booking</label>
+                      <input type="number" min="0" className={inputClass} value={formData.maxGroupSize} onChange={(event) => setField('maxGroupSize', event.target.value)} placeholder="e.g. 12" />
+                      <p className="mt-1 text-[11px] text-slate-400">Largest single booking. 0 means no limit.</p>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`months-${formData.id}`}
+                        label="Best Months"
+                        value={formData.bestMonths}
+                        onChange={(next) => setField('bestMonths', next)}
+                        placeholder="December, January, February"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`provided-${formData.id}`}
+                        label="Gear Provided"
+                        value={formData.gearProvided}
+                        onChange={(next) => setField('gearProvided', next)}
+                        placeholder="Sleeping bag, Tent, Microspikes, Gaiters"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`carry-${formData.id}`}
+                        label="Gear To Carry"
+                        value={formData.gearToCarry}
+                        onChange={(next) => setField('gearToCarry', next)}
+                        placeholder="Trekking shoes, Down jacket, Thermals, Sunglasses"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`permits-${formData.id}`}
+                        label="Permits Required"
+                        value={formData.permitsRequired}
+                        onChange={(next) => setField('permitsRequired', next)}
+                        placeholder="Forest permit, Photo ID"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>Fitness Requirement</label>
+                      <textarea className={`${inputClass} min-h-20`} value={formData.fitnessNote} onChange={(event) => setField('fitnessNote', event.target.value)} placeholder="e.g. Be able to cover 5 km in 40 minutes on flat ground before departure." />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-emerald-200/60 pt-6">
+                    <h3 className="text-sm font-black text-slate-900">Trek Guide</h3>
+                    <p className="mt-1 mb-4 text-xs font-medium text-slate-500">Shown as a guide card on the trek detail screen.</p>
+
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <div>
+                        <label className={labelClass}>Guide Name</label>
+                        <input className={inputClass} value={formData.guide?.name || ''} onChange={(event) => setField('guide', { ...formData.guide, name: event.target.value })} placeholder="e.g. Pushkar Rana" />
+                      </div>
+
+                      <div>
+                        <label className={labelClass}>Guide Phone</label>
+                        <input className={inputClass} value={formData.guide?.phone || ''} onChange={(event) => setField('guide', { ...formData.guide, phone: event.target.value })} placeholder="+91 90000 00001" />
+                      </div>
+
+                      <div>
+                        <label className={labelClass}>Years of Experience</label>
+                        <input type="number" min="0" className={inputClass} value={formData.guide?.experienceYears || 0} onChange={(event) => setField('guide', { ...formData.guide, experienceYears: event.target.value })} placeholder="e.g. 11" />
+                      </div>
+
+                      <CommaListField
+                        key={`langs-${formData.id}`}
+                        label="Languages"
+                        value={formData.guide?.languages}
+                        onChange={(next) => setField('guide', { ...formData.guide, languages: next })}
+                        placeholder="Hindi, English, Garhwali"
+                      />
+
+                      <div className="md:col-span-2">
+                        <CommaListField
+                          key={`certs-${formData.id}`}
+                          label="Certifications"
+                          value={formData.guide?.certifications}
+                          onChange={(next) => setField('guide', { ...formData.guide, certifications: next })}
+                          placeholder="NIM Basic Mountaineering, Wilderness First Responder"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className={labelClass}>Guide Bio</label>
+                        <textarea className={`${inputClass} min-h-20`} value={formData.guide?.bio || ''} onChange={(event) => setField('guide', { ...formData.guide, bio: event.target.value })} placeholder="Short background, specialisms, notable experience." />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Card 2: Tour Itinerary */}
               <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm space-y-6">

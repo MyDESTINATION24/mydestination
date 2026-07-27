@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { Tour, getTourDurationDays } from '../models/Tour.js';
+import { Tour, serializeTour } from '../models/Tour.js';
 import { TourBooking } from '../models/TourBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
@@ -48,6 +48,13 @@ const normalizeTourPayload = (payload = {}, existing = null) => {
     ? payload.exclusions.map(item => toText(item)).filter(Boolean)
     : (Array.isArray(existing?.exclusions) ? existing.exclusions : []);
 
+  const textList = (next, prev) =>
+    Array.isArray(next)
+      ? next.map((item) => toText(item)).filter(Boolean)
+      : (Array.isArray(prev) ? prev : []);
+
+  const guideSource = payload.guide || existing?.guide || {};
+
   return {
     name: toText(payload.name || existing?.name),
     overview: toText(payload.overview || existing?.overview),
@@ -74,33 +81,37 @@ const normalizeTourPayload = (payload = {}, existing = null) => {
     gallery: Array.isArray(payload.gallery)
       ? payload.gallery.map(item => toText(item)).filter(Boolean)
       : (Array.isArray(existing?.gallery) ? existing.gallery : []),
+
+    category: ['yatra', 'trek'].includes(toText(payload.category || existing?.category).toLowerCase())
+      ? toText(payload.category || existing?.category).toLowerCase()
+      : 'yatra',
+    capacity: Math.max(0, Math.floor(toNumber(payload.capacity, existing?.capacity || 0))),
+
+    difficulty: ['easy', 'moderate', 'difficult', 'expedition'].includes(toText(payload.difficulty || existing?.difficulty).toLowerCase())
+      ? toText(payload.difficulty || existing?.difficulty).toLowerCase()
+      : '',
+    maxAltitudeM: Math.max(0, toNumber(payload.maxAltitudeM, existing?.maxAltitudeM || 0)),
+    trailDistanceKm: Math.max(0, toNumber(payload.trailDistanceKm, existing?.trailDistanceKm || 0)),
+    bestMonths: textList(payload.bestMonths, existing?.bestMonths),
+    baseCamp: toText(payload.baseCamp || existing?.baseCamp),
+    gearProvided: textList(payload.gearProvided, existing?.gearProvided),
+    gearToCarry: textList(payload.gearToCarry, existing?.gearToCarry),
+    permitsRequired: textList(payload.permitsRequired, existing?.permitsRequired),
+    fitnessNote: toText(payload.fitnessNote || existing?.fitnessNote),
+    minGroupSize: Math.max(0, Math.floor(toNumber(payload.minGroupSize, existing?.minGroupSize || 0))),
+    maxGroupSize: Math.max(0, Math.floor(toNumber(payload.maxGroupSize, existing?.maxGroupSize || 0))),
+
+    guide: {
+      name: toText(guideSource.name),
+      phone: toText(guideSource.phone),
+      experienceYears: Math.max(0, toNumber(guideSource.experienceYears, 0)),
+      languages: textList(guideSource.languages, existing?.guide?.languages),
+      certifications: textList(guideSource.certifications, existing?.guide?.certifications),
+      photo: toText(guideSource.photo),
+      bio: toText(guideSource.bio),
+    },
   };
 };
-
-const serializeTour = (item = {}) => ({
-  id: String(item._id || item.id || ''),
-  name: item.name || '',
-  overview: item.overview || '',
-  duration: item.duration || '',
-  durationDays: getTourDurationDays(item),
-  meals: item.meals || '',
-  helicopterType: item.helicopterType || '',
-  startPoint: item.startPoint || '',
-  endPoint: item.endPoint || '',
-  destinations: Array.isArray(item.destinations) ? item.destinations : [],
-  packageType: item.packageType || '',
-  itinerary: Array.isArray(item.itinerary) ? item.itinerary : [],
-  inclusions: Array.isArray(item.inclusions) ? item.inclusions : [],
-  exclusions: Array.isArray(item.exclusions) ? item.exclusions : [],
-  hotels: Array.isArray(item.hotels) ? item.hotels : [],
-  price: Number(item.price || 0),
-  priceType: item.priceType || 'per_day',
-  status: item.status || 'active',
-  image: item.image || '',
-  gallery: Array.isArray(item.gallery) ? item.gallery : [],
-  createdAt: item.createdAt || null,
-  updatedAt: item.updatedAt || null,
-});
 
 const serializeTourBooking = (item = {}) => ({
   id: String(item._id || item.id || ''),

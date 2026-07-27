@@ -2,7 +2,8 @@ import api from '../../../shared/api/axiosInstance';
 
 const unwrapPayload = (response) => response?.data || response || [];
 
-export const getUserTours = async () => unwrapPayload(await api.get('/users/tours'));
+export const getUserTours = async (category = '') =>
+  unwrapPayload(await api.get('/users/tours', { params: category ? { category } : {} }));
 
 export const getUserTourById = async (tourId) => unwrapPayload(await api.get(`/users/tours/${tourId}`));
 

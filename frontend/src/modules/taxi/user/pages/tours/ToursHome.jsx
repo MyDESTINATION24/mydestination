@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Compass, ChevronLeft, MapPin, Calendar, Clock, Sparkles } from 'lucide-react';
+import { Compass, ChevronLeft, MapPin, Calendar, Clock, Sparkles, Mountain, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUserTours } from '../../services/toursService';
 
@@ -28,25 +28,44 @@ const cardVariants = {
   },
 };
 
+const CATEGORIES = [
+  { id: 'yatra', label: 'Yatras', blurb: 'Book all-inclusive, premium helicopter travel experiences to Char Dham, Kedarnath, and Badrinath.' },
+  { id: 'trek', label: 'Treks', blurb: 'Guided Himalayan treks with certified leaders, camping equipment and permits handled end to end.' },
+];
+
+const DIFFICULTY_STYLES = {
+  easy: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+  moderate: 'bg-amber-50 text-amber-600 border-amber-100',
+  difficult: 'bg-orange-50 text-orange-600 border-orange-100',
+  expedition: 'bg-rose-50 text-rose-600 border-rose-100',
+};
+
 const ToursHome = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const category = CATEGORIES.some((item) => item.id === searchParams.get('category'))
+    ? searchParams.get('category')
+    : 'yatra';
+  const activeCategory = CATEGORIES.find((item) => item.id === category);
+  const isTrek = category === 'trek';
 
   useEffect(() => {
     const fetchTours = async () => {
       try {
         setLoading(true);
-        const data = await getUserTours();
+        const data = await getUserTours(category);
         setTours(data);
       } catch {
-        toast.error('Failed to load tour packages');
+        toast.error('Failed to load packages');
       } finally {
         setLoading(false);
       }
     };
     fetchTours();
-  }, []);
+  }, [category]);
 
   const formatPrice = (price) => `₹${Number(price || 0).toLocaleString('en-IN')}`;
 
@@ -66,14 +85,33 @@ const ToursHome = () => {
           <ChevronLeft size={18} className="text-slate-800" />
         </button>
         <h1 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-1.5">
-          <Compass size={16} className="text-emerald-500 animate-spin-slow" />
-          Pilgrim Yatras
+          {isTrek
+            ? <Mountain size={16} className="text-emerald-500" />
+            : <Compass size={16} className="text-emerald-500 animate-spin-slow" />}
+          {isTrek ? 'Himalayan Treks' : 'Pilgrim Yatras'}
         </h1>
         <div className="w-10 h-10" /> {/* Balancer */}
       </div>
 
       <div className="px-6 py-6 space-y-6">
-        
+
+        {/* Category Switcher */}
+        <div className="flex gap-2 rounded-2xl bg-white/70 p-1.5 border border-slate-100 shadow-sm backdrop-blur-md">
+          {CATEGORIES.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setSearchParams(item.id === 'yatra' ? {} : { category: item.id }, { replace: true })}
+              className={`flex-1 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
+                category === item.id
+                  ? 'bg-slate-900 text-white shadow-md'
+                  : 'text-slate-500 hover:bg-slate-50 active:scale-95'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
         {/* Banner Section */}
         <motion.div
           initial={{ opacity: 0, y: -15 }}
@@ -85,11 +123,13 @@ const ToursHome = () => {
           <div className="absolute right-[-20px] bottom-[-20px] h-32 w-32 rounded-full bg-white/5 blur-2xl pointer-events-none" />
           <div className="relative z-10 space-y-2">
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
-              <Sparkles size={11} /> Featured pilgrim packages
+              <Sparkles size={11} /> {isTrek ? 'Guided Himalayan treks' : 'Featured pilgrim packages'}
             </div>
-            <h2 className="text-2xl font-black tracking-tight mt-1 leading-tight">Yatras & Helicopter Tours</h2>
+            <h2 className="text-2xl font-black tracking-tight mt-1 leading-tight">
+              {isTrek ? 'Treks & Summit Climbs' : 'Yatras & Helicopter Tours'}
+            </h2>
             <p className="text-xs font-semibold text-slate-300 leading-normal">
-              Book all-inclusive, premium helicopter travel experiences to Char Dham, Kedarnath, and Badrinath.
+              {activeCategory.blurb}
             </p>
           </div>
         </motion.div>
@@ -114,8 +154,8 @@ const ToursHome = () => {
             </div>
           ) : tours.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400">
-              <Compass size={48} className="stroke-1 opacity-20 mb-3" />
-              <p className="font-bold">No active tour packages found.</p>
+              {isTrek ? <Mountain size={48} className="stroke-1 opacity-20 mb-3" /> : <Compass size={48} className="stroke-1 opacity-20 mb-3" />}
+              <p className="font-bold">No active {isTrek ? 'treks' : 'yatra packages'} found.</p>
               <p className="text-xs mt-1">Please configure packages from the admin panel first.</p>
             </div>
           ) : (
@@ -154,10 +194,21 @@ const ToursHome = () => {
                       </p>
                     </div>
 
-                    {/* Helicopter / Transport Badge */}
-                    {item.helicopterType && (
+                    {/* Difficulty (treks) or transport badge (yatras) */}
+                    {isTrek && item.difficulty ? (
+                      <div className={`absolute left-4 top-4 rounded-xl border px-3 py-1.5 text-[9px] font-black uppercase tracking-wider shadow-lg ${DIFFICULTY_STYLES[item.difficulty] || 'bg-white/90 text-slate-600 border-slate-100'}`}>
+                        {item.difficulty}
+                      </div>
+                    ) : item.helicopterType ? (
                       <div className="absolute left-4 top-4 rounded-xl bg-emerald-500/90 px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-lg">
                         Helicopter Travel
+                      </div>
+                    ) : null}
+
+                    {/* Remaining spots, only once a cap is set */}
+                    {item.availableSlots !== null && item.availableSlots <= 10 && (
+                      <div className={`absolute left-4 bottom-4 rounded-xl px-3 py-1.5 text-[9px] font-black uppercase tracking-wider text-white shadow-lg ${item.availableSlots === 0 ? 'bg-slate-900/90' : 'bg-rose-500/90'}`}>
+                        {item.availableSlots === 0 ? 'Fully booked' : `${item.availableSlots} spot${item.availableSlots === 1 ? '' : 's'} left`}
                       </div>
                     )}
                   </div>
@@ -183,9 +234,21 @@ const ToursHome = () => {
                       <div className="flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-600">
                         <MapPin size={11} className="text-emerald-500" />
                         <span className="truncate max-w-[150px]">
-                          {item.startPoint}
+                          {isTrek ? (item.baseCamp || item.startPoint) : item.startPoint}
                         </span>
                       </div>
+                      {isTrek && item.maxAltitudeM > 0 && (
+                        <div className="flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-600">
+                          <Mountain size={11} className="text-indigo-500" />
+                          <span>{Number(item.maxAltitudeM).toLocaleString('en-IN')} m</span>
+                        </div>
+                      )}
+                      {isTrek && item.guide?.name && (
+                        <div className="flex items-center gap-1 rounded-xl bg-slate-100 px-3 py-1.5 text-[10px] font-black text-slate-600">
+                          <Users size={11} className="text-amber-500" />
+                          <span className="truncate max-w-[120px]">{item.guide.name}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
