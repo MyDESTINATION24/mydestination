@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
-import { PoolingArt, TrekArt } from '../components/CardArt';
+import { TrekArt } from '../components/CardArt';
 import HeaderGreeting from '../components/HeaderGreeting';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
@@ -18,6 +18,7 @@ import parcelImg from '@/assets/landing/parcel.png';
 import templeImg from '@/assets/3d images/AutoCab/temple.png';
 import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
 import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
+import poolingImg from '@/assets/3d images/AutoCab/pooling.png';
 import api from '../../../shared/api/axiosInstance';
 import { buildAssetUrl } from '../../../shared/api/runtimeConfig';
 import { useSettings } from '../../../shared/context/SettingsContext';
@@ -830,7 +831,12 @@ const Home = () => {
                   </div>
                 </div>
 
-                <PoolingArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
+                {/* 3D Pooling Image */}
+                <img
+                  src={poolingImg}
+                  alt="Pooling"
+                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                />
               </motion.div>
 
               {/* Bus Card */}

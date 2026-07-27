@@ -20,6 +20,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { adminService } from '../../services/adminService';
+import PlaceAutocompleteInput from '../../components/PlaceAutocompleteInput';
 
 const inputClass =
   'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100/60';
@@ -36,6 +37,8 @@ const createStop = (type = 'stop', sequence = 1) => ({
   stopType: type,
   sequence,
   etaMinutes: 0,
+  latitude: null,
+  longitude: null,
 });
 
 const createSchedule = () => ({
@@ -176,20 +179,29 @@ const StopEditor = ({ title, helper, items, stopType, onChange, onAdd, onRemove,
               </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-slate-400">Address / Location</label>
-                <input
+                <PlaceAutocompleteInput
                   value={item.address}
-                  onChange={(event) => onChange(item.id, 'address', event.target.value)}
+                  onChange={(next) => onChange(item.id, 'address', next)}
+                  onPlaceSelected={(place) => {
+                    onChange(item.id, 'address', place.address);
+                    onChange(item.id, 'latitude', place.latitude);
+                    onChange(item.id, 'longitude', place.longitude);
+                    if (!item.name && place.name) {
+                      onChange(item.id, 'name', place.name);
+                    }
+                  }}
                   className={getInputClasses(Boolean(errors[`${item.id}.address`]))}
-                  placeholder="Street name, Area"
+                  placeholder="Search a stop location"
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-[10px] font-black uppercase tracking-wider text-slate-400">Landmark</label>
-                <input
+                <PlaceAutocompleteInput
                   value={item.landmark}
-                  onChange={(event) => onChange(item.id, 'landmark', event.target.value)}
+                  onChange={(next) => onChange(item.id, 'landmark', next)}
                   className={getInputClasses(Boolean(errors[`${item.id}.landmark`]))}
                   placeholder="Near Park, Mall"
+                  types={['establishment']}
                 />
               </div>
               <div>
@@ -840,24 +852,22 @@ const PoolingManager = ({ mode: propMode }) => {
 
             <div>
               <label className={labelClass}>Origin Location *</label>
-              <input
-                type="text"
+              <PlaceAutocompleteInput
                 value={formData.originLabel}
-                onChange={(event) => updateForm('originLabel', event.target.value)}
+                onChange={(next) => updateForm('originLabel', next)}
                 className={getInputClasses(Boolean(validationErrors.originLabel))}
-                placeholder="Vijay Nagar"
+                placeholder="Search origin"
               />
               {validationErrors.originLabel ? <p className="mt-2 text-xs font-semibold text-rose-600">{validationErrors.originLabel}</p> : null}
             </div>
 
             <div>
               <label className={labelClass}>Destination *</label>
-              <input
-                type="text"
+              <PlaceAutocompleteInput
                 value={formData.destinationLabel}
-                onChange={(event) => updateForm('destinationLabel', event.target.value)}
+                onChange={(next) => updateForm('destinationLabel', next)}
                 className={getInputClasses(Boolean(validationErrors.destinationLabel))}
-                placeholder="Indore Airport"
+                placeholder="Search destination"
               />
               {validationErrors.destinationLabel ? <p className="mt-2 text-xs font-semibold text-rose-600">{validationErrors.destinationLabel}</p> : null}
             </div>
