@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
+import { PoolingArt, TrekArt } from '../components/CardArt';
 import HeaderGreeting from '../components/HeaderGreeting';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
@@ -17,7 +18,6 @@ import parcelImg from '@/assets/landing/parcel.png';
 import templeImg from '@/assets/3d images/AutoCab/temple.png';
 import helicopterImg from '@/assets/3d images/AutoCab/helicopter.png';
 import evStationImg from '@/assets/3d images/AutoCab/ev_station.png';
-import poolingImg from '@/assets/3d images/AutoCab/pooling.png';
 import api from '../../../shared/api/axiosInstance';
 import { buildAssetUrl } from '../../../shared/api/runtimeConfig';
 import { useSettings } from '../../../shared/context/SettingsContext';
@@ -824,18 +824,13 @@ const Home = () => {
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Ride together, pay less</p>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-emerald-600 transition-colors">
                       Pooling <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
                 </div>
 
-                {/* 3D Pooling Image */}
-                <img
-                  src={poolingImg}
-                  alt="Pooling"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
-                />
+                <PoolingArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
               </motion.div>
 
               {/* Bus Card */}
@@ -952,29 +947,7 @@ const Home = () => {
                   </div>
                 </div>
 
-                {/* Inline peaks: the other cards use 3D renders, but there is no
-                    trek asset in the repo and the Kedarnath photo reads as a
-                    temple. Drop a PNG in here when the 3D set gets one. */}
-                <svg
-                  viewBox="0 0 100 80"
-                  aria-hidden="true"
-                  className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
-                >
-                  <defs>
-                    <linearGradient id="trekBack" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#c7d2fe" />
-                      <stop offset="100%" stopColor="#818cf8" />
-                    </linearGradient>
-                    <linearGradient id="trekFront" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#6366f1" />
-                      <stop offset="100%" stopColor="#4338ca" />
-                    </linearGradient>
-                  </defs>
-                  <path d="M12 70 L38 24 L64 70 Z" fill="url(#trekBack)" />
-                  <path d="M38 24 L47 40 L38 46 L29 40 Z" fill="#eef2ff" />
-                  <path d="M46 70 L70 32 L94 70 Z" fill="url(#trekFront)" />
-                  <path d="M70 32 L78 46 L70 51 L62 46 Z" fill="#f8fafc" />
-                </svg>
+                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
               </motion.div>
 
               {/* Helicopter Card */}
