@@ -79,6 +79,14 @@ const tourBookingSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+
+    // Gateway trail, mirroring AirwayBooking so both checkouts reconcile the
+    // same way against a Razorpay/PhonePe dashboard.
+    paymentMethodLabel: { type: String, default: '', trim: true },
+    gatewaySlug: { type: String, default: '', trim: true },
+    gatewayOrderId: { type: String, default: '', trim: true },
+    gatewayPaymentId: { type: String, default: '', trim: true },
+    gatewayTransactionId: { type: String, default: '', trim: true, index: true },
   },
   { timestamps: true }
 );

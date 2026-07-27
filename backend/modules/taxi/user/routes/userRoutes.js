@@ -74,6 +74,8 @@ import {
   getUserTours,
   getUserTourById,
   createUserTourBooking,
+  createUserTourBookingOrder,
+  verifyUserTourBookingPayment,
   listMyTourBookings,
   getMyTourBooking,
 } from '../controllers/toursController.js';
@@ -163,6 +165,8 @@ userRouter.get('/airways/bookings/:id', authenticateOrResolveUser(['user']), asy
 userRouter.get('/tours', asyncHandler(getUserTours));
 // Must stay above '/tours/:id' -- Express matches in order, so the literal
 // 'bookings' segment was being swallowed as an id and cast-erroring to a 500.
+userRouter.post('/tours/bookings/order', authenticateOrResolveUser(['user']), asyncHandler(createUserTourBookingOrder));
+userRouter.post('/tours/bookings/verify', authenticateOrResolveUser(['user']), asyncHandler(verifyUserTourBookingPayment));
 userRouter.post('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(createUserTourBooking));
 userRouter.get('/tours/bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyTourBookings));
 userRouter.get('/tours/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyTourBooking));

@@ -1,12 +1,17 @@
-import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import { Airway } from '../../admin/models/Airway.js';
 import { AirwayRoute } from '../../admin/models/AirwayRoute.js';
 import { AirwayBooking } from '../../admin/models/AirwayBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
-import { env } from '../../../../config/env.js';
 import { getActivePaymentGateway, resolveConfiguredGatewayCredentials } from '../../services/paymentGatewayService.js';
+import {
+  getCurrentUserId,
+  getFrontendBaseUrl,
+  phonePeRequest,
+  razorpayRequest,
+  verifyRazorpaySignature,
+} from '../../services/paymentClients.js';
 
 const ok = (res, data, message) => res.status(200).json({ success: true, data, message });
 const created = (res, data, message) => res.status(201).json({ success: true, data, message });
@@ -25,91 +30,6 @@ const getTravelDayToken = (value) => {
     return '';
   }
   return DAY_LABELS[parsed.getDay()] || '';
-};
-
-const getCurrentUserId = (req) => String(req.auth?.sub || req.user?._id || '').trim();
-const getFrontendBaseUrl = () => {
-  const configuredOrigin = String(env.corsOrigin || '')
-    .split(',')
-    .map((value) => value.trim())
-    .find((value) => value && value !== '*');
-
-  return (configuredOrigin || 'http://localhost:5173').replace(/\/+$/, '');
-};
-
-const getPhonePeBaseUrl = (environment = 'test') => (
-  String(environment).trim().toLowerCase() === 'production'
-    ? 'https://api.phonepe.com/apis/hermes'
-    : 'https://api-preprod.phonepe.com/apis/pg-sandbox'
-);
-
-const buildPhonePeChecksum = ({ payload = '', path = '', saltKey = '', saltIndex = '1' }) => {
-  const digest = crypto
-    .createHash('sha256')
-    .update(`${payload}${path}${saltKey}`)
-    .digest('hex');
-
-  return `${digest}###${saltIndex}`;
-};
-
-const phonePeRequest = async ({
-  method,
-  path,
-  body,
-  merchantId,
-  saltKey,
-  saltIndex,
-  environment,
-}) => {
-  const normalizedMethod = String(method || 'GET').trim().toUpperCase();
-  const encodedPayload =
-    body && normalizedMethod !== 'GET'
-      ? Buffer.from(JSON.stringify(body)).toString('base64')
-      : '';
-  const response = await fetch(`${getPhonePeBaseUrl(environment)}${path}`, {
-    method: normalizedMethod,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-VERIFY': buildPhonePeChecksum({
-        payload: encodedPayload,
-        path,
-        saltKey,
-        saltIndex,
-      }),
-      'X-MERCHANT-ID': merchantId,
-      accept: 'application/json',
-    },
-    body: encodedPayload ? JSON.stringify({ request: encodedPayload }) : undefined,
-  });
-
-  const payload = await response.json().catch(() => null);
-  if (!response.ok || payload?.success === false) {
-    throw new ApiError(
-      response.status || 502,
-      payload?.message || payload?.code || 'PhonePe request failed',
-    );
-  }
-
-  return payload;
-};
-
-const razorpayRequest = async ({ method, path, body, keyId, keySecret }) => {
-  const credentials = Buffer.from(`${keyId}:${keySecret}`).toString('base64');
-  const response = await fetch(`https://api.razorpay.com/v1${path}`, {
-    method,
-    headers: {
-      Authorization: `Basic ${credentials}`,
-      'Content-Type': 'application/json',
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new ApiError(response.status || 502, payload?.error?.description || payload?.error?.message || 'Razorpay request failed');
-  }
-
-  return payload;
 };
 
 const getSeatInventoryObject = (seatInventory) =>
@@ -555,12 +475,7 @@ export const verifyAirwayBookingPayment = asyncHandler(async (req, res) => {
     }
 
     const { keySecret } = await resolveConfiguredGatewayCredentials('razor_pay');
-    const expectedSignature = crypto
-      .createHmac('sha256', keySecret)
-      .update(`${orderId}|${paymentId}`)
-      .digest('hex');
-
-    if (expectedSignature !== signature) {
+    if (!verifyRazorpaySignature({ orderId, paymentId, signature, keySecret })) {
       throw new ApiError(400, 'Invalid payment signature');
     }
 

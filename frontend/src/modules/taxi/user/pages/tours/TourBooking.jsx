@@ -3,7 +3,30 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Compass, Calendar, User, Phone, Mail, FileText, ArrowRight, UserPlus, Trash2, Plus, Minus, CreditCard } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getUserTourById, createUserTourBooking } from '../../services/toursService';
+import { useSettings } from '../../../shared/context/SettingsContext';
+import {
+  getUserTourById,
+  createUserTourBooking,
+  createUserTourBookingOrder,
+  verifyUserTourBookingPayment,
+} from '../../services/toursService';
+
+const PHONEPE_PENDING_TOUR_KEY = 'taxi-tour-phonepe-booking';
+
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
 const inputClass =
   'w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 py-3 text-sm font-semibold text-slate-800 shadow-sm outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-400/5';
@@ -29,6 +52,67 @@ const TourBooking = () => {
   const [paymentMethod, setPaymentMethod] = useState('reserve');
   const [notes, setNotes] = useState('');
   const [passengerNames, setPassengerNames] = useState(['']);
+
+  const { settings } = useSettings();
+  const activePaymentGateway = settings.paymentGateway || null;
+  const isTrek = tour?.category === 'trek';
+
+  // PhonePe sends the customer back here with ?phonepe_txn=... The booking is
+  // only created once the gateway confirms the payment actually completed.
+  useEffect(() => {
+    const merchantTransactionId = new URLSearchParams(window.location.search).get('phonepe_txn');
+    if (!merchantTransactionId) return;
+
+    const clearQuery = () => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('phonepe_txn');
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    };
+
+    const verify = async () => {
+      let pending = null;
+      try {
+        pending = JSON.parse(window.sessionStorage.getItem(PHONEPE_PENDING_TOUR_KEY) || 'null');
+      } catch {
+        pending = null;
+      }
+
+      if (!pending || pending.tourId !== id) {
+        clearQuery();
+        toast.error('Could not restore your pending PhonePe booking details.');
+        return;
+      }
+
+      setSubmitting(true);
+      try {
+        const result = await verifyUserTourBookingPayment({
+          gateway: 'phone_pay',
+          merchantTransactionId,
+          ...pending,
+        });
+
+        if (result?.status === 'pending') {
+          toast('Payment is still processing. Check My Bookings shortly.');
+          return;
+        }
+        if (result?.status === 'failed') {
+          toast.error('Payment was not completed.');
+          return;
+        }
+
+        window.sessionStorage.removeItem(PHONEPE_PENDING_TOUR_KEY);
+        toast.success('Booked and paid successfully.');
+        navigate(`/taxi/user/tours/confirmation/${result.id}`, { state: { booking: result } });
+      } catch (error) {
+        toast.error(error?.message || 'Could not verify the PhonePe payment.');
+      } finally {
+        setSubmitting(false);
+        clearQuery();
+      }
+    };
+
+    verify();
+  }, [id, navigate]);
 
   useEffect(() => {
     const loadTourAndProfile = async () => {
@@ -112,25 +196,100 @@ const TourBooking = () => {
       return;
     }
 
+    const bookingPayload = {
+      tourId: tour.id,
+      customerName,
+      customerPhone,
+      customerEmail,
+      numberOfPassengers: passengerNames.length,
+      travelDate,
+      notes,
+      passengerNames: cleanedPassengers,
+    };
+
     try {
       setSubmitting(true);
-      const res = await createUserTourBooking({
-        tourId: tour.id,
-        customerName,
-        customerPhone,
-        customerEmail,
-        numberOfPassengers: passengerNames.length,
-        travelDate,
-        paymentMethod,
-        notes,
-        passengerNames: cleanedPassengers,
+
+      // Pay later: no gateway involved, booking is created straight away.
+      if (paymentMethod !== 'online') {
+        const res = await createUserTourBooking({ ...bookingPayload, paymentMethod: 'reserve' });
+        toast.success(isTrek ? 'Trek reserved!' : 'Yatra reservation confirmed!');
+        navigate(`/taxi/user/tours/confirmation/${res.id}`);
+        return;
+      }
+
+      if (!activePaymentGateway) {
+        throw new Error('No payment gateway is enabled in the admin panel right now.');
+      }
+
+      if (activePaymentGateway.slug === 'phone_pay') {
+        const session = await createUserTourBookingOrder(bookingPayload);
+        if (!session?.checkoutUrl) {
+          throw new Error('Unable to start PhonePe payment');
+        }
+
+        // Stashed so the booking can be rebuilt when PhonePe redirects back.
+        window.sessionStorage.setItem(PHONEPE_PENDING_TOUR_KEY, JSON.stringify(bookingPayload));
+        window.location.assign(session.checkoutUrl);
+        return;
+      }
+
+      if (activePaymentGateway.slug !== 'razor_pay') {
+        throw new Error(`${activePaymentGateway.label} is enabled by admin, but tour checkout is not implemented for it yet.`);
+      }
+
+      if (!(await loadRazorpayScript())) {
+        throw new Error('Razorpay SDK failed to load');
+      }
+
+      const order = await createUserTourBookingOrder(bookingPayload);
+      if (!order?.keyId || !order?.orderId) {
+        throw new Error('Unable to start payment');
+      }
+
+      const rzp = new window.Razorpay({
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency || 'INR',
+        name: tour.name,
+        description: `${passengerNames.length} traveller${passengerNames.length === 1 ? '' : 's'}`,
+        order_id: order.orderId,
+        prefill: { name: customerName, email: customerEmail, contact: customerPhone },
+        modal: { ondismiss: () => setSubmitting(false) },
+        handler: async (response) => {
+          try {
+            const booking = await verifyUserTourBookingPayment({
+              gateway: 'razor_pay',
+              ...response,
+              ...bookingPayload,
+            });
+            toast.success('Booked and paid successfully.');
+            navigate(`/taxi/user/tours/confirmation/${booking.id}`, { state: { booking } });
+          } catch (error) {
+            toast.error(
+              error?.message ||
+              'Payment verification failed. Please contact support if payment was deducted.',
+            );
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        theme: { color: '#10b981' },
       });
-      toast.success('Yatra reservation confirmed!');
-      navigate(`/taxi/user/tours/confirmation/${res.id}`);
-    } catch {
-      toast.error('Failed to register tour reservation');
+
+      rzp.on('payment.failed', (event) => {
+        toast.error(event?.error?.description || event?.error?.reason || 'Payment failed');
+        setSubmitting(false);
+      });
+
+      rzp.open();
+      return;
+    } catch (error) {
+      toast.error(error?.message || 'Failed to register tour reservation');
     } finally {
-      setSubmitting(false);
+      if (paymentMethod !== 'online') {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -318,16 +477,22 @@ const TourBooking = () => {
 
             <div className="grid grid-cols-2 gap-3">
               {[
-                { id: 'reserve', label: 'Book & Settle Later', desc: 'Reserve seat now' },
-                { id: 'online', label: 'Online Payment', desc: 'Pay with UPI/Cards' }
+                { id: 'reserve', label: 'Book & Settle Later', desc: 'Reserve spot now', enabled: true },
+                {
+                  id: 'online',
+                  label: 'Pay Now',
+                  desc: activePaymentGateway?.label || 'Unavailable',
+                  enabled: Boolean(activePaymentGateway),
+                }
               ].map((method) => (
                 <button
                   key={method.id}
                   type="button"
+                  disabled={!method.enabled}
                   onClick={() => setPaymentMethod(method.id)}
-                  className={`rounded-2xl border p-4 text-left transition ${
-                    paymentMethod === method.id 
-                      ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-600/5' 
+                  className={`rounded-2xl border p-4 text-left transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                    paymentMethod === method.id
+                      ? 'border-indigo-600 bg-indigo-50/40 ring-2 ring-indigo-600/5'
                       : 'border-slate-100 bg-white hover:bg-slate-50'
                   }`}
                 >
@@ -336,6 +501,12 @@ const TourBooking = () => {
                 </button>
               ))}
             </div>
+
+            {!activePaymentGateway && (
+              <p className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-xl p-3">
+                No payment gateway is enabled in the admin panel, so online payment is unavailable. Bookings can still be reserved and settled later.
+              </p>
+            )}
           </div>
 
           {/* Section 5: Notes */}

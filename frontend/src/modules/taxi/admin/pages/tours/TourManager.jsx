@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, Edit2, Compass, Phone, Plus, Save, Search, Trash2, MapPin, Image as ImageIcon, Upload, HelpCircle, Utensils, Calendar } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { uploadService } from '../../../shared/services/uploadService';
 import {
   createTourDraft,
   deleteAdminTour,
@@ -44,6 +45,7 @@ const TourManager = ({ mode: modeProp = null }) => {
   const isList = !isCreate && !isEdit;
 
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [tours, setTours] = useState([]);
@@ -192,32 +194,64 @@ const TourManager = ({ mode: modeProp = null }) => {
     setField('hotels', updated);
   };
 
-  // Image upload handlers
-  const handleImageChange = (event) => {
+  // Images go to Cloudinary and only the URL is stored. These used to be
+  // base64 data-URLs written straight into the Mongo document, which bloated
+  // every tour list query and would blow the 16MB document limit once trek
+  // galleries got real.
+  const readAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read the selected image'));
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+
+  const uploadOne = async (file) => {
+    const base64 = await readAsDataUrl(file);
+    if (!String(base64 || '').startsWith('data:image/')) {
+      throw new Error('Please select a valid image file');
+    }
+
+    const result = await uploadService.uploadImage(base64, 'taxi/tours');
+    const url = result?.url || result?.data?.url || result?.secure_url;
+    if (!url) {
+      throw new Error('Upload did not return an image URL');
+    }
+    return url;
+  };
+
+  const handleImageChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setField('image', reader.result);
-    };
-    reader.readAsDataURL(file);
+    setUploadingImage(true);
+    try {
+      setField('image', await uploadOne(file));
+    } catch (error) {
+      toast.error(error?.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
-  const handleGalleryChange = (event) => {
+  const handleGalleryChange = async (event) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setFormData((current) => ({
-          ...current,
-          gallery: [...(current.gallery || []), reader.result],
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploadingImage(true);
+    try {
+      const urls = await Promise.all(files.map(uploadOne));
+      setFormData((current) => ({
+        ...current,
+        gallery: [...(current.gallery || []), ...urls],
+      }));
+    } catch (error) {
+      toast.error(error?.message || 'Gallery upload failed');
+    } finally {
+      setUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
   const removeGalleryImage = (index) => {
@@ -850,11 +884,11 @@ const TourManager = ({ mode: modeProp = null }) => {
                         <p className="text-sm font-black text-slate-900">Upload Route Map Image</p>
                         <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest">JPG, PNG up to 3MB</p>
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      <input type="file" className="hidden" accept="image/*" disabled={uploadingImage} onChange={handleImageChange} />
                     </label>
                   )}
                   {formData.image && (
-                    <input type="file" className="absolute inset-0 cursor-pointer opacity-0" accept="image/*" onChange={handleImageChange} />
+                    <input type="file" className="absolute inset-0 cursor-pointer opacity-0" accept="image/*" disabled={uploadingImage} onChange={handleImageChange} />
                   )}
                 </div>
               </div>
@@ -883,7 +917,7 @@ const TourManager = ({ mode: modeProp = null }) => {
                       <Plus size={20} />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center px-2">Add Gallery Photo</span>
-                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleGalleryChange} />
+                    <input type="file" className="hidden" accept="image/*" multiple disabled={uploadingImage} onChange={handleGalleryChange} />
                   </label>
                 </div>
               </div>
