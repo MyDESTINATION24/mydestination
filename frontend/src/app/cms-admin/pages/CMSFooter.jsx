@@ -17,13 +17,13 @@ const RULES = {
   },
   phone: {
     required: false,
-    pattern: /^\d{10}$/,
-    patternMsg: 'Phone number must be exactly 10 digits',
+    pattern: /^[+\d\s\-()]{7,25}$/,
+    patternMsg: 'Enter a valid phone number (e.g. +91 80 06 787878)',
   },
   whatsapp: {
     required: false,
-    pattern: /^\d{10}$/,
-    patternMsg: 'WhatsApp number must be exactly 10 digits',
+    pattern: /^[+\d\s\-()]{7,25}$/,
+    patternMsg: 'Enter a valid WhatsApp number (e.g. +91 80 06 787878)',
   },
   email: {
     required: false,
@@ -199,6 +199,7 @@ const CMSFooter = () => {
                 onChange={(val) => handleChange('companyDescription', val)}
                 placeholder="Short description shown in footer..."
                 minHeight="120px"
+                darkCanvas={true}
               />
               <FieldMessage error={touched.companyDescription && errors.companyDescription} />
             </div>
@@ -220,6 +221,7 @@ const CMSFooter = () => {
                 onChange={(val) => handleChange('address', val)}
                 placeholder="1 My Address, My Street, City..."
                 minHeight="90px"
+                darkCanvas={true}
               />
               <FieldMessage error={touched.address && errors.address} />
             </div>
@@ -232,12 +234,9 @@ const CMSFooter = () => {
                 value={footerData.phone || ''}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 onBlur={() => handleBlur('phone')}
-                placeholder="9876543210"
-                maxLength={10}
-                inputMode="numeric"
+                placeholder="+91 80 06 787878"
                 className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
-              <p className="text-[10px] text-gray-400 mt-0.5">{(footerData.phone || '').length} / 10 digits</p>
               <FieldMessage error={touched.phone && errors.phone} />
               {!errors.phone && footerData.phone && touched.phone && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
@@ -254,12 +253,9 @@ const CMSFooter = () => {
                 value={footerData.whatsapp || ''}
                 onChange={(e) => handleChange('whatsapp', e.target.value)}
                 onBlur={() => handleBlur('whatsapp')}
-                placeholder="9876543210"
-                maxLength={10}
-                inputMode="numeric"
+                placeholder="+91 80 06 787878"
                 className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
-              <p className="text-[10px] text-gray-400 mt-0.5">{(footerData.whatsapp || '').length} / 10 digits</p>
               <FieldMessage error={touched.whatsapp && errors.whatsapp} />
               {!errors.whatsapp && footerData.whatsapp && touched.whatsapp && (
                 <p className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">

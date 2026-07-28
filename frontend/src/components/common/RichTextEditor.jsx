@@ -11,6 +11,20 @@ import {
   Redo,
   Palette,
   Highlighter,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Table as TableIcon,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  Maximize,
+  Minimize,
+  Code as CodeIcon,
+  Eraser,
+  HelpCircle,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 const FONT_FAMILIES = [
@@ -34,7 +48,7 @@ const FONT_SIZES = [
 ];
 
 const BRAND_COLORS = [
-  '#000000', '#1e293b', '#475569', '#dc2626', '#ea580c',
+  '#ffffff', '#000000', '#1e293b', '#475569', '#dc2626', '#ea580c',
   '#d97706', '#059669', '#2563eb', '#4f46e5', '#7c3aed'
 ];
 
@@ -52,7 +66,8 @@ const RichTextEditor = ({
   onChange = () => {},
   placeholder = 'Enter content here...',
   minHeight = '160px',
-  className = ''
+  className = '',
+  darkCanvas: initialDarkCanvas = false
 }) => {
   const editorRef = useRef(null);
   const savedRangeRef = useRef(null);
@@ -60,7 +75,9 @@ const RichTextEditor = ({
   // Custom Undo/Redo History Stack
   const historyRef = useRef([value || '']);
   const historyIndexRef = useRef(0);
-  const isUndoRedoAction = useRef(false);
+  const historyTimeoutRef = useRef(null);
+
+  const [isDarkCanvas, setIsDarkCanvas] = useState(initialDarkCanvas);
 
   const [selectedHeading, setSelectedHeading] = useState('p');
   const [selectedFont, setSelectedFont] = useState('Inter');
@@ -72,6 +89,23 @@ const RichTextEditor = ({
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [customColor, setCustomColor] = useState('#000000');
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isSourceCodeMode, setIsSourceCodeMode] = useState(false);
+  
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageWidth, setImageWidth] = useState('');
+  const [imageHeight, setImageHeight] = useState('');
+
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [tableRows, setTableRows] = useState(3);
+  const [tableCols, setTableCols] = useState(3);
+
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const [activeStyles, setActiveStyles] = useState({
     bold: false,
@@ -115,11 +149,16 @@ const RichTextEditor = ({
   const cleanAndNormalizeHtml = () => {
     if (!editorRef.current) return;
 
-    // 1. Remove inline styles applied accidentally to root container div
-    if (editorRef.current.style.color) editorRef.current.style.color = '';
+    // 1. Manage container styles
+    if (isDarkCanvas) {
+      editorRef.current.style.backgroundColor = '#064e3b';
+      editorRef.current.style.color = '#ffffff';
+    } else {
+      if (editorRef.current.style.backgroundColor) editorRef.current.style.backgroundColor = '';
+      if (editorRef.current.style.color) editorRef.current.style.color = '';
+    }
     if (editorRef.current.style.fontSize) editorRef.current.style.fontSize = '';
     if (editorRef.current.style.fontFamily) editorRef.current.style.fontFamily = '';
-    if (editorRef.current.style.backgroundColor) editorRef.current.style.backgroundColor = '';
 
     // 2. Convert old <font> tags into <span style="..."> tags
     const fontElems = Array.from(editorRef.current.querySelectorAll('font'));
@@ -154,12 +193,12 @@ const RichTextEditor = ({
     }
   }, [value]);
 
+  useEffect(() => {
+    cleanAndNormalizeHtml();
+  }, [isDarkCanvas]);
+
   // Push new state to history stack
   const pushToHistory = (newHtml) => {
-    if (isUndoRedoAction.current) {
-      isUndoRedoAction.current = false;
-      return;
-    }
     const currentStack = historyRef.current.slice(0, historyIndexRef.current + 1);
     if (currentStack[currentStack.length - 1] !== newHtml) {
       currentStack.push(newHtml);
@@ -173,7 +212,6 @@ const RichTextEditor = ({
     if (historyIndexRef.current > 0) {
       historyIndexRef.current -= 1;
       const prevHtml = historyRef.current[historyIndexRef.current] || '';
-      isUndoRedoAction.current = true;
       if (editorRef.current) {
         editorRef.current.innerHTML = prevHtml;
       }
@@ -186,7 +224,6 @@ const RichTextEditor = ({
     if (historyIndexRef.current < historyRef.current.length - 1) {
       historyIndexRef.current += 1;
       const nextHtml = historyRef.current[historyIndexRef.current] || '';
-      isUndoRedoAction.current = true;
       if (editorRef.current) {
         editorRef.current.innerHTML = nextHtml;
       }
@@ -352,22 +389,65 @@ const RichTextEditor = ({
   };
 
   // Trigger onChange with sanitized HTML
-  const handleInput = () => {
-    saveSelection();
+  const handleInput = (forceHistory = false) => {
     if (!editorRef.current) return;
 
     cleanAndNormalizeHtml();
     const currentHtml = editorRef.current.innerHTML;
 
-    pushToHistory(currentHtml);
+    if (forceHistory) {
+      if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current);
+      pushToHistory(currentHtml);
+    } else {
+      if (historyTimeoutRef.current) clearTimeout(historyTimeoutRef.current);
+      historyTimeoutRef.current = setTimeout(() => {
+        pushToHistory(currentHtml);
+      }, 500); // 500ms debounce for typing
+    }
 
     if (isHtmlEmpty(currentHtml)) {
       onChange('');
     } else {
       onChange(currentHtml);
     }
+    
+    if (forceHistory === true) {
+       // already called above
+    } else {
+      updateActiveStates();
+    }
+  };
 
-    updateActiveStates();
+  // Handle Paste to auto-link URLs
+  const handlePaste = (e) => {
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    const urlRegex = /^(https?:\/\/[^\s]+)$/i;
+    
+    if (urlRegex.test(pastedText.trim())) {
+      e.preventDefault();
+      const url = pastedText.trim();
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.textContent = url;
+      a.style.color = '#2563eb';
+      a.style.textDecoration = 'underline';
+      a.style.cursor = 'pointer';
+
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(a);
+        range.setStartAfter(a);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        
+        saveSelection();
+        handleInput();
+      }
+    }
   };
 
   // Prevent blur on toolbar button click
@@ -376,13 +456,13 @@ const RichTextEditor = ({
     saveSelection();
   };
 
-  // Generic Command Executor
+  // Execute command and update active styles
   const executeCommand = (command, value = null) => {
     restoreSelection();
     enableStyleWithCSS();
     document.execCommand(command, false, value);
     saveSelection();
-    handleInput();
+    handleInput(true); // force history push
   };
 
   // Toggle Styles (Bold, Italic, Underline, Strikethrough)
@@ -499,14 +579,141 @@ const RichTextEditor = ({
   // Link Modal Insert
   const insertLink = () => {
     if (linkUrl) {
-      executeCommand('createLink', linkUrl);
+      restoreSelection();
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        
+        if (sel.isCollapsed) {
+          // If no text is selected, create anchor and insert
+          const a = document.createElement('a');
+          a.href = linkUrl;
+          a.target = '_blank';
+          a.textContent = linkUrl;
+          a.style.color = '#2563eb';
+          a.style.textDecoration = 'underline';
+          a.style.cursor = 'pointer';
+          range.insertNode(a);
+          
+          // Move cursor after link
+          range.setStartAfter(a);
+          range.collapse(true);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } else {
+          // Try to wrap with DOM API first
+          try {
+            const a = document.createElement('a');
+            a.href = linkUrl;
+            a.target = '_blank';
+            a.style.color = '#2563eb';
+            a.style.textDecoration = 'underline';
+            a.style.cursor = 'pointer';
+            a.appendChild(range.extractContents());
+            range.insertNode(a);
+          } catch(e) {
+            // Fallback for complex selections
+            executeCommand('createLink', linkUrl);
+            if (editorRef.current) {
+              editorRef.current.querySelectorAll('a').forEach(link => link.setAttribute('target', '_blank'));
+            }
+          }
+        }
+        
+        // Ensure changes are saved
+        saveSelection();
+        if (editorRef.current) {
+          handleInput();
+        }
+      }
       setLinkUrl('');
       setShowLinkModal(false);
     }
   };
 
+  // Alignment
+  const handleAlignment = (alignCommand) => {
+    executeCommand(alignCommand);
+  };
+
+  // Clear Formatting
+  const handleClearFormatting = () => {
+    executeCommand('removeFormat');
+  };
+
+  // Table Insert
+  const insertTable = () => {
+    if (tableRows > 0 && tableCols > 0) {
+      let tableHTML = '<table style="width:100%; border-collapse: collapse; margin: 10px 0;" border="1"><tbody>';
+      for (let i = 0; i < tableRows; i++) {
+        tableHTML += '<tr>';
+        for (let j = 0; j < tableCols; j++) {
+          tableHTML += '<td style="padding: 8px; border: 1px solid #ccc;">&nbsp;</td>';
+        }
+        tableHTML += '</tr>';
+      }
+      tableHTML += '</tbody></table><p><br></p>';
+      executeCommand('insertHTML', tableHTML);
+      setShowTableModal(false);
+    }
+  };
+
+  // Image Insert
+  const insertImage = () => {
+    if (imageUrl) {
+      const widthStyle = imageWidth ? `width: ${imageWidth};` : 'width: 100%;';
+      const heightStyle = imageHeight ? `height: ${imageHeight};` : 'height: auto;';
+      const imgHTML = `<img src="${imageUrl}" style="max-width: 100%; ${widthStyle} ${heightStyle} border-radius: 8px; margin: 10px; display: inline-block; object-fit: cover; vertical-align: middle;" />`;
+      executeCommand('insertHTML', imgHTML);
+      setImageUrl('');
+      setImageWidth('');
+      setImageHeight('');
+      setShowImageModal(false);
+    }
+  };
+
+  // Video Insert
+  const insertVideo = () => {
+    if (videoUrl) {
+      let embedUrl = videoUrl;
+      if (videoUrl.includes('youtube.com/watch?v=')) {
+        const videoId = videoUrl.split('v=')[1].split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (videoUrl.includes('youtu.be/')) {
+        const videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      } else if (videoUrl.includes('youtube.com/shorts/')) {
+        const videoId = videoUrl.split('youtube.com/shorts/')[1].split('?')[0];
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+      }
+      const videoHTML = `<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; margin: 10px 0;"><iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p><br></p>`;
+      executeCommand('insertHTML', videoHTML);
+      setVideoUrl('');
+      setShowVideoModal(false);
+    }
+  };
+
+  // Toggle Source Code
+  const toggleSourceCode = () => {
+    setIsSourceCodeMode(!isSourceCodeMode);
+  };
+
+  // Source Code Change Handler
+  const handleSourceCodeChange = (e) => {
+    const val = e.target.value;
+    if (editorRef.current) {
+      editorRef.current.innerHTML = val;
+    }
+    onChange(val);
+  };
+
+  // Toggle Fullscreen
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   return (
-    <div className={`rich-text-editor-container bg-white border border-slate-300 rounded-lg shadow-sm relative ${className}`}>
+    <div className={`rich-text-editor-container bg-white border border-slate-300 shadow-sm relative flex flex-col transition-all duration-200 ${isFullscreen ? 'fixed inset-0 z-[9999] m-0 rounded-none w-full h-full' : `rounded-lg ${className}`}`}>
       {/* Editor Scoped CSS */}
       <style>{`
         .rich-text-editor-canvas ul {
@@ -554,13 +761,39 @@ const RichTextEditor = ({
         .rich-text-editor-canvas a {
           color: #2563eb !important;
           text-decoration: underline !important;
+          cursor: pointer !important;
+        }
+        .rich-text-editor-canvas img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
+        }
+        .rich-text-editor-canvas [style*="color: rgb(255, 255, 255)"],
+        .rich-text-editor-canvas [style*="color:#ffffff"],
+        .rich-text-editor-canvas [style*="color: #ffffff"],
+        .rich-text-editor-canvas [style*="color: white"],
+        .rich-text-editor-canvas font[color="#ffffff"],
+        .rich-text-editor-canvas font[color="white"] {
+          background-color: #1e293b !important;
+          color: #ffffff !important;
+          padding: 2px 6px !important;
+          border-radius: 4px !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+          display: inline-block !important;
         }
       `}</style>
 
       {/* Toolbar */}
       <div 
-        className="toolbar flex flex-wrap items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-200 text-slate-700 text-xs select-none rounded-t-lg"
+        className={`toolbar flex flex-wrap items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-200 text-slate-700 text-xs select-none ${isFullscreen ? 'rounded-none' : 'rounded-t-lg'}`}
       >
+        {/* Clear formatting */}
+        <button type="button" onMouseDown={preventBlur} onClick={handleClearFormatting} title="Clear Formatting" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <Eraser size={15} />
+        </button>
+
+        <span className="w-[1px] h-4 bg-slate-300 mx-1"></span>
+
         {/* Undo / Redo */}
         <button type="button" onMouseDown={preventBlur} onClick={handleUndo} title="Undo (Ctrl+Z)" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
           <Undo size={15} />
@@ -729,6 +962,22 @@ const RichTextEditor = ({
 
         <span className="w-[1px] h-4 bg-slate-300 mx-1"></span>
 
+        {/* Alignment */}
+        <button type="button" onMouseDown={preventBlur} onClick={() => handleAlignment('justifyLeft')} title="Align Left" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <AlignLeft size={15} />
+        </button>
+        <button type="button" onMouseDown={preventBlur} onClick={() => handleAlignment('justifyCenter')} title="Align Center" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <AlignCenter size={15} />
+        </button>
+        <button type="button" onMouseDown={preventBlur} onClick={() => handleAlignment('justifyRight')} title="Align Right" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <AlignRight size={15} />
+        </button>
+        <button type="button" onMouseDown={preventBlur} onClick={() => handleAlignment('justifyFull')} title="Justify" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <AlignJustify size={15} />
+        </button>
+
+        <span className="w-[1px] h-4 bg-slate-300 mx-1"></span>
+
         {/* Lists */}
         <button type="button" onMouseDown={preventBlur} onClick={() => handleList('unordered')} title="Bullet List" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
           <List size={15} />
@@ -739,17 +988,67 @@ const RichTextEditor = ({
 
         <span className="w-[1px] h-4 bg-slate-300 mx-1"></span>
 
-        {/* Link */}
+        {/* Insert Elements */}
+        <button type="button" onMouseDown={preventBlur} onClick={() => setShowTableModal(true)} title="Insert Table" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <TableIcon size={15} />
+        </button>
         <button type="button" onMouseDown={preventBlur} onClick={() => setShowLinkModal(true)} title="Insert Link" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
           <LinkIcon size={15} />
         </button>
+        <button type="button" onMouseDown={preventBlur} onClick={() => setShowImageModal(true)} title="Insert Image" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <ImageIcon size={15} />
+        </button>
+        <button type="button" onMouseDown={preventBlur} onClick={() => setShowVideoModal(true)} title="Insert Video" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <VideoIcon size={15} />
+        </button>
+
+        {/* Canvas Background Theme (Dark/Light) */}
+        <button
+          type="button"
+          onMouseDown={preventBlur}
+          onClick={() => setIsDarkCanvas(!isDarkCanvas)}
+          title={isDarkCanvas ? "Switch to Light Canvas Background" : "Switch to Dark Canvas Background (for White Text visibility)"}
+          className={`p-1.5 hover:bg-slate-200 rounded cursor-pointer transition-colors ${isDarkCanvas ? 'bg-emerald-900 text-amber-300 font-bold' : 'text-slate-600'}`}
+        >
+          {isDarkCanvas ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
+
+        {/* Fullscreen */}
+        <button type="button" onMouseDown={preventBlur} onClick={toggleFullscreen} title="Toggle Fullscreen" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer ml-auto">
+          {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+        </button>
+
+        {/* Source Code */}
+        <button type="button" onMouseDown={preventBlur} onClick={toggleSourceCode} title="Source Code" className={`p-1.5 hover:bg-slate-200 rounded cursor-pointer ${isSourceCodeMode ? 'bg-slate-200 text-emerald-700' : ''}`}>
+          <CodeIcon size={15} />
+        </button>
+
+        {/* Help */}
+        <button type="button" onMouseDown={preventBlur} onClick={() => setShowHelpModal(true)} title="Help" className="p-1.5 hover:bg-slate-200 rounded cursor-pointer">
+          <HelpCircle size={15} />
+        </button>
       </div>
+
+      {/* Source Code Editor */}
+      {isSourceCodeMode && (
+        <textarea
+          value={editorRef.current ? editorRef.current.innerHTML : value}
+          onChange={handleSourceCodeChange}
+          style={{ minHeight }}
+          className={`w-full p-4 font-mono text-xs bg-slate-900 text-slate-50 focus:outline-none resize-y ${isFullscreen ? 'flex-1 h-full' : ''}`}
+          placeholder="HTML Source..."
+        />
+      )}
 
       {/* Editable Canvas */}
       <div
         ref={editorRef}
-        contentEditable
-        onInput={handleInput}
+        contentEditable={!isSourceCodeMode}
+        onInput={() => {
+          saveSelection();
+          handleInput();
+        }}
+        onPaste={handlePaste}
         onBlur={handleInput}
         onKeyUp={() => {
           saveSelection();
@@ -761,26 +1060,124 @@ const RichTextEditor = ({
         }}
         onFocus={() => {
           enableStyleWithCSS();
-          saveSelection();
           updateActiveStates();
         }}
-        style={{ minHeight }}
-        className="rich-text-editor-canvas p-4 focus:outline-none text-slate-800 text-sm overflow-y-auto"
+        onKeyDown={(e) => {
+          if (e.ctrlKey && e.key === 'z') {
+            e.preventDefault();
+            handleUndo();
+          } else if (e.ctrlKey && e.key === 'y') {
+            e.preventDefault();
+            handleRedo();
+          }
+        }}
+        style={{
+          minHeight,
+          display: isSourceCodeMode ? 'none' : 'block',
+          backgroundColor: isDarkCanvas ? '#064e3b' : undefined,
+          color: isDarkCanvas ? '#ffffff' : undefined
+        }}
+        className={`rich-text-editor-canvas p-4 focus:outline-none text-sm overflow-y-auto ${isDarkCanvas ? 'text-white' : 'text-slate-800'} ${isFullscreen ? 'flex-1' : ''}`}
         placeholder={placeholder}
       />
 
-      {/* Modal: Link */}
+      {/* Bottom Modals (Link, Image, Video, Table, Help) */}
       {showLinkModal && (
-        <div className="p-3 bg-slate-100 border-t border-slate-200 flex gap-2 items-center text-xs">
+        <div className="p-3 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2 items-center text-xs">
+          <span className="font-bold text-slate-600 min-w-max">Link URL:</span>
           <input
             type="url"
-            className="flex-1 p-1.5 border rounded"
+            className="flex-1 p-1.5 border rounded w-full"
             placeholder="https://example.com"
             value={linkUrl}
             onChange={(e) => setLinkUrl(e.target.value)}
           />
-          <button type="button" onClick={insertLink} className="bg-emerald-700 text-white px-3 py-1.5 rounded font-medium">Add Link</button>
-          <button type="button" onClick={() => setShowLinkModal(false)} className="text-slate-500 px-2">Cancel</button>
+          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <button type="button" onClick={insertLink} className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded font-medium transition">Add Link</button>
+            <button type="button" onClick={() => setShowLinkModal(false)} className="px-3 py-1.5 text-slate-500 hover:text-slate-700">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showImageModal && (
+        <div className="p-3 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2 items-center text-xs">
+          <span className="font-bold text-slate-600 min-w-max">Image URL:</span>
+          <input
+            type="url"
+            className="flex-1 p-1.5 border rounded w-full"
+            placeholder="https://example.com/image.jpg"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+          />
+          <span className="font-bold text-slate-600 min-w-max sm:ml-2">Width:</span>
+          <input
+            type="text"
+            className="w-full sm:w-20 p-1.5 border rounded"
+            placeholder="auto"
+            value={imageWidth}
+            onChange={(e) => setImageWidth(e.target.value)}
+          />
+          <span className="font-bold text-slate-600 min-w-max sm:ml-2">Height:</span>
+          <input
+            type="text"
+            className="w-full sm:w-20 p-1.5 border rounded"
+            placeholder="auto"
+            value={imageHeight}
+            onChange={(e) => setImageHeight(e.target.value)}
+          />
+          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <button type="button" onClick={insertImage} className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded font-medium transition">Add</button>
+            <button type="button" onClick={() => setShowImageModal(false)} className="px-3 py-1.5 text-slate-500 hover:text-slate-700">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showVideoModal && (
+        <div className="p-3 bg-slate-100 border-t border-slate-200 flex flex-col sm:flex-row gap-2 items-center text-xs">
+          <span className="font-bold text-slate-600 min-w-max">Video/YouTube URL:</span>
+          <input
+            type="url"
+            className="flex-1 p-1.5 border rounded w-full"
+            placeholder="https://youtube.com/watch?v=..."
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+          />
+          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+            <button type="button" onClick={insertVideo} className="flex-1 sm:flex-none bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded font-medium transition">Add Video</button>
+            <button type="button" onClick={() => setShowVideoModal(false)} className="px-3 py-1.5 text-slate-500 hover:text-slate-700">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showTableModal && (
+        <div className="p-3 bg-slate-100 border-t border-slate-200 flex gap-4 items-center text-xs justify-between sm:justify-start">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-600">Rows:</span>
+            <input type="number" min="1" max="20" value={tableRows} onChange={e => setTableRows(e.target.value)} className="w-16 p-1.5 border rounded text-center" />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-600">Cols:</span>
+            <input type="number" min="1" max="20" value={tableCols} onChange={e => setTableCols(e.target.value)} className="w-16 p-1.5 border rounded text-center" />
+          </div>
+          <div className="flex gap-2 ml-auto sm:ml-4">
+            <button type="button" onClick={insertTable} className="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded font-medium transition">Insert Table</button>
+            <button type="button" onClick={() => setShowTableModal(false)} className="px-2 text-slate-500 hover:text-slate-700">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {showHelpModal && (
+        <div className="p-4 bg-slate-100 border-t border-slate-200 text-xs">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-bold text-sm text-slate-800">Rich Text Editor Shortcuts</h4>
+            <button type="button" onClick={() => setShowHelpModal(false)} className="text-slate-500 hover:text-slate-700 text-lg leading-none">&times;</button>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-600">
+            <div><kbd className="bg-white border rounded px-1 shadow-sm font-mono text-[10px]">Ctrl+B</kbd> Bold</div>
+            <div><kbd className="bg-white border rounded px-1 shadow-sm font-mono text-[10px]">Ctrl+I</kbd> Italic</div>
+            <div><kbd className="bg-white border rounded px-1 shadow-sm font-mono text-[10px]">Ctrl+U</kbd> Underline</div>
+            <div><kbd className="bg-white border rounded px-1 shadow-sm font-mono text-[10px]">Ctrl+Z</kbd> Undo</div>
+          </div>
         </div>
       )}
     </div>

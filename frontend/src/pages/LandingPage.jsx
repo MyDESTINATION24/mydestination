@@ -176,7 +176,9 @@ const LandingPage = () => {
         } else {
           const element = document.getElementById(id);
           if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
+            const yOffset = -50;
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
           }
         }
       }, 200);
@@ -191,7 +193,9 @@ const LandingPage = () => {
     } else {
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+        const yOffset = -50;
+        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }
   };
@@ -459,10 +463,10 @@ const LandingPage = () => {
           {(cmsData?.hero?.textBlocks && cmsData.hero.textBlocks.length > 0) ? (
             cmsData.hero.textBlocks.map((block, idx) => {
               const tagClassMap = {
-                h1: 'text-2xl sm:text-4xl md:text-6xl font-black mt-2 mb-2 tracking-widest',
-                h2: 'text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-1 mb-1',
-                h3: 'text-lg sm:text-2xl md:text-4xl mt-2 mb-2 font-serif',
-                p: 'text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed font-medium mt-2'
+                h1: 'text-2xl sm:text-4xl md:text-6xl font-black mt-2 mb-2 tracking-widest text-center w-full',
+                h2: 'text-xl sm:text-3xl md:text-5xl font-medium tracking-wide leading-tight mt-1 mb-1 text-center w-full',
+                h3: 'text-lg sm:text-2xl md:text-4xl mt-2 mb-2 font-serif text-center w-full',
+                p: 'text-xs md:text-sm max-w-xl mx-auto tracking-widest leading-relaxed font-medium mt-2 text-center w-full'
               };
               const tagClass = tagClassMap[block.tag] || 'text-sm';
               return (
@@ -993,7 +997,7 @@ const LandingPage = () => {
 
 
       {/* 8. About Us Section (Redesigned to match provided image exactly) */}
-      <section id="about" className="py-8 md:py-24 bg-white relative">
+      <section id="about" className="pt-2 md:pt-4 pb-8 md:pb-16 bg-white relative">
         <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Header Section */}
@@ -1206,9 +1210,10 @@ const LandingPage = () => {
             <ul className="space-y-3 text-sm text-gray-300">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-emerald-400 mt-1 flex-shrink-0" />
-                <span className="leading-relaxed">
-                  {cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA"}
-                </span>
+                <span 
+                  className="leading-relaxed [&_*]:!text-gray-300"
+                  dangerouslySetInnerHTML={{ __html: cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA" }}
+                />
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-emerald-400 flex-shrink-0" />
@@ -1266,14 +1271,19 @@ const LandingPage = () => {
           {/* Column 4: About Company */}
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'min-content' }}>
-              <h4 style={{ whiteSpace: 'nowrap' }} className="font-bold text-lg mb-2 tracking-wide">
-                {cmsData?.footer?.companyName?.toLowerCase().startsWith('about')
-                  ? cmsData.footer.companyName
-                  : `About ${cmsData?.footer?.companyName || "My DESTINATION"}`}
-              </h4>
-              <p className="text-xs text-gray-300 leading-relaxed mb-6">
-                {cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services."}
-              </p>
+              {(() => {
+                const rawName = cmsData?.footer?.companyName || 'My DESTINATION';
+                const cleanName = typeof rawName === 'string' ? rawName.replace(/<[^>]*>/g, '').trim() || 'My DESTINATION' : 'My DESTINATION';
+                return (
+                  <h4 style={{ whiteSpace: 'nowrap' }} className="font-bold text-lg mb-2 tracking-wide">
+                    {cleanName.toLowerCase().startsWith('about') ? cleanName : `About ${cleanName}`}
+                  </h4>
+                );
+              })()}
+              <div 
+                className="text-xs text-gray-300 leading-relaxed mb-6 [&_*]:!text-gray-300"
+                dangerouslySetInnerHTML={{ __html: cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services." }}
+              />
             </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-emerald-400 mb-3">Connect with Us</h5>

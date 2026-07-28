@@ -127,9 +127,9 @@ const LandingPageConfigSchema = new mongoose.Schema({
     companyName: { type: String, default: "My DESTINATION" },
     companyDescription: { type: String, default: "Your ultimate companion for unforgettable journeys." },
     address: { type: String, default: "1 My Address, My Street, New York City, NY, USA" },
-    phone: { type: String, default: "" },
-    whatsapp: { type: String, default: "" },
-    email: { type: String, default: "" },
+    phone: { type: String, default: "+91 80 06 787878" },
+    whatsapp: { type: String, default: "+91 80 06 787878" },
+    email: { type: String, default: "care@mydestination.in" },
     paymentNote: { type: String, default: "The payment is encrypted and transmitted securely with an SSL protocol." },
     copyrightText: { type: String, default: "" },
     paymentMethods: {

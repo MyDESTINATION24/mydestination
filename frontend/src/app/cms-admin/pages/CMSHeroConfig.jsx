@@ -112,10 +112,18 @@ const CMSHeroConfig = () => {
     });
   };
 
-  const handleRemoveTextBlock = (index) => {
+  const handleRemoveTextBlock = async (index) => {
     const newBlocks = [...heroData.textBlocks];
     newBlocks.splice(index, 1);
-    setHeroData({ ...heroData, textBlocks: newBlocks });
+    const updatedHeroData = { ...heroData, textBlocks: newBlocks };
+    setHeroData(updatedHeroData);
+
+    try {
+      await apiService.put('/cms/landing-page', { hero: updatedHeroData });
+      toast.success('Text block removed successfully');
+    } catch (saveErr) {
+      toast.error('Removed but auto-save failed. Click "Save Changes".');
+    }
   };
 
   const handleTextBlockChange = (index, field, value) => {

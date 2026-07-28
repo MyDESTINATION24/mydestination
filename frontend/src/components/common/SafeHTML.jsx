@@ -67,6 +67,12 @@ const SafeHTML = ({ html = '', fallback = null, className = '', as: Component = 
         .rich-text-content a {
           color: #2563eb !important;
           text-decoration: underline !important;
+          cursor: pointer !important;
+        }
+        .rich-text-content img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 8px;
         }
       `}</style>
       <Component
