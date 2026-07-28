@@ -75,8 +75,8 @@ const BusPreview = () => {
   const routeStops = Array.isArray(bus?.route?.stops) ? bus.route.stops : [];
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto bg-[linear-gradient(180deg,var(--bus-light)_0%,#ffffff_18%,#f8fafc_100%)] font-sans pb-28">
-      <header className="sticky top-0 z-20 border-b border-bus-light-border/60 bg-white/90 px-5 pb-4 pt-10 shadow-[0_4px_20px_rgba(15,23,42,0.03)] backdrop-blur-md">
+    <div className="min-h-screen mx-auto w-full max-w-lg lg:max-w-6xl bg-[linear-gradient(180deg,var(--bus-light)_0%,#ffffff_18%,#f8fafc_100%)] font-sans pb-28 lg:pb-12">
+      <header className="sticky top-0 z-20 border-b border-bus-light-border/60 bg-white/90 px-5 pb-4 pt-10 lg:px-8 lg:pt-6 shadow-[0_4px_20px_rgba(15,23,42,0.03)] backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -94,7 +94,9 @@ const BusPreview = () => {
         </div>
       </header>
  
-      <div className="space-y-5 px-5 pt-5">
+      {/* Two columns from lg: trip detail left, booking CTA in a sticky rail. */}
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-8 lg:px-8">
+      <div className="space-y-5 px-5 pt-5 lg:px-0">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -280,7 +282,7 @@ const BusPreview = () => {
         </div>
       </div>
  
-      <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-lg -translate-x-1/2 border-t border-bus-light-border/60 bg-white/95 px-5 pb-8 pt-4 backdrop-blur-md">
+      <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-lg -translate-x-1/2 border-t border-bus-light-border/60 bg-white/95 px-5 pb-8 pt-4 backdrop-blur-md lg:sticky lg:top-24 lg:bottom-auto lg:left-auto lg:translate-x-0 lg:mt-5 lg:w-full lg:max-w-none lg:rounded-3xl lg:border lg:p-5 lg:shadow-sm">
         <button
           type="button"
           onClick={() => navigate(`${routePrefix}/bus/seats`, { state })}
@@ -288,6 +290,7 @@ const BusPreview = () => {
         >
           Select Seats <ChevronRight size={18} />
         </button>
+      </div>
       </div>
     </div>
   );

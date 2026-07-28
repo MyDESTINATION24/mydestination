@@ -107,7 +107,7 @@ const SupportTickets = () => {
             <h1 className="text-[19px] font-black tracking-tight text-slate-900">Support Tickets</h1>
           </div>
           <motion.button whileTap={{ scale: 0.9 }} onClick={() => setShowForm(true)}
-            className="w-9 h-9 bg-slate-900 rounded-[12px] flex items-center justify-center shadow-sm">
+            className="w-9 h-9 bg-emerald-600 rounded-[12px] flex items-center justify-center shadow-sm">
             <Plus size={16} className="text-white" strokeWidth={3} />
           </motion.button>
         </div>
@@ -228,7 +228,7 @@ const SupportTickets = () => {
                   {errors.description && <p className="text-[11px] font-black text-red-500 ml-1 mt-1 flex items-center gap-1"><AlertCircle size={11} strokeWidth={3} />{errors.description}</p>}
                 </div>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleSubmit} disabled={submitting}
-                  className="w-full bg-slate-900 text-white py-4 rounded-[16px] text-[14px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
+                  className="w-full bg-emerald-600 text-white py-4 rounded-[16px] text-[14px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm">
                   {submitting ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Submit Ticket'}
                 </motion.button>
               </div>

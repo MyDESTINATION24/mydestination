@@ -1077,7 +1077,7 @@ const RideTracking = () => {
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-5 py-3 rounded-[14px] text-[12px] font-black shadow-xl whitespace-nowrap"
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-emerald-600 text-white px-5 py-3 rounded-[14px] text-[12px] font-black shadow-xl whitespace-nowrap"
           >
             Ride details copied!
           </motion.div>
@@ -1156,7 +1156,7 @@ const RideTracking = () => {
               <button
                 type="button"
                 onClick={() => setShareSheetOpen(false)}
-                className="mt-4 h-12 w-full rounded-[18px] bg-slate-900 text-[12px] font-black uppercase tracking-[0.16em] text-white"
+                className="mt-4 h-12 w-full rounded-[18px] bg-emerald-600 text-[12px] font-black uppercase tracking-[0.16em] text-white"
               >
                 Close
               </button>
@@ -1484,7 +1484,7 @@ const RideTracking = () => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={handleCancelRide}
-                  className="w-full bg-slate-900 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest"
+                  className="w-full bg-emerald-600 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest"
                 >
                   Yes, Cancel
                 </motion.button>

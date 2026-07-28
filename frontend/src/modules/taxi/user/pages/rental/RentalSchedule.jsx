@@ -159,7 +159,7 @@ const DateTimePickerCard = ({
                 onClick={() => onDateSelect(day)}
                 className={`h-10 rounded-[12px] text-[12px] font-black transition-all ${
                   selected
-                    ? 'bg-slate-900 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)]'
+                    ? 'bg-emerald-600 text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)]'
                     : disabled
                       ? 'bg-white/40 text-slate-300'
                       : 'bg-white text-slate-700 border border-slate-100 hover:border-slate-300'
@@ -191,7 +191,7 @@ const DateTimePickerCard = ({
                 onClick={() => onTimeSelect(time)}
                 className={`rounded-[12px] px-3 py-2.5 text-[11px] font-black transition-all ${
                   selected
-                    ? 'bg-slate-900 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : disabled
                       ? 'bg-slate-100 text-slate-300'
                       : 'bg-slate-50 text-slate-600 border border-slate-100 hover:border-slate-300'
@@ -483,7 +483,7 @@ const RentalSchedule = () => {
             })
           }
           className={`pointer-events-auto w-full py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2 transition-all ${
-            isValid ? 'bg-slate-900' : 'bg-slate-300'
+            isValid ? 'bg-emerald-600' : 'bg-slate-300'
           }`}
         >
           Continue <ChevronRight size={17} strokeWidth={3} className="opacity-50" />

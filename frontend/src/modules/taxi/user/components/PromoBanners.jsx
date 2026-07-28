@@ -79,7 +79,7 @@ const PromoBanners = () => {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="relative overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-slate-900 to-slate-800 p-4 shadow-[0_18px_44px_rgba(15,23,42,0.12)]"
+        className="relative overflow-hidden rounded-2xl border border-white/80 bg-gradient-to-br from-emerald-600 to-emerald-500 p-4 shadow-[0_18px_44px_rgba(15,23,42,0.12)]"
       >
         <div className="absolute inset-0 bg-[radial-gradient(240px_160px_at_20%_25%,rgba(56,189,248,0.16),transparent_60%)]" aria-hidden="true" />
         <div className="absolute inset-0 bg-[radial-gradient(260px_180px_at_85%_85%,rgba(251,191,36,0.10),transparent_62%)]" aria-hidden="true" />

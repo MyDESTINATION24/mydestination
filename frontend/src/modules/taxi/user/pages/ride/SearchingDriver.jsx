@@ -849,7 +849,7 @@ const SearchingDriver = () => {
 
   if (isScheduledRide && !isScheduledBiddingRide) {
     return (
-      <div className="min-h-screen max-w-lg mx-auto flex items-center justify-center bg-slate-950 px-6">
+      <div className="min-h-screen max-w-lg mx-auto flex items-center justify-center bg-emerald-700 px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1068,7 +1068,7 @@ const SearchingDriver = () => {
                       type="button"
                       disabled={bidActionLoading}
                       onClick={handleIncreaseBid}
-                      className="shrink-0 rounded-full bg-slate-950 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white disabled:opacity-60"
+                      className="shrink-0 rounded-full bg-emerald-700 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white disabled:opacity-60"
                     >
                       +{formatCurrency(biddingSummary.bidStepAmount)}
                     </button>
@@ -1113,7 +1113,7 @@ const SearchingDriver = () => {
                       type="button"
                       disabled={bidActionLoading || !canIncreaseFare}
                       onClick={handleIncreaseBid}
-                      className="shrink-0 rounded-full bg-slate-950 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white disabled:opacity-60"
+                      className="shrink-0 rounded-full bg-emerald-700 px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white disabled:opacity-60"
                     >
                       +{formatCurrency(biddingSummary.bidStepAmount)}
                     </button>
@@ -1249,7 +1249,7 @@ const SearchingDriver = () => {
                      <motion.button
                       whileTap={{ scale: 0.96 }}
                       onClick={() => navigate(`${routePrefix}/ride/chat`, { state: { driver } })}
-                      className="flex items-center justify-center gap-3 rounded-[22px] bg-slate-950 py-4.5 shadow-[0_12px_24px_rgba(15,23,42,0.15)] active:shadow-none"
+                      className="flex items-center justify-center gap-3 rounded-[22px] bg-emerald-700 py-4.5 shadow-[0_12px_24px_rgba(15,23,42,0.15)] active:shadow-none"
                     >
                       <MessageCircle size={18} className="text-white" strokeWidth={2.5} />
                       <span className="text-[13px] font-black text-white uppercase tracking-widest leading-none">Chat</span>
@@ -1289,7 +1289,7 @@ const SearchingDriver = () => {
               </p>
               <div className="space-y-2.5">
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleCancel}
-                  className="w-full bg-slate-900 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest">
+                  className="w-full bg-emerald-600 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest">
                   Yes, Cancel
                 </motion.button>
                 <button onClick={() => setShowCancelConfirm(false)}

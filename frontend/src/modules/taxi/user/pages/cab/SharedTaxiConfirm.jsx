@@ -57,7 +57,7 @@ const SharedTaxiConfirm = () => {
           </div>
         </div>
         <motion.button onClick={() => navigate('/taxi/user')}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+          className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
           <Home size={16} strokeWidth={2.5} /> Go to Home Dashboard
         </motion.button>
       </div>
@@ -144,7 +144,7 @@ const SharedTaxiConfirm = () => {
       {/* CTA */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-6 pt-3 bg-gradient-to-t from-[#EEF2F7] via-[#F3F4F6]/95 to-transparent pointer-events-none z-30">
         <motion.button whileTap={{ scale: 0.98 }} onClick={handlePay} disabled={paying}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2">
+          className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2">
           {paying
             ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             : <><CreditCard size={16} strokeWidth={2.5} /> Confirm & Pay ₹{total}</>}

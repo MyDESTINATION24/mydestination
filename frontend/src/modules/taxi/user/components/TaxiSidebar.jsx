@@ -75,7 +75,7 @@ const TaxiSidebar = ({ isOpen: propIsOpen, onClose: propOnClose }) => {
                         <div className="flex-1 overflow-y-auto overscroll-contain">
                             <div className="px-5 mb-4 shrink-0">
                                 {user ? (
-                                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                                    <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
                                         <div className="flex items-start justify-between relative z-10">
                                             <div className="flex items-center gap-3 flex-1">
@@ -97,7 +97,7 @@ const TaxiSidebar = ({ isOpen: propIsOpen, onClose: propOnClose }) => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-slate-800 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                                    <div className="bg-emerald-500 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10"></div>
                                         <div className="flex items-center gap-3 relative z-10">
                                             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center border border-white/20">

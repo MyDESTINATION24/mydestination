@@ -38,7 +38,9 @@ const tomorrowDateValue = () => {
   return next.toISOString().slice(0, 10);
 };
 
-const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
+// Rounded, same as the sector cards -- base + a percentage tax lands on
+// fractions of a rupee, and the two screens must not disagree on the price.
+const formatCurrency = (value) => `Rs. ${Math.round(Number(value) || 0).toLocaleString('en-IN')}`;
 
 const formatTravelDate = (value) => {
   const parsed = value ? new Date(value) : null;
@@ -431,38 +433,38 @@ const AirwaysRouteBooking = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#F8FAFC]" />
         
         {/* Floating Header */}
-        <div className="absolute top-0 left-0 right-0 z-50 px-5 py-6">
+        <div className="absolute top-0 left-0 right-0 z-50 px-4 sm:px-5 py-5 sm:py-6">
           <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={() => currentStep > 1 ? prevStep() : navigate('/taxi/user/airways')}
-              className="flex h-12 w-12 items-center justify-center rounded-[20px] bg-white/20 backdrop-blur-xl text-white border border-white/20 active:scale-95 transition-all"
+              className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-[20px] bg-white/20 backdrop-blur-xl text-white border border-white/20 active:scale-95 transition-all"
             >
               <ArrowLeft size={20} />
             </button>
-            <div className="flex h-12 items-center gap-3 px-5 rounded-[20px] bg-white/20 backdrop-blur-xl border border-white/20">
+            <div className="flex h-11 sm:h-12 min-w-0 items-center gap-2 sm:gap-3 px-3.5 sm:px-5 rounded-[20px] bg-white/20 backdrop-blur-xl border border-white/20">
               <Sparkles size={16} className="text-sky-300" />
-              <span className="text-[11px] font-black text-white uppercase tracking-widest">Premium Sector</span>
+              <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider sm:tracking-widest truncate">Premium Sector</span>
             </div>
           </div>
         </div>
 
         {/* Hero Title Area */}
-        <div className="absolute bottom-12 left-5 right-5">
+        <div className="absolute bottom-10 sm:bottom-12 left-5 right-5">
            <motion.div
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
            >
               <p className="text-sky-300 text-[10px] font-black uppercase tracking-[0.3em]">Exclusive Route</p>
-              <h1 className="text-white text-4xl font-['Outfit'] font-extrabold mt-2 leading-tight drop-shadow-2xl">{route.routeName}</h1>
+              <h1 className="text-white text-2xl sm:text-4xl font-['Outfit'] font-extrabold mt-2 break-words leading-tight drop-shadow-2xl">{route.routeName}</h1>
               <div className="mt-4 flex items-center gap-3">
                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10">
                     <PlaneTakeoff size={12} className="text-sky-300" />
                     <span className="text-[10px] font-bold text-white uppercase tracking-widest">{selectedAirway?.airlineName || 'Helicopter'}</span>
                  </div>
-                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/20">
+                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20">
                     <div className="h-1 w-1 rounded-full bg-emerald-400" />
-                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest">Available</span>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">Available</span>
                  </div>
               </div>
            </motion.div>
@@ -473,13 +475,13 @@ const AirwaysRouteBooking = () => {
       <div className="relative z-10 mx-auto max-w-lg px-5 -mt-8">
         
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-8 px-4">
+        <div className="flex items-center justify-between mb-8 px-1 sm:px-4">
            {[1, 2, 3].map((step) => (
              <React.Fragment key={step}>
                 <div className="flex flex-col items-center gap-2">
                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 ${
                      currentStep === step 
-                      ? 'bg-slate-950 border-slate-950 text-white shadow-xl shadow-slate-950/20 scale-110' 
+                      ? 'bg-emerald-700 border-emerald-700 text-white shadow-xl shadow-slate-950/20 scale-110' 
                       : currentStep > step 
                         ? 'bg-emerald-500 border-emerald-500 text-white' 
                         : 'bg-white border-slate-100 text-slate-400'
@@ -507,47 +509,49 @@ const AirwaysRouteBooking = () => {
               className="space-y-6"
             >
               {/* Boarding Pass Style Card */}
-              <div className="group relative overflow-hidden rounded-[40px] bg-white border border-slate-100 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.1)] transition-all hover:shadow-[0_48px_80px_-16px_rgba(15,23,42,0.12)]">
-                 <div className="p-8">
-                    <div className="flex items-center justify-between mb-8">
-                       <div className="space-y-1">
+              <div className="group relative overflow-hidden rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.1)] transition-all hover:shadow-[0_48px_80px_-16px_rgba(15,23,42,0.12)]">
+                 <div className="p-5 sm:p-8">
+                    {/* min-w-0 + flex-1 so the airport names can shrink. These hold
+                        full place names (DEHRADUN, GOVINDGHAT), not IATA codes. */}
+                    <div className="flex items-start justify-between gap-2 sm:gap-4 mb-6 sm:mb-8">
+                       <div className="min-w-0 flex-1 space-y-1">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Origin</p>
-                          <h3 className="text-3xl font-['Outfit'] font-black text-slate-950">{route.originAirport}</h3>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{formatTimeLabel(route.departureTime)}</p>
+                          <h3 className="text-lg sm:text-3xl font-['Outfit'] font-black text-slate-950 break-words leading-tight">{route.originAirport}</h3>
+                          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">{formatTimeLabel(route.departureTime)}</p>
                        </div>
-                       <div className="flex flex-col items-center gap-3">
-                          <div className="px-4 py-1.5 rounded-full bg-sky-50 text-sky-600 text-[10px] font-black uppercase tracking-widest">
-                             {route.durationMinutes}m Flight
+                       <div className="flex shrink-0 flex-col items-center gap-2 sm:gap-3 pt-4">
+                          <div className="px-2.5 sm:px-4 py-1 sm:py-1.5 rounded-full bg-sky-50 text-sky-600 text-[9px] sm:text-[10px] font-black uppercase tracking-wider whitespace-nowrap">
+                             {route.durationMinutes}m
                           </div>
-                          <div className="flex items-center gap-2 w-28">
-                             <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+                          <div className="flex items-center gap-1.5 sm:gap-2 w-16 sm:w-28">
+                             <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-200" />
                              <div className="h-px flex-1 bg-slate-100" />
-                             <div className="p-2 rounded-xl bg-slate-50 text-sky-500 group-hover:rotate-12 transition-transform duration-500">
-                                <PlaneTakeoff size={18} />
+                             <div className="p-1.5 sm:p-2 shrink-0 rounded-xl bg-slate-50 text-sky-500 group-hover:rotate-12 transition-transform duration-500">
+                                <PlaneTakeoff size={16} />
                              </div>
                              <div className="h-px flex-1 bg-slate-100" />
-                             <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+                             <div className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-200" />
                           </div>
-                          <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Direct</p>
+                          <p className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Direct</p>
                        </div>
-                       <div className="text-right space-y-1">
+                       <div className="min-w-0 flex-1 text-right space-y-1">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Destination</p>
-                          <h3 className="text-3xl font-['Outfit'] font-black text-slate-950">{route.destinationAirport}</h3>
-                          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{formatTimeLabel(route.arrivalTime)}</p>
+                          <h3 className="text-lg sm:text-3xl font-['Outfit'] font-black text-slate-950 break-words leading-tight">{route.destinationAirport}</h3>
+                          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">{formatTimeLabel(route.arrivalTime)}</p>
                        </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <div className="space-y-4">
                           <div className="relative">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Travel Date</label>
                             <div className="relative">
-                               <CalendarDays size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                               <input 
-                                 type="date" 
+                               <CalendarDays size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                               <input
+                                 type="date"
                                  value={travelDate}
                                  onChange={(e) => setTravelDate(e.target.value)}
-                                 className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-sky-200 transition-all"
+                                 className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-sky-200 transition-all"
                                />
                             </div>
                           </div>
@@ -574,7 +578,7 @@ const AirwaysRouteBooking = () => {
                  </div>
 
                  {/* Operator Bar */}
-                 <div className="bg-slate-50 px-8 py-5 flex items-center justify-between">
+                 <div className="bg-slate-50 px-5 py-4 sm:px-8 sm:py-5 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                        <div className="h-10 w-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 overflow-hidden">
                           {selectedAirway?.image ? <img src={selectedAirway.image} className="h-full w-full object-cover" /> : <PlaneTakeoff size={18} />}
@@ -602,7 +606,7 @@ const AirwaysRouteBooking = () => {
                           onClick={() => setSelectedAirwayId(airway.id)}
                           className={`min-w-[200px] rounded-[28px] p-4 border-2 transition-all ${
                             selectedAirwayId === airway.id 
-                            ? 'bg-white border-slate-950 shadow-xl' 
+                            ? 'bg-white border-emerald-700 shadow-xl' 
                             : 'bg-white border-transparent shadow-sm'
                           }`}
                         >
@@ -623,10 +627,10 @@ const AirwaysRouteBooking = () => {
 
               <button
                 onClick={nextStep}
-                className="w-full flex items-center justify-center gap-3 rounded-[28px] bg-slate-950 py-5 text-white shadow-2xl shadow-slate-950/20 active:scale-[0.98] transition-all group"
+                className="w-full flex items-center justify-center gap-2 sm:gap-3 rounded-[24px] sm:rounded-[28px] bg-emerald-700 py-4 sm:py-5 text-white shadow-2xl shadow-slate-950/20 active:scale-[0.98] transition-all group"
               >
-                <span className="text-sm font-black uppercase tracking-widest">Continue to Passengers</span>
-                <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest">Continue to Passengers</span>
+                <ChevronRight size={18} className="shrink-0 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
           )}
@@ -640,7 +644,7 @@ const AirwaysRouteBooking = () => {
               className="space-y-6"
             >
               {/* Contact Information */}
-              <div className="rounded-[40px] bg-white border border-slate-100 p-8 shadow-sm space-y-6">
+              <div className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm space-y-6">
                 <div className="flex items-center gap-3">
                    <div className="h-12 w-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
                       <UserRound size={22} />
@@ -655,37 +659,37 @@ const AirwaysRouteBooking = () => {
                    <div className="space-y-1.5">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
                       <div className="relative">
-                         <UserRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                         <UserRound size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                          <input 
                            value={formData.customerName}
                            onChange={(e) => setField('customerName', e.target.value)}
                            placeholder="Primary passenger"
-                           className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
+                           className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
                          />
                       </div>
                    </div>
-                   <div className="grid grid-cols-2 gap-4">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
                          <div className="relative">
-                            <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                            <Phone size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                             <input 
                               value={formData.customerPhone}
                               onChange={(e) => setField('customerPhone', e.target.value)}
                               placeholder="9876..."
-                              className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
+                              className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
                             />
                          </div>
                       </div>
                       <div className="space-y-1.5">
                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
                          <div className="relative">
-                            <FileText size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                            <FileText size={16} className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-300" />
                             <input 
                               value={formData.customerEmail}
                               onChange={(e) => setField('customerEmail', e.target.value)}
                               placeholder="alex@.."
-                              className="w-full bg-slate-50 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
+                              className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black text-slate-950 outline-none border border-transparent focus:border-violet-200 transition-all"
                             />
                          </div>
                       </div>
@@ -694,7 +698,7 @@ const AirwaysRouteBooking = () => {
               </div>
 
               {/* Passenger Roster */}
-              <div className="rounded-[40px] bg-white border border-slate-100 p-8 shadow-sm space-y-6">
+              <div className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm space-y-6">
                  <div className="flex items-center gap-3">
                     <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                        <Users size={22} />
@@ -714,7 +718,7 @@ const AirwaysRouteBooking = () => {
                         transition={{ delay: idx * 0.1 }}
                         className="relative"
                       >
-                         <div className="absolute left-4 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-black">
+                         <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-black">
                             {idx + 1}
                          </div>
                          <input 
@@ -731,13 +735,13 @@ const AirwaysRouteBooking = () => {
               <div className="flex gap-4">
                  <button 
                    onClick={prevStep}
-                   className="h-[64px] px-8 rounded-[28px] bg-white border border-slate-100 text-slate-900 font-black uppercase tracking-widest active:scale-95 transition-all shadow-sm"
+                   className="h-14 sm:h-[64px] px-5 sm:px-8 rounded-[24px] sm:rounded-[28px] bg-white border border-slate-100 text-slate-900 font-black text-xs sm:text-sm uppercase tracking-widest active:scale-95 transition-all shadow-sm"
                  >
                     Back
                  </button>
                  <button
                    onClick={nextStep}
-                   className="flex-1 h-[64px] rounded-[28px] bg-slate-950 text-white font-black uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20"
+                   className="flex-1 h-[64px] rounded-[28px] bg-emerald-700 text-white font-black uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20"
                  >
                     Next Step
                  </button>
@@ -754,7 +758,7 @@ const AirwaysRouteBooking = () => {
               className="space-y-6"
             >
               {/* Fare Summary Card */}
-              <div className="rounded-[40px] bg-white border border-slate-100 p-8 shadow-sm space-y-8">
+              <div className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm space-y-8">
                  <div className="flex items-center justify-between">
                     <h3 className="text-base font-black text-slate-950 uppercase tracking-widest">Fare Summary</h3>
                     <div className="h-8 w-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
@@ -763,36 +767,36 @@ const AirwaysRouteBooking = () => {
                  </div>
 
                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-sm font-bold text-slate-500">
-                       <div className="flex items-center gap-2">
-                          <Users size={14} className="text-slate-300" />
-                          <span>Seats ({seatCount} x {formatCurrency(selectedAirway?.basePrice)})</span>
+                    <div className="flex justify-between items-center gap-3 text-[13px] sm:text-sm font-bold text-slate-500">
+                       <div className="flex min-w-0 items-center gap-2">
+                          <Users size={14} className="shrink-0 text-slate-300" />
+                          <span className="truncate">Seats ({seatCount} x {formatCurrency(selectedAirway?.basePrice)})</span>
                        </div>
-                       <span className="text-slate-950">{formatCurrency(subtotalFare)}</span>
+                       <span className="shrink-0 text-slate-950">{formatCurrency(subtotalFare)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-sm font-bold text-slate-500">
-                       <div className="flex items-center gap-2">
-                          <Zap size={14} className="text-slate-300" />
-                          <span>Service Tax ({serviceTaxPercent}%)</span>
+                    <div className="flex justify-between items-center gap-3 text-[13px] sm:text-sm font-bold text-slate-500">
+                       <div className="flex min-w-0 items-center gap-2">
+                          <Zap size={14} className="shrink-0 text-slate-300" />
+                          <span className="truncate">Service Tax ({serviceTaxPercent}%)</span>
                        </div>
-                       <span className="text-slate-950">{formatCurrency(serviceTaxAmount)}</span>
+                       <span className="shrink-0 text-slate-950">{formatCurrency(serviceTaxAmount)}</span>
                     </div>
                     <div className="h-px bg-slate-50" />
-                    <div className="flex justify-between items-end">
-                       <div>
+                    <div className="flex justify-between items-end gap-3">
+                       <div className="min-w-0">
                           <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Payable</p>
-                          <p className="text-3xl font-['Outfit'] font-black text-slate-950 mt-1">{formatCurrency(totalFare)}</p>
+                          <p className="text-2xl sm:text-3xl font-['Outfit'] font-black text-slate-950 mt-1 break-words">{formatCurrency(totalFare)}</p>
                        </div>
-                       <div className="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-2">
-                          <ShieldCheck size={14} className="text-emerald-600" />
-                          <span className="text-[10px] font-black text-emerald-700 uppercase tracking-widest">Price Secured</span>
+                       <div className="shrink-0 px-3 sm:px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-1.5 sm:gap-2">
+                          <ShieldCheck size={14} className="shrink-0 text-emerald-600" />
+                          <span className="text-[9px] sm:text-[10px] font-black text-emerald-700 uppercase tracking-wider">Secured</span>
                        </div>
                     </div>
                  </div>
               </div>
 
               {/* Flight Summary Box */}
-              <div className="rounded-[32px] bg-slate-950 p-6 text-white overflow-hidden relative">
+              <div className="rounded-[32px] bg-emerald-700 p-6 text-white overflow-hidden relative">
                  <div className="relative z-10 space-y-4">
                     <div className="flex items-center gap-3">
                        <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
@@ -811,14 +815,14 @@ const AirwaysRouteBooking = () => {
               <div className="flex gap-4">
                  <button 
                    onClick={prevStep}
-                   className="h-[64px] px-8 rounded-[28px] bg-white border border-slate-100 text-slate-900 font-black uppercase tracking-widest active:scale-95 transition-all shadow-sm"
+                   className="h-14 sm:h-[64px] px-5 sm:px-8 rounded-[24px] sm:rounded-[28px] bg-white border border-slate-100 text-slate-900 font-black text-xs sm:text-sm uppercase tracking-widest active:scale-95 transition-all shadow-sm"
                  >
                     Back
                  </button>
                  <button
                    onClick={handleSubmit}
                    disabled={submitting || !activePaymentGateway}
-                   className="flex-1 h-[64px] relative overflow-hidden rounded-[28px] bg-slate-950 text-white font-black uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20 disabled:opacity-50"
+                   className="flex-1 h-14 sm:h-[64px] relative overflow-hidden rounded-[24px] sm:rounded-[28px] bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20 disabled:opacity-50"
                  >
                     <div className="relative z-10 flex items-center justify-center gap-3">
                        {submitting ? (

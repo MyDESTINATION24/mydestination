@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, Edit2, Compass, Phone, Plus, Save, Search, Trash2, MapPin, Image as ImageIcon, Upload, HelpCircle, Utensils, Calendar } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { uploadService } from '../../../shared/services/uploadService';
 import {
   createTourDraft,
   deleteAdminTour,
@@ -12,6 +13,25 @@ import {
 const inputClass =
   'w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm outline-none transition focus:border-slate-400 focus:ring-4 focus:ring-slate-400/5';
 const labelClass = 'mb-2 block text-[10px] font-bold uppercase tracking-wider text-slate-400';
+
+// Comma-separated text in, string[] out. Holds its own draft text so a trailing
+// comma survives typing; callers pass key={...} to reset it when a record loads.
+const CommaListField = ({ label, value = [], onChange, placeholder = '', hint = '' }) => {
+  const [text, setText] = useState((value || []).join(', '));
+
+  const handleChange = (next) => {
+    setText(next);
+    onChange(next.split(',').map((item) => item.trim()).filter(Boolean));
+  };
+
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <input className={inputClass} value={text} onChange={(event) => handleChange(event.target.value)} placeholder={placeholder} />
+      {hint ? <p className="mt-1 text-[11px] text-slate-400">{hint}</p> : null}
+    </div>
+  );
+};
 
 const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString('en-IN')}`;
 
@@ -25,6 +45,7 @@ const TourManager = ({ mode: modeProp = null }) => {
   const isList = !isCreate && !isEdit;
 
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [tours, setTours] = useState([]);
@@ -173,32 +194,64 @@ const TourManager = ({ mode: modeProp = null }) => {
     setField('hotels', updated);
   };
 
-  // Image upload handlers
-  const handleImageChange = (event) => {
+  // Images go to Cloudinary and only the URL is stored. These used to be
+  // base64 data-URLs written straight into the Mongo document, which bloated
+  // every tour list query and would blow the 16MB document limit once trek
+  // galleries got real.
+  const readAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read the selected image'));
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+
+  const uploadOne = async (file) => {
+    const base64 = await readAsDataUrl(file);
+    if (!String(base64 || '').startsWith('data:image/')) {
+      throw new Error('Please select a valid image file');
+    }
+
+    const result = await uploadService.uploadImage(base64, 'taxi/tours');
+    const url = result?.url || result?.data?.url || result?.secure_url;
+    if (!url) {
+      throw new Error('Upload did not return an image URL');
+    }
+    return url;
+  };
+
+  const handleImageChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setField('image', reader.result);
-    };
-    reader.readAsDataURL(file);
+    setUploadingImage(true);
+    try {
+      setField('image', await uploadOne(file));
+    } catch (error) {
+      toast.error(error?.message || 'Image upload failed');
+    } finally {
+      setUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
-  const handleGalleryChange = (event) => {
+  const handleGalleryChange = async (event) => {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setFormData((current) => ({
-          ...current,
-          gallery: [...(current.gallery || []), reader.result],
-        }));
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploadingImage(true);
+    try {
+      const urls = await Promise.all(files.map(uploadOne));
+      setFormData((current) => ({
+        ...current,
+        gallery: [...(current.gallery || []), ...urls],
+      }));
+    } catch (error) {
+      toast.error(error?.message || 'Gallery upload failed');
+    } finally {
+      setUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
   const removeGalleryImage = (index) => {
@@ -393,11 +446,33 @@ const TourManager = ({ mode: modeProp = null }) => {
                 </div>
 
                 <div className="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label className={labelClass}>Package Type</label>
+                    <select className={inputClass} value={formData.category} onChange={(event) => setField('category', event.target.value)}>
+                      <option value="yatra">Pilgrim Yatra</option>
+                      <option value="trek">Trek</option>
+                    </select>
+                    <p className="mt-1 text-[11px] text-slate-400">Picks the customer tab and which fields below apply.</p>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Total Spots</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className={inputClass}
+                      value={formData.capacity}
+                      onChange={(event) => setField('capacity', event.target.value)}
+                      placeholder="e.g. 60"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400">Bookings stop once this is reached. 0 means unlimited.</p>
+                  </div>
+
                   <div className="md:col-span-2">
                     <label className={labelClass}>Tour Name</label>
                     <input className={inputClass} value={formData.name} onChange={(event) => setField('name', event.target.value)} placeholder="e.g. Chardham Yatra by Helicopter" />
                   </div>
-                  
+
                   <div className="md:col-span-2">
                     <label className={labelClass}>Overview Description</label>
                     <textarea className={`${inputClass} min-h-28`} value={formData.overview} onChange={(event) => setField('overview', event.target.value)} placeholder="Provide a premium pilgrimage experience overview..." />
@@ -406,6 +481,24 @@ const TourManager = ({ mode: modeProp = null }) => {
                   <div>
                     <label className={labelClass}>Tour Duration</label>
                     <input className={inputClass} value={formData.duration} onChange={(event) => setField('duration', event.target.value)} placeholder="e.g. 06 Days / 05 Nights" />
+                    <p className="mt-1 text-[11px] text-slate-400">Shown to customers. Not used for pricing.</p>
+                  </div>
+
+                  <div>
+                    <label className={labelClass}>Billable Days</label>
+                    <input
+                      type="number"
+                      min="0"
+                      className={inputClass}
+                      value={formData.durationDays}
+                      onChange={(event) => setField('durationDays', event.target.value)}
+                      placeholder="e.g. 6"
+                    />
+                    <p className="mt-1 text-[11px] text-slate-400">
+                      {formData.priceType === 'per_day'
+                        ? 'Price per day is multiplied by this. Leave 0 to read the day count from the text above.'
+                        : 'Ignored while pricing is set to Total Package.'}
+                    </p>
                   </div>
 
                   <div>
@@ -461,6 +554,147 @@ const TourManager = ({ mode: modeProp = null }) => {
                   </div>
                 </div>
               </div>
+
+              {/* Card 1b: Trek-only fields */}
+              {formData.category === 'trek' && (
+                <div className="rounded-[32px] border border-emerald-200 bg-emerald-50/30 p-8 shadow-sm space-y-6">
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900">Trek Details</h2>
+                    <p className="mt-1 text-sm font-medium text-slate-500">
+                      Shown on the trek detail screen. Only applies while Package Type is set to Trek.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div>
+                      <label className={labelClass}>Difficulty</label>
+                      <select className={inputClass} value={formData.difficulty} onChange={(event) => setField('difficulty', event.target.value)}>
+                        <option value="">Not set</option>
+                        <option value="easy">Easy</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="difficult">Difficult</option>
+                        <option value="expedition">Expedition</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Base Camp</label>
+                      <input className={inputClass} value={formData.baseCamp} onChange={(event) => setField('baseCamp', event.target.value)} placeholder="e.g. Sankri" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Max Altitude (m)</label>
+                      <input type="number" min="0" className={inputClass} value={formData.maxAltitudeM} onChange={(event) => setField('maxAltitudeM', event.target.value)} placeholder="e.g. 3810" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Trail Distance (km)</label>
+                      <input type="number" min="0" className={inputClass} value={formData.trailDistanceKm} onChange={(event) => setField('trailDistanceKm', event.target.value)} placeholder="e.g. 20" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Min Group Size</label>
+                      <input type="number" min="0" className={inputClass} value={formData.minGroupSize} onChange={(event) => setField('minGroupSize', event.target.value)} placeholder="e.g. 4" />
+                    </div>
+
+                    <div>
+                      <label className={labelClass}>Max Per Booking</label>
+                      <input type="number" min="0" className={inputClass} value={formData.maxGroupSize} onChange={(event) => setField('maxGroupSize', event.target.value)} placeholder="e.g. 12" />
+                      <p className="mt-1 text-[11px] text-slate-400">Largest single booking. 0 means no limit.</p>
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`months-${formData.id}`}
+                        label="Best Months"
+                        value={formData.bestMonths}
+                        onChange={(next) => setField('bestMonths', next)}
+                        placeholder="December, January, February"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`provided-${formData.id}`}
+                        label="Gear Provided"
+                        value={formData.gearProvided}
+                        onChange={(next) => setField('gearProvided', next)}
+                        placeholder="Sleeping bag, Tent, Microspikes, Gaiters"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`carry-${formData.id}`}
+                        label="Gear To Carry"
+                        value={formData.gearToCarry}
+                        onChange={(next) => setField('gearToCarry', next)}
+                        placeholder="Trekking shoes, Down jacket, Thermals, Sunglasses"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <CommaListField
+                        key={`permits-${formData.id}`}
+                        label="Permits Required"
+                        value={formData.permitsRequired}
+                        onChange={(next) => setField('permitsRequired', next)}
+                        placeholder="Forest permit, Photo ID"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className={labelClass}>Fitness Requirement</label>
+                      <textarea className={`${inputClass} min-h-20`} value={formData.fitnessNote} onChange={(event) => setField('fitnessNote', event.target.value)} placeholder="e.g. Be able to cover 5 km in 40 minutes on flat ground before departure." />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-emerald-200/60 pt-6">
+                    <h3 className="text-sm font-black text-slate-900">Trek Guide</h3>
+                    <p className="mt-1 mb-4 text-xs font-medium text-slate-500">Shown as a guide card on the trek detail screen.</p>
+
+                    <div className="grid gap-5 md:grid-cols-2">
+                      <div>
+                        <label className={labelClass}>Guide Name</label>
+                        <input className={inputClass} value={formData.guide?.name || ''} onChange={(event) => setField('guide', { ...formData.guide, name: event.target.value })} placeholder="e.g. Pushkar Rana" />
+                      </div>
+
+                      <div>
+                        <label className={labelClass}>Guide Phone</label>
+                        <input className={inputClass} value={formData.guide?.phone || ''} onChange={(event) => setField('guide', { ...formData.guide, phone: event.target.value })} placeholder="+91 90000 00001" />
+                      </div>
+
+                      <div>
+                        <label className={labelClass}>Years of Experience</label>
+                        <input type="number" min="0" className={inputClass} value={formData.guide?.experienceYears || 0} onChange={(event) => setField('guide', { ...formData.guide, experienceYears: event.target.value })} placeholder="e.g. 11" />
+                      </div>
+
+                      <CommaListField
+                        key={`langs-${formData.id}`}
+                        label="Languages"
+                        value={formData.guide?.languages}
+                        onChange={(next) => setField('guide', { ...formData.guide, languages: next })}
+                        placeholder="Hindi, English, Garhwali"
+                      />
+
+                      <div className="md:col-span-2">
+                        <CommaListField
+                          key={`certs-${formData.id}`}
+                          label="Certifications"
+                          value={formData.guide?.certifications}
+                          onChange={(next) => setField('guide', { ...formData.guide, certifications: next })}
+                          placeholder="NIM Basic Mountaineering, Wilderness First Responder"
+                        />
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className={labelClass}>Guide Bio</label>
+                        <textarea className={`${inputClass} min-h-20`} value={formData.guide?.bio || ''} onChange={(event) => setField('guide', { ...formData.guide, bio: event.target.value })} placeholder="Short background, specialisms, notable experience." />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Card 2: Tour Itinerary */}
               <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm space-y-6">
@@ -650,11 +884,11 @@ const TourManager = ({ mode: modeProp = null }) => {
                         <p className="text-sm font-black text-slate-900">Upload Route Map Image</p>
                         <p className="mt-1 text-[11px] font-bold text-slate-400 uppercase tracking-widest">JPG, PNG up to 3MB</p>
                       </div>
-                      <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                      <input type="file" className="hidden" accept="image/*" disabled={uploadingImage} onChange={handleImageChange} />
                     </label>
                   )}
                   {formData.image && (
-                    <input type="file" className="absolute inset-0 cursor-pointer opacity-0" accept="image/*" onChange={handleImageChange} />
+                    <input type="file" className="absolute inset-0 cursor-pointer opacity-0" accept="image/*" disabled={uploadingImage} onChange={handleImageChange} />
                   )}
                 </div>
               </div>
@@ -683,7 +917,7 @@ const TourManager = ({ mode: modeProp = null }) => {
                       <Plus size={20} />
                     </div>
                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center px-2">Add Gallery Photo</span>
-                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleGalleryChange} />
+                    <input type="file" className="hidden" accept="image/*" multiple disabled={uploadingImage} onChange={handleGalleryChange} />
                   </label>
                 </div>
               </div>

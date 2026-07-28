@@ -7,7 +7,7 @@ import SuvIcon from '../../../../assets/icons/SUV.png';
 import busIcon from '../../../../assets/3d images/AutoCab/bus.png';
 
 export const PAGE_SIZE = 4;
-export const TABS = ['All', 'Rides', 'Parcels', 'Rental', 'Bus', 'Pooling', 'Airways', 'Outstation', 'Scheduled', 'Support'];
+export const TABS = ['All', 'Rides', 'Parcels', 'Rental', 'Bus', 'Pooling', 'Airways', 'Tours', 'Outstation', 'Scheduled', 'Support'];
 
 export const pickFirstString = (...values) => {
   for (const value of values) {
@@ -319,6 +319,32 @@ export const normalizeAirwayBooking = (booking) => {
     driverName: airwayName,
     eyebrow: `${airwayName}${passengerCount > 0 ? ` • ${passengerCount} passenger${passengerCount === 1 ? '' : 's'}` : ''}`,
     driverImage: buildAvatarFallback(airwayName),
+    vehicleImage: getVehicleVisual(null, 'pooling'),
+    booking,
+    sortTimestamp: toTimestamp(booking?.updatedAt || booking?.createdAt || booking?.travelDate),
+  };
+};
+
+// Tour and trek bookings share one collection, so one normalizer covers both.
+export const normalizeTourBooking = (booking) => {
+  const tourName = pickFirstString(booking?.tourName, booking?.tourId?.name, 'Tour booking');
+  const status = formatStatus(booking?.bookingStatus || booking?.paymentStatus || 'confirmed');
+  const passengerCount = Number(booking?.numberOfPassengers || 0);
+  const paid = String(booking?.paymentStatus || '').toLowerCase() === 'paid';
+
+  return {
+    id: booking?.id || booking?._id,
+    type: 'tours',
+    title: tourName,
+    address: pickFirstString(booking?.bookingCode ? `#${booking.bookingCode}` : '', tourName),
+    date: formatRideDate(booking?.travelDate),
+    time: formatRideTime(booking?.travelDate),
+    status,
+    statusTone: getStatusTone(status),
+    price: Number(booking?.totalFare || 0).toFixed(0),
+    driverName: paid ? 'Paid' : 'Payment pending',
+    eyebrow: `${passengerCount > 0 ? `${passengerCount} traveller${passengerCount === 1 ? '' : 's'}` : 'Package'}${paid ? ' • Paid' : ' • Settle later'}`,
+    driverImage: buildAvatarFallback(tourName),
     vehicleImage: getVehicleVisual(null, 'pooling'),
     booking,
     sortTimestamp: toTimestamp(booking?.updatedAt || booking?.createdAt || booking?.travelDate),

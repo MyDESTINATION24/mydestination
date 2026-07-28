@@ -49,7 +49,7 @@ const PoolingList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-24 selection:bg-indigo-100">
+    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-24 selection:bg-emerald-100">
       {/* Immersive Header */}
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl px-5 pt-12 pb-6 shadow-sm border-b border-slate-100">
         <div className="flex items-center gap-4 mb-6">
@@ -70,7 +70,7 @@ const PoolingList = () => {
                   <Calendar size={10} />
                   {date}
                </div>
-               <span className="bg-indigo-50 text-indigo-600 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Step 1/3</span>
+               <span className="bg-emerald-50 text-emerald-600 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Step 1/3</span>
             </div>
           </div>
           <button className="w-11 h-11 rounded-2xl border border-slate-100 bg-white flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
@@ -80,7 +80,7 @@ const PoolingList = () => {
 
         {/* Progress Bar */}
         <div className="flex items-center gap-2 px-1">
-          <div className="h-1.5 flex-1 rounded-full bg-indigo-600 shadow-[0_0_8px_rgba(79,70,229,0.4)]" />
+          <div className="h-1.5 flex-1 rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(79,70,229,0.4)]" />
           <div className="h-1.5 flex-1 rounded-full bg-slate-100" />
           <div className="h-1.5 flex-1 rounded-full bg-slate-100" />
         </div>
@@ -100,8 +100,8 @@ const PoolingList = () => {
             className="flex flex-col items-center justify-center py-24 text-center"
           >
             <div className="mb-8 relative">
-               <div className="h-32 w-32 rounded-full bg-indigo-50/50 flex items-center justify-center text-indigo-100 animate-pulse" />
-               <Car size={56} className="absolute inset-0 m-auto text-indigo-200" />
+               <div className="h-32 w-32 rounded-full bg-emerald-50/50 flex items-center justify-center text-emerald-100 animate-pulse" />
+               <Car size={56} className="absolute inset-0 m-auto text-emerald-200" />
             </div>
             <h3 className="text-xl font-black text-slate-900 tracking-tight">No Rides Found</h3>
             <p className="mt-3 max-w-[260px] text-sm font-medium text-slate-500 leading-relaxed">
@@ -109,7 +109,7 @@ const PoolingList = () => {
             </p>
             <button 
               onClick={() => navigate('/taxi/user/pooling')}
-              className="mt-10 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-white px-8 py-4 bg-slate-900 rounded-[20px] shadow-2xl shadow-slate-200 active:scale-95 transition-all"
+              className="mt-10 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-white px-8 py-4 bg-emerald-600 rounded-[20px] shadow-2xl shadow-slate-200 active:scale-95 transition-all"
             >
               <ArrowLeft size={16} />
               Modify Search
@@ -143,18 +143,18 @@ const PoolingList = () => {
                       },
                     })
                   }
-                  className="group relative overflow-hidden rounded-[40px] border border-white bg-white p-7 transition-all hover:border-indigo-100 hover:shadow-[0_40px_80px_-16px_rgba(15,23,42,0.1)] cursor-pointer"
+                  className="group relative overflow-hidden rounded-[40px] border border-white bg-white p-7 transition-all hover:border-emerald-100 hover:shadow-[0_40px_80px_-16px_rgba(15,23,42,0.1)] cursor-pointer"
                 >
                   {/* Decorative Elements */}
-                  <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-slate-50/50 blur-3xl group-hover:bg-indigo-50/50 transition-colors" />
+                  <div className="absolute top-0 right-0 -mr-16 -mt-16 h-48 w-48 rounded-full bg-slate-50/50 blur-3xl group-hover:bg-emerald-50/50 transition-colors" />
                   
                   <div className="flex items-start justify-between relative z-10">
                     <div className="space-y-5 flex-1 pr-4">
                       <div className="flex items-start gap-4">
                         <div className="relative flex flex-col items-center pt-2">
-                          <div className="h-3 w-3 rounded-full border-2 border-indigo-600 bg-white z-10 shadow-[0_0_8px_rgba(79,70,229,0.3)]" />
+                          <div className="h-3 w-3 rounded-full border-2 border-emerald-600 bg-white z-10 shadow-[0_0_8px_rgba(79,70,229,0.3)]" />
                           <div className="h-12 w-0.5 border-l-2 border-dashed border-slate-100" />
-                          <div className="h-3 w-3 rounded-full bg-slate-900 z-10 ring-4 ring-slate-50" />
+                          <div className="h-3 w-3 rounded-full bg-emerald-600 z-10 ring-4 ring-slate-50" />
                         </div>
                         <div className="space-y-6 flex-1 min-w-0">
                           <div>
@@ -212,7 +212,7 @@ const PoolingList = () => {
                     
                     <div className="flex items-center gap-4">
                       <div className="flex flex-col items-end">
-                         <div className="flex items-center gap-1.5 text-[11px] font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full uppercase tracking-widest">
+                         <div className="flex items-center gap-1.5 text-[11px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">
                            <Zap size={10} fill="currentColor" />
                            Instant
                          </div>
@@ -221,7 +221,7 @@ const PoolingList = () => {
                            {route.maxSeatsPerBooking} seats left
                          </div>
                       </div>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-slate-900 text-white shadow-xl shadow-slate-200 group-hover:bg-indigo-600 group-hover:shadow-indigo-100 transition-all">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-xl shadow-slate-200 group-hover:bg-emerald-600 group-hover:shadow-emerald-100 transition-all">
                          <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>

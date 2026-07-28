@@ -147,7 +147,7 @@ const Notifications = () => {
             <p className="text-[9px] font-black uppercase tracking-[0.26em] text-slate-400">Inbox</p>
             <h1 className="text-[19px] font-black tracking-tight text-slate-900 leading-tight">Notifications</h1>
           </div>
-          <div className="bg-slate-900 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
+          <div className="bg-emerald-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">
             {totalCount}
           </div>
         </div>
@@ -188,7 +188,7 @@ const Notifications = () => {
             </div>
             <p className="text-[14px] font-black text-slate-700">{error}</p>
             <button onClick={fetchNotifications}
-              className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full text-[12px] font-black uppercase tracking-widest active:scale-95 transition-all">
+              className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-full text-[12px] font-black uppercase tracking-widest active:scale-95 transition-all">
               <RefreshCw size={13} strokeWidth={2.5} /> Retry
             </button>
           </div>

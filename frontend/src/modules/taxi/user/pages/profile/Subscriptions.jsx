@@ -116,7 +116,7 @@ const Subscriptions = () => {
           </div>
         </div>
 
-        <div className="mb-6 rounded-3xl bg-slate-900 p-6 text-white shadow-xl">
+        <div className="mb-6 rounded-3xl bg-emerald-600 p-6 text-white shadow-xl">
           <div className="flex items-start gap-3">
             <PackageCheck className="mt-0.5 h-6 w-6 text-emerald-300" />
             <div>

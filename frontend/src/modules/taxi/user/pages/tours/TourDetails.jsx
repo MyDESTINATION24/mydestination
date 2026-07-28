@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Compass, CheckCircle2, XCircle, MapPin, Building2, Utensils, Calendar, Sparkles, HelpCircle, ArrowRight } from 'lucide-react';
+import { ChevronLeft, Compass, CheckCircle2, XCircle, MapPin, Building2, Utensils, Calendar, Sparkles, HelpCircle, ArrowRight, Mountain, Users, Backpack, ShieldCheck, Phone, Award, Route, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUserTourById } from '../../services/toursService';
 
@@ -16,7 +16,13 @@ const TourDetails = () => {
   const { id } = useParams();
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('itinerary'); // itinerary, hotels, inclusions
+  const [activeTab, setActiveTab] = useState('itinerary'); // trek, itinerary, hotels, inclusions
+  const isTrek = tour?.category === 'trek';
+
+  // Treks open on Trek Info; hotels tab is hidden for them since they camp.
+  useEffect(() => {
+    if (isTrek) setActiveTab('trek');
+  }, [isTrek]);
 
   useEffect(() => {
     const fetchTour = async () => {
@@ -51,7 +57,7 @@ const TourDetails = () => {
     <div className="min-h-screen bg-slate-50 pb-28 max-w-lg mx-auto relative overflow-hidden font-sans">
       
       {/* Hero Banner Section */}
-      <div className="relative h-64 w-full bg-slate-900">
+      <div className="relative h-64 w-full bg-emerald-600">
         {tour.image ? (
           <img src={tour.image} alt={tour.name} className="h-full w-full object-cover opacity-90" />
         ) : (
@@ -59,7 +65,7 @@ const TourDetails = () => {
             <Compass size={60} />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-600 via-slate-900/30 to-transparent" />
         
         {/* Floating Top Nav bar */}
         <div className="absolute top-12 md:top-4 left-4 right-4 flex items-center justify-between">
@@ -140,8 +146,9 @@ const TourDetails = () => {
         {/* Tab selection menu */}
         <div className="flex border-b border-slate-200">
           {[
+            ...(isTrek ? [{ id: 'trek', label: 'Trek Info' }] : []),
             { id: 'itinerary', label: 'Itinerary' },
-            { id: 'hotels', label: 'Hotels' },
+            ...(isTrek ? [] : [{ id: 'hotels', label: 'Hotels' }]),
             { id: 'inclusions', label: 'Inclusions' }
           ].map((tab) => (
             <button
@@ -155,7 +162,7 @@ const TourDetails = () => {
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 inset-x-0 h-0.5 bg-slate-950"
+                  className="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-700"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
@@ -166,6 +173,147 @@ const TourDetails = () => {
         {/* Tab content area */}
         <div className="min-h-[200px]">
           <AnimatePresence mode="wait">
+            {activeTab === 'trek' && (
+              <motion.div
+                key="trek"
+                variants={tabVariants}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                className="grid gap-5"
+              >
+                {/* Trek stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: 'Difficulty', value: tour.difficulty, icon: <Mountain size={14} className="text-indigo-500" />, capitalize: true },
+                    { label: 'Max Altitude', value: tour.maxAltitudeM > 0 ? `${Number(tour.maxAltitudeM).toLocaleString('en-IN')} m` : '', icon: <Mountain size={14} className="text-emerald-500" /> },
+                    { label: 'Trail Distance', value: tour.trailDistanceKm > 0 ? `${tour.trailDistanceKm} km` : '', icon: <Route size={14} className="text-amber-500" /> },
+                    { label: 'Base Camp', value: tour.baseCamp, icon: <MapPin size={14} className="text-rose-500" /> },
+                  ].filter((stat) => stat.value).map((stat) => (
+                    <div key={stat.label} className="rounded-2xl bg-white p-4 border border-slate-100 shadow-sm">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                        {stat.icon} {stat.label}
+                      </p>
+                      <p className={`mt-1.5 text-sm font-black text-slate-900 ${stat.capitalize ? 'capitalize' : ''}`}>{stat.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Group size + spots */}
+                {(tour.maxGroupSize > 0 || tour.availableSlots !== null) && (
+                  <div className="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                        <Users size={14} className="text-slate-400" /> Group
+                      </p>
+                      <p className="mt-1.5 text-xs font-bold text-slate-600">
+                        {tour.minGroupSize > 0 ? `Runs with ${tour.minGroupSize}+ trekkers. ` : ''}
+                        {tour.maxGroupSize > 0 ? `Up to ${tour.maxGroupSize} per booking.` : ''}
+                      </p>
+                    </div>
+                    {tour.availableSlots !== null && (
+                      <div className={`shrink-0 rounded-xl px-3 py-2 text-[10px] font-black uppercase tracking-wider ${tour.availableSlots === 0 ? 'bg-slate-100 text-slate-500' : 'bg-emerald-50 text-emerald-600'}`}>
+                        {tour.availableSlots === 0 ? 'Full' : `${tour.availableSlots} left`}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Best months */}
+                {tour.bestMonths.length > 0 && (
+                  <div className="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                      <Calendar size={14} className="text-indigo-500" /> Best Season
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {tour.bestMonths.map((month) => (
+                        <span key={month} className="rounded-lg bg-indigo-50 px-2.5 py-1 text-[10px] font-black text-indigo-600 border border-indigo-100">
+                          {month}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Fitness */}
+                {tour.fitnessNote && (
+                  <div className="rounded-2xl bg-amber-50 p-5 border border-amber-100 space-y-2">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-amber-700 flex items-center gap-1.5">
+                      <AlertTriangle size={14} /> Fitness Requirement
+                    </h4>
+                    <p className="text-xs font-semibold text-amber-800 leading-relaxed">{tour.fitnessNote}</p>
+                  </div>
+                )}
+
+                {/* Gear */}
+                {[
+                  { title: 'Gear Provided', items: tour.gearProvided, icon: <CheckCircle2 size={14} className="text-emerald-500" />, dot: 'bg-emerald-500' },
+                  { title: 'Gear To Carry', items: tour.gearToCarry, icon: <Backpack size={14} className="text-slate-600" />, dot: 'bg-slate-400' },
+                  { title: 'Permits Required', items: tour.permitsRequired, icon: <ShieldCheck size={14} className="text-sky-500" />, dot: 'bg-sky-500' },
+                ].filter((block) => block.items.length > 0).map((block) => (
+                  <div key={block.title} className="rounded-2xl bg-white p-5 border border-slate-100 shadow-sm space-y-3">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                      {block.icon} {block.title}
+                    </h4>
+                    <ul className="space-y-2">
+                      {block.items.map((item, idx) => (
+                        <li key={idx} className="text-xs font-semibold text-slate-600 flex items-start gap-2">
+                          <span className={`h-1.5 w-1.5 rounded-full ${block.dot} mt-1.5 shrink-0`} />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
+                {/* Guide */}
+                {tour.guide?.name && (
+                  <div className="rounded-2xl bg-emerald-600 p-5 text-white shadow-lg space-y-4 relative overflow-hidden">
+                    <div className="absolute right-[-30px] top-[-30px] h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none" />
+                    <div className="relative z-10 flex items-start gap-3">
+                      <div className="h-12 w-12 shrink-0 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
+                        {tour.guide.photo
+                          ? <img src={tour.guide.photo} alt={tour.guide.name} className="h-full w-full object-cover" />
+                          : <Users size={20} className="text-white" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-white/80">Your Trek Guide</p>
+                        <h4 className="text-base font-black leading-tight mt-0.5">{tour.guide.name}</h4>
+                        {tour.guide.experienceYears > 0 && (
+                          <p className="text-[11px] font-bold text-slate-300 mt-0.5">{tour.guide.experienceYears} years leading treks</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {tour.guide.bio && (
+                      <p className="relative z-10 text-xs font-medium text-slate-300 leading-relaxed">{tour.guide.bio}</p>
+                    )}
+
+                    {tour.guide.certifications.length > 0 && (
+                      <div className="relative z-10 flex flex-wrap gap-2">
+                        {tour.guide.certifications.map((cert) => (
+                          <span key={cert} className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1 text-[10px] font-black text-white border border-white/10">
+                            <Award size={10} className="text-white/80" /> {cert}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="relative z-10 flex flex-wrap items-center gap-3 pt-1">
+                      {tour.guide.languages.length > 0 && (
+                        <p className="text-[10px] font-bold text-slate-400">Speaks {tour.guide.languages.join(', ')}</p>
+                      )}
+                      {tour.guide.phone && (
+                        <a href={`tel:${tour.guide.phone}`} className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white active:scale-95 transition">
+                          <Phone size={11} /> Call Guide
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {activeTab === 'itinerary' && (
               <motion.div
                 key="itinerary"
@@ -178,10 +326,10 @@ const TourDetails = () => {
                 {tour.itinerary.map((day, idx) => (
                   <div key={idx} className="relative space-y-1">
                     {/* Timeline Node dot */}
-                    <div className="absolute left-[-23px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 ring-4 ring-slate-100">
+                    <div className="absolute left-[-23px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-700 ring-4 ring-slate-100">
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     </div>
-                    <span className="inline-flex rounded-lg bg-slate-900 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+                    <span className="inline-flex rounded-lg bg-emerald-600 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">
                       {day.day}
                     </span>
                     <h4 className="text-sm font-black text-slate-900 pt-0.5">{day.title}</h4>
@@ -286,7 +434,7 @@ const TourDetails = () => {
         </div>
         <button
           onClick={() => navigate(`/taxi/user/tours/book/${tour.id}`)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-slate-950/20 hover:bg-slate-800 transition active:scale-95"
+          className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-slate-950/20 hover:bg-emerald-500 transition active:scale-95"
         >
           Book Yatra Now
           <ArrowRight size={14} />

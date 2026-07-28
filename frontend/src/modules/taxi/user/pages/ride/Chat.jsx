@@ -305,7 +305,7 @@ const Chat = () => {
                   >
                     <div
                       className={`max-w-[78%] px-4 py-2.5 rounded-[18px] shadow-[0_2px_8px_rgba(15,23,42,0.06)] ${
-                        isUser ? 'bg-slate-900 text-white rounded-br-[6px]' : 'bg-white/95 border border-white/80 text-slate-800 rounded-bl-[6px]'
+                        isUser ? 'bg-emerald-600 text-white rounded-br-[6px]' : 'bg-white/95 border border-white/80 text-slate-800 rounded-bl-[6px]'
                       }`}
                     >
                       <p className="text-[14px] font-bold leading-relaxed">{m.text}</p>
@@ -347,7 +347,7 @@ const Chat = () => {
             onClick={() => send()}
             disabled={!input.trim() || !rideId || isJoiningRide}
             className={`w-8 h-8 rounded-[10px] flex items-center justify-center transition-all shrink-0 ${
-              input.trim() && rideId && !isJoiningRide ? 'bg-slate-900 shadow-[0_4px_10px_rgba(15,23,42,0.2)]' : 'bg-slate-200'
+              input.trim() && rideId && !isJoiningRide ? 'bg-emerald-600 shadow-[0_4px_10px_rgba(15,23,42,0.2)]' : 'bg-slate-200'
             }`}
           >
             <Send size={14} className={input.trim() && rideId && !isJoiningRide ? 'text-white' : 'text-slate-400'} strokeWidth={2.5} />

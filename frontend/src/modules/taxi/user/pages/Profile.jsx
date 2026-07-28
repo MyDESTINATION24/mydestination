@@ -204,8 +204,8 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-slate-50 w-full pb-28 relative overflow-x-hidden font-['Inter']">
       {/* Premium Header Background */}
-      <div className="absolute top-0 inset-x-0 h-80 bg-slate-900 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 via-slate-900 to-slate-900" />
+      <div className="absolute top-0 inset-x-0 h-80 bg-emerald-600 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/30 via-emerald-600 to-emerald-600" />
         <div className="absolute top-[-20%] right-[-10%] h-64 w-64 bg-indigo-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-[-5%] h-40 w-40 bg-emerald-500/5 rounded-full blur-2xl" />
       </div>
@@ -233,7 +233,7 @@ const Profile = () => {
           >
             <div className="flex items-center gap-5">
               <div className="relative">
-                <div className="w-20 h-20 rounded-[28px] bg-slate-900 flex items-center justify-center shadow-lg overflow-hidden border-2 border-white">
+                <div className="w-20 h-20 rounded-[28px] bg-emerald-600 flex items-center justify-center shadow-lg overflow-hidden border-2 border-white">
                   {profile.profileImage ? (
                     <img 
                       src={profile.profileImage} 
@@ -337,7 +337,7 @@ const Profile = () => {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleLogout}
-              className="w-full h-16 rounded-[24px] bg-slate-900 text-white flex items-center justify-center gap-3 text-[15px] font-black shadow-xl shadow-slate-900/10"
+              className="w-full h-16 rounded-[24px] bg-emerald-600 text-white flex items-center justify-center gap-3 text-[15px] font-black shadow-xl shadow-slate-900/10"
             >
               <LogOut size={18} strokeWidth={3} />
               Sign Out Securely

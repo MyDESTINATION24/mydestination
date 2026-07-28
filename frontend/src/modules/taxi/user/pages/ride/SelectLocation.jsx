@@ -805,13 +805,13 @@ const SelectLocation = () => {
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                     className="flex flex-col items-center"
                   >
-                    <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center shadow-2xl rotate-45 border-2 border-white">
+                    <div className="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-2xl rotate-45 border-2 border-white">
                       <div className="-rotate-45">
                         <MapIcon size={18} className="text-white fill-white/20" />
                       </div>
                     </div>
                     {/* Stick */}
-                    <div className="w-1 h-5 bg-slate-900 -mt-2 shadow-2xl" />
+                    <div className="w-1 h-5 bg-emerald-600 -mt-2 shadow-2xl" />
                   </motion.div>
                   {/* Shadow Dot */}
                   <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-1 bg-black/30 rounded-full blur-sm" />
@@ -846,7 +846,7 @@ const SelectLocation = () => {
               <button
                 onClick={handleConfirmMapLocation}
                 disabled={isGeocoding}
-                className="w-full bg-slate-900 py-4 rounded-3xl text-white font-bold text-[15px] shadow-xl shadow-slate-200 flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50"
+                className="w-full bg-emerald-600 py-4 rounded-3xl text-white font-bold text-[15px] shadow-xl shadow-slate-200 flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50"
               >
                 <Check size={18} strokeWidth={3} />
                 Confirm Location

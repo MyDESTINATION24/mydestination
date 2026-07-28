@@ -1095,7 +1095,7 @@ const RentalVehicleDetail = () => {
                     type="button"
                     onClick={() => setSelectedImage(image)}
                     className={`h-16 w-16 shrink-0 overflow-hidden rounded-2xl border ${
-                      selectedImage === image ? 'border-slate-900' : 'border-slate-200'
+                      selectedImage === image ? 'border-emerald-600' : 'border-slate-200'
                     }`}
                   >
                     <img src={image} alt="Vehicle gallery" className="h-full w-full object-cover" />
@@ -1176,7 +1176,7 @@ const RentalVehicleDetail = () => {
                   onClick={() => setSelectedPackageId(String(row.id))}
                   className={`w-full rounded-2xl border px-4 py-3 text-left transition-all ${
                     isSelected
-                      ? 'border-slate-900 bg-slate-900 text-white shadow-[0_10px_24px_rgba(15,23,42,0.16)]'
+                      ? 'border-emerald-600 bg-emerald-600 text-white shadow-[0_10px_24px_rgba(15,23,42,0.16)]'
                       : 'border-slate-100 bg-slate-50 hover:border-slate-200'
                   }`}
                 >
@@ -1552,7 +1552,7 @@ const RentalVehicleDetail = () => {
             !selectedPackage ||
             (selectionStep === 'location' && (locationsLoading || !selectedServiceLocation))
               ? 'bg-slate-300'
-              : 'bg-slate-900'
+              : 'bg-emerald-600'
           }`}
         >
           {selectionStep === 'package' ? 'Proceed to Service Location' : 'Select Date & Time'}

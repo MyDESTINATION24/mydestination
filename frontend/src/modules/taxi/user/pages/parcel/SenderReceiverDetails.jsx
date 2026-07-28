@@ -398,7 +398,7 @@ const MapPickerSheet = ({ open, title, confirmLabel, value, initialCoords, onClo
             <button
               type="button"
               onClick={() => onConfirm(latLngToCoordPair(center), selectedAddress)}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-emerald-600 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
             >
               {confirmLabel}
               <ChevronRight size={16} />
@@ -528,7 +528,7 @@ const ContactDetailsSheet = ({
             <button
               type="button"
               onClick={onSave}
-              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-slate-900 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
+              className="flex h-14 w-full items-center justify-center gap-2 rounded-[20px] bg-emerald-600 text-sm font-black text-white shadow-[0_14px_28px_rgba(15,23,42,0.18)]"
             >
               Save Details
               <ChevronRight size={16} />
@@ -1345,7 +1345,7 @@ const SenderReceiverDetails = () => {
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
           transition={{ delay: 0.12 }} 
-          className="mt-8 rounded-[28px] bg-slate-900 px-6 py-5 text-white shadow-xl relative overflow-hidden"
+          className="mt-8 rounded-[28px] bg-emerald-600 px-6 py-5 text-white shadow-xl relative overflow-hidden"
         >
           <div className="absolute right-0 top-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12" />
           <div className="relative z-10 flex items-center justify-between gap-3">
@@ -1374,7 +1374,7 @@ const SenderReceiverDetails = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleProceed}
-            className="relative flex h-16 w-full items-center justify-center gap-3 rounded-[24px] bg-slate-900 text-[15px] font-black text-white shadow-[0_20px_40px_rgba(15,23,42,0.2)] group overflow-hidden"
+            className="relative flex h-16 w-full items-center justify-center gap-3 rounded-[24px] bg-emerald-600 text-[15px] font-black text-white shadow-[0_20px_40px_rgba(15,23,42,0.2)] group overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
             <span className="relative z-10">

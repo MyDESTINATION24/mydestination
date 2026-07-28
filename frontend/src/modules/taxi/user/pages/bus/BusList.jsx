@@ -236,8 +236,8 @@ const BusList = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto bg-[linear-gradient(180deg,var(--bus-light)_0%,var(--bus-bg)_16%,#f8fafc_100%)] font-sans pb-10">
-      <div className="sticky top-0 z-20 border-b border-bus-light-border/70 bg-white/92 px-4 pb-4 pt-10 shadow-[0_6px_20px_rgba(15,23,42,0.05)] backdrop-blur-md">
+    <div className="min-h-screen mx-auto w-full max-w-lg lg:max-w-6xl bg-[linear-gradient(180deg,var(--bus-light)_0%,var(--bus-bg)_16%,#f8fafc_100%)] font-sans pb-10">
+      <div className="sticky top-0 z-20 border-b border-bus-light-border/70 bg-white/92 px-4 pb-4 pt-10 lg:px-8 lg:pt-6 shadow-[0_6px_20px_rgba(15,23,42,0.05)] backdrop-blur-md">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
@@ -257,7 +257,7 @@ const BusList = () => {
         </div>
       </div>
  
-      <div className="space-y-4 px-4 pt-5">
+      <div className="space-y-4 px-4 pt-5 lg:px-8">
         {loading ? (
           <div className="rounded-3xl border border-bus-light-border/30 bg-white p-12 text-bus-dark/50 shadow-sm">
             <Loader2 size={32} className="mx-auto animate-spin text-bus-primary" />
@@ -425,8 +425,9 @@ const BusList = () => {
           </>
         ) : null}
  
-        {!loading && !error
-          ? visibleBuses.map((bus, index) => {
+        {!loading && !error ? (
+          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {visibleBuses.map((bus, index) => {
               const rated = hasBusRating(bus);
               const topAmenities = Array.isArray(bus.amenities) ? bus.amenities.slice(0, 2) : [];
  
@@ -533,8 +534,9 @@ const BusList = () => {
                   </div>
                 </motion.button>
               );
-            })
-          : null}
+            })}
+          </div>
+        ) : null}
       </div>
     </div>
   );

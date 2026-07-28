@@ -438,7 +438,7 @@ const RideComplete = () => {
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-[14px] bg-slate-900 px-5 py-3 text-[12px] font-black text-white shadow-xl"
+            className="fixed top-4 left-1/2 z-50 -translate-x-1/2 rounded-[14px] bg-emerald-600 px-5 py-3 text-[12px] font-black text-white shadow-xl"
           >
             Receipt copied
           </motion.div>
@@ -461,7 +461,7 @@ const RideComplete = () => {
             <button
               type="button"
               onClick={() => navigate(routeHome, { replace: true })}
-              className="mt-2 rounded-[16px] bg-slate-900 px-6 py-3 text-[13px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)]"
+              className="mt-2 rounded-[16px] bg-emerald-600 px-6 py-3 text-[13px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)]"
             >
               Continue
             </button>
@@ -498,7 +498,7 @@ const RideComplete = () => {
         ) : null}
 
         <div className="overflow-hidden rounded-[22px] border border-white/80 bg-white/95 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-          <div className="flex items-center justify-between bg-slate-900 px-4 py-3">
+          <div className="flex items-center justify-between bg-emerald-600 px-4 py-3">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/10">
                 <Receipt size={14} className="text-orange-300" />
@@ -524,7 +524,7 @@ const RideComplete = () => {
                 {driverImage ? (
                   <img src={driverImage} alt={driver.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-slate-900 text-[18px] font-black text-white">
+                  <div className="flex h-full w-full items-center justify-center bg-emerald-600 text-[18px] font-black text-white">
                     {getInitials(driver.name)}
                   </div>
                 )}
@@ -673,7 +673,7 @@ const RideComplete = () => {
             type="button"
             onClick={submitFeedback}
             disabled={isSubmitting || isSubmitted || !isRideFinalized}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-[16px] bg-slate-900 py-3.5 text-[14px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)] disabled:opacity-60"
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 py-3.5 text-[14px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)] disabled:opacity-60"
           >
             {isSubmitting
               ? 'Saving your feedback...'

@@ -75,8 +75,8 @@ const BusConfirm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bus-light/20 max-w-lg mx-auto font-sans pb-32">
-      <div className="bg-white px-5 pt-10 pb-4 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
+    <div className="min-h-screen bg-bus-light/20 mx-auto w-full max-w-lg lg:max-w-2xl font-sans pb-32 lg:pb-12">
+      <div className="bg-white px-5 pt-10 pb-4 lg:px-8 lg:pt-6 sticky top-0 z-20 border-b border-bus-light-border/60 shadow-sm">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-bold text-bus-darker">E-Ticket</h1>
           <button onClick={handleShare} className="w-10 h-10 rounded-full bg-bus-light flex items-center justify-center text-bus-dark hover:bg-bus-light-border transition-colors">
@@ -85,7 +85,7 @@ const BusConfirm = () => {
         </div>
       </div>
  
-      <div className="px-5 pt-10 flex flex-col items-center">
+      <div className="px-5 pt-10 lg:px-8 flex flex-col items-center">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -202,7 +202,7 @@ const BusConfirm = () => {
         </motion.div>
       </div>
  
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30 flex gap-4">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-lg px-5 pb-8 pt-4 bg-white border-t border-bus-light-border/60 z-30 flex gap-4 lg:static lg:left-auto lg:translate-x-0 lg:mt-8 lg:w-full lg:max-w-none lg:rounded-3xl lg:border lg:border-bus-light-border/40 lg:p-5 lg:shadow-sm">
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate(`${routePrefix}/profile/bus-bookings`)}

@@ -129,7 +129,7 @@ const AirportCabConfirm = () => {
           <p className="text-[22px] font-black text-slate-900 tracking-tight">₹{state.fare}</p>
         </div>
         <motion.button onClick={() => navigate('/taxi/user')}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
+          className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95">
           <Home size={16} strokeWidth={2.5} /> Go to Home Dashboard
         </motion.button>
       </motion.div>

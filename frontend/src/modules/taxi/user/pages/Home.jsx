@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
+import { TrekArt } from '../components/CardArt';
 import HeaderGreeting from '../components/HeaderGreeting';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
@@ -607,7 +608,7 @@ const Home = () => {
             </div>
           </div>
         ) : banners.length > 0 ? (
-          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
@@ -677,7 +678,7 @@ const Home = () => {
                 </div>
                 <div className="relative mb-1">
                   <div className="absolute -inset-4 rounded-full bg-emerald-100/30 blur-xl animate-pulse" />
-                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 shadow-2xl shadow-slate-950/40 border border-slate-800">
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-700 shadow-2xl shadow-slate-950/40 border border-emerald-500">
                     <img src={currentRideIcon} alt="" className="h-10 w-10 object-contain" />
                   </div>
                 </div>
@@ -699,7 +700,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-slate-950 px-4 py-3.5 text-white shadow-xl shadow-slate-950/20">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-emerald-700 px-4 py-3.5 text-white shadow-xl shadow-slate-950/20">
                 <div className="min-w-0 flex-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Trip Route</p>
                   <div className="mt-1 flex items-center gap-2 text-[12px] font-bold">
@@ -755,7 +756,7 @@ const Home = () => {
                       handleEndRide();
                     }}
                     disabled={endingRide || rideStage === 'end_requested'}
-                    className="bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-[0_8px_16px_rgba(15,23,42,0.2)] active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
+                    className="bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-[0_8px_16px_rgba(15,23,42,0.2)] active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
                   >
                     {endingRide ? 'Ending...' : rideStage === 'end_requested' ? 'Pending' : 'End Ride'}
                   </button>
@@ -824,7 +825,7 @@ const Home = () => {
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Ride together, pay less</p>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-blue-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-emerald-600 transition-colors">
                       Pooling <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -929,6 +930,30 @@ const Home = () => {
                   alt="Char Dham"
                   className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
+              </motion.div>
+
+              {/* Trekking Card */}
+              <motion.div
+                whileHover={{ y: -3, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate('/taxi/user/tours?category=trek')}
+                className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
+              >
+                <div className="flex flex-col justify-between h-full z-10 w-[62%]">
+                  <div className="bg-indigo-50 text-indigo-600 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-indigo-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                    Guided Groups
+                  </div>
+
+                  <div className="mt-2">
+                    <p className="text-[11px] font-medium text-slate-400 leading-tight">Himalayan Trails</p>
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-indigo-600 transition-colors">
+                      Trekking <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
+                    </h4>
+                  </div>
+                </div>
+
+                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
               </motion.div>
 
               {/* Helicopter Card */}
@@ -1043,7 +1068,7 @@ const Home = () => {
             onClick={() => navigate(trackingPath, { state: currentRide })}
             className="fixed bottom-24 left-4 right-4 z-[60] mx-auto flex max-w-3xl items-center gap-3 rounded-[20px] border border-white/80 bg-white/95 px-4 py-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.16)] backdrop-blur-xl"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-slate-900 shadow-lg">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-emerald-600 shadow-lg">
               <img src={currentRideIcon} alt={vehicleLabel} className="h-8 w-8 object-contain" draggable={false} />
             </div>
             <div className="min-w-0 flex-1">
@@ -1109,7 +1134,7 @@ const Home = () => {
               <p className="text-[11px] font-black text-slate-900 px-2 py-0.5 rounded-lg bg-slate-100">
                 Rs {Number(serviceType === 'rental' ? rentalCurrentCharge : currentRide.fare || 0).toFixed(0)}
               </p>
-              <div className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-slate-900 text-white shadow-md">
+              <div className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-emerald-600 text-white shadow-md">
                 <ChevronRight size={18} strokeWidth={3} />
               </div>
             </div>

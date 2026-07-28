@@ -7,6 +7,7 @@ export const createTourDraft = () => ({
   name: '',
   overview: '',
   duration: '',
+  durationDays: 0,
   meals: '',
   helicopterType: '',
   startPoint: '',
@@ -22,6 +23,22 @@ export const createTourDraft = () => ({
   status: 'active',
   image: '',
   gallery: [],
+
+  category: 'yatra',
+  capacity: 0,
+
+  difficulty: '',
+  maxAltitudeM: 0,
+  trailDistanceKm: 0,
+  bestMonths: [],
+  baseCamp: '',
+  gearProvided: [],
+  gearToCarry: [],
+  permitsRequired: [],
+  fitnessNote: '',
+  minGroupSize: 0,
+  maxGroupSize: 0,
+  guide: { name: '', phone: '', experienceYears: 0, languages: [], certifications: [], photo: '', bio: '' },
 });
 
 export const getAdminTours = async () => unwrapPayload(await api.get('/admin/tours'));
@@ -30,6 +47,16 @@ export const upsertAdminTour = async (payload = {}) => {
   const normalizedPayload = {
     ...payload,
     price: Number(payload.price || 0),
+    durationDays: Number(payload.durationDays || 0),
+    capacity: Number(payload.capacity || 0),
+    maxAltitudeM: Number(payload.maxAltitudeM || 0),
+    trailDistanceKm: Number(payload.trailDistanceKm || 0),
+    minGroupSize: Number(payload.minGroupSize || 0),
+    maxGroupSize: Number(payload.maxGroupSize || 0),
+    guide: {
+      ...(payload.guide || {}),
+      experienceYears: Number(payload.guide?.experienceYears || 0),
+    },
   };
 
   if (payload.id) {

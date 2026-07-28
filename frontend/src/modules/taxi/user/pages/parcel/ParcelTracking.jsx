@@ -788,7 +788,7 @@ const ParcelTracking = () => {
             </div>
 
             <div className="overflow-hidden rounded-[22px] border border-white/80 bg-white/95 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
-              <div className="flex items-center justify-between bg-slate-900 px-4 py-3">
+              <div className="flex items-center justify-between bg-emerald-600 px-4 py-3">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/10">
                     <Receipt size={14} className="text-orange-300" />
@@ -806,7 +806,7 @@ const ParcelTracking = () => {
 
               <div className="space-y-4 px-4 py-4">
                 <div className="flex items-center gap-3 rounded-[18px] border border-slate-100 bg-slate-50/80 p-3">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-[16px] bg-slate-900 text-[18px] font-black text-white">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[16px] bg-emerald-600 text-[18px] font-black text-white">
                     {getInitials(driver.name)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -933,7 +933,7 @@ const ParcelTracking = () => {
                 type="button"
                 onClick={submitParcelFeedback}
                 disabled={isSubmittingFeedback || isFeedbackSubmitted}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-[16px] bg-slate-900 py-3.5 text-[14px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)] disabled:opacity-60"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 py-3.5 text-[14px] font-black text-white shadow-[0_12px_24px_rgba(15,23,42,0.18)] disabled:opacity-60"
               >
                 {isSubmittingFeedback ? 'Saving your feedback...' : isFeedbackSubmitted ? 'Feedback already saved' : 'Submit rating'}
                 <ChevronRight size={16} />
@@ -957,7 +957,7 @@ const ParcelTracking = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-16 h-16 rounded-[24px] bg-slate-900 overflow-hidden border-2 border-white shadow-sm">
+                <div className="w-16 h-16 rounded-[24px] bg-emerald-600 overflow-hidden border-2 border-white shadow-sm">
                   <img src={`https://ui-avatars.com/api/?name=${driver.name.replace(' ', '+')}&background=0f172a&color=fff&bold=true`} alt="Driver" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 bg-white px-2 py-0.5 rounded-full border border-gray-100 flex items-center gap-1 shadow-sm">
@@ -1059,7 +1059,7 @@ const ActionButton = ({ icon: Icon, label, onClick, color = 'gray' }) => (
     onClick={onClick}
     className={`flex flex-col items-center gap-1.5 py-4 rounded-[24px] border ${
       color === 'dark'
-        ? 'bg-slate-900 border-slate-900 text-white'
+        ? 'bg-emerald-600 border-emerald-600 text-white'
         : 'bg-gray-50 border-gray-100 text-gray-700'
     }`}
   >

@@ -1739,7 +1739,7 @@ const SelectVehicle = () => {
               onClick={() => openPicker(scheduledAtInputRef)}
               className={`flex w-[42px] shrink-0 flex-col items-center justify-center rounded-[12px] border px-1 py-2 text-[10px] font-medium ${
                 rideMode === 'schedule'
-                  ? 'border-slate-900 bg-slate-900 text-white'
+                  ? 'border-emerald-600 bg-emerald-600 text-white'
                   : 'border-slate-200 bg-white text-slate-600'
               }`}
             >
@@ -2201,7 +2201,7 @@ const SelectVehicle = () => {
                       setShowCouponModal(false);
                     }
                   }}
-                  className="rounded-[16px] bg-slate-950 px-4 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
+                  className="rounded-[16px] bg-emerald-700 px-4 py-3 text-[12px] font-black uppercase tracking-[0.14em] text-white disabled:opacity-60"
                 >
                   {applyingPromoCode ? 'Applying' : 'Apply'}
                 </button>

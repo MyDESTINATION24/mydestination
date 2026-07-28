@@ -106,7 +106,7 @@ const SOSContacts = () => {
             className={`flex items-center gap-1.5 px-3 py-2 rounded-[12px] text-[11px] font-black uppercase tracking-widest transition-all ${
               contacts.length >= MAX_CONTACTS
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-slate-900 text-white shadow-sm'
+                : 'bg-emerald-600 text-white shadow-sm'
             }`}>
             <Plus size={13} strokeWidth={3} /> Add
           </motion.button>
@@ -155,7 +155,7 @@ const SOSContacts = () => {
                     <p className="text-[14px] font-black text-slate-900 leading-tight">{service.label}</p>
                     <p className="text-[11px] font-bold text-slate-400 mt-0.5">Call {service.phone}</p>
                   </div>
-                  <div className="rounded-full bg-slate-900 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white">
+                  <div className="rounded-full bg-emerald-600 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white">
                     {service.phone}
                   </div>
                 </div>
@@ -245,7 +245,7 @@ const SOSContacts = () => {
                   {errors.phone && <p className="text-[11px] font-black text-red-500 ml-1 mt-1">{errors.phone}</p>}
                 </div>
                 <motion.button whileTap={{ scale: 0.97 }} onClick={handleAdd} disabled={saving}
-                  className="w-full bg-slate-900 text-white py-4 rounded-[16px] text-[14px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm mt-2">
+                  className="w-full bg-emerald-600 text-white py-4 rounded-[16px] text-[14px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-sm mt-2">
                   {saving ? <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : 'Save Contact'}
                 </motion.button>
               </div>

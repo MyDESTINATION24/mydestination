@@ -129,7 +129,7 @@ const IntercityConfirm = () => {
   }, [state.scheduledAt]);
 
   return (
-    <div className="min-h-screen max-w-lg mx-auto flex items-center justify-center bg-slate-950 px-6">
+    <div className="min-h-screen max-w-lg mx-auto flex items-center justify-center bg-emerald-700 px-6">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
