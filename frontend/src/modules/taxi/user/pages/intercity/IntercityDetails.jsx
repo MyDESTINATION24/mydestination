@@ -586,7 +586,7 @@ const IntercityDetails = () => {
         </div>
 
         {/* Feature Tip */}
-        <div className="bg-slate-900 rounded-[32px] p-6 text-white flex items-center gap-5 shadow-xl shadow-slate-200">
+        <div className="bg-emerald-600 rounded-[32px] p-6 text-white flex items-center gap-5 shadow-xl shadow-slate-200">
           <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shrink-0 border border-white/5">
             <ShieldCheck size={28} className="text-blue-400" />
           </div>

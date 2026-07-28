@@ -109,7 +109,7 @@ const PoolingList = () => {
             </p>
             <button 
               onClick={() => navigate('/taxi/user/pooling')}
-              className="mt-10 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-white px-8 py-4 bg-slate-900 rounded-[20px] shadow-2xl shadow-slate-200 active:scale-95 transition-all"
+              className="mt-10 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-white px-8 py-4 bg-emerald-600 rounded-[20px] shadow-2xl shadow-slate-200 active:scale-95 transition-all"
             >
               <ArrowLeft size={16} />
               Modify Search
@@ -154,7 +154,7 @@ const PoolingList = () => {
                         <div className="relative flex flex-col items-center pt-2">
                           <div className="h-3 w-3 rounded-full border-2 border-emerald-600 bg-white z-10 shadow-[0_0_8px_rgba(79,70,229,0.3)]" />
                           <div className="h-12 w-0.5 border-l-2 border-dashed border-slate-100" />
-                          <div className="h-3 w-3 rounded-full bg-slate-900 z-10 ring-4 ring-slate-50" />
+                          <div className="h-3 w-3 rounded-full bg-emerald-600 z-10 ring-4 ring-slate-50" />
                         </div>
                         <div className="space-y-6 flex-1 min-w-0">
                           <div>
@@ -221,7 +221,7 @@ const PoolingList = () => {
                            {route.maxSeatsPerBooking} seats left
                          </div>
                       </div>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-slate-900 text-white shadow-xl shadow-slate-200 group-hover:bg-emerald-600 group-hover:shadow-emerald-100 transition-all">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-[18px] bg-emerald-600 text-white shadow-xl shadow-slate-200 group-hover:bg-emerald-600 group-hover:shadow-emerald-100 transition-all">
                          <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>

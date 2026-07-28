@@ -112,7 +112,7 @@ const PoolingConfirm = () => {
         <button
           type="button"
           onClick={() => navigate('/taxi/user/pooling')}
-          className="mt-10 flex items-center gap-2 rounded-2xl bg-slate-900 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-2xl shadow-slate-200 transition-all hover:bg-slate-800 active:scale-95"
+          className="mt-10 flex items-center gap-2 rounded-2xl bg-emerald-600 px-8 py-4 text-xs font-black uppercase tracking-widest text-white shadow-2xl shadow-slate-200 transition-all hover:bg-emerald-500 active:scale-95"
         >
           <ArrowLeft size={16} />
           Restart Booking
@@ -326,7 +326,7 @@ const PoolingConfirm = () => {
                     <div className="relative flex flex-col items-center pt-1.5">
                       <div className="z-10 h-3 w-3 rounded-full border-2 border-emerald-500 bg-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
                       <div className="h-14 w-0.5 border-l-2 border-dashed border-slate-200" />
-                      <div className="z-10 h-3 w-3 rounded-full bg-slate-900 ring-4 ring-slate-50" />
+                      <div className="z-10 h-3 w-3 rounded-full bg-emerald-600 ring-4 ring-slate-50" />
                     </div>
                     <div className="flex-1 space-y-6">
                       <div className="relative">
@@ -371,7 +371,7 @@ const PoolingConfirm = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/taxi/user')}
-                    className="rounded-3xl bg-slate-900 px-4 py-5 text-sm font-black text-white shadow-[0_20px_40px_-12px_rgba(15,23,42,0.4)] transition-all hover:bg-slate-800 active:scale-[0.98]"
+                    className="rounded-3xl bg-emerald-600 px-4 py-5 text-sm font-black text-white shadow-[0_20px_40px_-12px_rgba(15,23,42,0.4)] transition-all hover:bg-emerald-500 active:scale-[0.98]"
                   >
                     Go Home
                   </button>
@@ -415,7 +415,7 @@ const PoolingConfirm = () => {
               >
                 <div className="overflow-hidden rounded-[44px] border border-white bg-white shadow-[0_32px_64px_-16px_rgba(15,23,42,0.1)]">
                   {/* Vehicle Header with Image */}
-                  <div className="relative bg-slate-900 px-8 py-10 text-white overflow-hidden">
+                  <div className="relative bg-emerald-600 px-8 py-10 text-white overflow-hidden">
                     <div className="absolute right-0 top-0 -mr-16 -mt-16 h-64 w-64 rounded-full bg-emerald-600/20 blur-3xl" />
                     
                     <div className="relative z-10 flex items-center justify-between">
@@ -444,7 +444,7 @@ const PoolingConfirm = () => {
                         <div className="mt-4 flex items-center gap-3">
                           <div className="flex -space-x-2">
                             {[...Array(Math.min(3, selectedSeats.length))].map((_, i) => (
-                              <div key={i} className="h-6 w-6 rounded-full border-2 border-slate-900 bg-emerald-500 flex items-center justify-center text-[10px] font-black">
+                              <div key={i} className="h-6 w-6 rounded-full border-2 border-emerald-600 bg-emerald-500 flex items-center justify-center text-[10px] font-black">
                                 <Armchair size={10} />
                               </div>
                             ))}
@@ -458,7 +458,7 @@ const PoolingConfirm = () => {
                   </div>
 
                   {/* Perforated Divider */}
-                  <div className="relative h-6 bg-slate-900">
+                  <div className="relative h-6 bg-emerald-600">
                     <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-between px-0">
                       <div className="h-6 w-3 rounded-r-full bg-slate-50" />
                       <div className="flex flex-1 items-center justify-around px-4">
@@ -552,7 +552,7 @@ const PoolingConfirm = () => {
                       <p className="mt-1 text-4xl font-black tracking-tight text-slate-900">₹{totalFare}</p>
                     </div>
                     <div className="mb-1">
-                      <div className="rounded-xl bg-slate-900 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
+                      <div className="rounded-xl bg-emerald-600 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg">
                         Proceed to Pay
                       </div>
                     </div>
@@ -592,7 +592,7 @@ const PoolingConfirm = () => {
 
             {/* Action Bar */}
             <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-lg -translate-x-1/2">
-              <div className="mx-5 mb-8 overflow-hidden rounded-[32px] bg-slate-900/90 p-2 shadow-[0_24px_50px_-12px_rgba(15,23,42,0.4)] backdrop-blur-xl border border-white/10">
+              <div className="mx-5 mb-8 overflow-hidden rounded-[32px] bg-emerald-600/90 p-2 shadow-[0_24px_50px_-12px_rgba(15,23,42,0.4)] backdrop-blur-xl border border-white/10">
                 <button
                   type="button"
                   onClick={handleConfirm}
@@ -601,13 +601,13 @@ const PoolingConfirm = () => {
                 >
                   {isBooking ? (
                     <div className="flex items-center gap-3">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-900 border-t-transparent" />
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
                       <span className="uppercase tracking-[0.2em]">Processing...</span>
                     </div>
                   ) : (
                     <>
                       <span className="uppercase tracking-[0.2em]">Confirm & Pay ₹{totalFare}</span>
-                      <div className="rounded-full bg-slate-900 p-1 text-white group-hover:translate-x-1 transition-transform">
+                      <div className="rounded-full bg-emerald-600 p-1 text-white group-hover:translate-x-1 transition-transform">
                         <ChevronRight size={18} />
                       </div>
                     </>

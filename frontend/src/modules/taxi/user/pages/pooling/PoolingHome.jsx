@@ -140,7 +140,7 @@ const PoolingHome = () => {
   return (
     <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto font-sans selection:bg-emerald-100">
       {/* Header Section */}
-      <div className="relative bg-slate-900 px-6 pt-12 pb-28 text-white overflow-hidden">
+      <div className="relative bg-emerald-600 px-6 pt-12 pb-28 text-white overflow-hidden">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
         
@@ -302,7 +302,7 @@ const PoolingHome = () => {
 
             <button
               onClick={handleSearch}
-              className="mt-2 w-full rounded-[24px] bg-slate-900 py-5 text-sm font-black text-white shadow-2xl shadow-slate-200 transition hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3"
+              className="mt-2 w-full rounded-[24px] bg-emerald-600 py-5 text-sm font-black text-white shadow-2xl shadow-slate-200 transition hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3"
             >
               <Search size={20} />
               Search Rides
@@ -382,7 +382,7 @@ const PoolingHome = () => {
 
       {/* Safety Section */}
       <div className="mt-16 px-6">
-        <div className="rounded-[40px] bg-slate-900 p-8 text-white relative overflow-hidden">
+        <div className="rounded-[40px] bg-emerald-600 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
              <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center">
@@ -394,7 +394,7 @@ const PoolingHome = () => {
              <div className="flex items-center gap-4">
                 <div className="flex -space-x-3">
                    {[1,2,3,4].map(i => (
-                     <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 overflow-hidden">
+                     <div key={i} className="w-8 h-8 rounded-full border-2 border-emerald-600 bg-emerald-500 overflow-hidden">
                         <img src={`https://ui-avatars.com/api/?name=U${i}&background=random`} alt="" />
                      </div>
                    ))}

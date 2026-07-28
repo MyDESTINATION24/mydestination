@@ -103,7 +103,7 @@ const ToursHome = () => {
               onClick={() => setSearchParams(item.id === 'yatra' ? {} : { category: item.id }, { replace: true })}
               className={`flex-1 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
                 category === item.id
-                  ? 'bg-slate-900 text-white shadow-md'
+                  ? 'bg-emerald-600 text-white shadow-md'
                   : 'text-slate-500 hover:bg-slate-50 active:scale-95'
               }`}
             >
@@ -117,12 +117,12 @@ const ToursHome = () => {
           initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="rounded-[32px] bg-slate-900 p-6 text-white shadow-xl relative overflow-hidden"
+          className="rounded-[32px] bg-emerald-600 p-6 text-white shadow-xl relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(16,185,129,0.15)_0%,rgba(99,102,241,0.15)_100%)]" />
           <div className="absolute right-[-20px] bottom-[-20px] h-32 w-32 rounded-full bg-white/5 blur-2xl pointer-events-none" />
           <div className="relative z-10 space-y-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-300">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-white">
               <Sparkles size={11} /> {isTrek ? 'Guided Himalayan treks' : 'Featured pilgrim packages'}
             </div>
             <h2 className="text-2xl font-black tracking-tight mt-1 leading-tight">
@@ -186,7 +186,7 @@ const ToursHome = () => {
                       </div>
                     )}
                     {/* Glassmorphic Price Badge */}
-                    <div className="absolute right-4 top-4 rounded-2xl bg-slate-900/85 px-4 py-2.5 text-white backdrop-blur-md shadow-lg border border-white/10">
+                    <div className="absolute right-4 top-4 rounded-2xl bg-emerald-600/85 px-4 py-2.5 text-white backdrop-blur-md shadow-lg border border-white/10">
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 leading-none">Price</p>
                       <p className="mt-1 text-sm font-black tracking-tight leading-none">
                         {formatPrice(item.price)}

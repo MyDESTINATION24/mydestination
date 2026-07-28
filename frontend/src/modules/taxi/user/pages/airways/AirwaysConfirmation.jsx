@@ -128,8 +128,8 @@ const AirwaysConfirmation = () => {
           className="flex flex-col items-center text-center mb-10"
         >
           <div className="relative">
-             <div className="h-24 w-24 rounded-[40px] bg-slate-950 flex items-center justify-center text-white shadow-2xl shadow-slate-950/20">
-                <CheckCircle2 size={44} className="text-emerald-400" />
+             <div className="h-24 w-24 rounded-[40px] bg-emerald-700 flex items-center justify-center text-white shadow-2xl shadow-slate-950/20">
+                <CheckCircle2 size={44} className="text-white" />
              </div>
              <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-sky-500 flex items-center justify-center text-white border-4 border-[#F8FAFC]">
                 <Sparkles size={14} />
@@ -257,7 +257,7 @@ const AirwaysConfirmation = () => {
 
         {/* Action Buttons */}
         <div className="mt-12 space-y-4">
-           <button className="w-full h-16 rounded-[28px] bg-slate-950 text-white font-black text-sm uppercase tracking-widest shadow-2xl shadow-slate-950/20 active:scale-95 transition-all flex items-center justify-center gap-3">
+           <button className="w-full h-16 rounded-[28px] bg-emerald-700 text-white font-black text-sm uppercase tracking-widest shadow-2xl shadow-slate-950/20 active:scale-95 transition-all flex items-center justify-center gap-3">
               <Download size={20} />
               Download Ticket
            </button>

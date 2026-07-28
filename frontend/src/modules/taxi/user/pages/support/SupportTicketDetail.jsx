@@ -109,7 +109,7 @@ const SupportTicketDetail = () => {
             className={`flex ${m.senderRole === pathRole ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[78%] rounded-[16px] px-4 py-3 ${
               m.senderRole === pathRole
-                ? 'bg-slate-900 text-white rounded-br-[4px]'
+                ? 'bg-emerald-600 text-white rounded-br-[4px]'
                 : 'bg-white border border-white/80 shadow-[0_2px_8px_rgba(15,23,42,0.06)] text-slate-900 rounded-bl-[4px]'
             }`}>
               <p className={`text-[13px] font-bold leading-relaxed ${m.senderRole === pathRole ? 'text-white' : 'text-slate-800'}`}>{m.message}</p>
@@ -133,7 +133,7 @@ const SupportTicketDetail = () => {
         />
         <motion.button whileTap={{ scale: 0.9 }} onClick={handleSend} disabled={!reply.trim() || sending}
           className={`w-11 h-11 rounded-[14px] flex items-center justify-center shrink-0 transition-all ${
-            reply.trim() ? 'bg-slate-900 shadow-sm' : 'bg-slate-200'
+            reply.trim() ? 'bg-emerald-600 shadow-sm' : 'bg-slate-200'
           }`}>
           {sending
             ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

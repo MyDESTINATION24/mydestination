@@ -555,7 +555,7 @@ const IntercityVehicle = () => {
             whileTap={{ scale: 0.98 }}
             onClick={handleContinue}
             disabled={!selectedVehicle}
-            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-slate-900 px-5 text-sm font-medium text-white disabled:opacity-50"
+            className="flex h-12 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 text-sm font-medium text-white disabled:opacity-50"
           >
             Continue
             <ChevronRight size={16} />

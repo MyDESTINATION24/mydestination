@@ -28,7 +28,7 @@ const Field = ({ label, children }) => (
 const PrimaryButton = ({ children, className = '', ...props }) => (
   <button
     type="button"
-    className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 text-white px-4 py-3 text-[12px] font-black uppercase tracking-[0.18em] shadow-[0_16px_34px_rgba(15,23,42,0.18)] active:scale-95 transition-all ${className}`}
+    className={`w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 text-white px-4 py-3 text-[12px] font-black uppercase tracking-[0.18em] shadow-[0_16px_34px_rgba(15,23,42,0.18)] active:scale-95 transition-all ${className}`}
     {...props}
   >
     {children}

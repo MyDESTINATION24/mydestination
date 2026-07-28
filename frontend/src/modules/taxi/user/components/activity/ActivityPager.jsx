@@ -23,7 +23,7 @@ const ActivityPager = ({ pagination, onPrevious, onNext }) => {
           type="button"
           onClick={onNext}
           disabled={!pagination.hasNextPage}
-          className="flex-1 rounded-xl border border-slate-900 bg-slate-900 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex-1 rounded-xl border border-emerald-600 bg-emerald-600 px-4 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white disabled:cursor-not-allowed disabled:opacity-45"
         >
           Next
         </button>

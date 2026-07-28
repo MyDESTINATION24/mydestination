@@ -988,7 +988,7 @@ const ParcelSearchingDriver = () => {
                     <motion.button
                       whileTap={{ scale: 0.96 }}
                       onClick={() => navigate(`${routePrefix}/parcel/chat`, { state: { driver } })}
-                      className="flex items-center justify-center gap-3 rounded-[22px] bg-slate-950 py-4.5 shadow-[0_12px_24px_rgba(15,23,42,0.15)] active:shadow-none"
+                      className="flex items-center justify-center gap-3 rounded-[22px] bg-emerald-700 py-4.5 shadow-[0_12px_24px_rgba(15,23,42,0.15)] active:shadow-none"
                     >
                       <MessageCircle size={18} className="text-white" strokeWidth={2.5} />
                       <span className="text-[13px] font-black text-white uppercase tracking-widest leading-none">Chat</span>
@@ -1036,7 +1036,7 @@ const ParcelSearchingDriver = () => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={handleCancel}
-                  className="w-full bg-slate-900 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest"
+                  className="w-full bg-emerald-600 text-white py-3.5 rounded-[16px] text-[13px] font-bold uppercase tracking-widest"
                 >
                   Yes, Cancel
                 </motion.button>

@@ -562,7 +562,7 @@ const IntercityHome = () => {
                         </div>
                       ))}
                       {pkg.vehicles?.length > 3 && (
-                        <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-900 text-white text-[9px] font-black flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full border-2 border-white bg-emerald-600 text-white text-[9px] font-black flex items-center justify-center">
                           +{pkg.vehicles.length - 3}
                         </div>
                       )}

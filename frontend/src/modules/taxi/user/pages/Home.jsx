@@ -608,7 +608,7 @@ const Home = () => {
             </div>
           </div>
         ) : banners.length > 0 ? (
-          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-slate-900 flex items-center justify-center">
+          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
@@ -678,7 +678,7 @@ const Home = () => {
                 </div>
                 <div className="relative mb-1">
                   <div className="absolute -inset-4 rounded-full bg-emerald-100/30 blur-xl animate-pulse" />
-                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-950 shadow-2xl shadow-slate-950/40 border border-slate-800">
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-700 shadow-2xl shadow-slate-950/40 border border-emerald-500">
                     <img src={currentRideIcon} alt="" className="h-10 w-10 object-contain" />
                   </div>
                 </div>
@@ -700,7 +700,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-slate-950 px-4 py-3.5 text-white shadow-xl shadow-slate-950/20">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-emerald-700 px-4 py-3.5 text-white shadow-xl shadow-slate-950/20">
                 <div className="min-w-0 flex-1">
                   <p className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">Trip Route</p>
                   <div className="mt-1 flex items-center gap-2 text-[12px] font-bold">
@@ -756,7 +756,7 @@ const Home = () => {
                       handleEndRide();
                     }}
                     disabled={endingRide || rideStage === 'end_requested'}
-                    className="bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-[0_8px_16px_rgba(15,23,42,0.2)] active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
+                    className="bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-[0_8px_16px_rgba(15,23,42,0.2)] active:scale-95 disabled:opacity-50 disabled:grayscale transition-all"
                   >
                     {endingRide ? 'Ending...' : rideStage === 'end_requested' ? 'Pending' : 'End Ride'}
                   </button>
@@ -1068,7 +1068,7 @@ const Home = () => {
             onClick={() => navigate(trackingPath, { state: currentRide })}
             className="fixed bottom-24 left-4 right-4 z-[60] mx-auto flex max-w-3xl items-center gap-3 rounded-[20px] border border-white/80 bg-white/95 px-4 py-3 text-left shadow-[0_12px_34px_rgba(15,23,42,0.16)] backdrop-blur-xl"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-slate-900 shadow-lg">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-emerald-600 shadow-lg">
               <img src={currentRideIcon} alt={vehicleLabel} className="h-8 w-8 object-contain" draggable={false} />
             </div>
             <div className="min-w-0 flex-1">
@@ -1134,7 +1134,7 @@ const Home = () => {
               <p className="text-[11px] font-black text-slate-900 px-2 py-0.5 rounded-lg bg-slate-100">
                 Rs {Number(serviceType === 'rental' ? rentalCurrentCharge : currentRide.fare || 0).toFixed(0)}
               </p>
-              <div className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-slate-900 text-white shadow-md">
+              <div className="mt-1 inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-emerald-600 text-white shadow-md">
                 <ChevronRight size={18} strokeWidth={3} />
               </div>
             </div>

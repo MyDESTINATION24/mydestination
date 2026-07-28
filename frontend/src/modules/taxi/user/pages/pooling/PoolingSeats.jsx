@@ -26,7 +26,7 @@ const SEAT_LEGEND = [
   { key: 'available', label: 'Available', color: 'bg-white border-slate-200 text-slate-400' },
   { key: 'selected', label: 'Selected', color: 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-200 shadow-lg' },
   { key: 'booked', label: 'Booked', color: 'bg-slate-100 border-slate-100 text-slate-300' },
-  { key: 'driver', label: 'Driver', color: 'bg-slate-900 border-slate-900 text-slate-400' },
+  { key: 'driver', label: 'Driver', color: 'bg-emerald-600 border-emerald-600 text-slate-400' },
 ];
 
 const unwrapPayload = (response) => response?.data?.data || response?.data || response || {};
@@ -312,7 +312,7 @@ const PoolingSeats = () => {
                         onClick={() => item.type === 'seat' && toggleSeat(seatId)}
                         className={`group relative flex h-16 w-16 items-center justify-center rounded-[20px] transition-all duration-300 ${
                           item.type === 'driver'
-                            ? 'border-2 border-slate-900 bg-slate-900 text-slate-500 shadow-xl shadow-slate-100 ring-4 ring-slate-50'
+                            ? 'border-2 border-emerald-600 bg-emerald-600 text-slate-500 shadow-xl shadow-slate-100 ring-4 ring-slate-50'
                             : isBooked
                               ? 'cursor-not-allowed border-2 border-slate-100 bg-slate-50 text-slate-200'
                               : isSelected
@@ -412,7 +412,7 @@ const PoolingSeats = () => {
                 initial={{ opacity: 0, y: 30, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 30, scale: 0.9 }}
-                className="overflow-hidden rounded-[32px] bg-slate-900 p-2 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.5)] border border-white/10"
+                className="overflow-hidden rounded-[32px] bg-emerald-600 p-2 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.5)] border border-white/10"
               >
                 <div className="flex items-center justify-between pl-6 pr-2 py-2">
                   <div>
@@ -430,7 +430,7 @@ const PoolingSeats = () => {
                     className="group flex h-16 items-center gap-3 rounded-[24px] bg-white px-6 text-sm font-black text-slate-900 transition-all hover:bg-emerald-50 active:scale-95"
                   >
                     CONTINUE
-                    <div className="rounded-full bg-slate-900 p-1 text-white group-hover:translate-x-1 transition-transform">
+                    <div className="rounded-full bg-emerald-600 p-1 text-white group-hover:translate-x-1 transition-transform">
                       <ChevronRight size={20} />
                     </div>
                   </button>

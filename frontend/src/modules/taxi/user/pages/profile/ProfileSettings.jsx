@@ -152,7 +152,7 @@ const ProfileSettings = () => {
               <label className={`relative flex h-11 items-center justify-center gap-2 rounded-2xl border text-[11px] font-bold uppercase tracking-wider transition-all ${
                 photoUploading
                   ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                  : 'cursor-pointer border-slate-900 bg-slate-950 text-white active:scale-[0.99]'
+                  : 'cursor-pointer border-emerald-600 bg-emerald-700 text-white active:scale-[0.99]'
               }`}>
                 <Camera size={14} />
                 Camera
@@ -178,7 +178,7 @@ const ProfileSettings = () => {
          <div className="space-y-6">
             <div className="space-y-2">
                <label className="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-widest">Full Name</label>
-               <div className="flex items-center gap-4 bg-slate-50/50 border border-slate-100 rounded-[28px] p-4 px-5 focus-within:bg-white focus-within:border-slate-900 transition-all shadow-sm">
+               <div className="flex items-center gap-4 bg-slate-50/50 border border-slate-100 rounded-[28px] p-4 px-5 focus-within:bg-white focus-within:border-emerald-600 transition-all shadow-sm">
                   <User size={18} className="text-slate-400" />
                   <input 
                      type="text" 
@@ -193,7 +193,7 @@ const ProfileSettings = () => {
 
             <div className="space-y-2">
                <label className="text-[11px] font-bold text-slate-400 ml-1 uppercase tracking-widest">Email Address</label>
-               <div className="flex items-center gap-4 bg-slate-50/50 border border-slate-100 rounded-[28px] p-4 px-5 focus-within:bg-white focus-within:border-slate-900 transition-all shadow-sm">
+               <div className="flex items-center gap-4 bg-slate-50/50 border border-slate-100 rounded-[28px] p-4 px-5 focus-within:bg-white focus-within:border-emerald-600 transition-all shadow-sm">
                   <Mail size={18} className="text-slate-400" />
                   <input 
                      type="email" 
@@ -223,7 +223,7 @@ const ProfileSettings = () => {
          <button 
             onClick={handleSave}
             disabled={photoUploading || saving}
-            className="w-full bg-slate-900 h-15 rounded-[28px] text-[15px] font-bold text-white shadow-xl shadow-slate-900/10 active:scale-98 transition-all disabled:opacity-50"
+            className="w-full bg-emerald-600 h-15 rounded-[28px] text-[15px] font-bold text-white shadow-xl shadow-slate-900/10 active:scale-98 transition-all disabled:opacity-50"
          >
             {saving ? 'Saving Changes...' : 'Save Profile'}
          </button>

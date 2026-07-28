@@ -303,7 +303,7 @@ const Wallet = () => {
                         key={val}
                         onClick={() => setAmount(val)}
                         className={`py-3 rounded-xl font-bold text-sm transition-all ${
-                          amount === val ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-50 text-slate-600 border border-slate-100'
+                          amount === val ? 'bg-emerald-600 text-white shadow-lg' : 'bg-slate-50 text-slate-600 border border-slate-100'
                         }`}
                       >
                         +₹{val}
@@ -315,7 +315,7 @@ const Wallet = () => {
                     onClick={handleAddMoney}
                     disabled={isAdding || !amount}
                     className={`w-full h-14 rounded-2xl font-bold text-base shadow-lg transition-all flex items-center justify-center gap-2 active:scale-95 ${
-                      isAdding || !amount ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed' : 'bg-slate-900 text-white shadow-slate-200'
+                      isAdding || !amount ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed' : 'bg-emerald-600 text-white shadow-slate-200'
                     }`}
                   >
                     {isAdding ? 'Processing...' : 'Refill Wallet'}
@@ -344,7 +344,7 @@ const Wallet = () => {
         <Motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl shadow-slate-200 relative overflow-hidden"
+          className="bg-emerald-600 rounded-3xl p-8 text-white shadow-xl shadow-slate-200 relative overflow-hidden"
         >
           <div className="relative z-10 flex flex-col gap-8">
             <div className="space-y-1">
@@ -387,7 +387,7 @@ const Wallet = () => {
           onClick={() => navigate(`${basePath}/referral`)}
           className="w-full bg-white border border-slate-100 rounded-3xl p-5 flex items-center gap-4 active:scale-[0.98] transition-all shadow-sm group"
         >
-          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all shrink-0">
+          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 group-hover:bg-emerald-600 group-hover:text-white transition-all shrink-0">
             <Gift size={20} />
           </div>
           <div className="flex-1 text-left">

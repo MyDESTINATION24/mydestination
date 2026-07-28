@@ -469,7 +469,7 @@ const BikeRentalHome = () => {
                   <motion.button
                     whileTap={{ scale: 0.96 }}
                     onClick={() => openVehicleDetail(v)}
-                    className="bg-slate-900 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-black uppercase tracking-widest flex items-center gap-1 shadow-[0_6px_16px_rgba(15,23,42,0.18)] active:bg-black transition-all"
+                    className="bg-emerald-600 text-white px-4 py-2.5 rounded-[12px] text-[11px] font-black uppercase tracking-widest flex items-center gap-1 shadow-[0_6px_16px_rgba(15,23,42,0.18)] active:bg-black transition-all"
                   >
                     Book Now <ChevronRight size={13} strokeWidth={3} className="opacity-60" />
                   </motion.button>

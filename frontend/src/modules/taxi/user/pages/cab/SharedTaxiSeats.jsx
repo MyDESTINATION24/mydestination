@@ -117,7 +117,7 @@ const SharedTaxiSeats = () => {
                     onClick={() => toggle(seat.id)}
                     className={`w-14 h-14 rounded-[14px] border-2 flex flex-col items-center justify-center gap-0.5 transition-all ${
                       seat.status === 'booked'    ? 'bg-red-50 border-red-200 cursor-not-allowed opacity-60' :
-                      seat.status === 'selected'  ? 'bg-slate-900 border-slate-900 shadow-[0_4px_12px_rgba(15,23,42,0.2)]' :
+                      seat.status === 'selected'  ? 'bg-emerald-600 border-emerald-600 shadow-[0_4px_12px_rgba(15,23,42,0.2)]' :
                                                     'bg-white border-slate-200 hover:border-emerald-300'
                     }`}>
                     <span className="text-base leading-none">
@@ -134,7 +134,7 @@ const SharedTaxiSeats = () => {
                     onClick={() => toggle(seat.id)}
                     className={`w-14 h-14 rounded-[14px] border-2 flex flex-col items-center justify-center gap-0.5 transition-all ${
                       seat.status === 'booked'    ? 'bg-red-50 border-red-200 cursor-not-allowed opacity-60' :
-                      seat.status === 'selected'  ? 'bg-slate-900 border-slate-900 shadow-[0_4px_12px_rgba(15,23,42,0.2)]' :
+                      seat.status === 'selected'  ? 'bg-emerald-600 border-emerald-600 shadow-[0_4px_12px_rgba(15,23,42,0.2)]' :
                                                     'bg-white border-slate-200 hover:border-emerald-300'
                     }`}>
                     <span className="text-base leading-none">
@@ -151,7 +151,7 @@ const SharedTaxiSeats = () => {
 
           {/* Legend */}
           <div className="flex justify-center gap-4 pt-2 border-t border-slate-50">
-            {[['bg-white border-slate-200','Available'],['bg-slate-900 border-slate-900','Selected'],['bg-red-50 border-red-200','Booked']].map(([cls,lbl]) => (
+            {[['bg-white border-slate-200','Available'],['bg-emerald-600 border-emerald-600','Selected'],['bg-red-50 border-red-200','Booked']].map(([cls,lbl]) => (
               <div key={lbl} className="flex items-center gap-1.5">
                 <div className={`w-3 h-3 rounded border-2 ${cls}`} />
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">{lbl}</span>
@@ -182,7 +182,7 @@ const SharedTaxiSeats = () => {
         <motion.button whileTap={{ scale: 0.98 }} disabled={selected.length === 0}
           onClick={() => navigate('/cab/shared/confirm', { state: { route, date, seats: selected, total } })}
           className={`pointer-events-auto w-full py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2 transition-all ${
-            selected.length > 0 ? 'bg-slate-900' : 'bg-slate-300'
+            selected.length > 0 ? 'bg-emerald-600' : 'bg-slate-300'
           }`}>
           Continue to Booking <ChevronRight size={17} strokeWidth={3} className="opacity-50" />
         </motion.button>

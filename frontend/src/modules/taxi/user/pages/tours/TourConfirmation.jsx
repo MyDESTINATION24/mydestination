@@ -182,7 +182,7 @@ const TourConfirmation = () => {
         >
           <button
             onClick={() => navigate('/taxi/user')}
-            className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition active:scale-95"
+            className="w-full h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-emerald-500 transition active:scale-95"
           >
             <Home size={14} />
             Back to Dashboard

@@ -462,9 +462,9 @@ const AirwaysRouteBooking = () => {
                     <PlaneTakeoff size={12} className="text-sky-300" />
                     <span className="text-[10px] font-bold text-white uppercase tracking-widest">{selectedAirway?.airlineName || 'Helicopter'}</span>
                  </div>
-                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/20">
+                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20">
                     <div className="h-1 w-1 rounded-full bg-emerald-400" />
-                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-widest">Available</span>
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest">Available</span>
                  </div>
               </div>
            </motion.div>
@@ -481,7 +481,7 @@ const AirwaysRouteBooking = () => {
                 <div className="flex flex-col items-center gap-2">
                    <div className={`h-10 w-10 rounded-2xl flex items-center justify-center border-2 transition-all duration-500 ${
                      currentStep === step 
-                      ? 'bg-slate-950 border-slate-950 text-white shadow-xl shadow-slate-950/20 scale-110' 
+                      ? 'bg-emerald-700 border-emerald-700 text-white shadow-xl shadow-slate-950/20 scale-110' 
                       : currentStep > step 
                         ? 'bg-emerald-500 border-emerald-500 text-white' 
                         : 'bg-white border-slate-100 text-slate-400'
@@ -606,7 +606,7 @@ const AirwaysRouteBooking = () => {
                           onClick={() => setSelectedAirwayId(airway.id)}
                           className={`min-w-[200px] rounded-[28px] p-4 border-2 transition-all ${
                             selectedAirwayId === airway.id 
-                            ? 'bg-white border-slate-950 shadow-xl' 
+                            ? 'bg-white border-emerald-700 shadow-xl' 
                             : 'bg-white border-transparent shadow-sm'
                           }`}
                         >
@@ -627,7 +627,7 @@ const AirwaysRouteBooking = () => {
 
               <button
                 onClick={nextStep}
-                className="w-full flex items-center justify-center gap-2 sm:gap-3 rounded-[24px] sm:rounded-[28px] bg-slate-950 py-4 sm:py-5 text-white shadow-2xl shadow-slate-950/20 active:scale-[0.98] transition-all group"
+                className="w-full flex items-center justify-center gap-2 sm:gap-3 rounded-[24px] sm:rounded-[28px] bg-emerald-700 py-4 sm:py-5 text-white shadow-2xl shadow-slate-950/20 active:scale-[0.98] transition-all group"
               >
                 <span className="text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest">Continue to Passengers</span>
                 <ChevronRight size={18} className="shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -741,7 +741,7 @@ const AirwaysRouteBooking = () => {
                  </button>
                  <button
                    onClick={nextStep}
-                   className="flex-1 h-[64px] rounded-[28px] bg-slate-950 text-white font-black uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20"
+                   className="flex-1 h-[64px] rounded-[28px] bg-emerald-700 text-white font-black uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20"
                  >
                     Next Step
                  </button>
@@ -796,7 +796,7 @@ const AirwaysRouteBooking = () => {
               </div>
 
               {/* Flight Summary Box */}
-              <div className="rounded-[32px] bg-slate-950 p-6 text-white overflow-hidden relative">
+              <div className="rounded-[32px] bg-emerald-700 p-6 text-white overflow-hidden relative">
                  <div className="relative z-10 space-y-4">
                     <div className="flex items-center gap-3">
                        <div className="h-8 w-8 rounded-lg bg-white/10 flex items-center justify-center">
@@ -822,7 +822,7 @@ const AirwaysRouteBooking = () => {
                  <button
                    onClick={handleSubmit}
                    disabled={submitting || !activePaymentGateway}
-                   className="flex-1 h-14 sm:h-[64px] relative overflow-hidden rounded-[24px] sm:rounded-[28px] bg-slate-950 text-white font-black text-xs sm:text-sm uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20 disabled:opacity-50"
+                   className="flex-1 h-14 sm:h-[64px] relative overflow-hidden rounded-[24px] sm:rounded-[28px] bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest active:scale-95 transition-all shadow-2xl shadow-slate-950/20 disabled:opacity-50"
                  >
                     <div className="relative z-10 flex items-center justify-center gap-3">
                        {submitting ? (

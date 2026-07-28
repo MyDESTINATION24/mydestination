@@ -328,9 +328,9 @@ const TourBooking = () => {
         className="px-6 py-6 space-y-6"
       >
         {/* Yatra Summary Card */}
-        <div className="rounded-3xl bg-slate-900 p-5 text-white shadow-xl flex items-center justify-between">
+        <div className="rounded-3xl bg-emerald-600 p-5 text-white shadow-xl flex items-center justify-between">
           <div className="space-y-1">
-            <span className="inline-flex rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-emerald-400">
+            <span className="inline-flex rounded-lg bg-white/15 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-white">
               Selected tour
             </span>
             <h2 className="text-base font-black tracking-tight">{tour.name}</h2>
@@ -524,7 +524,7 @@ const TourBooking = () => {
           </div>
 
           {/* Interactive Invoice Billing Card */}
-          <div className="rounded-[32px] bg-slate-950 p-6 text-white shadow-2xl relative overflow-hidden space-y-4">
+          <div className="rounded-[32px] bg-emerald-700 p-6 text-white shadow-2xl relative overflow-hidden space-y-4">
             <div className="absolute top-[-30px] right-[-30px] h-32 w-32 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none" />
             
             <div className="flex items-center gap-2">
@@ -568,7 +568,7 @@ const TourBooking = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-slate-800 transition active:scale-95 disabled:opacity-50"
+            className="w-full h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center gap-2 text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-900/10 hover:bg-emerald-500 transition active:scale-95 disabled:opacity-50"
           >
             {submitting ? 'Processing Yatra Reservation...' : 'Confirm & Reserve Yatra'}
             <ArrowRight size={14} />

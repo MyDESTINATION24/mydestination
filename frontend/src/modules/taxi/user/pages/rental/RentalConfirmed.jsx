@@ -448,7 +448,7 @@ const RentalConfirmed = () => {
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate('/user')}
-              className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
+              className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
             >
               <Home size={16} strokeWidth={2.5} /> {isCompletedRentalRide ? 'Back to Home' : 'Track from Home'}
             </motion.button>
@@ -472,7 +472,7 @@ const RentalConfirmed = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleEndRide}
                 disabled={endingRide || !isWithinHubRange}
-                className="w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale-[0.5]"
+                className="w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:grayscale-[0.5]"
               >
                 <CheckCircle2 size={16} strokeWidth={2.5} /> {endingRide ? 'Sending end request...' : 'Request End Ride'}
               </motion.button>
@@ -626,7 +626,7 @@ const RentalConfirmed = () => {
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/taxi/user')}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
+          className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
         >
           <Home size={16} strokeWidth={2.5} /> Go to Home Dashboard
         </motion.button>

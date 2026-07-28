@@ -116,7 +116,7 @@ const PromoCodes = () => {
               className="flex-1 bg-slate-50 border border-slate-100 rounded-[12px] px-4 py-2.5 text-[14px] font-black text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-200"
             />
             <motion.button whileTap={{ scale: 0.96 }} onClick={handleManualApply}
-              className="bg-slate-900 text-white px-4 py-2.5 rounded-[12px] text-[12px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+              className="bg-emerald-600 text-white px-4 py-2.5 rounded-[12px] text-[12px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
               Apply <ChevronRight size={13} strokeWidth={3} />
             </motion.button>
           </div>
@@ -172,7 +172,7 @@ const PromoCodes = () => {
                 className={`w-full py-2.5 rounded-[12px] text-[12px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
                   isApplied
                     ? 'bg-emerald-100 text-emerald-700 cursor-default'
-                    : 'bg-slate-900 text-white shadow-sm active:bg-black'
+                    : 'bg-emerald-600 text-white shadow-sm active:bg-black'
                 }`}>
                 {isApplying ? (
                   <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

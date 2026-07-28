@@ -57,7 +57,7 @@ const TourDetails = () => {
     <div className="min-h-screen bg-slate-50 pb-28 max-w-lg mx-auto relative overflow-hidden font-sans">
       
       {/* Hero Banner Section */}
-      <div className="relative h-64 w-full bg-slate-900">
+      <div className="relative h-64 w-full bg-emerald-600">
         {tour.image ? (
           <img src={tour.image} alt={tour.name} className="h-full w-full object-cover opacity-90" />
         ) : (
@@ -65,7 +65,7 @@ const TourDetails = () => {
             <Compass size={60} />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-600 via-slate-900/30 to-transparent" />
         
         {/* Floating Top Nav bar */}
         <div className="absolute top-12 md:top-4 left-4 right-4 flex items-center justify-between">
@@ -162,7 +162,7 @@ const TourDetails = () => {
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="activeTabUnderline"
-                  className="absolute bottom-0 inset-x-0 h-0.5 bg-slate-950"
+                  className="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-700"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
@@ -268,16 +268,16 @@ const TourDetails = () => {
 
                 {/* Guide */}
                 {tour.guide?.name && (
-                  <div className="rounded-2xl bg-slate-900 p-5 text-white shadow-lg space-y-4 relative overflow-hidden">
+                  <div className="rounded-2xl bg-emerald-600 p-5 text-white shadow-lg space-y-4 relative overflow-hidden">
                     <div className="absolute right-[-30px] top-[-30px] h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl pointer-events-none" />
                     <div className="relative z-10 flex items-start gap-3">
                       <div className="h-12 w-12 shrink-0 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
                         {tour.guide.photo
                           ? <img src={tour.guide.photo} alt={tour.guide.name} className="h-full w-full object-cover" />
-                          : <Users size={20} className="text-emerald-300" />}
+                          : <Users size={20} className="text-white" />}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">Your Trek Guide</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-white/80">Your Trek Guide</p>
                         <h4 className="text-base font-black leading-tight mt-0.5">{tour.guide.name}</h4>
                         {tour.guide.experienceYears > 0 && (
                           <p className="text-[11px] font-bold text-slate-300 mt-0.5">{tour.guide.experienceYears} years leading treks</p>
@@ -293,7 +293,7 @@ const TourDetails = () => {
                       <div className="relative z-10 flex flex-wrap gap-2">
                         {tour.guide.certifications.map((cert) => (
                           <span key={cert} className="inline-flex items-center gap-1 rounded-lg bg-white/10 px-2.5 py-1 text-[10px] font-black text-white border border-white/10">
-                            <Award size={10} className="text-emerald-300" /> {cert}
+                            <Award size={10} className="text-white/80" /> {cert}
                           </span>
                         ))}
                       </div>
@@ -326,10 +326,10 @@ const TourDetails = () => {
                 {tour.itinerary.map((day, idx) => (
                   <div key={idx} className="relative space-y-1">
                     {/* Timeline Node dot */}
-                    <div className="absolute left-[-23px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 ring-4 ring-slate-100">
+                    <div className="absolute left-[-23px] top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-700 ring-4 ring-slate-100">
                       <div className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     </div>
-                    <span className="inline-flex rounded-lg bg-slate-900 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">
+                    <span className="inline-flex rounded-lg bg-emerald-600 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">
                       {day.day}
                     </span>
                     <h4 className="text-sm font-black text-slate-900 pt-0.5">{day.title}</h4>
@@ -434,7 +434,7 @@ const TourDetails = () => {
         </div>
         <button
           onClick={() => navigate(`/taxi/user/tours/book/${tour.id}`)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-slate-950/20 hover:bg-slate-800 transition active:scale-95"
+          className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 px-6 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-slate-950/20 hover:bg-emerald-500 transition active:scale-95"
         >
           Book Yatra Now
           <ArrowRight size={14} />

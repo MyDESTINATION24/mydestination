@@ -491,7 +491,7 @@ const RentalDeposit = () => {
           whileTap={{ scale: 0.98 }}
           onClick={handlePay}
           disabled={paying || (method === 'wallet' && !walletLoading && Number(walletBalance || 0) < payableNow)}
-          className="pointer-events-auto w-full bg-slate-900 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
+          className="pointer-events-auto w-full bg-emerald-600 py-4 rounded-[18px] text-[15px] font-black text-white shadow-[0_8px_24px_rgba(15,23,42,0.18)] flex items-center justify-center gap-2"
         >
           {paying ? (
             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

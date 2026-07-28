@@ -18,7 +18,7 @@ export const ActivitySupportState = ({ onContact }) => (
     <button
       type="button"
       onClick={onContact}
-      className="mt-2 bg-slate-900 text-white px-7 py-3 rounded-full text-[12px] font-black uppercase tracking-[0.18em] shadow-[0_16px_34px_rgba(15,23,42,0.18)] active:scale-95 transition-all"
+      className="mt-2 bg-emerald-600 text-white px-7 py-3 rounded-full text-[12px] font-black uppercase tracking-[0.18em] shadow-[0_16px_34px_rgba(15,23,42,0.18)] active:scale-95 transition-all"
     >
       Contact Us
     </button>
@@ -51,7 +51,7 @@ export const ActivityErrorState = ({ error, onRetry }) => (
     <button
       type="button"
       onClick={onRetry}
-      className="mt-2 bg-slate-900 text-white px-6 py-3 rounded-full text-[12px] font-black uppercase tracking-[0.18em] shadow-sm active:scale-95 transition-all"
+      className="mt-2 bg-emerald-600 text-white px-6 py-3 rounded-full text-[12px] font-black uppercase tracking-[0.18em] shadow-sm active:scale-95 transition-all"
     >
       Retry
     </button>

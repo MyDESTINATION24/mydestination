@@ -540,7 +540,7 @@ const BusHome = () => {
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleSearch}
-            className="w-full bg-black hover:bg-slate-900 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-all"
+            className="w-full bg-black hover:bg-emerald-600 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-all"
           >
             <Search size={18} className="stroke-[2.5px]" />
             <span>Search Buses</span>

@@ -102,7 +102,7 @@ const HeaderGreeting = () => {
               className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 border border-white/30 text-slate-900 hover:bg-white/60 transition-colors shadow-sm active:scale-95"
               title="My Profile"
             >
-              <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
                 <User size={14} className="text-white" />
               </div>
               <span className="text-xs font-black tracking-tight">

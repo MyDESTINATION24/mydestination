@@ -74,7 +74,7 @@ const SharedTaxi = () => {
                 onClick={() => setSelectedDate(d)}
                 className={`shrink-0 flex flex-col items-center px-3 py-2 rounded-[14px] border transition-all min-w-[52px] ${
                   isActive
-                    ? 'bg-slate-900 border-slate-900 shadow-[0_4px_12px_rgba(15,23,42,0.18)]'
+                    ? 'bg-emerald-600 border-emerald-600 shadow-[0_4px_12px_rgba(15,23,42,0.18)]'
                     : 'bg-white/80 border-white/80 shadow-[0_2px_6px_rgba(15,23,42,0.05)]'
                 }`}>
                 <span className={`text-[9px] font-black uppercase tracking-wider ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>

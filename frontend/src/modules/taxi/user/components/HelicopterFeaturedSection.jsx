@@ -125,7 +125,7 @@ const HelicopterFeaturedSection = () => {
                 className="w-full h-full object-cover select-none"
               />
               {/* Premium dark gradient overlay for legible text */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-700 via-slate-900/40 to-black/20" />
             </motion.div>
           </AnimatePresence>
         </div>

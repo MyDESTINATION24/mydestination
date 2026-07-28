@@ -208,7 +208,7 @@ const AirwaysHome = () => {
                        <input type="date" value={searchForm.travelDate} onChange={(e) => setSearchForm({...searchForm, travelDate: e.target.value})} className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-slate-100 transition-all" />
                     </div>
                  </div>
-                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-14 sm:h-16 rounded-3xl bg-slate-950 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-14 sm:h-16 rounded-3xl bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
                     <Search size={20} />
                     Explore Routes
                  </button>
@@ -308,7 +308,7 @@ const AirwaysHome = () => {
                           </div>
                        </div>
 
-                       <button onClick={() => navigate(`/taxi/user/airways/routes/${f.id}`, { state: { travelDate: appliedFilters.travelDate, selectedAirwayId: f.selectedAirway.id } })} className="w-full h-14 sm:h-16 rounded-[24px] sm:rounded-[28px] bg-slate-950 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-slate-950/20 active:scale-95 transition-all">
+                       <button onClick={() => navigate(`/taxi/user/airways/routes/${f.id}`, { state: { travelDate: appliedFilters.travelDate, selectedAirwayId: f.selectedAirway.id } })} className="w-full h-14 sm:h-16 rounded-[24px] sm:rounded-[28px] bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-lg shadow-slate-950/20 active:scale-95 transition-all">
                           Select Flight
                        </button>
                     </motion.div>
