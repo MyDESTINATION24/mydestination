@@ -81,8 +81,8 @@ const SuperAppDashboard = () => {
   };
 
   return (
-    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-32 md:p-8 flex flex-col md:items-center md:justify-center">
-      <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-10 md:pb-0">
+    <div className="fixed inset-0 overflow-y-auto bg-gray-50 px-4 pt-[calc(env(safe-area-inset-top)+3.5rem)] pb-20 md:p-8 flex flex-col md:items-center md:justify-center">
+      <div className="max-w-6xl mx-auto w-full flex flex-col flex-1 md:h-full md:min-h-0 pb-2 md:pb-0">
         
         {/* Header Section */}
         <div className="mb-6 md:mb-8">
