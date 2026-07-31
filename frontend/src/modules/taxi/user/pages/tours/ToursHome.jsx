@@ -109,7 +109,6 @@ const ToursHome = () => {
   const category = CATEGORIES.some((item) => item.id === searchParams.get('category'))
     ? searchParams.get('category')
     : 'all';
-  const active = CATEGORIES.find((item) => item.id === category);
   const isTrek = category === 'trek';
 
   useEffect(() => {
@@ -161,33 +160,19 @@ const ToursHome = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans">
-      {/* Top bar */}
-      <div className="sticky top-0 z-40 border-b border-slate-100 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2.5 lg:px-8">
-          <button
-            onClick={() => navigate('/taxi/user')}
-            className="flex items-center gap-1.5 text-sm font-bold text-slate-700 transition hover:text-slate-900"
-          >
-            <ChevronLeft size={18} />
-            Back
-          </button>
-
-          <div className="flex items-center gap-2">
-            {isTrek
-              ? <Mountain size={18} className="text-emerald-600" />
-              : <Compass size={18} className="text-emerald-600" />}
-            <span className="text-[13px] font-black uppercase tracking-[0.16em] text-slate-900">
-              {active.title}
-            </span>
-          </div>
-
-          <div className="w-[52px] lg:w-auto" />
-        </div>
-
-      </div>
-
-      {/* Hero: the uploaded banner and nothing else. No banner, no hero. */}
+      {/* Hero: the uploaded banner and nothing else. No banner, no hero.
+          No header bar -- back is a floating control so the banner starts at
+          the top of the page. */}
       <div className="relative">
+        <button
+          onClick={() => navigate('/taxi/user')}
+          aria-label="Back"
+          className="absolute left-5 top-5 z-30 flex h-10 items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/90 px-4 text-[13px] font-bold text-slate-800 shadow-md backdrop-blur-md transition hover:bg-white active:scale-95 lg:left-8"
+        >
+          <ChevronLeft size={17} />
+          Back
+        </button>
+
         {banner?.imageUrl ? (
           <div className="w-full overflow-hidden bg-slate-100">
             <img
@@ -200,7 +185,7 @@ const ToursHome = () => {
 
         {/* Filter bar overlapping the hero */}
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : 'mt-6'}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
+          <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : 'mt-20'}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
             <Dropdown
               icon={Layers}
               label="Package Type"
