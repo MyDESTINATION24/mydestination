@@ -411,7 +411,7 @@ const BusHome = () => {
         {/* lg: From / To / Date / Search collapse into one horizontal bar
             instead of three stacked cards down a 1200px column. */}
         <div className="space-y-5 lg:space-y-0 lg:rounded-[28px] lg:bg-white lg:p-3 lg:pb-5 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
-        <div className="space-y-5 lg:space-y-0 lg:flex lg:items-stretch">
+        <div className="space-y-5 lg:space-y-0 lg:flex lg:items-center">
         {/* Source/Destination inputs */}
         <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative lg:flex lg:flex-1 lg:min-w-0 lg:items-stretch lg:space-y-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none lg:rounded-none lg:p-0">
           <div className="flex items-center gap-3 relative z-10 lg:flex-1 lg:min-w-0 lg:px-5 lg:py-3">
@@ -465,7 +465,7 @@ const BusHome = () => {
         </div>
 
         {/* Date Selection Card */}
-        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3 lg:w-auto lg:shrink-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:border-l lg:border-slate-100 lg:rounded-none lg:shadow-none lg:flex-row-reverse lg:justify-end lg:gap-4 lg:pl-5">
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3 lg:w-auto lg:shrink-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:border-l lg:border-slate-100 lg:rounded-none lg:shadow-none lg:flex-row-reverse lg:justify-end lg:items-center lg:gap-4 lg:px-5 lg:py-3">
           <div className="flex items-center gap-2 lg:gap-1.5">
             {horizontalQuickDates.map((item) => {
               const isSelected = date === item.value;
@@ -508,7 +508,7 @@ const BusHome = () => {
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleSearch}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:mx-auto lg:mt-5 lg:px-20 lg:py-3.5"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:mx-auto lg:mt-4 lg:px-20 lg:py-3.5"
         >
           <Search size={18} className="stroke-[2.5px]" />
           <span>Search Buses</span>
