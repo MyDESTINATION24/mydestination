@@ -402,10 +402,10 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-5xl font-sans pb-32 lg:pb-16 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-none font-sans pb-32 lg:pb-16 relative overflow-hidden">
       {/* Desktop app bar */}
       <div className="hidden lg:block sticky top-0 z-30 bg-white border-b border-slate-100">
-        <div className="flex items-center justify-between gap-6 px-8 py-3">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-3.5">
           <button onClick={() => navigate('/taxi/user')} className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
               <BusFront size={19} />
@@ -434,7 +434,7 @@ const BusHome = () => {
         </div>
       </div>
 
-      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-8 lg:pb-4 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-4">
+      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-12 lg:pb-6 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 lg:w-11 lg:h-11 shrink-0 rounded-full bg-white/60 lg:bg-emerald-600 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white lg:hover:bg-emerald-700"
@@ -451,10 +451,10 @@ const BusHome = () => {
         </div>
       </header>
  
-      <div className="px-5 pt-4 space-y-5 lg:px-8">
+      <div className="px-5 pt-4 space-y-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:space-y-7">
         {/* lg: From / To / Date / Search collapse into one horizontal bar
             instead of three stacked cards down a 1200px column. */}
-        <div className="space-y-5 lg:space-y-0 lg:rounded-[28px] lg:bg-white lg:p-3 lg:pb-5 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
+        <div className="space-y-5 lg:space-y-0 lg:rounded-[28px] lg:bg-white lg:p-4 lg:pb-6 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
         <div className="space-y-5 lg:space-y-0 lg:flex lg:items-center">
         {/* Source/Destination inputs */}
         <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative lg:flex lg:flex-1 lg:min-w-0 lg:items-stretch lg:space-y-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none lg:rounded-none lg:p-0">
@@ -555,7 +555,7 @@ const BusHome = () => {
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={handleSearch}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:mx-auto lg:mt-4 lg:px-20 lg:py-3.5"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:mx-auto lg:mt-5 lg:px-24 lg:py-4"
         >
           <Search size={18} className="stroke-[2.5px]" />
           <span>Search Buses</span>
@@ -621,10 +621,10 @@ const BusHome = () => {
 
         {/* Banner Section (Dynamic Carousel / Skeleton Loading) */}
         {bannersLoading ? (
-          <div className="w-full h-44 sm:h-52 rounded-[28px] bg-slate-100 animate-pulse mt-2" />
+          <div className="w-full h-44 sm:h-52 lg:h-72 rounded-[28px] bg-slate-100 animate-pulse mt-2" />
         ) : banners.length > 0 ? (
           <div className="relative overflow-hidden rounded-[28px] border border-teal-100/50 bg-white shadow-sm mt-2">
-            <div className="relative w-full h-44 sm:h-52 overflow-hidden">
+            <div className="relative w-full h-44 sm:h-52 lg:h-72 overflow-hidden">
               <AnimatePresence initial={false} mode="wait">
                 <motion.img
                   key={currentBannerIndex}
