@@ -11,6 +11,7 @@ import {
   List,
   MapPin,
   Mountain,
+  Layers,
   SlidersHorizontal,
   Tag,
   Users,
@@ -183,24 +184,6 @@ const ToursHome = () => {
           <div className="w-[52px] lg:w-auto" />
         </div>
 
-        {/* Category tabs */}
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="flex justify-center gap-1 pb-0">
-            {CATEGORIES.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setSearchParams(item.id === 'all' ? {} : { category: item.id }, { replace: true })}
-                className={`rounded-t-lg px-6 py-2 text-[11px] font-black uppercase tracking-wider transition-all ${
-                  category === item.id
-                    ? 'bg-emerald-600 text-white'
-                    : 'text-slate-500 hover:text-slate-800'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Hero: the uploaded banner and nothing else. No banner, no hero. */}
@@ -218,6 +201,13 @@ const ToursHome = () => {
         {/* Filter bar overlapping the hero */}
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : 'mt-6'}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
+            <Dropdown
+              icon={Layers}
+              label="Package Type"
+              value={category}
+              options={CATEGORIES.map((item) => ({ id: item.id, label: item.title }))}
+              onChange={(next) => setSearchParams(next === 'all' ? {} : { category: next }, { replace: true })}
+            />
             <Dropdown
               icon={MapPin}
               label="Destination"
