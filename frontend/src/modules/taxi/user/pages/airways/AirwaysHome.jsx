@@ -178,11 +178,12 @@ const AirwaysHome = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-lg px-5">
+      <div className="mx-auto max-w-lg lg:max-w-6xl px-5 lg:px-8">
         {/* Floating Search Panel */}
         <div className="-mt-10 relative z-10">
-           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[32px] sm:rounded-[40px] bg-white p-5 sm:p-8 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
-              <div className="space-y-4 sm:space-y-5">
+           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[32px] sm:rounded-[40px] bg-white p-5 sm:p-8 lg:p-6 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
+              {/* lg: one horizontal booking bar -- fields beside each other, button at the end */}
+              <div className="space-y-4 sm:space-y-5 lg:grid lg:grid-cols-[1.5fr_1fr_auto] lg:items-end lg:gap-4 lg:space-y-0">
                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-1.5 relative">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">From</label>
@@ -208,7 +209,7 @@ const AirwaysHome = () => {
                        <input type="date" value={searchForm.travelDate} onChange={(e) => setSearchForm({...searchForm, travelDate: e.target.value})} className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-slate-100 transition-all" />
                     </div>
                  </div>
-                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-14 sm:h-16 rounded-3xl bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full lg:w-auto lg:px-10 h-14 sm:h-16 lg:h-[52px] rounded-3xl lg:rounded-2xl bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
                     <Search size={20} />
                     Explore Routes
                  </button>
@@ -225,9 +226,9 @@ const AirwaysHome = () => {
                      <h3 className="text-xl font-black text-slate-950 uppercase tracking-tight">Popular Sectors</h3>
                      <Zap size={20} className="text-sky-500" />
                   </div>
-                  <div className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4">
+                  <div className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0">
                      {featuredSectors.map((s) => (
-                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
+                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] lg:w-auto shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
                           <img src={s.image} alt={s.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                           <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 text-left">
@@ -270,7 +271,7 @@ const AirwaysHome = () => {
                   </button>
                </div>
 
-               <div className="space-y-6">
+               <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
                   {loading ? [...Array(3)].map((_, i) => <div key={i} className="h-48 rounded-[40px] bg-white animate-pulse border border-slate-50" />) 
                   : flattenedFlights.length > 0 ? flattenedFlights.map((f, i) => (
                     <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm hover:shadow-xl transition-all">

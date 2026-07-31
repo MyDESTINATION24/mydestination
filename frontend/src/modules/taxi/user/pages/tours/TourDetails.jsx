@@ -54,7 +54,7 @@ const TourDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28 max-w-lg mx-auto relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 pb-28 mx-auto w-full max-w-lg lg:max-w-3xl relative overflow-hidden font-sans">
       
       {/* Hero Banner Section */}
       <div className="relative h-64 w-full bg-emerald-600">
@@ -76,7 +76,7 @@ const TourDetails = () => {
             <ChevronLeft size={20} strokeWidth={2.5} />
           </button>
           <div className="rounded-2xl bg-white/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-white backdrop-blur-md">
-            Pilgrim Package
+            {isTrek ? 'Trek Package' : 'Pilgrim Package'}
           </div>
         </div>
 
@@ -424,7 +424,7 @@ const TourDetails = () => {
       </div>
 
       {/* Fixed Sticky Bottom Booking Action Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/90 border-t border-slate-100 p-5 backdrop-blur-md max-w-lg mx-auto flex items-center justify-between shadow-2xl">
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-white/90 border-t border-slate-100 p-5 backdrop-blur-md mx-auto max-w-lg lg:max-w-3xl flex items-center justify-between shadow-2xl">
         <div>
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none">Starting Cost</p>
           <p className="mt-1 text-xl font-black text-slate-900 tracking-tight leading-none">

@@ -471,9 +471,14 @@ const AirwaysRouteBooking = () => {
         </div>
       </div>
 
-      {/* Main Content Container */}
-      <div className="relative z-10 mx-auto max-w-lg px-5 -mt-8">
-        
+      {/* Main Content Container.
+          From lg the steps sit left and a persistent trip recap sits in a
+          sticky right rail, so the fare stays visible on every step instead of
+          only appearing at step 3. */}
+      <div className="relative z-10 mx-auto max-w-lg lg:max-w-5xl px-5 lg:px-8 -mt-8">
+       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-10">
+       <div className="min-w-0">
+
         {/* Step Indicator */}
         <div className="flex items-center justify-between mb-8 px-1 sm:px-4">
            {[1, 2, 3].map((step) => (
@@ -864,6 +869,69 @@ const AirwaysRouteBooking = () => {
               </button>
            </div>
         </div>
+       </div>
+
+       {/* Desktop-only trip recap rail */}
+       <aside className="hidden lg:block lg:sticky lg:top-8">
+          <div className="rounded-[32px] bg-white border border-slate-100 shadow-[0_24px_48px_-12px_rgba(15,23,42,0.08)] overflow-hidden">
+             <div className="bg-emerald-700 p-6 text-white">
+                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/70">
+                   <PlaneTakeoff size={14} /> Trip Summary
+                </div>
+                <h3 className="mt-2 text-lg font-['Outfit'] font-black leading-tight break-words">{route.routeName}</h3>
+                <div className="mt-4 flex items-center justify-between gap-3">
+                   <div className="min-w-0">
+                      <p className="text-base font-black break-words">{route.originAirport}</p>
+                      <p className="text-[10px] font-bold text-white/60 mt-0.5">{formatTimeLabel(route.departureTime)}</p>
+                   </div>
+                   <div className="shrink-0 flex flex-col items-center">
+                      <Zap size={14} className="text-white/80" />
+                      <span className="text-[8px] font-black uppercase tracking-widest text-white/50 mt-1">{route.durationMinutes}m</span>
+                   </div>
+                   <div className="min-w-0 text-right">
+                      <p className="text-base font-black break-words">{route.destinationAirport}</p>
+                      <p className="text-[10px] font-bold text-white/60 mt-0.5">{formatTimeLabel(route.arrivalTime)}</p>
+                   </div>
+                </div>
+             </div>
+
+             <div className="p-6 space-y-4">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                   <span className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-300" /> Date</span>
+                   <span className="text-slate-950">{formatTravelDate(travelDate)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                   <span className="flex items-center gap-2"><Users size={14} className="text-slate-300" /> Seats</span>
+                   <span className="text-slate-950">{seatCount}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                   <span className="flex items-center gap-2"><PlaneTakeoff size={14} className="text-slate-300" /> Operator</span>
+                   <span className="text-slate-950 truncate max-w-[150px]">{selectedAirway?.airlineName || '--'}</span>
+                </div>
+
+                <div className="h-px bg-slate-100" />
+
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                   <span>Subtotal</span>
+                   <span className="text-slate-950">{formatCurrency(subtotalFare)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500">
+                   <span>Service Tax ({serviceTaxPercent}%)</span>
+                   <span className="text-slate-950">{formatCurrency(serviceTaxAmount)}</span>
+                </div>
+                <div className="flex items-end justify-between pt-1">
+                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</span>
+                   <span className="text-2xl font-['Outfit'] font-black text-emerald-700">{formatCurrency(totalFare)}</span>
+                </div>
+
+                <div className="flex items-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-100 px-3 py-2.5">
+                   <ShieldCheck size={14} className="shrink-0 text-emerald-600" />
+                   <span className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Price locked while you book</span>
+                </div>
+             </div>
+          </div>
+       </aside>
+       </div>
       </div>
     </div>
   );

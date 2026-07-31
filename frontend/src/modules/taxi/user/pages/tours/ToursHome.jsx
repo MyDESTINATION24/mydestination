@@ -70,7 +70,7 @@ const ToursHome = () => {
   const formatPrice = (price) => `₹${Number(price || 0).toLocaleString('en-IN')}`;
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 max-w-lg mx-auto relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 mx-auto w-full max-w-lg lg:max-w-6xl relative overflow-hidden font-sans">
       
       {/* Background Orbs */}
       <div className="absolute top-[-40px] right-[-30px] h-48 w-48 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
@@ -96,7 +96,7 @@ const ToursHome = () => {
       <div className="px-6 py-6 space-y-6">
 
         {/* Category Switcher */}
-        <div className="flex gap-2 rounded-2xl bg-white/70 p-1.5 border border-slate-100 shadow-sm backdrop-blur-md">
+        <div className="flex gap-2 rounded-2xl bg-white/70 p-1.5 border border-slate-100 shadow-sm backdrop-blur-md lg:max-w-sm">
           {CATEGORIES.map((item) => (
             <button
               key={item.id}
@@ -163,7 +163,7 @@ const ToursHome = () => {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="space-y-5"
+              className="space-y-5 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-6 lg:space-y-0"
             >
               {tours.map((item) => (
                 <motion.div
