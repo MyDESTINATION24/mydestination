@@ -804,7 +804,7 @@ const Home = () => {
                 <img
                   src={taxiImg}
                   alt="Ride"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -835,7 +835,7 @@ const Home = () => {
                 <img
                   src={poolingImg}
                   alt="Pooling"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -866,7 +866,7 @@ const Home = () => {
                 <img
                   src={busImg}
                   alt="Bus"
-                  className="absolute bottom-3 -right-6 w-26 h-18 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-3 -right-6 w-26 h-18 lg:w-36 lg:h-24 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -897,7 +897,7 @@ const Home = () => {
                 <img
                   src={parcelImg}
                   alt="Delivery"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -928,7 +928,7 @@ const Home = () => {
                 <img
                   src={templeImg}
                   alt="Char Dham"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -953,7 +953,7 @@ const Home = () => {
                   </div>
                 </div>
 
-                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
+                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 lg:w-32 lg:h-32 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
               </motion.div>
 
               {/* Helicopter Card */}
@@ -983,7 +983,7 @@ const Home = () => {
                 <img
                   src={helicopterImg}
                   alt="Helicopter"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -1014,7 +1014,7 @@ const Home = () => {
                 <img
                   src={evStationImg}
                   alt="EV Stations"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
             </div>

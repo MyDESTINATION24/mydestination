@@ -170,7 +170,7 @@ const PoolingSeats = () => {
   const vehicleImage = (selectedVehicle?.images && selectedVehicle.images.length > 0) ? selectedVehicle.images[0] : taxiImg;
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-40 font-sans selection:bg-emerald-100">
+    <div className="mx-auto min-h-screen w-full max-w-lg lg:max-w-3xl bg-slate-50 pb-40 font-sans selection:bg-emerald-100">
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-5 pb-6 pt-12">
         <div className="mb-6 flex items-center gap-4">
           <button
@@ -404,7 +404,7 @@ const PoolingSeats = () => {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-lg -translate-x-1/2">
+      <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-lg lg:max-w-3xl -translate-x-1/2">
         <div className="mx-5 mb-8">
           <AnimatePresence>
             {selectedSeats.length > 0 ? (

@@ -138,9 +138,9 @@ const PoolingHome = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto font-sans selection:bg-emerald-100">
+    <div className="min-h-screen bg-white pb-24 mx-auto w-full max-w-lg lg:max-w-5xl font-sans selection:bg-emerald-100">
       {/* Header Section */}
-      <div className="relative bg-emerald-600 px-6 pt-12 pb-28 text-white overflow-hidden">
+      <div className="relative bg-emerald-600 px-6 pt-12 pb-28 lg:px-10 lg:pt-8 lg:mt-6 lg:rounded-[40px] text-white overflow-hidden">
         <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
         
@@ -182,7 +182,7 @@ const PoolingHome = () => {
       </div>
 
       {/* Search Card */}
-      <div className="mx-6 -mt-16 relative z-50">
+      <div className="mx-6 lg:mx-auto lg:max-w-2xl -mt-16 relative z-50">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -312,7 +312,7 @@ const PoolingHome = () => {
       </div>
 
       {/* Popular Routes */}
-      <div className="mt-16 px-6">
+      <div className="mt-16 px-6 lg:px-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Popular Routes</h2>
@@ -327,7 +327,7 @@ const PoolingHome = () => {
           </button>
         </div>
         
-        <div className="space-y-5">
+        <div className="space-y-5 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
           {!popularRoutes.length ? (
             <div className="rounded-[32px] border-2 border-dashed border-slate-100 bg-slate-50/50 p-10 text-center">
               <History size={32} className="mx-auto text-slate-200 mb-4" />
@@ -381,7 +381,7 @@ const PoolingHome = () => {
       </div>
 
       {/* Safety Section */}
-      <div className="mt-16 px-6">
+      <div className="mt-16 px-6 lg:px-10">
         <div className="rounded-[40px] bg-emerald-600 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
              <div className="flex items-center gap-3 mb-4">

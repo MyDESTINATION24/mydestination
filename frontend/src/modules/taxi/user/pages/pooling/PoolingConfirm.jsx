@@ -208,7 +208,7 @@ const PoolingConfirm = () => {
   const vehicleImage = (vehicle.images && vehicle.images.length > 0) ? vehicle.images[0] : taxiImg;
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 pb-32 font-sans selection:bg-emerald-100">
+    <div className="mx-auto min-h-screen w-full max-w-lg lg:max-w-3xl bg-slate-50 pb-32 font-sans selection:bg-emerald-100">
       <AnimatePresence mode="wait">
         {isBooked ? (
           <motion.div
@@ -591,7 +591,7 @@ const PoolingConfirm = () => {
             </div>
 
             {/* Action Bar */}
-            <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-lg -translate-x-1/2">
+            <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-lg lg:max-w-3xl -translate-x-1/2">
               <div className="mx-5 mb-8 overflow-hidden rounded-[32px] bg-emerald-600/90 p-2 shadow-[0_24px_50px_-12px_rgba(15,23,42,0.4)] backdrop-blur-xl border border-white/10">
                 <button
                   type="button"

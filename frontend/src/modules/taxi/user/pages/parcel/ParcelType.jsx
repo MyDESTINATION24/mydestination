@@ -102,7 +102,7 @@ const ParcelType = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F8FF] max-w-lg mx-auto flex flex-col font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#F5F8FF] mx-auto w-full max-w-lg lg:max-w-3xl flex flex-col font-sans relative overflow-x-hidden">
       
       {/* Premium Header with Wave Background */}
       <div className="relative bg-[#0047AB] pt-[calc(env(safe-area-inset-top)+2.5rem)] pb-20 px-6 overflow-hidden">

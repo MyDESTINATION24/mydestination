@@ -49,7 +49,7 @@ const PoolingList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 max-w-lg mx-auto font-sans pb-24 selection:bg-emerald-100">
+    <div className="min-h-screen bg-slate-50 mx-auto w-full max-w-lg lg:max-w-4xl font-sans pb-24 selection:bg-emerald-100">
       {/* Immersive Header */}
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl px-5 pt-12 pb-6 shadow-sm border-b border-slate-100">
         <div className="flex items-center gap-4 mb-6">
