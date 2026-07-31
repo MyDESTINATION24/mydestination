@@ -590,7 +590,7 @@ const Home = () => {
       <style>{`
         @keyframes drive {
           0% { transform: translateX(-50px); }
-          100% { transform: translateX(530px); }
+          100% { transform: translateX(calc(100vw + 60px)); }
         }
       `}</style>
 
@@ -600,7 +600,7 @@ const Home = () => {
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
-          <div className="w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+          <div className="w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] lg:max-w-7xl lg:mx-auto lg:mt-4 lg:rounded-[40px] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
             <div className="space-y-4 w-2/3 flex flex-col items-center">
               <div className="h-6 bg-gray-300/40 rounded-full w-1/2" />
               <div className="h-10 bg-gray-300/40 rounded-full w-3/4" />
@@ -608,7 +608,7 @@ const Home = () => {
             </div>
           </div>
         ) : banners.length > 0 ? (
-          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
+          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] lg:max-w-7xl lg:mx-auto lg:mt-4 lg:rounded-[40px] shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
@@ -643,7 +643,7 @@ const Home = () => {
         ) : null}
 
         {/* Content Container */}
-        <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
+        <div className="px-6 md:px-10 lg:px-8 py-6 space-y-6 w-full lg:max-w-7xl lg:mx-auto">
           {/* Back to Services button */}
 
           {/* Active Scheduled Ride Alert */}
@@ -776,7 +776,7 @@ const Home = () => {
             </div>
 
             {/* Grid of Ride, Pooling, Bus, Delivery, Char Dham, Helicopter, and EV Stations Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-6">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
