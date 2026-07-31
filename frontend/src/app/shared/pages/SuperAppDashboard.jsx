@@ -70,6 +70,54 @@ const services = [
   }
 ];
 
+// Small flock drifting across the background. Each bird is a stroked
+// seagull glyph: the whole bird crosses the viewport on a long linear loop
+// with a gentle vertical bob, while the glyph itself flaps via a scaleY
+// keyframe. Skipped entirely under reduced motion.
+const BIRDS = [
+  { top: '18%', scale: 1,    duration: 34, delay: 0,  bob: 8 },
+  { top: '34%', scale: 0.7,  duration: 42, delay: 6,  bob: 6 },
+  { top: '12%', scale: 0.55, duration: 48, delay: 13, bob: 5 },
+  { top: '46%', scale: 0.8,  duration: 38, delay: 20, bob: 7 },
+  { top: '26%', scale: 0.45, duration: 54, delay: 28, bob: 4 },
+];
+
+const BirdGlyph = ({ flapDelay = 0 }) => (
+  <svg
+    viewBox="0 0 24 12"
+    className="h-full w-full"
+    style={{ animation: `flap 0.9s ease-in-out ${flapDelay}s infinite` }}
+  >
+    <path
+      d="M2 8 C5 3, 8 3, 12 7 C16 3, 19 3, 22 8"
+      fill="none"
+      stroke="rgba(71,85,105,0.4)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const Birds = () => (
+  <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    {BIRDS.map((bird, index) => (
+      <motion.div
+        key={index}
+        initial={{ x: '-6vw' }}
+        animate={{ x: '106vw', y: [0, -bird.bob, 0, bird.bob, 0] }}
+        transition={{
+          x: { duration: bird.duration, delay: bird.delay, repeat: Infinity, ease: 'linear' },
+          y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
+        }}
+        className="absolute"
+        style={{ top: bird.top, width: 26 * bird.scale, height: 13 * bird.scale }}
+      >
+        <BirdGlyph flapDelay={index * 0.22} />
+      </motion.div>
+    ))}
+  </div>
+);
+
 const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return 'Good morning';
@@ -264,8 +312,25 @@ const SuperAppDashboard = () => {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 80, damping: 16 }}
-          className="mb-6 flex w-full items-center justify-between gap-4 md:mb-10"
+          className="relative mb-6 w-full overflow-hidden rounded-[24px] border border-white/70 shadow-[0_12px_40px_-12px_rgba(15,23,42,0.12)] md:mb-10 md:rounded-[28px]"
         >
+          {/* Drawn dawn scene: sky, sun, mountain silhouettes, drifting flock */}
+          <div aria-hidden className="absolute inset-0">
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,#e3f1fd_0%,#fdeee0_52%,#fbdcc6_100%)]" />
+            {/* sun */}
+            <div className="absolute bottom-[-34px] left-[58%] h-28 w-28 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,#fffdf4_28%,rgba(255,244,214,0.85)_45%,transparent_72%)]" />
+            {/* mountain ranges, back to front */}
+            <svg viewBox="0 0 1200 150" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-[58%] w-full">
+              <path d="M0 150 L0 96 L110 62 L215 98 L330 52 L455 104 L560 68 L690 110 L800 60 L920 102 L1030 72 L1130 98 L1200 80 L1200 150 Z" fill="#a8c3dd" opacity="0.55" />
+              <path d="M0 150 L0 118 L90 92 L200 122 L320 84 L430 124 L555 96 L670 128 L790 92 L900 124 L1020 100 L1120 126 L1200 108 L1200 150 Z" fill="#8fb0d1" opacity="0.65" />
+              <path d="M0 150 L0 136 L140 116 L280 140 L420 118 L560 142 L700 120 L840 142 L980 124 L1110 142 L1200 130 L1200 150 Z" fill="#7ba1c7" opacity="0.7" />
+            </svg>
+            {/* soft haze so the copy stays readable on the left */}
+            <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/30 to-transparent" />
+            {!reduceMotion && <Birds />}
+          </div>
+
+          <div className="relative z-10 flex w-full items-center justify-between gap-4 p-4 md:px-7 md:py-6">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface text-xl font-semibold text-white shadow-lg shadow-emerald-900/10 md:h-14 md:w-14 md:rounded-[20px] md:text-2xl">
               {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -288,6 +353,7 @@ const SuperAppDashboard = () => {
             <LogOut size={16} />
             Logout
           </button>
+          </div>
         </motion.div>
 
         {/* Section title */}
@@ -329,6 +395,10 @@ const SuperAppDashboard = () => {
           45% { transform: rotate(14deg); }
           60% { transform: rotate(-4deg); }
           75% { transform: rotate(8deg); }
+        }
+        @keyframes flap {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(0.45); }
         }
       `}</style>
     </div>
