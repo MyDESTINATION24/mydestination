@@ -75,25 +75,30 @@ const services = [
 // with a gentle vertical bob, while the glyph itself flaps via a scaleY
 // keyframe. Skipped entirely under reduced motion.
 const BIRDS = [
-  { top: '18%', scale: 1,    duration: 34, delay: 0,  bob: 8 },
-  { top: '34%', scale: 0.7,  duration: 42, delay: 6,  bob: 6 },
-  { top: '12%', scale: 0.55, duration: 48, delay: 13, bob: 5 },
-  { top: '46%', scale: 0.8,  duration: 38, delay: 20, bob: 7 },
-  { top: '26%', scale: 0.45, duration: 54, delay: 28, bob: 4 },
+  { top: '16%', width: 46, opacity: 0.5,  duration: 30, delay: 0,  bob: 9, flap: 0.85 },
+  { top: '30%', width: 34, opacity: 0.4,  duration: 38, delay: 5,  bob: 7, flap: 1.05 },
+  { top: '11%', width: 26, opacity: 0.3,  duration: 46, delay: 12, bob: 5, flap: 1.25 },
+  { top: '42%', width: 38, opacity: 0.42, duration: 34, delay: 19, bob: 8, flap: 0.95 },
 ];
 
-const BirdGlyph = ({ flapDelay = 0 }) => (
+// Filled silhouette rather than a hairline stroke -- a 1.8px stroke scaled
+// down to bird size renders as a grey smudge. Wings taper to points and the
+// body has thickness, so the shape still reads at ~26px wide.
+const BirdGlyph = ({ opacity, flapSpeed, flapDelay }) => (
   <svg
-    viewBox="0 0 24 12"
-    className="h-full w-full"
-    style={{ animation: `flap 0.9s ease-in-out ${flapDelay}s infinite` }}
+    viewBox="0 0 40 16"
+    className="h-full w-full origin-center"
+    style={{ animation: `flap ${flapSpeed}s ease-in-out ${flapDelay}s infinite` }}
   >
     <path
-      d="M2 8 C5 3, 8 3, 12 7 C16 3, 19 3, 22 8"
-      fill="none"
-      stroke="rgba(71,85,105,0.4)"
-      strokeWidth="1.8"
-      strokeLinecap="round"
+      d="M20 12.6
+         C16.4 6.2, 11.2 2.4, 4.2 1.8
+         C9.4 4.6, 13.6 8.4, 16.6 13.4
+         C17.8 15.1, 18.9 15.6, 20 15.6
+         C21.1 15.6, 22.2 15.1, 23.4 13.4
+         C26.4 8.4, 30.6 4.6, 35.8 1.8
+         C28.8 2.4, 23.6 6.2, 20 12.6 Z"
+      fill={`rgba(51,65,85,${opacity})`}
     />
   </svg>
 );
@@ -110,9 +115,9 @@ const Birds = () => (
           y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
         }}
         className="absolute"
-        style={{ top: bird.top, width: 26 * bird.scale, height: 13 * bird.scale }}
+        style={{ top: bird.top, width: bird.width, height: bird.width * 0.4 }}
       >
-        <BirdGlyph flapDelay={index * 0.22} />
+        <BirdGlyph opacity={bird.opacity} flapSpeed={bird.flap} flapDelay={index * 0.3} />
       </motion.div>
     ))}
   </div>
@@ -398,7 +403,7 @@ const SuperAppDashboard = () => {
         }
         @keyframes flap {
           0%, 100% { transform: scaleY(1); }
-          50% { transform: scaleY(0.45); }
+          50% { transform: scaleY(0.62); }
         }
       `}</style>
     </div>
