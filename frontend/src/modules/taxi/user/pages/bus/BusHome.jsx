@@ -104,6 +104,15 @@ const BusHome = () => {
   const routePrefix = useMemo(() => getRoutePrefix(location.pathname), [location.pathname]);
   const busEnabled = String(settings.transportRide?.enable_bus_service || '0') === '1';
 
+  // Real profile name for the app bar; falls back to "Account" when absent.
+  const storedUserName = (() => {
+    try {
+      return JSON.parse(window.localStorage.getItem('userInfo') || '{}')?.name || '';
+    } catch {
+      return '';
+    }
+  })();
+
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
   const [date, setDate] = useState(getTodayDate());
@@ -394,16 +403,51 @@ const BusHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-5xl font-sans pb-32 lg:pb-16 relative overflow-hidden">
-      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-8 sticky top-0 z-20 flex items-center gap-3">
+      {/* Desktop app bar */}
+      <div className="hidden lg:block sticky top-0 z-30 bg-white border-b border-slate-100">
+        <div className="flex items-center justify-between gap-6 px-8 py-3">
+          <button onClick={() => navigate('/taxi/user')} className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <BusFront size={19} />
+            </span>
+            <span className="text-left leading-none">
+              <span className="block text-[15px] font-black text-slate-900">MyDestination</span>
+              <span className="mt-0.5 block text-[10px] font-bold text-slate-400">Bus Tickets</span>
+            </span>
+          </button>
+
+          <nav className="flex items-center gap-8">
+            <span className="border-b-2 border-emerald-600 pb-1 text-[13px] font-black text-emerald-700">Bus Tickets</span>
+            <button onClick={() => navigate('/taxi/user/activity')} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">My Bookings</button>
+            <button onClick={() => document.getElementById('bus-offers')?.scrollIntoView({ behavior: 'smooth' })} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">Offers</button>
+            <button onClick={() => navigate('/taxi/user/support')} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">Help</button>
+          </nav>
+
+          <button onClick={() => navigate('/taxi/user/profile')} className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-[12px] font-black text-white">
+              {(storedUserName || 'U').charAt(0).toUpperCase()}
+            </span>
+            <span className="text-[13px] font-bold text-slate-700">
+              {storedUserName ? `Hi, ${storedUserName.split(' ')[0]}` : 'Account'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-8 lg:pb-4 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white"
+          className="w-10 h-10 lg:w-11 lg:h-11 shrink-0 rounded-full bg-white/60 lg:bg-emerald-600 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white lg:hover:bg-emerald-700"
         >
-          <ArrowLeft size={20} className="text-gray-800" />
+          <ArrowLeft size={20} className="text-gray-800 lg:text-white" />
         </button>
         <div className="flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80">Bus Tickets</p>
-          <h1 className="text-xl font-bold text-gray-900 leading-none">Book your journey</h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80 lg:hidden">Bus Tickets</p>
+          <h1 className="text-xl lg:text-[2rem] font-bold lg:font-black text-gray-900 leading-none lg:leading-tight lg:tracking-tight">
+            <span className="lg:hidden">Book your journey</span>
+            <span className="hidden lg:inline">Book your bus journey</span>
+          </h1>
+          <p className="mt-1.5 hidden text-[13px] font-semibold text-slate-500 lg:block">Travel safe, travel comfortable</p>
         </div>
       </header>
  
@@ -494,11 +538,14 @@ const BusHome = () => {
           <button
             type="button"
             onClick={openCalendar}
-            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none lg:flex-none lg:justify-start lg:text-left lg:pl-0"
+            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none lg:flex-none lg:flex-col lg:items-start lg:gap-0.5 lg:text-left lg:pl-0"
           >
-            <Calendar size={18} className="text-teal-600 shrink-0" />
-            <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
-              {formatCalendarLabel(date) || 'Select Date'}
+            <span className="hidden lg:block text-[10px] font-black uppercase tracking-wider text-gray-400/90">Departure Date</span>
+            <span className="flex items-center gap-2">
+              <Calendar size={18} className="text-teal-600 shrink-0" />
+              <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
+                {formatCalendarLabel(date) || 'Select Date'}
+              </span>
             </span>
           </button>
         </div>
@@ -559,8 +606,13 @@ const BusHome = () => {
               <span className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-teal-600 shadow-sm shrink-0">
                 <Ticket size={16} className="fill-teal-50" />
               </span>
-              <span className="text-xs font-black text-teal-800 tracking-wide">
-                Your next journey starts here
+              <span className="min-w-0">
+                <span className="block text-xs font-black text-teal-800 tracking-wide">
+                  Your next journey starts here
+                </span>
+                <span className="mt-0.5 hidden text-[11px] font-semibold text-teal-700/70 lg:block">
+                  Find the best routes, lowest fares and a comfortable ride for you.
+                </span>
               </span>
             </div>
             <ChevronRight size={16} className="text-teal-600 stroke-[2.5px]" />
@@ -613,11 +665,31 @@ const BusHome = () => {
         ) : null}
 
         {/* Offers & Popular Routes Drawer Card */}
-        <div className="bg-white rounded-t-[36px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t border-gray-100/60 p-6 space-y-5 -mx-5 pb-10">
-          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2" />
+        <div className="bg-white rounded-t-[36px] lg:rounded-[28px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t lg:border border-gray-100/60 p-6 lg:p-7 space-y-5 -mx-5 lg:mx-0 pb-10 lg:pb-7 lg:mt-2 flex flex-col">
+          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2 lg:hidden" />
           
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-gray-900">Offers & Promotions</h3>
+          <div id="bus-offers" className="flex items-center justify-between scroll-mt-24">
+            <h3 className="text-base lg:text-lg font-black text-gray-900">Offers &amp; Promotions</h3>
+          </div>
+
+          {/* Why book with us -- deliberately no invented numbers or guarantees */}
+          <div className="order-last hidden gap-4 border-t border-slate-100 pt-6 lg:grid lg:grid-cols-4">
+            {[
+              { icon: Route, title: 'Wide Network', text: 'Routes from operators across the country' },
+              { icon: BusFront, title: 'Multiple Choices', text: 'Compare operators, timings and seats' },
+              { icon: Ticket, title: 'Clear Fares', text: 'Fare breakdown shown before you pay' },
+              { icon: Calendar, title: 'Easy Cancellations', text: 'Manage bookings from My Bookings' },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <item.icon size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-black text-slate-900">{item.title}</p>
+                  <p className="mt-0.5 text-[11px] font-semibold leading-snug text-slate-500">{item.text}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Horizontal Promo Scroll */}
@@ -638,12 +710,12 @@ const BusHome = () => {
               ))}
             </div>
           ) : offers.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0">
               {offers.map((offer) => (
                 <div
                   key={offer.id || offer._id}
                   onClick={() => handleBannerClick(offer.linkUrl)}
-                  className="w-72 h-32 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
+                  className="w-72 lg:w-auto h-32 lg:h-40 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
                 >
                   <img
                     src={offer.imageUrl}
@@ -661,9 +733,9 @@ const BusHome = () => {
               ))}
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0">
               {/* Metro Ride Offer (From image) */}
-              <div className="w-72 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-auto bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-teal-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Special Offer
@@ -684,7 +756,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 2 */}
-              <div className="w-72 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-auto bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-amber-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Save Big
@@ -705,7 +777,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 3 */}
-              <div className="w-72 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Flexibility
