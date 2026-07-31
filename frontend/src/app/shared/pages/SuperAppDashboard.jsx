@@ -5,6 +5,7 @@ import { Building2, Car, Heart, ChevronRight, Compass, LogOut, Helicopter, MapPi
 import toast from 'react-hot-toast';
 import chardhamImg from '@/assets/airways/kedarnath.png';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
+import BirdFlock from '@/components/common/BirdFlock';
 
 const services = [
   {
@@ -69,59 +70,6 @@ const services = [
     imagePos: 'object-bottom'
   }
 ];
-
-// Small flock drifting across the background. Each bird is a stroked
-// seagull glyph: the whole bird crosses the viewport on a long linear loop
-// with a gentle vertical bob, while the glyph itself flaps via a scaleY
-// keyframe. Skipped entirely under reduced motion.
-const BIRDS = [
-  { top: '16%', width: 46, opacity: 0.5,  duration: 30, delay: 0,  bob: 9, flap: 0.85 },
-  { top: '30%', width: 34, opacity: 0.4,  duration: 38, delay: 5,  bob: 7, flap: 1.05 },
-  { top: '11%', width: 26, opacity: 0.3,  duration: 46, delay: 12, bob: 5, flap: 1.25 },
-  { top: '42%', width: 38, opacity: 0.42, duration: 34, delay: 19, bob: 8, flap: 0.95 },
-];
-
-// Filled silhouette rather than a hairline stroke -- a 1.8px stroke scaled
-// down to bird size renders as a grey smudge. Wings taper to points and the
-// body has thickness, so the shape still reads at ~26px wide.
-const BirdGlyph = ({ opacity, flapSpeed, flapDelay }) => (
-  <svg
-    viewBox="0 0 40 16"
-    className="h-full w-full origin-center"
-    style={{ animation: `flap ${flapSpeed}s ease-in-out ${flapDelay}s infinite` }}
-  >
-    <path
-      d="M20 12.6
-         C16.4 6.2, 11.2 2.4, 4.2 1.8
-         C9.4 4.6, 13.6 8.4, 16.6 13.4
-         C17.8 15.1, 18.9 15.6, 20 15.6
-         C21.1 15.6, 22.2 15.1, 23.4 13.4
-         C26.4 8.4, 30.6 4.6, 35.8 1.8
-         C28.8 2.4, 23.6 6.2, 20 12.6 Z"
-      fill={`rgba(51,65,85,${opacity})`}
-    />
-  </svg>
-);
-
-const Birds = () => (
-  <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-    {BIRDS.map((bird, index) => (
-      <motion.div
-        key={index}
-        initial={{ x: '-6vw' }}
-        animate={{ x: '106vw', y: [0, -bird.bob, 0, bird.bob, 0] }}
-        transition={{
-          x: { duration: bird.duration, delay: bird.delay, repeat: Infinity, ease: 'linear' },
-          y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
-        }}
-        className="absolute"
-        style={{ top: bird.top, width: bird.width, height: bird.width * 0.4 }}
-      >
-        <BirdGlyph opacity={bird.opacity} flapSpeed={bird.flap} flapDelay={index * 0.3} />
-      </motion.div>
-    ))}
-  </div>
-);
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -332,7 +280,7 @@ const SuperAppDashboard = () => {
             </svg>
             {/* soft haze so the copy stays readable on the left */}
             <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/30 to-transparent" />
-            {!reduceMotion && <Birds />}
+            <BirdFlock />
           </div>
 
           <div className="relative z-10 flex w-full items-center justify-between gap-4 p-4 md:px-7 md:py-6">
@@ -400,10 +348,6 @@ const SuperAppDashboard = () => {
           45% { transform: rotate(14deg); }
           60% { transform: rotate(-4deg); }
           75% { transform: rotate(8deg); }
-        }
-        @keyframes flap {
-          0%, 100% { transform: scaleY(1); }
-          50% { transform: scaleY(0.62); }
         }
       `}</style>
     </div>
