@@ -408,9 +408,12 @@ const BusHome = () => {
       </header>
  
       <div className="px-5 pt-4 space-y-5 lg:px-8">
+        {/* lg: From / To / Date / Search collapse into one horizontal bar
+            instead of three stacked cards down a 1200px column. */}
+        <div className="space-y-5 lg:space-y-0 lg:flex lg:items-stretch lg:rounded-[28px] lg:bg-white lg:p-2 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
         {/* Source/Destination inputs */}
-        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative">
-          <div className="flex items-center gap-3 relative z-10">
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative lg:flex lg:flex-1 lg:min-w-0 lg:items-stretch lg:space-y-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none lg:rounded-none lg:p-0">
+          <div className="flex items-center gap-3 relative z-10 lg:flex-1 lg:min-w-0 lg:px-5 lg:py-3">
             <span className="w-5 h-5 flex items-center justify-center shrink-0">
               <span className="w-2.5 h-2.5 rounded-full border-2 border-gray-400 bg-white" />
             </span>
@@ -427,12 +430,12 @@ const BusHome = () => {
             </div>
           </div>
 
-          <div className="relative pl-8">
+          <div className="relative pl-8 lg:hidden">
             <div className="w-full h-px bg-gray-100/80" />
             <div className="absolute left-2.5 -top-[18px] bottom-[10px] border-l border-dashed border-teal-500/40" />
           </div>
 
-          <div className="flex items-center gap-3 relative z-10">
+          <div className="flex items-center gap-3 relative z-10 lg:flex-1 lg:min-w-0 lg:px-5 lg:py-3">
             <span className="w-5 h-5 flex items-center justify-center text-teal-600 shrink-0">
               <MapPin size={18} className="stroke-[2.5px]" />
             </span>
@@ -449,7 +452,7 @@ const BusHome = () => {
             </div>
           </div>
 
-          <div className="absolute right-5 top-[39%] -translate-y-1/2 z-20">
+          <div className="absolute right-5 top-[39%] -translate-y-1/2 z-20 lg:right-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2">
             <button
               type="button"
               onClick={swapCities}
@@ -461,8 +464,8 @@ const BusHome = () => {
         </div>
 
         {/* Date Selection Card */}
-        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3 lg:w-[220px] lg:shrink-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:border-l lg:border-slate-100 lg:rounded-none lg:shadow-none">
+          <div className="flex items-center gap-2 lg:hidden">
             {horizontalQuickDates.map((item) => {
               const isSelected = date === item.value;
               return (
@@ -485,18 +488,28 @@ const BusHome = () => {
             })}
           </div>
 
-          <div className="h-10 w-px bg-gray-200/80 shrink-0" />
+          <div className="h-10 w-px bg-gray-200/80 shrink-0 lg:hidden" />
 
           <button
             type="button"
             onClick={openCalendar}
-            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none"
+            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none lg:justify-center lg:text-center lg:pl-0"
           >
             <Calendar size={18} className="text-teal-600 shrink-0" />
             <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
               {formatCalendarLabel(date) || 'Select Date'}
             </span>
           </button>
+        </div>
+
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSearch}
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:shrink-0 lg:self-stretch lg:px-10 lg:py-0 lg:rounded-[20px]"
+        >
+          <Search size={18} className="stroke-[2.5px]" />
+          <span>Search Buses</span>
+        </motion.button>
         </div>
 
         <datalist id="bus-route-cities">
@@ -537,15 +550,6 @@ const BusHome = () => {
           )}
 
           {/* Search Button */}
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={handleSearch}
-            className="w-full bg-black hover:bg-emerald-600 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-all"
-          >
-            <Search size={18} className="stroke-[2.5px]" />
-            <span>Search Buses</span>
-          </motion.button>
-
           {/* Ticket Banner */}
           <div className="bg-[#ccfbf1]/50 border border-teal-100/50 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
