@@ -20,6 +20,11 @@ import { getUserTourBanner, getUserTours } from '../../services/toursService';
 
 const CATEGORIES = [
   {
+    id: 'all',
+    label: 'All',
+    title: 'All Packages',
+  },
+  {
     id: 'yatra',
     label: 'Yatras',
     title: 'Pilgrim Yatras',
@@ -102,7 +107,7 @@ const ToursHome = () => {
 
   const category = CATEGORIES.some((item) => item.id === searchParams.get('category'))
     ? searchParams.get('category')
-    : 'yatra';
+    : 'all';
   const active = CATEGORIES.find((item) => item.id === category);
   const isTrek = category === 'trek';
 
@@ -111,8 +116,8 @@ const ToursHome = () => {
       try {
         setLoading(true);
         const [nextTours, nextBanner] = await Promise.all([
-          getUserTours(category),
-          getUserTourBanner(category).catch(() => null),
+          getUserTours(category === 'all' ? '' : category),
+          getUserTourBanner(category === 'all' ? 'yatra' : category).catch(() => null),
         ]);
         setTours(Array.isArray(nextTours) ? nextTours : []);
         setBanner(nextBanner || null);
@@ -157,7 +162,7 @@ const ToursHome = () => {
     <div className="min-h-screen bg-[#F8FAFC] font-sans">
       {/* Top bar */}
       <div className="sticky top-0 z-40 border-b border-slate-100 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2.5 lg:px-8">
           <button
             onClick={() => navigate('/taxi/user')}
             className="flex items-center gap-1.5 text-sm font-bold text-slate-700 transition hover:text-slate-900"
@@ -170,7 +175,7 @@ const ToursHome = () => {
             {isTrek
               ? <Mountain size={18} className="text-emerald-600" />
               : <Compass size={18} className="text-emerald-600" />}
-            <span className="text-sm font-black uppercase tracking-[0.18em] text-slate-900">
+            <span className="text-[13px] font-black uppercase tracking-[0.16em] text-slate-900">
               {active.title}
             </span>
           </div>
@@ -180,12 +185,12 @@ const ToursHome = () => {
 
         {/* Category tabs */}
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="flex gap-1 pb-0">
+          <div className="flex justify-center gap-1 pb-0">
             {CATEGORIES.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setSearchParams(item.id === 'yatra' ? {} : { category: item.id }, { replace: true })}
-                className={`rounded-t-lg px-7 py-2.5 text-[12px] font-black uppercase tracking-wider transition-all ${
+                onClick={() => setSearchParams(item.id === 'all' ? {} : { category: item.id }, { replace: true })}
+                className={`rounded-t-lg px-6 py-2 text-[11px] font-black uppercase tracking-wider transition-all ${
                   category === item.id
                     ? 'bg-emerald-600 text-white'
                     : 'text-slate-500 hover:text-slate-800'
@@ -238,7 +243,11 @@ const ToursHome = () => {
           <div>
             <h2 className="text-lg font-black text-slate-900">Available Packages</h2>
             <p className="mt-0.5 text-[12px] font-medium text-slate-500">
-              {isTrek ? 'Choose from our guided Himalayan treks' : 'Choose from our carefully curated pilgrimage experiences'}
+              {isTrek
+                ? 'Choose from our guided Himalayan treks'
+                : category === 'all'
+                  ? 'Every pilgrimage and trek we run, in one place'
+                  : 'Choose from our carefully curated pilgrimage experiences'}
             </p>
           </div>
 

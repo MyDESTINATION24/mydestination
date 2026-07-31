@@ -905,7 +905,7 @@ const Home = () => {
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate('/taxi/user/tours')}
+                onClick={() => navigate('/taxi/user/tours?category=yatra')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
                 <div className="flex flex-col justify-between h-full z-10 w-[62%]">
