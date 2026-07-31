@@ -19,3 +19,6 @@ export const verifyUserTourBookingPayment = async (payload = {}) =>
 export const listMyTourBookings = async () => unwrapPayload(await api.get('/users/tours/bookings'));
 
 export const getMyTourBooking = async (bookingId) => unwrapPayload(await api.get(`/users/tours/bookings/${bookingId}`));
+
+export const getUserTourBanner = async (category = 'yatra') =>
+  unwrapPayload(await api.get('/users/tours/banner', { params: { category } }));

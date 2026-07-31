@@ -72,6 +72,7 @@ import {
 } from '../controllers/airwaysController.js';
 import {
   getUserTours,
+  getUserTourBanner,
   getUserTourById,
   createUserTourBooking,
   createUserTourBookingOrder,
@@ -162,6 +163,7 @@ userRouter.get('/airways/bookings', authenticateOrResolveUser(['user']), asyncHa
 userRouter.post('/airways/bookings', authenticateOrResolveUser(['user']), asyncHandler(createAirwayBooking));
 userRouter.get('/airways/bookings/:id', authenticateOrResolveUser(['user']), asyncHandler(getMyAirwayBooking));
 
+userRouter.get('/tours/banner', asyncHandler(getUserTourBanner));
 userRouter.get('/tours', asyncHandler(getUserTours));
 // Must stay above '/tours/:id' -- Express matches in order, so the literal
 // 'bookings' segment was being swallowed as an id and cast-erroring to a 500.

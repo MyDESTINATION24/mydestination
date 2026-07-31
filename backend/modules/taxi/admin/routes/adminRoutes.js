@@ -241,6 +241,10 @@ import {
   getTourBookings,
   createTourBooking,
   updateTourBookingStatus,
+  getTourBanners,
+  createTourBanner,
+  updateTourBanner,
+  deleteTourBanner,
 } from '../controllers/toursController.js';
 import {
   getEVStations,
@@ -388,6 +392,11 @@ adminRouter.patch('/admin/airway-routes/:id', updateAirwayRoute);
 adminRouter.delete('/admin/airway-routes/:id', deleteAirwayRoute);
 adminRouter.get('/admin/airway-bookings', getAirwayBookings);
 adminRouter.patch('/admin/airway-bookings/:id/status', updateAirwayBookingStatus);
+
+adminRouter.get('/admin/tour-banners', getTourBanners);
+adminRouter.post('/admin/tour-banners', createTourBanner);
+adminRouter.patch('/admin/tour-banners/:id', updateTourBanner);
+adminRouter.delete('/admin/tour-banners/:id', deleteTourBanner);
 
 adminRouter.get('/admin/tours', getTours);
 adminRouter.post('/admin/tours', createTour);

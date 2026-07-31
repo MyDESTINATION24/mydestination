@@ -80,3 +80,29 @@ export const updateAdminTourBookingStatus = async (bookingId, bookingStatus, pay
   }
   return unwrapPayload(await api.patch(`/admin/tour-bookings/${bookingId}/status`, payload));
 };
+
+// ---- Tours hero banner (admin) ----
+export const getAdminTourBanners = async () => unwrapPayload(await api.get('/admin/tour-banners'));
+
+export const upsertAdminTourBanner = async (payload = {}) => {
+  const body = { ...payload, order: Number(payload.order || 0) };
+  if (payload.id) {
+    return unwrapPayload(await api.patch(`/admin/tour-banners/${payload.id}`, body));
+  }
+  return unwrapPayload(await api.post('/admin/tour-banners', body));
+};
+
+export const deleteAdminTourBanner = async (id) =>
+  unwrapPayload(await api.delete(`/admin/tour-banners/${id}`));
+
+export const createTourBannerDraft = () => ({
+  id: '',
+  category: 'yatra',
+  imageUrl: '',
+  heading: '',
+  subheading: '',
+  ctaLabel: '',
+  ctaLink: '',
+  isActive: true,
+  order: 0,
+});

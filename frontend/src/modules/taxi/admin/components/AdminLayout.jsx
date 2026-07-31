@@ -801,6 +801,7 @@ const AdminLayout = () => {
             subItems: [
               { label: 'Tour Manager', path: '/taxi/admin/tours', permission: 'tours.view' },
               { label: 'Tour Bookings', path: '/taxi/admin/tours/bookings', permission: 'tours.view' },
+              { label: 'Tour Banners', path: '/taxi/admin/tours/banners', permission: 'tours.view' },
             ],
           },
           {

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Tour, serializeTour } from '../models/Tour.js';
+import { TourBanner, serializeTourBanner } from '../models/TourBanner.js';
 import { TourBooking } from '../models/TourBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
@@ -256,4 +257,54 @@ export const updateTourBookingStatus = asyncHandler(async (req, res) => {
 
   await booking.save();
   return ok(res, serializeTourBooking(booking), 'Booking status updated successfully');
+});
+
+// ---- Tours hero banner ----
+
+const normalizeBannerPayload = (payload = {}, existing = null) => ({
+  category: ['yatra', 'trek'].includes(toText(payload.category || existing?.category).toLowerCase())
+    ? toText(payload.category || existing?.category).toLowerCase()
+    : 'yatra',
+  imageUrl: toText(payload.imageUrl || existing?.imageUrl),
+  imagePublicId: toText(payload.imagePublicId || existing?.imagePublicId),
+  heading: toText(payload.heading ?? existing?.heading),
+  subheading: toText(payload.subheading ?? existing?.subheading),
+  ctaLabel: toText(payload.ctaLabel ?? existing?.ctaLabel),
+  ctaLink: toText(payload.ctaLink ?? existing?.ctaLink),
+  isActive: payload.isActive === undefined ? existing?.isActive !== false : Boolean(payload.isActive),
+  order: Math.max(0, Math.floor(toNumber(payload.order, existing?.order || 0))),
+});
+
+export const getTourBanners = asyncHandler(async (_req, res) => {
+  const banners = await TourBanner.find().sort({ category: 1, order: 1, createdAt: -1 }).lean();
+  return ok(res, banners.map(serializeTourBanner), 'Tour banners fetched successfully');
+});
+
+export const createTourBanner = asyncHandler(async (req, res) => {
+  const normalized = normalizeBannerPayload(req.body);
+  if (!normalized.imageUrl) {
+    throw new ApiError(400, 'A banner image is required');
+  }
+
+  const banner = await TourBanner.create(normalized);
+  return created(res, serializeTourBanner(banner), 'Tour banner created successfully');
+});
+
+export const updateTourBanner = asyncHandler(async (req, res) => {
+  const existing = await TourBanner.findById(req.params.id);
+  if (!existing) {
+    throw new ApiError(404, 'Tour banner not found');
+  }
+
+  Object.assign(existing, normalizeBannerPayload(req.body, existing.toObject()));
+  await existing.save();
+  return ok(res, serializeTourBanner(existing), 'Tour banner updated successfully');
+});
+
+export const deleteTourBanner = asyncHandler(async (req, res) => {
+  const banner = await TourBanner.findByIdAndDelete(req.params.id);
+  if (!banner) {
+    throw new ApiError(404, 'Tour banner not found');
+  }
+  return ok(res, { deleted: true }, 'Tour banner deleted successfully');
 });

@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { Tour, calculateTourFare, serializeTour } from '../../admin/models/Tour.js';
+import { TourBanner, serializeTourBanner } from '../../admin/models/TourBanner.js';
 import { TourBooking } from '../../admin/models/TourBooking.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
@@ -85,6 +86,18 @@ export const getUserTours = asyncHandler(async (req, res) => {
     tours.map((tour) => withAvailability(tour, booked.get(String(tour._id)) || 0)),
     'Tours fetched successfully',
   );
+});
+
+export const getUserTourBanner = asyncHandler(async (req, res) => {
+  const category = ['yatra', 'trek'].includes(String(req.query.category || '').toLowerCase())
+    ? String(req.query.category).toLowerCase()
+    : 'yatra';
+
+  const banner = await TourBanner.findOne({ category, isActive: true })
+    .sort({ order: 1, createdAt: -1 })
+    .lean();
+
+  return ok(res, banner ? serializeTourBanner(banner) : null, 'Tour banner fetched successfully');
 });
 
 export const getUserTourById = asyncHandler(async (req, res) => {
