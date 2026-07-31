@@ -41,8 +41,19 @@ const DELIVERY_CATEGORY_OPTIONS = [
 const ParcelType = () => {
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [pickupAddress, setPickupAddress] = useState('1A, Vandana Nagar Main Rd, Rajshri Palace Colon...');
   const navigate = useNavigate();
+
+  // Was hardcoded to a fake Indore address (complete with a literal "..."),
+  // and it was never replaced -- it went straight into the booking draft as
+  // the real pickup. Read whatever the details step actually saved instead,
+  // and show a prompt when there is nothing yet.
+  const pickupAddress = useMemo(() => {
+    try {
+      return JSON.parse(window.sessionStorage.getItem(PARCEL_BOOKING_DRAFT_KEY) || '{}').pickup || '';
+    } catch {
+      return '';
+    }
+  }, []);
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -126,7 +137,9 @@ const ParcelType = () => {
              </div>
              <div className="flex-1 min-w-0">
                <p className="text-[11px] font-black uppercase tracking-widest text-slate-400">Pick up from</p>
-               <p className="text-[13px] font-bold text-slate-900 truncate mt-0.5">{pickupAddress}</p>
+               <p className={`text-[13px] font-bold truncate mt-0.5 ${pickupAddress ? 'text-slate-900' : 'text-slate-400'}`}>
+                 {pickupAddress || 'Tap to set your pickup location'}
+               </p>
              </div>
              <ChevronRight size={18} className="text-slate-400" />
            </motion.div>
@@ -146,16 +159,16 @@ const ParcelType = () => {
               transition={{ delay: idx * 0.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleCategorySelect(cat)}
-              className="bg-white rounded-[24px] p-4 flex flex-col items-center gap-4 shadow-md border border-slate-100/50 hover:shadow-xl transition-shadow aspect-[0.85/1]"
+              className="bg-white rounded-[24px] p-4 lg:p-6 flex flex-col items-center gap-4 shadow-md border border-slate-100/50 hover:shadow-xl transition-shadow aspect-[0.85/1] lg:aspect-auto lg:min-h-[240px]"
             >
               <div className="flex-1 flex items-center justify-center w-full">
-                <img 
-                  src={cat.img} 
-                  alt={cat.title} 
-                  className="w-full h-auto object-contain max-h-[80px] drop-shadow-md"
+                <img
+                  src={cat.img}
+                  alt={cat.title}
+                  className="w-full h-auto object-contain max-h-[80px] lg:max-h-[130px] drop-shadow-md"
                 />
               </div>
-              <p className="text-[12px] font-black text-slate-800 text-center leading-tight">
+              <p className="text-[12px] lg:text-sm font-black text-slate-800 text-center leading-tight">
                 {cat.title}
               </p>
             </motion.button>
