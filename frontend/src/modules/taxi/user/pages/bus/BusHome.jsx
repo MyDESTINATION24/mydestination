@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -112,6 +112,14 @@ const BusHome = () => {
       return '';
     }
   })();
+
+  const offersRef = useRef(null);
+  const scrollOffers = (direction) => {
+    const el = offersRef.current;
+    if (!el) return;
+    // one card plus its gap, so each press advances a whole card
+    el.scrollBy({ left: direction * (el.clientWidth * 0.8), behavior: 'smooth' });
+  };
 
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
@@ -670,6 +678,24 @@ const BusHome = () => {
           
           <div id="bus-offers" className="flex items-center justify-between scroll-mt-24">
             <h3 className="text-base lg:text-lg font-black text-gray-900">Offers &amp; Promotions</h3>
+            <div className="hidden items-center gap-2 lg:flex">
+              <button
+                type="button"
+                aria-label="Previous offers"
+                onClick={() => scrollOffers(-1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95"
+              >
+                <ChevronLeft size={17} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next offers"
+                onClick={() => scrollOffers(1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95"
+              >
+                <ChevronRight size={17} />
+              </button>
+            </div>
           </div>
 
           {/* Why book with us -- deliberately no invented numbers or guarantees */}
@@ -694,11 +720,11 @@ const BusHome = () => {
 
           {/* Horizontal Promo Scroll */}
           {offersLoading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {[1, 2, 3].map((n) => (
                 <div
                   key={n}
-                  className="w-72 h-32 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
+                  className="w-72 lg:w-[300px] h-32 lg:h-44 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="h-3 bg-slate-200/80 rounded w-1/4" />
@@ -710,12 +736,12 @@ const BusHome = () => {
               ))}
             </div>
           ) : offers.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0">
+            <div ref={offersRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {offers.map((offer) => (
                 <div
                   key={offer.id || offer._id}
                   onClick={() => handleBannerClick(offer.linkUrl)}
-                  className="w-72 lg:w-auto h-32 lg:h-40 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
+                  className="w-72 lg:w-[300px] h-32 lg:h-44 snap-start rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
                 >
                   <img
                     src={offer.imageUrl}
@@ -733,9 +759,9 @@ const BusHome = () => {
               ))}
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:pb-0">
+            <div ref={offersRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {/* Metro Ride Offer (From image) */}
-              <div className="w-72 lg:w-auto bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-teal-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Special Offer
@@ -756,7 +782,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 2 */}
-              <div className="w-72 lg:w-auto bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-amber-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Save Big
@@ -777,7 +803,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 3 */}
-              <div className="w-72 lg:w-auto bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Flexibility
