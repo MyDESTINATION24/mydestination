@@ -267,10 +267,6 @@ const normalizeBannerPayload = (payload = {}, existing = null) => ({
     : 'yatra',
   imageUrl: toText(payload.imageUrl || existing?.imageUrl),
   imagePublicId: toText(payload.imagePublicId || existing?.imagePublicId),
-  heading: toText(payload.heading ?? existing?.heading),
-  subheading: toText(payload.subheading ?? existing?.subheading),
-  ctaLabel: toText(payload.ctaLabel ?? existing?.ctaLabel),
-  ctaLink: toText(payload.ctaLink ?? existing?.ctaLink),
   isActive: payload.isActive === undefined ? existing?.isActive !== false : Boolean(payload.isActive),
   order: Math.max(0, Math.floor(toNumber(payload.order, existing?.order || 0))),
 });

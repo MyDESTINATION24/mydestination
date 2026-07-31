@@ -23,19 +23,11 @@ const CATEGORIES = [
     id: 'yatra',
     label: 'Yatras',
     title: 'Pilgrim Yatras',
-    heading: 'Spiritual journeys.\nDivine experiences.',
-    subheading:
-      'Book all-inclusive, premium pilgrimage tours to Char Dham, Kedarnath, Badrinath and more.',
-    ctaLabel: 'Browse All Packages',
   },
   {
     id: 'trek',
     label: 'Treks',
     title: 'Himalayan Treks',
-    heading: 'Real trails.\nCertified guides.',
-    subheading:
-      'Guided Himalayan treks with certified leaders, camping equipment and permits handled end to end.',
-    ctaLabel: 'Browse All Treks',
   },
 ];
 
@@ -159,18 +151,7 @@ const ToursHome = () => {
     return sorter ? [...filtered].sort(sorter) : filtered;
   }, [tours, destination, duration, price, sortBy]);
 
-  const heading = banner?.heading || active.heading;
-  const subheading = banner?.subheading || active.subheading;
-  const ctaLabel = banner?.ctaLabel ?? active.ctaLabel;
 
-  const scrollToPackages = () => {
-    if (banner?.ctaLink) {
-      if (/^https?:\/\//i.test(banner.ctaLink)) window.location.assign(banner.ctaLink);
-      else navigate(banner.ctaLink);
-      return;
-    }
-    document.getElementById('tour-packages')?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans">
@@ -217,40 +198,21 @@ const ToursHome = () => {
         </div>
       </div>
 
-      {/* Hero */}
+      {/* Hero: the uploaded banner and nothing else. No banner, no hero. */}
       <div className="relative">
-        <div className="relative h-[260px] w-full overflow-hidden bg-slate-800 sm:h-[300px]">
-          {banner?.imageUrl ? (
-            <img src={banner.imageUrl} alt={heading} className="h-full w-full object-cover" />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/55 to-slate-950/20" />
-
-          <div className="absolute inset-0">
-            <div className="mx-auto flex h-full max-w-7xl flex-col justify-center px-5 lg:px-8">
-              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="max-w-xl">
-                <h1 className="whitespace-pre-line text-[2rem] font-black leading-[1.1] tracking-tight text-white sm:text-[2.6rem]">
-                  {heading}
-                </h1>
-                <p className="mt-3 max-w-md text-[13px] font-medium leading-relaxed text-white/80 sm:text-sm">
-                  {subheading}
-                </p>
-                {ctaLabel ? (
-                  <button
-                    onClick={scrollToPackages}
-                    className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-[13px] font-black text-white shadow-lg transition hover:bg-emerald-700 active:scale-95"
-                  >
-                    <Compass size={16} />
-                    {ctaLabel}
-                  </button>
-                ) : null}
-              </motion.div>
-            </div>
+        {banner?.imageUrl ? (
+          <div className="w-full overflow-hidden bg-slate-100">
+            <img
+              src={banner.imageUrl}
+              alt=""
+              className="h-[200px] w-full object-cover sm:h-[280px] lg:h-[320px]"
+            />
           </div>
-        </div>
+        ) : null}
 
         {/* Filter bar overlapping the hero */}
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="-mt-8 relative z-10 flex flex-col divide-y divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0">
+          <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : 'mt-6'}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
             <Dropdown
               icon={MapPin}
               label="Destination"

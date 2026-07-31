@@ -111,8 +111,8 @@ const TourBannerManager = () => {
       <div>
         <h1 className="text-2xl font-black text-slate-900">Tour Banners</h1>
         <p className="mt-1 text-sm font-medium text-slate-500">
-          The hero shown above the package list on the customer tours screen. The newest active
-          banner for a category is the one that appears.
+          The hero image shown above the package list on the customer tours screen. Any headline
+          or button should be part of the artwork -- nothing is drawn over it.
         </p>
       </div>
 
@@ -155,39 +155,6 @@ const TourBannerManager = () => {
                   <input type="file" className="hidden" accept="image/*" disabled={uploading} onChange={handleImageChange} />
                 </label>
               )}
-            </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>Heading</label>
-            <textarea
-              className={`${inputClass} min-h-20`}
-              value={formData.heading}
-              onChange={(e) => setField('heading', e.target.value)}
-              placeholder={'Spiritual journeys.\nDivine experiences.'}
-            />
-            <p className="mt-1 text-[11px] text-slate-400">Line breaks are preserved on the banner.</p>
-          </div>
-
-          <div>
-            <label className={labelClass}>Subheading</label>
-            <textarea
-              className={`${inputClass} min-h-20`}
-              value={formData.subheading}
-              onChange={(e) => setField('subheading', e.target.value)}
-              placeholder="Book all-inclusive, premium pilgrimage tours to Char Dham, Kedarnath, Badrinath and more."
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className={labelClass}>Button Label</label>
-              <input className={inputClass} value={formData.ctaLabel} onChange={(e) => setField('ctaLabel', e.target.value)} placeholder="Browse All Packages" />
-              <p className="mt-1 text-[11px] text-slate-400">Leave blank to hide the button.</p>
-            </div>
-            <div>
-              <label className={labelClass}>Button Link</label>
-              <input className={inputClass} value={formData.ctaLink} onChange={(e) => setField('ctaLink', e.target.value)} placeholder="Blank scrolls to the packages" />
             </div>
           </div>
 
@@ -249,11 +216,8 @@ const TourBannerManager = () => {
             banners.map((banner) => (
               <div key={banner.id} className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-sm">
                 <div className="relative h-40">
-                  <img src={banner.imageUrl} alt={banner.heading || 'Banner'} className="h-full w-full object-cover" />
+                  <img src={banner.imageUrl} alt="Tour banner" className="h-full w-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent" />
-                  <div className="absolute bottom-4 left-5 right-5 text-white">
-                    <p className="text-lg font-black leading-tight whitespace-pre-line">{banner.heading || '(no heading)'}</p>
-                  </div>
                   <div className="absolute top-4 left-5 flex gap-2">
                     <span className="rounded-lg bg-white/90 px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-700">
                       {banner.category}
@@ -264,7 +228,7 @@ const TourBannerManager = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 p-5">
-                  <p className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-500">{banner.subheading || 'No subheading'}</p>
+                  <p className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-500">Order {banner.order}</p>
                   <div className="flex shrink-0 gap-2">
                     <button
                       type="button"

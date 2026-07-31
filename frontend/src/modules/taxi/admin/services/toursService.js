@@ -99,10 +99,6 @@ export const createTourBannerDraft = () => ({
   id: '',
   category: 'yatra',
   imageUrl: '',
-  heading: '',
-  subheading: '',
-  ctaLabel: '',
-  ctaLink: '',
   isActive: true,
   order: 0,
 });

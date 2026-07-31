@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-// Hero banner for the tours screen. Mirrors BusBanner, plus the headline,
-// subtext and CTA the tours hero renders over the image -- those were
-// hardcoded in ToursHome, so the copy could not be changed without a deploy.
+// Hero banner for the tours screen. Image only -- the hero renders the
+// uploaded artwork and nothing else, so any headline or CTA belongs baked
+// into the image itself.
 //
 // One banner per category, so the Yatras and Treks tabs each get their own.
 const tourBannerSchema = new mongoose.Schema(
@@ -19,26 +19,6 @@ const tourBannerSchema = new mongoose.Schema(
       trim: true,
     },
     imagePublicId: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    heading: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    subheading: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    ctaLabel: {
-      type: String,
-      default: '',
-      trim: true,
-    },
-    ctaLink: {
       type: String,
       default: '',
       trim: true,
@@ -65,10 +45,6 @@ export const serializeTourBanner = (item = {}) => ({
   category: item.category || 'yatra',
   imageUrl: item.imageUrl || '',
   imagePublicId: item.imagePublicId || '',
-  heading: item.heading || '',
-  subheading: item.subheading || '',
-  ctaLabel: item.ctaLabel || '',
-  ctaLink: item.ctaLink || '',
   isActive: item.isActive !== false,
   order: Number(item.order || 0),
   createdAt: item.createdAt || null,
