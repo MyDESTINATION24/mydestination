@@ -20,6 +20,7 @@ const CREATE_PATH = '/admin/promotions/banner-image/create';
 
 const createInitialFormData = () => ({
   image: null,
+  image_desktop: null,
   image_url: '',
   use_url: false,
 });
@@ -37,6 +38,7 @@ const BannerImage = () => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState(createInitialFormData);
   const [imagePreview, setImagePreview] = useState(null);
+  const [desktopPreview, setDesktopPreview] = useState(null);
 
   const token = localStorage.getItem('adminToken') || '';
   const backendOrigin = buildBackendUrl();
@@ -114,6 +116,14 @@ const BannerImage = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const handleDesktopImageChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setFormData((current) => ({ ...current, image_desktop: file }));
+    setDesktopPreview(URL.createObjectURL(file));
+  };
+
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -140,8 +150,19 @@ const BannerImage = () => {
         });
       }
 
+      let desktopData = '';
+      if (formData.image_desktop instanceof File) {
+        desktopData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(formData.image_desktop);
+        });
+      }
+
       const payload = {
         image: imageData,
+        image_desktop: desktopData,
         image_url: formData.image_url.trim(),
         use_url: formData.use_url,
       };
@@ -371,8 +392,8 @@ const BannerImage = () => {
             <div className="space-y-6 max-w-3xl">
               <div>
                 <label className="block text-[14px] font-semibold text-gray-900 mb-3">
-                  Banner Image<span className="text-rose-500">*</span>
-                  <span className="text-gray-400 font-medium">(500px x 100px)</span>
+                  Mobile Banner<span className="text-rose-500">*</span>
+                  <span className="text-gray-400 font-medium"> — shown on phones, and used everywhere if no desktop version is set</span>
                 </label>
 
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-4">
@@ -402,6 +423,45 @@ const BannerImage = () => {
                       </span>
                       <div>
                         <p className="text-[15px] font-medium text-gray-900">Upload Image</p>
+                      </div>
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-semibold text-gray-900 mb-3">
+                  Desktop Banner
+                  <span className="text-gray-400 font-medium"> — optional, wide crop (e.g. 1920x600) so it is not stretched on large screens</span>
+                </label>
+
+                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-4">
+                  {desktopPreview ? (
+                    <div className="space-y-4">
+                      <img
+                        src={desktopPreview}
+                        alt="Desktop banner preview"
+                        className="h-28 w-full rounded-lg border border-gray-200 object-contain bg-gray-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDesktopPreview(null);
+                          setFormData((current) => ({ ...current, image_desktop: null }));
+                        }}
+                        className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Remove Image
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center justify-center gap-3 py-6 text-center">
+                      <input type="file" className="hidden" accept="image/*" onChange={handleDesktopImageChange} />
+                      <span className="text-[22px] text-gray-500">
+                        <Upload size={28} />
+                      </span>
+                      <div>
+                        <p className="text-[15px] font-medium text-gray-900">Upload Wide Image</p>
                       </div>
                     </label>
                   )}

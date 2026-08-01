@@ -152,6 +152,7 @@ const serializeBanner = (item) => ({
 const serializeBannerMinimal = (item) => ({
   _id: item._id,
   image: item.image || '',
+  image_desktop: item.image_desktop || '',
   active: item.active !== false,
 });
 
@@ -161,6 +162,9 @@ const serializeBannerFromPayload = (item, payload = {}) => {
 
   if (keys.has('image') || keys.has('image_url') || keys.has('use_url')) {
     response.image = item.image || '';
+  }
+  if (keys.has('image_desktop')) {
+    response.image_desktop = item.image_desktop || '';
   }
   if (keys.has('image_url')) {
     response.image_url = String(payload.image_url || '');
@@ -374,6 +378,7 @@ const normalizeBannerPayload = async (payload, existing = null) => {
   const generatedTitle = `Banner ${new Date().toISOString()}`;
   const title = normalizeText(payload.title ?? existing?.title ?? generatedTitle);
   let image = normalizeText(payload.image ?? payload.image_url ?? existing?.image);
+  let imageDesktop = normalizeText(payload.image_desktop ?? existing?.image_desktop);
   const rawLinkType = normalizeText(payload.link_type ?? payload.redirect_type ?? existing?.link_type ?? 'external_link');
   const linkType = rawLinkType === 'app_route' ? 'deep_link' : rawLinkType;
   const redirectUrl = normalizeText(
@@ -402,9 +407,22 @@ const normalizeBannerPayload = async (payload, existing = null) => {
     throw new ApiError(400, 'Link type must be external_link or deep_link');
   }
 
+  if (imageDesktop.startsWith('data:')) {
+    try {
+      const uploaded = await uploadDataUrlToCloudinary({
+        dataUrl: imageDesktop,
+        publicIdPrefix: 'banner-desktop',
+      });
+      imageDesktop = uploaded.secureUrl;
+    } catch (error) {
+      console.warn('Cloudinary upload failed for desktop banner, storing inline:', error.message);
+    }
+  }
+
   return {
     title,
     image,
+    image_desktop: imageDesktop,
     link_type: linkType,
     external_link: linkType === 'external_link' ? redirectUrl : '',
     deep_link: linkType === 'deep_link' ? redirectUrl : '',

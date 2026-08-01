@@ -8,9 +8,17 @@ const bannerSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    // Portrait-ish artwork used on phones, and the default everywhere.
     image: {
       type: String,
       required: true,
+      trim: true,
+    },
+    // Wide artwork for desktop. Empty means "just use `image`", so banners
+    // created before this field keep rendering exactly as they did.
+    image_desktop: {
+      type: String,
+      default: '',
       trim: true,
     },
     link_type: {

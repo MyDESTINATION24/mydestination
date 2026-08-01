@@ -612,16 +612,28 @@ const Home = () => {
           <div className="relative w-full h-72 md:h-[22rem] lg:h-[28rem] rounded-b-[40px] lg:rounded-none shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
-              <Motion.img
+              <Motion.picture
                 key={activeBannerIndex}
-                src={resolveImageUrl(banners[activeBannerIndex]?.image)}
-                alt="Promo Banner"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+                className="absolute inset-0 h-full w-full"
+              >
+                {/* Wide crop above md when the admin uploaded one, so the
+                    phone artwork is never stretched across a desktop banner. */}
+                {banners[activeBannerIndex]?.image_desktop ? (
+                  <source
+                    media="(min-width: 768px)"
+                    srcSet={resolveImageUrl(banners[activeBannerIndex].image_desktop)}
+                  />
+                ) : null}
+                <img
+                  src={resolveImageUrl(banners[activeBannerIndex]?.image)}
+                  alt="Promo Banner"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </Motion.picture>
             </AnimatePresence>
 
             {/* Navigation Dots if multiple */}
