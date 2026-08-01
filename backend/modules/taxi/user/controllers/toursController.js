@@ -89,15 +89,17 @@ export const getUserTours = asyncHandler(async (req, res) => {
 });
 
 export const getUserTourBanner = asyncHandler(async (req, res) => {
-  const category = ['yatra', 'trek'].includes(String(req.query.category || '').toLowerCase())
+  const category = ['yatra', 'trek', 'airways'].includes(String(req.query.category || '').toLowerCase())
     ? String(req.query.category).toLowerCase()
     : 'yatra';
 
-  const banner = await TourBanner.findOne({ category, isActive: true })
+  // Returns every active banner for the category so callers can rotate them;
+  // screens wanting a single hero just take the first.
+  const banners = await TourBanner.find({ category, isActive: true })
     .sort({ order: 1, createdAt: -1 })
     .lean();
 
-  return ok(res, banner ? serializeTourBanner(banner) : null, 'Tour banner fetched successfully');
+  return ok(res, banners.map(serializeTourBanner), 'Banners fetched successfully');
 });
 
 export const getUserTourById = asyncHandler(async (req, res) => {

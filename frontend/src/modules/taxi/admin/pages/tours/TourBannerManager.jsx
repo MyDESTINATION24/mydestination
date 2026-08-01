@@ -16,6 +16,7 @@ const labelClass = 'mb-2 block text-[10px] font-bold uppercase tracking-wider te
 const CATEGORIES = [
   { id: 'yatra', label: 'Pilgrim Yatras' },
   { id: 'trek', label: 'Treks' },
+  { id: 'airways', label: 'Airways (Helicopter)' },
 ];
 
 // Hero banner shown at the top of /taxi/user/tours. One per category, so the

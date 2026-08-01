@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
+import { getUserTourBanner } from '../../services/toursService';
 import BottomNavbar from '../../components/BottomNavbar';
 
 // Asset Imports (Using the generated image for consistency)
@@ -67,6 +68,8 @@ const AirwaysHome = () => {
   const [appliedFilters, setAppliedFilters] = useState({ origin: '', destination: '', travelDate: '' });
   const [view, setView] = useState('home'); // 'home' or 'results'
   const [activeInput, setActiveInput] = useState(null);
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   const loadRoutes = async (filters = {}) => {
     try {
@@ -85,6 +88,23 @@ const AirwaysHome = () => {
   useEffect(() => {
     loadRoutes(appliedFilters);
   }, [appliedFilters.origin, appliedFilters.destination, appliedFilters.travelDate]);
+
+  // Hero artwork is admin-managed (Admin -> Tours -> Banners, Airways
+  // category). Several active banners rotate; none falls back to the bundled
+  // image.
+  useEffect(() => {
+    getUserTourBanner('airways')
+      .then((list) => setHeroBanners(Array.isArray(list) ? list.filter((b) => b?.imageUrl) : []))
+      .catch(() => setHeroBanners([]));
+  }, []);
+
+  useEffect(() => {
+    if (heroBanners.length <= 1) return undefined;
+    const timer = setInterval(() => {
+      setHeroIndex((current) => (current + 1) % heroBanners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [heroBanners.length]);
 
   useEffect(() => {
     const loadAll = async () => {
@@ -157,7 +177,22 @@ const AirwaysHome = () => {
     <div className="min-h-screen bg-[#F8FAFC] pb-24 overflow-x-hidden overflow-y-auto" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
       {/* Immersive Header */}
       <div className="relative h-[40vh] w-full overflow-hidden">
-        <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
+        {heroBanners.length > 0 ? (
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={heroBanners[heroIndex]?.id || heroIndex}
+              src={heroBanners[heroIndex]?.imageUrl}
+              alt=""
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </AnimatePresence>
+        ) : (
+          <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
         
         <div className="absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center gap-3 z-50">
@@ -169,6 +204,20 @@ const AirwaysHome = () => {
               <ArrowLeft size={20} />
            </button>
         </div>
+
+        {heroBanners.length > 1 ? (
+          <div className="absolute bottom-5 left-0 right-0 z-20 flex justify-center gap-1.5">
+            {heroBanners.map((item, index) => (
+              <button
+                key={item.id || index}
+                type="button"
+                aria-label={`Banner ${index + 1}`}
+                onClick={() => setHeroIndex(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${index === heroIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`}
+              />
+            ))}
+          </div>
+        ) : null}
 
         <div className="absolute bottom-16 left-5 right-5 sm:left-6 sm:right-6">
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

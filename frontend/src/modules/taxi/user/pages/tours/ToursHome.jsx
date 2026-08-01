@@ -120,7 +120,7 @@ const ToursHome = () => {
           getUserTourBanner(category === 'all' ? 'yatra' : category).catch(() => null),
         ]);
         setTours(Array.isArray(nextTours) ? nextTours : []);
-        setBanner(nextBanner || null);
+        setBanner((Array.isArray(nextBanner) ? nextBanner[0] : nextBanner) || null);
       } catch {
         toast.error('Failed to load packages');
       } finally {

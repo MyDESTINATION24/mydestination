@@ -1,15 +1,20 @@
 import mongoose from 'mongoose';
 
-// Hero banner for the tours screen. Image only -- the hero renders the
-// uploaded artwork and nothing else, so any headline or CTA belongs baked
-// into the image itself.
+// Hero banner artwork for a customer screen. Image only -- the hero renders
+// the uploaded image and nothing else, so any headline or CTA belongs baked
+// into the artwork itself.
 //
-// One banner per category, so the Yatras and Treks tabs each get their own.
+// `category` scopes a banner to a screen: the Yatras and Treks tabs and the
+// Airways home each draw their own. Named TourBanner for its original use;
+// it backs several modules now.
+//
+// Multiple active banners in one category rotate as a carousel, ordered by
+// `order`.
 const tourBannerSchema = new mongoose.Schema(
   {
     category: {
       type: String,
-      enum: ['yatra', 'trek'],
+      enum: ['yatra', 'trek', 'airways'],
       default: 'yatra',
       index: true,
     },

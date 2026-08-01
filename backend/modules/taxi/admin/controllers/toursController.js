@@ -262,7 +262,7 @@ export const updateTourBookingStatus = asyncHandler(async (req, res) => {
 // ---- Tours hero banner ----
 
 const normalizeBannerPayload = (payload = {}, existing = null) => ({
-  category: ['yatra', 'trek'].includes(toText(payload.category || existing?.category).toLowerCase())
+  category: ['yatra', 'trek', 'airways'].includes(toText(payload.category || existing?.category).toLowerCase())
     ? toText(payload.category || existing?.category).toLowerCase()
     : 'yatra',
   imageUrl: toText(payload.imageUrl || existing?.imageUrl),

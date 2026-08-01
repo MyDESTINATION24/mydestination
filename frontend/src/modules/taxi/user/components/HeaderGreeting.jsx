@@ -37,7 +37,10 @@ const HeaderGreeting = () => {
 
             {/* App Name / Logo: desktop only */}
             {appLogo ? (
-              <img src={appLogo} alt={appName} className="hidden md:block h-9 object-contain" />
+              <div className="hidden md:flex items-center gap-2">
+                <img src={appLogo} alt={appName} className="h-9 object-contain" />
+                <span className="text-[17px] font-black tracking-tight text-slate-900">MyDestination</span>
+              </div>
             ) : (
               <span className="hidden md:block text-slate-900 font-black text-lg tracking-tight">{appName}</span>
             )}
