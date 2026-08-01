@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
 import { TrekArt } from '../components/CardArt';
+import SkyTraffic from '../../../../components/common/SkyTraffic';
 import HeaderGreeting from '../components/HeaderGreeting';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
@@ -639,6 +640,12 @@ const Home = () => {
 
             {/* Overlay Gradient for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+            <SkyTraffic
+              craft={[
+                { kind: 'plane', top: '12%', width: 84, opacity: 0.42, duration: 34, delay: 0, bob: 5 },
+                { kind: 'heli',  top: '24%', width: 64, opacity: 0.34, duration: 28, delay: 11, bob: 6 },
+              ]}
+            />
           </div>
         ) : null}
 
@@ -817,15 +824,15 @@ const Home = () => {
               >
                 <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="bg-amber-50 text-amber-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-amber-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
                     Share & Save
                   </div>
 
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Ride together, pay less</p>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-emerald-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-amber-600 transition-colors">
                       Pooling <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>

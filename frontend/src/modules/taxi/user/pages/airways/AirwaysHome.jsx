@@ -22,6 +22,7 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 import { getUserTourBanner } from '../../services/toursService';
 import BottomNavbar from '../../components/BottomNavbar';
+import SkyTraffic from '../../../../../components/common/SkyTraffic';
 
 // Asset Imports (Using the generated image for consistency)
 import premiumHeliHero from '@/assets/airways/premium_heli_hero.png';
@@ -200,6 +201,7 @@ const AirwaysHome = () => {
           <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
+        <SkyTraffic />
         
         <div className="absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center gap-3 z-50">
            <div className="h-11 sm:h-12 min-w-0 px-3.5 sm:px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-2 sm:gap-3">
