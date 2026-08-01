@@ -427,7 +427,6 @@ const BusHome = () => {
               className="absolute inset-0 h-full w-full object-cover"
             />
           </AnimatePresence>
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(153,246,228,0.82)_0%,rgba(204,251,241,0.76)_55%,rgba(240,253,250,0.97)_100%)]" />
         </div>
       ) : null}
 
@@ -462,7 +461,7 @@ const BusHome = () => {
         </div>
       </div>
 
-      <header className="relative bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-12 lg:pb-6 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
+      <header className="relative bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-16 lg:pb-14 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 lg:w-11 lg:h-11 shrink-0 rounded-full bg-white/60 lg:bg-emerald-600 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white lg:hover:bg-emerald-700"
@@ -471,18 +470,18 @@ const BusHome = () => {
         </button>
         <div className="flex-1">
           <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80 lg:hidden">Bus Tickets</p>
-          <h1 className="text-xl lg:text-[2rem] font-bold lg:font-black text-gray-900 leading-none lg:leading-tight lg:tracking-tight">
+          <h1 className="text-xl lg:text-[2rem] font-bold lg:font-black text-gray-900 lg:text-white lg:drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] leading-none lg:leading-tight lg:tracking-tight">
             <span className="lg:hidden">Book your journey</span>
             <span className="hidden lg:inline">Book your bus journey</span>
           </h1>
-          <p className="mt-1.5 hidden text-[13px] font-semibold text-slate-500 lg:block">Travel safe, travel comfortable</p>
+          <p className="mt-1.5 hidden text-[13px] font-semibold text-white/90 drop-shadow-[0_1px_10px_rgba(0,0,0,0.4)] lg:block">Travel safe, travel comfortable</p>
         </div>
       </header>
  
       <div className="relative z-10 px-5 pt-4 space-y-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:space-y-7">
         {/* lg: From / To / Date / Search collapse into one horizontal bar
             instead of three stacked cards down a 1200px column. */}
-        <div className="space-y-5 lg:space-y-0 lg:rounded-[28px] lg:bg-white lg:p-4 lg:pb-6 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
+        <div className="space-y-5 lg:space-y-0 lg:mx-auto lg:max-w-5xl lg:rounded-[28px] lg:bg-white lg:p-4 lg:pb-6 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
         <div className="space-y-5 lg:space-y-0 lg:flex lg:items-center">
         {/* Source/Destination inputs */}
         <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative lg:flex lg:flex-1 lg:min-w-0 lg:items-stretch lg:space-y-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none lg:rounded-none lg:p-0">
