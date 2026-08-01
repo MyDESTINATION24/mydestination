@@ -38,7 +38,7 @@ const HeaderGreeting = () => {
   return (
     <>
       {/* TOP HEADER (Fixed, Yellow, Flat Bottom) */}
-      <div ref={barRef} className="bg-[#FFCC00] px-5 pt-[calc(env(safe-area-inset-top)+0.35rem)] pb-1.5 md:pt-3 md:pb-3 w-full fixed top-0 left-0 right-0 z-50 rounded-none shadow-sm">
+      <div ref={barRef} className="bg-[#FFCC00] px-4 pt-[calc(env(safe-area-inset-top)+0.15rem)] pb-1 md:px-5 md:pt-2.5 md:pb-2.5 w-full fixed top-0 left-0 right-0 z-50 rounded-none shadow-sm">
         <div className="flex items-center justify-between gap-3">
           {/* LEFT: Hamburger + Logo */}
           <div className="flex min-w-0 items-center gap-3">

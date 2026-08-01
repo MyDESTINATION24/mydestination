@@ -842,7 +842,7 @@ const ParcelSearchingDriver = () => {
             animate={{ scale: 1, opacity: 1, x: 0 }}
             className="absolute top-[88px] left-4 z-20 bg-white shadow-[0_4px_16px_rgba(15,23,42,0.12)] rounded-[12px] p-3 min-w-[70px] border border-slate-50"
           >
-            <p className="text-[18px] font-extrabold text-[#1d4ed8] leading-tight text-center tracking-wider">{otp}</p>
+            <p className="text-[18px] font-extrabold text-[#c2410c] leading-tight text-center tracking-wider">{otp}</p>
             <p className="text-[10px] font-bold text-slate-400 mt-0.5 text-center whitespace-nowrap">Pickup OTP</p>
           </motion.div>
         )}
@@ -899,7 +899,7 @@ const ParcelSearchingDriver = () => {
                 </div>
                 <div className="w-px h-8 bg-slate-200" />
                 <div className="flex items-center gap-3">
-                  <ShieldCheck size={20} className="text-blue-500" strokeWidth={2.5} />
+                  <ShieldCheck size={20} className="text-orange-500" strokeWidth={2.5} />
                   <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Parcel Safety</span>
                 </div>
               </div>

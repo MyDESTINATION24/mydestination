@@ -33,9 +33,9 @@ const DELIVERY_CATEGORY_OPTIONS = [
     img: trucksImg,
     icon: Truck,
     accent: {
-      soft: 'bg-blue-50 text-blue-700',
-      solid: 'bg-blue-600',
-      border: 'border-blue-200',
+      soft: 'bg-orange-50 text-orange-700',
+      solid: 'bg-orange-600',
+      border: 'border-orange-200',
       glow: 'shadow-[0_20px_60px_rgba(37,99,235,0.18)]',
     },
     searchTokens: ['truck', 'lcv', 'hcv', 'mcv', 'loader'],
@@ -80,7 +80,7 @@ const FEATURE_PILLS = [
     title: 'Safe & Secure',
     subtitle: 'Parcels are handled with extra care',
     icon: ShieldCheck,
-    accent: 'text-blue-600 bg-blue-50',
+    accent: 'text-orange-600 bg-orange-50',
   },
   {
     id: 'ontime',
@@ -170,15 +170,15 @@ const ParcelType = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7ff] mx-auto flex w-full max-w-lg flex-col overflow-x-hidden font-sans lg:max-w-3xl">
+    <div className="min-h-screen bg-[#fff7ed] mx-auto flex w-full max-w-lg flex-col overflow-x-hidden font-sans lg:max-w-3xl">
       <div className="relative overflow-hidden px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-6">
-        <div className="absolute inset-x-0 top-0 h-[280px] bg-[linear-gradient(180deg,#edf4ff_0%,#f8fbff_55%,#f4f7ff_100%)]" />
-        <div className="absolute left-[-40px] top-[120px] h-28 w-28 rounded-full bg-blue-200/30 blur-2xl" />
-        <div className="absolute right-[-20px] top-10 h-24 w-24 rounded-full bg-sky-200/30 blur-2xl" />
+        <div className="absolute inset-x-0 top-0 h-[280px] bg-[linear-gradient(180deg,#ffedd5_0%,#fffaf5_55%,#fff7ed_100%)]" />
+        <div className="absolute left-[-40px] top-[120px] h-28 w-28 rounded-full bg-orange-200/30 blur-2xl" />
+        <div className="absolute right-[-20px] top-10 h-24 w-24 rounded-full bg-orange-200/30 blur-2xl" />
 
         <button
           onClick={() => navigate(-1)}
-          className="relative z-20 mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-blue-700 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
+          className="relative z-20 mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-orange-700 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
         >
           <ArrowLeft size={18} />
         </button>
@@ -186,15 +186,15 @@ const ParcelType = () => {
         <Motion.section
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-[28px] border border-white/80 bg-[linear-gradient(135deg,#ffffff_0%,#f7fbff_55%,#eef5ff_100%)] px-5 pb-5 pt-4 shadow-[0_24px_60px_rgba(59,130,246,0.12)]"
+          className="relative overflow-hidden rounded-[28px] border border-white/80 bg-[linear-gradient(135deg,#ffffff_0%,#fffaf5_55%,#ffedd5_100%)] px-5 pb-5 pt-4 shadow-[0_24px_60px_rgba(59,130,246,0.12)]"
         >
-          <div className="absolute left-[-18px] bottom-0 h-24 w-24 rounded-full bg-blue-400/15 blur-2xl" />
-          <div className="absolute right-[-32px] top-[-18px] h-24 w-24 rounded-full bg-sky-400/15 blur-2xl" />
+          <div className="absolute left-[-18px] bottom-0 h-24 w-24 rounded-full bg-orange-400/15 blur-2xl" />
+          <div className="absolute right-[-32px] top-[-18px] h-24 w-24 rounded-full bg-orange-400/15 blur-2xl" />
           <div className="absolute right-5 top-10 h-10 w-10 rounded-full bg-white/70 shadow-sm" />
-          <div className="absolute left-[58%] top-12 text-blue-400/70">
+          <div className="absolute left-[58%] top-12 text-orange-400/70">
             <MapPin size={20} strokeWidth={2.4} />
           </div>
-          <svg className="absolute right-[36%] top-6 h-20 w-28 text-blue-300/80" viewBox="0 0 120 80" fill="none" aria-hidden="true">
+          <svg className="absolute right-[36%] top-6 h-20 w-28 text-orange-300/80" viewBox="0 0 120 80" fill="none" aria-hidden="true">
             <path d="M5 62C22 38 44 50 60 28C73 10 86 17 109 8" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="5 5" />
             <path d="M100 4L109 8L103 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -203,12 +203,12 @@ const ParcelType = () => {
             <div className="min-w-0 flex-1 pt-2">
               <p className="max-w-[210px] text-[15px] font-black leading-[1.18] text-slate-900">
                 Send it your way,
-                <span className="mt-1 block text-[15px] text-[#1d4ed8]">We&apos;ll deliver with care.</span>
+                <span className="mt-1 block text-[15px] text-[#c2410c]">We&apos;ll deliver with care.</span>
               </p>
               <p className="mt-2 max-w-[190px] text-[11px] font-semibold leading-5 text-slate-500">
                 Choose the best vehicle for your delivery and get it picked up in minutes.
               </p>
-              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-blue-700">
+              <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.16em] text-orange-700">
                 <PackageCheck size={12} strokeWidth={2.5} />
                 {availableCount} delivery options
               </div>
@@ -230,11 +230,11 @@ const ParcelType = () => {
           onClick={() => navigate('/taxi/user/parcel/details', { state: { editPickup: true } })}
           className="relative z-20 -mt-4 flex w-full items-center gap-3 rounded-[22px] border border-white bg-white px-4 py-4 text-left shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
         >
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-600">
             <MapPin size={20} strokeWidth={2.5} />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-blue-700">Pick up from</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-orange-700">Pick up from</p>
             <p className={`mt-1 truncate text-[13px] font-semibold ${pickupAddress ? 'text-slate-700' : 'text-slate-500'}`}>
               {pickupAddress || 'Tap to set your pickup location'}
             </p>
@@ -246,7 +246,7 @@ const ParcelType = () => {
       <main className="flex-1 px-4 pb-8">
         <section>
           <div className="mb-3 flex items-center gap-2 px-1">
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-50 text-orange-600">
               <ArrowRight size={12} strokeWidth={3} />
             </div>
             <h2 className="text-[16px] font-black text-slate-900">Choose your delivery type</h2>
@@ -300,7 +300,7 @@ const ParcelType = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.28 }}
-          className="relative mt-5 overflow-hidden rounded-[26px] bg-[linear-gradient(90deg,#1f3fc8_0%,#2948d5_55%,#2a50e6_100%)] px-5 py-4 text-white shadow-[0_22px_48px_rgba(37,99,235,0.24)]"
+          className="relative mt-5 overflow-hidden rounded-[26px] bg-[linear-gradient(90deg,#b23c0a_0%,#dd4f08_55%,#ea580c_100%)] px-5 py-4 text-white shadow-[0_22px_48px_rgba(37,99,235,0.24)]"
         >
           <div className="absolute right-4 top-3 h-16 w-16 rounded-full bg-white/8 blur-xl" />
           <div className="absolute right-0 bottom-0 flex items-end gap-1 pr-4 pb-3 opacity-95">
@@ -310,8 +310,8 @@ const ParcelType = () => {
               <div className="h-5 w-4 rounded-[4px] bg-yellow-300" />
             </div>
             <div className="relative flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-b from-yellow-300 to-amber-500 shadow-[0_12px_20px_rgba(0,0,0,0.18)]">
-              <div className="absolute inset-x-2 top-2 h-2 rounded-full bg-blue-500/90" />
-              <div className="absolute inset-y-2 left-1/2 w-1 -translate-x-1/2 bg-blue-500/90" />
+              <div className="absolute inset-x-2 top-2 h-2 rounded-full bg-orange-500/90" />
+              <div className="absolute inset-y-2 left-1/2 w-1 -translate-x-1/2 bg-orange-500/90" />
             </div>
             <div className="ml-1 flex h-7 w-7 items-center justify-center rounded-full bg-yellow-400 text-amber-900">
               <Coins size={15} strokeWidth={2.5} />
@@ -323,7 +323,7 @@ const ParcelType = () => {
               <h3 className="text-[14px] font-black">Explore Rewards</h3>
               <p className="mt-1 text-[11px] font-semibold text-white/80">Earn 2 coins for every 100 spent</p>
             </div>
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#2342cf]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-[#c2410c]">
               <ArrowRight size={18} strokeWidth={3} />
             </div>
           </div>
