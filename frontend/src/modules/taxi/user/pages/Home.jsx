@@ -596,7 +596,7 @@ const Home = () => {
 
       <div className="relative z-10 pb-6">
         {/* Spacer for fixed header greeting */}
-        <div className="h-[96px] md:h-[64px]" />
+        <div className="h-[calc(env(safe-area-inset-top)+3.4rem)] md:h-[52px]" />
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
@@ -835,7 +835,7 @@ const Home = () => {
                 <img
                   src={poolingImg}
                   alt="Pooling"
-                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="mix-blend-multiply absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -897,7 +897,7 @@ const Home = () => {
                 <img
                   src={parcelImg}
                   alt="Delivery"
-                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="mix-blend-multiply absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
