@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Wallet, Bell, Menu, User } from 'lucide-react';
@@ -20,10 +20,25 @@ const HeaderGreeting = () => {
   const appName = settings.general?.app_name || 'App';
 
 
+  const barRef = useRef(null);
+  const [barHeight, setBarHeight] = useState(0);
+
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return undefined;
+
+    const sync = () => setBarHeight(el.offsetHeight);
+    sync();
+
+    const observer = new ResizeObserver(sync);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       {/* TOP HEADER (Fixed, Yellow, Flat Bottom) */}
-      <div className="bg-[#FFCC00] px-5 pt-[calc(env(safe-area-inset-top)+0.6rem)] pb-2.5 md:pt-3 md:pb-3 w-full fixed top-0 left-0 right-0 z-50 rounded-none shadow-sm">
+      <div ref={barRef} className="bg-[#FFCC00] px-5 pt-[calc(env(safe-area-inset-top)+0.35rem)] pb-1.5 md:pt-3 md:pb-3 w-full fixed top-0 left-0 right-0 z-50 rounded-none shadow-sm">
         <div className="flex items-center justify-between gap-3">
           {/* LEFT: Hamburger + Logo */}
           <div className="flex min-w-0 items-center gap-3">
@@ -116,6 +131,8 @@ const HeaderGreeting = () => {
         </div>
       </div>
 
+      {/* Spacer matching the fixed bar exactly, so nothing under it is clipped */}
+      <div aria-hidden style={{ height: barHeight }} />
     </>
   );
 };

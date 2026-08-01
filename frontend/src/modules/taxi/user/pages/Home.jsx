@@ -242,6 +242,9 @@ const Home = () => {
     if (device === 'desktop') return isDesktop;
     return true;
   });
+  // A device switch can leave the index past the end of the shorter list,
+  // which renders an empty <img> and shows the placeholder behind it.
+  const bannerIndex = visibleBanners.length ? activeBannerIndex % visibleBanners.length : 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -622,8 +625,6 @@ const Home = () => {
       `}</style>
 
       <div className="relative z-10 pb-6">
-        {/* Spacer for fixed header greeting */}
-        <div className="h-[calc(env(safe-area-inset-top)+3.4rem)] md:h-[52px]" />
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
@@ -635,12 +636,12 @@ const Home = () => {
             </div>
           </div>
         ) : visibleBanners.length > 0 ? (
-          <div className="relative w-full h-44 sm:h-56 md:h-[22rem] lg:h-[28rem] rounded-b-[32px] lg:rounded-none shadow-lg overflow-hidden bg-slate-100">
+          <div className="relative w-full h-44 sm:h-56 md:h-[22rem] lg:h-[28rem] rounded-b-[32px] lg:rounded-none shadow-lg overflow-hidden">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
                 key={activeBannerIndex}
-                src={resolveImageUrl(visibleBanners[activeBannerIndex]?.image)}
+                src={resolveImageUrl(visibleBanners[bannerIndex]?.image)}
                 alt="Promo Banner"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -657,7 +658,7 @@ const Home = () => {
                   <button
                     key={index}
                     onClick={() => setActiveBannerIndex(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${index === activeBannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                    className={`h-2 rounded-full transition-all duration-300 ${index === bannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
                       }`}
                   />
                 ))}
