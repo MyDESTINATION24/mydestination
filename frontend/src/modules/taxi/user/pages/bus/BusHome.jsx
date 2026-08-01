@@ -117,8 +117,8 @@ const BusHome = () => {
   const scrollOffers = (direction) => {
     const el = offersRef.current;
     if (!el) return;
-    // one card plus its gap, so each press advances a whole card
-    el.scrollBy({ left: direction * (el.clientWidth * 0.8), behavior: 'smooth' });
+    // one full slide per press
+    el.scrollBy({ left: direction * el.clientWidth, behavior: 'smooth' });
   };
 
   const [fromCity, setFromCity] = useState('');
@@ -411,8 +411,28 @@ const BusHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-none font-sans pb-32 lg:pb-16 relative overflow-hidden">
+      {/* The admin bus banners back the search section. They rotate on the
+          same currentBannerIndex timer that drove the old carousel. */}
+      {banners.length > 0 ? (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[430px] overflow-hidden lg:h-[520px]">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentBannerIndex}
+              src={banners[currentBannerIndex]?.imageUrl}
+              alt=""
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </AnimatePresence>
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(153,246,228,0.82)_0%,rgba(204,251,241,0.76)_55%,rgba(240,253,250,0.97)_100%)]" />
+        </div>
+      ) : null}
+
       {/* Desktop app bar */}
-      <div className="hidden lg:block sticky top-0 z-30 bg-white border-b border-slate-100">
+      <div className="hidden lg:block sticky top-0 z-30 bg-white border-b border-slate-100 relative">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-3.5">
           <button onClick={() => navigate('/taxi/user')} className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
@@ -442,7 +462,7 @@ const BusHome = () => {
         </div>
       </div>
 
-      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-12 lg:pb-6 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
+      <header className="relative bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-12 lg:pb-6 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 lg:w-11 lg:h-11 shrink-0 rounded-full bg-white/60 lg:bg-emerald-600 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white lg:hover:bg-emerald-700"
@@ -459,7 +479,7 @@ const BusHome = () => {
         </div>
       </header>
  
-      <div className="px-5 pt-4 space-y-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:space-y-7">
+      <div className="relative z-10 px-5 pt-4 space-y-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:space-y-7">
         {/* lg: From / To / Date / Search collapse into one horizontal bar
             instead of three stacked cards down a 1200px column. */}
         <div className="space-y-5 lg:space-y-0 lg:rounded-[28px] lg:bg-white lg:p-4 lg:pb-6 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
@@ -627,51 +647,6 @@ const BusHome = () => {
           </div>
         </div>
 
-        {/* Banner Section (Dynamic Carousel / Skeleton Loading) */}
-        {bannersLoading ? (
-          <div className="w-full h-44 sm:h-52 lg:h-72 rounded-[28px] bg-slate-100 animate-pulse mt-2" />
-        ) : banners.length > 0 ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-teal-100/50 bg-white shadow-sm mt-2">
-            <div className="relative w-full h-44 sm:h-52 lg:h-72 overflow-hidden">
-              <AnimatePresence initial={false} mode="wait">
-                <motion.img
-                  key={currentBannerIndex}
-                  src={banners[currentBannerIndex]?.imageUrl}
-                  alt={banners[currentBannerIndex]?.title || 'Promo Banner'}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  onClick={() => handleBannerClick(banners[currentBannerIndex]?.linkUrl)}
-                  className="w-full h-full object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-300"
-                />
-              </AnimatePresence>
-
-              {banners[currentBannerIndex]?.title && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-10">
-                  <p className="text-white text-xs font-bold truncate">
-                    {banners[currentBannerIndex]?.title}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {banners.length > 1 && (
-              <div className="absolute bottom-3 right-4 flex gap-1.5 z-10 bg-black/25 backdrop-blur-md px-2 py-1 rounded-full">
-                {banners.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentBannerIndex(idx)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/40'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null}
-
         {/* Offers & Popular Routes Drawer Card */}
         <div className="bg-white rounded-t-[36px] lg:rounded-[28px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t lg:border border-gray-100/60 p-6 lg:p-7 space-y-5 -mx-5 lg:mx-0 pb-10 lg:pb-7 lg:mt-2 flex flex-col">
           <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2 lg:hidden" />
@@ -724,7 +699,7 @@ const BusHome = () => {
               {[1, 2, 3].map((n) => (
                 <div
                   key={n}
-                  className="w-72 lg:w-[300px] h-32 lg:h-44 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
+                  className="w-full h-44 lg:h-64 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="h-3 bg-slate-200/80 rounded w-1/4" />
@@ -741,7 +716,7 @@ const BusHome = () => {
                 <div
                   key={offer.id || offer._id}
                   onClick={() => handleBannerClick(offer.linkUrl)}
-                  className="w-72 lg:w-[300px] h-32 lg:h-44 snap-start rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
+                  className="w-full h-44 lg:h-64 snap-start rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
                 >
                   <img
                     src={offer.imageUrl}
@@ -761,7 +736,7 @@ const BusHome = () => {
           ) : (
             <div ref={offersRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {/* Metro Ride Offer (From image) */}
-              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-teal-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Special Offer
@@ -782,7 +757,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 2 */}
-              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-amber-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Save Big
@@ -803,7 +778,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 3 */}
-              <div className="w-72 lg:w-[300px] snap-start bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Flexibility

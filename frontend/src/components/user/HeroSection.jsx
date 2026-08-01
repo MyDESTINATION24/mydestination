@@ -158,8 +158,9 @@ const HeroSection = () => {
                     alt=""
                     className="absolute inset-0 h-full w-full object-cover"
                 />
-                {/* Wash so the copy stays readable over the photo */}
-                <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(255,255,255,0.96)_0%,rgba(255,255,255,0.88)_32%,rgba(255,255,255,0.45)_54%,rgba(255,255,255,0)_78%)]" />
+                {/* Light scrim from the left -- enough for the copy to hold, not
+                    enough to wash the photo out */}
+                <div className="absolute inset-0 bg-[linear-gradient(95deg,rgba(2,20,28,0.62)_0%,rgba(2,20,28,0.38)_38%,rgba(2,20,28,0.08)_62%,transparent_82%)]" />
                 <BirdFlock
                     tint="255,255,255"
                     birds={[
@@ -170,17 +171,17 @@ const HeroSection = () => {
                 />
 
                 <div className="relative z-10 px-10 py-14 lg:px-14 lg:py-16">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-surface/10 bg-white/80 px-3.5 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-surface/70 backdrop-blur-sm">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white backdrop-blur-md">
                         Discover Your Perfect Stay <Sparkles size={12} className="text-emerald-500" />
                     </span>
 
-                    <h1 className="mt-5 text-[2.6rem] font-black leading-[1.08] tracking-tight text-slate-900 lg:text-[3.1rem]">
+                    <h1 className="mt-5 text-[2.6rem] font-black leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)] lg:text-[3.1rem]">
                         Find the best hotels for
                         <br />
-                        <span className="text-emerald-600">your next adventure</span>
+                        <span className="text-emerald-300">your next adventure</span>
                     </h1>
 
-                    <p className="mt-3 text-sm font-semibold text-slate-600 lg:text-base">
+                    <p className="mt-3 text-sm font-semibold text-white/85 lg:text-base">
                         Luxury stays, unforgettable experiences
                     </p>
 

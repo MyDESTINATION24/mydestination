@@ -42,16 +42,24 @@ const BirdFlock = ({ birds = DEFAULT_BIRDS, tint = '51,65,85', className = '' })
       {birds.map((bird, index) => (
         <motion.div
           key={index}
-          initial={{ x: '-8%' }}
-          animate={{ x: '108%', y: [0, -bird.bob, 0, bird.bob, 0] }}
+          className="absolute left-0 w-full"
+          style={{ top: bird.top }}
+          initial={{ x: '-12%' }}
+          animate={{ x: '112%' }}
           transition={{
-            x: { duration: bird.duration, delay: bird.delay, repeat: Infinity, ease: 'linear' },
-            y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
+            duration: bird.duration,
+            delay: bird.delay,
+            repeat: Infinity,
+            ease: 'linear',
           }}
-          className="absolute"
-          style={{ top: bird.top, width: bird.width, height: bird.width * 0.4 }}
         >
-          <BirdGlyph opacity={bird.opacity} flapSpeed={bird.flap} flapDelay={index * 0.3} tint={tint} />
+          <motion.div
+            animate={{ y: [0, -bird.bob, 0, bird.bob, 0] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ width: bird.width, height: bird.width * 0.4 }}
+          >
+            <BirdGlyph opacity={bird.opacity} flapSpeed={bird.flap} flapDelay={index * 0.3} tint={tint} />
+          </motion.div>
         </motion.div>
       ))}
 
