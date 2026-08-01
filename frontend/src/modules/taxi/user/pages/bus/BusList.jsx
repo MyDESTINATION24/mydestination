@@ -13,6 +13,7 @@ import {
   TicketPercent,
   SlidersHorizontal,
   BadgePercent,
+  Search,
 } from 'lucide-react';
 import userBusService from '../../services/busService';
 
@@ -91,6 +92,70 @@ const getDepartureSortValue = (bus) => {
   if (!match) return Number.MAX_SAFE_INTEGER;
 
   return (Number(match[1]) * 60) + Number(match[2]);
+};
+
+// Rendered twice: inside the mobile sort dropdown and as the desktop rail.
+// Kept as one component so the two can never drift apart.
+const FilterBody = ({
+  sortBy, onSort, busCompanies, selectedCompany, onCompany,
+  showDealsOnly, onDeals, showHighlyRatedOnly, onHighlyRated,
+}) => {
+  const row = (isActive) =>
+    `flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
+      isActive ? 'bg-bus-primary text-white' : 'bg-white text-bus-dark hover:bg-bus-light'
+    }`;
+
+  return (
+    <>
+      <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
+        Sort buses by
+      </p>
+      <div className="space-y-1">
+        {SORT_OPTIONS.map((option) => (
+          <button key={option.id} type="button" onClick={() => onSort(option.id)} className={row(sortBy === option.id)}>
+            <span>{option.label}</span>
+            {sortBy === option.id ? <Check size={14} /> : null}
+          </button>
+        ))}
+      </div>
+
+      <div className="mx-1 my-2 h-px bg-bus-light-border/60" />
+      <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
+        Quick filters
+      </p>
+      <div className="space-y-1">
+        <button type="button" onClick={onDeals} className={row(showDealsOnly)}>
+          <span>Deals</span>
+          {showDealsOnly ? <Check size={14} /> : null}
+        </button>
+        <button type="button" onClick={onHighlyRated} className={row(showHighlyRatedOnly)}>
+          <span>Highly Rated</span>
+          {showHighlyRatedOnly ? <Check size={14} /> : null}
+        </button>
+      </div>
+
+      {busCompanies.length > 0 ? (
+        <>
+          <div className="mx-1 my-2 h-px bg-bus-light-border/60" />
+          <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
+            Bus company
+          </p>
+          <div className="max-h-56 space-y-1 overflow-y-auto no-scrollbar">
+            <button type="button" onClick={() => onCompany('all')} className={row(selectedCompany === 'all')}>
+              <span>All companies</span>
+              {selectedCompany === 'all' ? <Check size={14} /> : null}
+            </button>
+            {busCompanies.map((company) => (
+              <button key={company} type="button" onClick={() => onCompany(company)} className={row(selectedCompany === company)}>
+                <span className="truncate pr-3">{company}</span>
+                {selectedCompany === company ? <Check size={14} className="shrink-0" /> : null}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : null}
+    </>
+  );
 };
 
 const BusList = () => {
@@ -254,10 +319,34 @@ const BusList = () => {
           <div className="rounded-2xl border border-bus-light-border bg-bus-light px-3 py-2 text-right">
             <p className="text-[10px] font-black uppercase tracking-[0.18em] text-bus-primary">{formatTravelDate(date)}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate(`${routePrefix}/bus`)}
+            className="hidden shrink-0 items-center gap-2 rounded-2xl bg-bus-primary px-5 py-2.5 text-xs font-black text-white shadow-sm transition hover:bg-bus-primary-hover active:scale-95 lg:inline-flex"
+          >
+            <Search size={14} />
+            Modify Search
+          </button>
         </div>
       </div>
  
-      <div className="space-y-4 px-4 pt-5 lg:px-8">
+      <div className="px-4 pt-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:grid lg:grid-cols-[264px_minmax(0,1fr)] lg:gap-7 lg:items-start">
+        {/* Desktop filter rail */}
+        <aside className="hidden lg:block lg:sticky lg:top-28 rounded-[20px] border border-bus-light-border/60 bg-white p-2 shadow-[0_12px_32px_rgba(15,23,42,0.06)]">
+          <FilterBody
+            sortBy={sortBy}
+            onSort={handleSortSelect}
+            busCompanies={busCompanies}
+            selectedCompany={selectedCompany}
+            onCompany={setSelectedCompany}
+            showDealsOnly={showDealsOnly}
+            onDeals={() => setShowDealsOnly((current) => !current)}
+            showHighlyRatedOnly={showHighlyRatedOnly}
+            onHighlyRated={() => setShowHighlyRatedOnly((current) => !current)}
+          />
+        </aside>
+
+        <div className="space-y-4 min-w-0">
         {loading ? (
           <div className="rounded-3xl border border-bus-light-border/30 bg-white p-12 text-bus-dark/50 shadow-sm">
             <Loader2 size={32} className="mx-auto animate-spin text-bus-primary" />
@@ -284,7 +373,7 @@ const BusList = () => {
  
         {!loading && !error && buses.length > 0 ? (
           <>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-3 lg:hidden">
               <div className="overflow-hidden rounded-[22px] bg-[linear-gradient(135deg,var(--bus-accent)_0%,var(--bus-primary)_100%)] p-4 text-white shadow-[0_10px_24px_rgba(249,115,22,0.18)]">
                 <div className="flex items-center justify-between">
                   <BusFront size={22} />
@@ -309,7 +398,7 @@ const BusList = () => {
               </div>
             </div>
  
-            <div ref={sortMenuRef} className="relative pb-1">
+            <div ref={sortMenuRef} className="relative pb-1 lg:hidden">
               <div className="flex gap-2 overflow-x-auto no-scrollbar">
                 <div className="shrink-0">
                   <button
@@ -353,72 +442,17 @@ const BusList = () => {
                 <div
                   className="absolute left-0 top-[calc(100%+0.5rem)] z-20 w-[min(20rem,calc(100vw-2rem))] rounded-[20px] border border-bus-light-border/60 bg-white p-2 shadow-[0_18px_48px_rgba(15,23,42,0.08)]"
                 >
-                  <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
-                    Sort buses by
-                  </p>
-                  <div className="space-y-1">
-                    {SORT_OPTIONS.map((option) => {
-                      const isActive = sortBy === option.id;
- 
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => handleSortSelect(option.id)}
-                          className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
-                            isActive
-                              ? 'bg-bus-primary text-white'
-                              : 'bg-white text-bus-dark hover:bg-bus-light'
-                          }`}
-                        >
-                          <span>{option.label}</span>
-                          {isActive ? <Check size={14} /> : null}
-                        </button>
-                      );
-                    })}
-                  </div>
- 
-                  {busCompanies.length > 0 ? (
-                    <>
-                      <div className="mx-1 my-2 h-px bg-bus-light-border/60" />
-                      <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.18em] text-bus-dark/50">
-                        Bus company
-                      </p>
-                      <div className="max-h-56 space-y-1 overflow-y-auto no-scrollbar">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedCompany('all')}
-                          className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
-                            selectedCompany === 'all'
-                              ? 'bg-bus-primary text-white'
-                              : 'bg-white text-bus-dark hover:bg-bus-light'
-                          }`}
-                        >
-                          <span>All companies</span>
-                          {selectedCompany === 'all' ? <Check size={14} /> : null}
-                        </button>
-                        {busCompanies.map((company) => {
-                          const isActive = selectedCompany === company;
- 
-                          return (
-                            <button
-                              key={company}
-                              type="button"
-                              onClick={() => setSelectedCompany(company)}
-                              className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left text-xs font-bold transition ${
-                                isActive
-                                  ? 'bg-bus-primary text-white'
-                                  : 'bg-white text-bus-dark hover:bg-bus-light'
-                              }`}
-                            >
-                              <span className="truncate pr-3">{company}</span>
-                              {isActive ? <Check size={14} className="shrink-0" /> : null}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
-                  ) : null}
+                  <FilterBody
+                    sortBy={sortBy}
+                    onSort={handleSortSelect}
+                    busCompanies={busCompanies}
+                    selectedCompany={selectedCompany}
+                    onCompany={setSelectedCompany}
+                    showDealsOnly={showDealsOnly}
+                    onDeals={() => setShowDealsOnly((current) => !current)}
+                    showHighlyRatedOnly={showHighlyRatedOnly}
+                    onHighlyRated={() => setShowHighlyRatedOnly((current) => !current)}
+                  />
                 </div>
               ) : null}
             </div>
@@ -426,7 +460,7 @@ const BusList = () => {
         ) : null}
  
         {!loading && !error ? (
-          <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-2">
             {visibleBuses.map((bus, index) => {
               const rated = hasBusRating(bus);
               const topAmenities = Array.isArray(bus.amenities) ? bus.amenities.slice(0, 2) : [];
@@ -537,6 +571,7 @@ const BusList = () => {
             })}
           </div>
         ) : null}
+        </div>
       </div>
     </div>
   );
