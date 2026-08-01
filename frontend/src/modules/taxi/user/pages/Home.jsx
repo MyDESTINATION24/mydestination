@@ -628,7 +628,7 @@ const Home = () => {
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
-          <div className="mt-3 w-full aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] rounded-[24px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center md:mt-4 lg:mt-0">
+          <div className="mt-3 w-full aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] rounded-[24px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center md:mt-4 lg:mt-0">
             <div className="space-y-4 w-2/3 flex flex-col items-center">
               <div className="h-6 bg-gray-300/40 rounded-full w-1/2" />
               <div className="h-10 bg-gray-300/40 rounded-full w-3/4" />
@@ -636,13 +636,7 @@ const Home = () => {
             </div>
           </div>
         ) : visibleBanners.length > 0 ? (
-          <div className="relative mt-3 w-full overflow-hidden rounded-[24px] shadow-lg md:mt-4 lg:mt-0 lg:rounded-none">
-            <img
-              src={resolveImageUrl(visibleBanners[bannerIndex]?.image)}
-              alt=""
-              aria-hidden
-              className="pointer-events-none invisible block w-full"
-            />
+          <div className="relative mt-3 w-full overflow-hidden rounded-[24px] shadow-lg aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] md:mt-4 lg:mt-0 lg:rounded-none">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
