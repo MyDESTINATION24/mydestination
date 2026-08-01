@@ -636,7 +636,7 @@ const Home = () => {
             </div>
           </div>
         ) : visibleBanners.length > 0 ? (
-          <div className="relative mt-3 w-full overflow-hidden rounded-[24px] shadow-lg aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] md:mt-4 lg:mt-0 lg:rounded-none">
+          <div className="relative mt-3 w-full overflow-hidden rounded-[24px] aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] md:mt-4 lg:mt-0 lg:rounded-none">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
@@ -677,7 +677,7 @@ const Home = () => {
         ) : null}
 
         {/* Content Container */}
-        <div className="px-6 md:px-10 lg:px-8 py-6 space-y-6 w-full lg:max-w-7xl lg:mx-auto">
+        <div className="px-6 md:px-10 lg:px-8 pt-4 pb-6 md:py-6 space-y-6 w-full lg:max-w-7xl lg:mx-auto">
           {/* Back to Services button */}
 
           {/* Active Scheduled Ride Alert */}
