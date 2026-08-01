@@ -34,6 +34,23 @@ import {
 } from '../services/currentRideService';
 
 const Motion = motion;
+
+// Banners can target a screen size. Filtering the list (rather than swapping a
+// src) is what makes a mobile creative genuinely absent on desktop.
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)');
+    const onChange = (event) => setIsDesktop(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  return isDesktop;
+};
 const ACTIVE_RIDE_SYNC_INTERVAL_MS = 12000;
 const IDLE_RIDE_SYNC_INTERVAL_MS = 30000;
 const DEFERRED_SECTION_DELAY_MS = 250;
@@ -202,6 +219,7 @@ const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isDesktop = useIsDesktop();
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
 
@@ -216,6 +234,14 @@ const Home = () => {
   const [banners, setBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  // 'all' shows everywhere; a mobile-only creative is genuinely absent on
+  // desktop rather than being swapped out.
+  const visibleBanners = banners.filter((banner) => {
+    const device = String(banner?.device || 'all').toLowerCase();
+    if (device === 'mobile') return !isDesktop;
+    if (device === 'desktop') return isDesktop;
+    return true;
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -249,12 +275,12 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (banners.length <= 1) return undefined;
+    if (visibleBanners.length <= 1) return undefined;
     const interval = setInterval(() => {
-      setActiveBannerIndex((current) => (current + 1) % banners.length);
+      setActiveBannerIndex((current) => (current + 1) % visibleBanners.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [banners]);
+  }, [visibleBanners.length]);
   const routePrefix = location.pathname.startsWith('/taxi/user')
     ? '/taxi/user'
     : location.pathname.startsWith('/taxi')
@@ -601,45 +627,33 @@ const Home = () => {
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
-          <div className="w-full h-72 md:h-[22rem] lg:h-[28rem] rounded-b-[40px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+          <div className="w-full h-44 sm:h-56 md:h-[22rem] lg:h-[28rem] rounded-b-[32px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
             <div className="space-y-4 w-2/3 flex flex-col items-center">
               <div className="h-6 bg-gray-300/40 rounded-full w-1/2" />
               <div className="h-10 bg-gray-300/40 rounded-full w-3/4" />
               <div className="h-4 bg-gray-300/40 rounded-full w-1/3" />
             </div>
           </div>
-        ) : banners.length > 0 ? (
-          <div className="relative w-full h-72 md:h-[22rem] lg:h-[28rem] rounded-b-[40px] lg:rounded-none shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
+        ) : visibleBanners.length > 0 ? (
+          <div className="relative w-full h-44 sm:h-56 md:h-[22rem] lg:h-[28rem] rounded-b-[32px] lg:rounded-none shadow-lg overflow-hidden bg-slate-100">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
-              <Motion.picture
+              <Motion.img
                 key={activeBannerIndex}
+                src={resolveImageUrl(visibleBanners[activeBannerIndex]?.image)}
+                alt="Promo Banner"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0 h-full w-full"
-              >
-                {/* Wide crop above md when the admin uploaded one, so the
-                    phone artwork is never stretched across a desktop banner. */}
-                {banners[activeBannerIndex]?.image_desktop ? (
-                  <source
-                    media="(min-width: 768px)"
-                    srcSet={resolveImageUrl(banners[activeBannerIndex].image_desktop)}
-                  />
-                ) : null}
-                <img
-                  src={resolveImageUrl(banners[activeBannerIndex]?.image)}
-                  alt="Promo Banner"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-              </Motion.picture>
+                className="absolute inset-0 h-full w-full object-cover"
+              />
             </AnimatePresence>
 
             {/* Navigation Dots if multiple */}
-            {banners.length > 1 && (
+            {visibleBanners.length > 1 && (
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20">
-                {banners.map((_, index) => (
+                {visibleBanners.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setActiveBannerIndex(index)}

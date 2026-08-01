@@ -20,7 +20,7 @@ const CREATE_PATH = '/admin/promotions/banner-image/create';
 
 const createInitialFormData = () => ({
   image: null,
-  image_desktop: null,
+  device: 'all',
   image_url: '',
   use_url: false,
 });
@@ -38,7 +38,6 @@ const BannerImage = () => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState(createInitialFormData);
   const [imagePreview, setImagePreview] = useState(null);
-  const [desktopPreview, setDesktopPreview] = useState(null);
 
   const token = localStorage.getItem('adminToken') || '';
   const backendOrigin = buildBackendUrl();
@@ -116,14 +115,6 @@ const BannerImage = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  const handleDesktopImageChange = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setFormData((current) => ({ ...current, image_desktop: file }));
-    setDesktopPreview(URL.createObjectURL(file));
-  };
-
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -150,19 +141,9 @@ const BannerImage = () => {
         });
       }
 
-      let desktopData = '';
-      if (formData.image_desktop instanceof File) {
-        desktopData = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(formData.image_desktop);
-        });
-      }
-
       const payload = {
         image: imageData,
-        image_desktop: desktopData,
+        device: formData.device,
         image_url: formData.image_url.trim(),
         use_url: formData.use_url,
       };
@@ -392,8 +373,8 @@ const BannerImage = () => {
             <div className="space-y-6 max-w-3xl">
               <div>
                 <label className="block text-[14px] font-semibold text-gray-900 mb-3">
-                  Mobile Banner<span className="text-rose-500">*</span>
-                  <span className="text-gray-400 font-medium"> — shown on phones, and used everywhere if no desktop version is set</span>
+                  Banner Image<span className="text-rose-500">*</span>
+                  <span className="text-gray-400 font-medium"> — size it for the screens you pick below</span>
                 </label>
 
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-4">
@@ -431,40 +412,29 @@ const BannerImage = () => {
 
               <div>
                 <label className="block text-[14px] font-semibold text-gray-900 mb-3">
-                  Desktop Banner
-                  <span className="text-gray-400 font-medium"> — optional, wide crop (e.g. 1920x600) so it is not stretched on large screens</span>
+                  Show On
+                  <span className="text-gray-400 font-medium"> — a phone-shaped creative set to Mobile never appears on desktop, so neither crop gets stretched</span>
                 </label>
-
-                <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-4">
-                  {desktopPreview ? (
-                    <div className="space-y-4">
-                      <img
-                        src={desktopPreview}
-                        alt="Desktop banner preview"
-                        className="h-28 w-full rounded-lg border border-gray-200 object-contain bg-gray-50"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDesktopPreview(null);
-                          setFormData((current) => ({ ...current, image_desktop: null }));
-                        }}
-                        className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        Remove Image
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center gap-3 py-6 text-center">
-                      <input type="file" className="hidden" accept="image/*" onChange={handleDesktopImageChange} />
-                      <span className="text-[22px] text-gray-500">
-                        <Upload size={28} />
-                      </span>
-                      <div>
-                        <p className="text-[15px] font-medium text-gray-900">Upload Wide Image</p>
-                      </div>
-                    </label>
-                  )}
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    { id: 'all', label: 'All devices', hint: 'Mobile and desktop' },
+                    { id: 'mobile', label: 'Mobile only', hint: 'Phones and tablets' },
+                    { id: 'desktop', label: 'Desktop only', hint: 'Large screens' },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setFormData((current) => ({ ...current, device: option.id }))}
+                      className={`rounded-xl border p-4 text-left transition ${
+                        formData.device === option.id
+                          ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-600/10'
+                          : 'border-gray-200 bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      <p className="text-[14px] font-semibold text-gray-900">{option.label}</p>
+                      <p className="mt-0.5 text-[12px] text-gray-500">{option.hint}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
 
