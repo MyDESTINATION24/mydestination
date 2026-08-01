@@ -175,6 +175,12 @@ const AirwaysHome = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 overflow-x-hidden overflow-y-auto" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <style>{`
+        @keyframes sectorScroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
       {/* Immersive Header */}
       <div className="relative h-[40vh] w-full overflow-hidden">
         {heroBanners.length > 0 ? (
@@ -275,9 +281,10 @@ const AirwaysHome = () => {
                      <h3 className="text-xl font-black text-slate-950 uppercase tracking-tight">Popular Sectors</h3>
                      <Zap size={20} className="text-sky-500" />
                   </div>
-                  <div className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:pb-0">
-                     {featuredSectors.map((s) => (
-                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] lg:w-auto shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
+                  <div className="group/marquee relative overflow-hidden pb-4">
+                    <div className="flex w-max gap-4 sm:gap-5 animate-[sectorScroll_46s_linear_infinite] group-hover/marquee:[animation-play-state:paused]">
+                     {[...featuredSectors, ...featuredSectors].map((s, marqueeIndex) => (
+                       <button key={`${s.id}-${marqueeIndex}`} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] lg:w-[320px] shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
                           <img src={s.image} alt={s.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                           <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 text-left">
@@ -291,6 +298,7 @@ const AirwaysHome = () => {
                           </div>
                        </button>
                      ))}
+                    </div>
                   </div>
                </section>
                )}
