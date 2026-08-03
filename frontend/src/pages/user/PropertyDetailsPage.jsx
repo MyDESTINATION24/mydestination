@@ -832,69 +832,6 @@ const PropertyDetailsPage = () => {
             })}
           </div>
 
-          {/* In-House Guest Services Section (Configured via Theme Studio) */}
-          {hotelUiConfig && (
-            <div className="mb-6 p-4 md:p-5 rounded-2xl border border-slate-100 shadow-xs space-y-3" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-100">
-                    In-House Guest Services
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900 mt-1">
-                    {hotelUiConfig.heroBanner?.title || 'Guest Hospitality Services'}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {hotelUiConfig.heroBanner?.subTitle || 'Available for stayed guests'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => navigate(`/hotel-service/${id}`)}
-                  className="flex items-center justify-center gap-1.5 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer shrink-0 hover:opacity-90 active:scale-95"
-                  style={hotelUiConfig?.theme?.useGradient 
-                    ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#e11d48'} 0%, ${hotelUiConfig.theme.gradientEnd || '#be123c'} 100%)` }
-                    : { backgroundColor: hotelUiConfig?.theme?.primaryColor || '#e11d48' }
-                  }
-                >
-                  <span>Guest Portal</span>
-                  <ExternalLink size={14} />
-                </button>
-              </div>
-
-              {/* Active Service Badges */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {hotelUiConfig.activeServices?.roomService && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <Utensils size={12} className="text-rose-500" /> Room Service
-                  </span>
-                )}
-                {hotelUiConfig.activeServices?.spaBooking && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <Sparkles size={12} className="text-amber-500" /> Spa & Wellness
-                  </span>
-                )}
-                {hotelUiConfig.activeServices?.cabBooking && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <Car size={12} className="text-blue-500" /> Cab Service
-                  </span>
-                )}
-                {hotelUiConfig.activeServices?.laundryService && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <Shirt size={12} className="text-emerald-500" /> Laundry Service
-                  </span>
-                )}
-                {hotelUiConfig.activeServices?.diningBooking && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <Coffee size={12} className="text-orange-500" /> Dining Reservation
-                  </span>
-                )}
-                {hotelUiConfig.activeServices?.eventHall && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
-                    <PartyPopper size={12} className="text-purple-500" /> Event Hall
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
 
 
           {/* Description */}
@@ -1129,7 +1066,6 @@ const PropertyDetailsPage = () => {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => {
                       setSelectedRoom(room);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="border-2 rounded-xl p-5 cursor-pointer transition-all relative overflow-hidden flex flex-col justify-between shadow-xs"
                     style={{

@@ -245,7 +245,8 @@ const BookingCheckoutPage = () => {
 
   const buttonTextColor = getContrastTextColor(gradientStartTheme);
   const isBrightTheme = getContrastTextColor(gradientStartTheme) === '#0F172A';
-  const headerTextColor = uiSettings?.theme?.secondaryColor || (isBrightTheme ? '#B45309' : primaryThemeColor);
+  const titleTextColor = uiSettings?.theme?.secondaryColor || '#0F172A';
+  const headerTextColor = titleTextColor;
 
   return (
     <div className="min-h-screen pb-20 md:pb-10" style={{ backgroundColor: uiSettings?.theme?.backgroundColor || 'var(--color-hotel-bg)' }}>
@@ -270,9 +271,9 @@ const BookingCheckoutPage = () => {
             />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{property.propertyType}</span>
-            <h2 className="font-bold leading-tight mb-1" style={{ color: headerTextColor }}>{property.name}</h2>
-            <p className="text-xs text-gray-500 mb-2">{property.address?.city || property.address}, {property.address?.state}</p>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{property.propertyType}</span>
+            <h2 className="font-bold text-slate-900 leading-tight mb-1">{property.name}</h2>
+            <p className="text-xs text-slate-600 mb-2">{property.address?.city || property.address}, {property.address?.state}</p>
             <div className="flex items-center gap-1">
               <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
                 {property.avgRating || 'New'} ★
@@ -284,55 +285,55 @@ const BookingCheckoutPage = () => {
         {/* 2. Trip & Price Details */}
         <div className="rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5" style={{ backgroundColor: uiSettings?.theme?.cardBgColor || '#ffffff' }}>
           <div>
-            <h3 className="font-bold mb-3 text-sm" style={{ color: headerTextColor }}>Your Trip</h3>
+            <h3 className="font-black mb-3 text-sm text-slate-900 uppercase tracking-wider">Your Trip</h3>
             <div className="space-y-1.5">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-surface font-bold">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-slate-900 font-extrabold">
                 <span>{priceBreakdown?.nights} Nights</span>
-                <span className="text-gray-300">•</span>
+                <span className="text-slate-400">•</span>
                 <span>{guests.adults} Adults, {guests.children} Children</span>
-                <span className="text-gray-300">•</span>
-                <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded text-[10px] sm:text-xs font-semibold">
+                <span className="text-slate-400">•</span>
+                <span className="text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold border border-emerald-200">
                   {selectedRoom.type || selectedRoom.name}
                 </span>
               </div>
-              <div className="text-[10px] sm:text-xs text-gray-500">
+              <div className="text-[11px] sm:text-xs text-slate-700 font-medium">
                 {dates.checkIn} - {dates.checkOut} | {guests.rooms} Room(s)
               </div>
             </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-5">
-            <h3 className="font-bold mb-4 text-sm" style={{ color: headerTextColor }}>Price Details</h3>
+          <div className="border-t border-slate-200/60 pt-5">
+            <h3 className="font-black mb-4 text-sm text-slate-900 uppercase tracking-wider">Price Details</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-sm text-gray-600">
+              <div className="flex justify-between text-sm text-slate-800 font-medium">
                 <span>Base Price ({priceBreakdown?.nights} nights)</span>
-                <span>₹{priceBreakdown?.totalBasePrice?.toLocaleString()}</span>
+                <span className="font-bold text-slate-900">₹{priceBreakdown?.totalBasePrice?.toLocaleString()}</span>
               </div>
               {(priceBreakdown?.totalExtraAdultCharge > 0) && (
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-800 font-medium">
                   <span>Extra Adults Charges</span>
-                  <span>₹{priceBreakdown.totalExtraAdultCharge.toLocaleString()}</span>
+                  <span className="font-bold text-slate-900">₹{priceBreakdown.totalExtraAdultCharge.toLocaleString()}</span>
                 </div>
               )}
               {(priceBreakdown?.totalExtraChildCharge > 0) && (
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-sm text-slate-800 font-medium">
                   <span>Extra Children Charges</span>
-                  <span>₹{priceBreakdown.totalExtraChildCharge.toLocaleString()}</span>
+                  <span className="font-bold text-slate-900">₹{priceBreakdown.totalExtraChildCharge.toLocaleString()}</span>
                 </div>
               )}
               {(priceBreakdown?.discountAmount > 0) && (
-                <div className="flex justify-between text-sm text-green-700 font-medium">
+                <div className="flex justify-between text-sm text-emerald-800 font-semibold">
                   <span className="flex items-center gap-1"><Tag size={12} /> Coupon Discount</span>
                   <span>- ₹{priceBreakdown.discountAmount.toLocaleString()}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm text-gray-600">
+              <div className="flex justify-between text-sm text-slate-800 font-medium">
                 <span>Taxes & Fees ({taxRate || 0}%)</span>
-                <span>₹{priceBreakdown?.taxAmount?.toLocaleString()}</span>
+                <span className="font-bold text-slate-900">₹{priceBreakdown?.taxAmount?.toLocaleString()}</span>
               </div>
 
               {(useWallet && ['online', 'prepaid'].includes(paymentMethod) && walletDeduction > 0) && (
-                <div className="flex justify-between text-sm text-blue-700 font-medium">
+                <div className="flex justify-between text-sm text-blue-800 font-semibold">
                   <span className="flex items-center gap-1"><Wallet size={12} /> Wallet Balance Used</span>
                   <span>- ₹{walletDeduction.toLocaleString()}</span>
                 </div>
@@ -340,29 +341,31 @@ const BookingCheckoutPage = () => {
 
               {paymentMethod === 'prepaid' && (
                 <>
-                  <div className="flex justify-between text-sm text-green-700 font-medium border-t border-gray-100 pt-2">
+                  <div className="flex justify-between text-sm text-emerald-800 font-semibold border-t border-slate-200/60 pt-2">
                     <span className="flex items-center gap-1"><Tag size={12} /> Prepaid Discount (5%)</span>
                     <span>- ₹{prepaidDiscountAmount.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-surface">
-                    <span>New Total</span>
-                    <span className="line-through text-xs text-gray-400 mr-2">₹{baseTotalAmount.toLocaleString()}</span>
-                    <span className="font-bold">₹{discountedTotalAmount.toLocaleString()}</span>
+                  <div className="flex justify-between text-sm text-slate-900">
+                    <span className="font-medium">New Total</span>
+                    <div>
+                      <span className="line-through text-xs text-slate-500 mr-2">₹{baseTotalAmount.toLocaleString()}</span>
+                      <span className="font-bold text-slate-900">₹{discountedTotalAmount.toLocaleString()}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-slate-800 font-medium">
                     <span>Advance Payable Now (30%)</span>
-                    <span>₹{advanceAmount.toLocaleString()}</span>
+                    <span className="font-bold text-slate-900">₹{advanceAmount.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-slate-800 font-medium">
                     <span>Balance Payable at Hotel</span>
-                    <span>₹{hotelAmount.toLocaleString()}</span>
+                    <span className="font-bold text-slate-900">₹{hotelAmount.toLocaleString()}</span>
                   </div>
                 </>
               )}
 
-              <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
-                <span className="font-bold" style={{ color: headerTextColor }}>Total Payable Now</span>
-                <span className="text-xl font-extrabold" style={{ color: headerTextColor }}>
+              <div className="border-t border-slate-200/80 pt-4 flex justify-between items-center">
+                <span className="font-black text-slate-900 text-base">Total Payable Now</span>
+                <span className="text-2xl font-black text-slate-900">
                   ₹{remainingPayable.toLocaleString()}
                 </span>
               </div>
@@ -375,16 +378,16 @@ const BookingCheckoutPage = () => {
           {/* Wallet Section */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-surface text-sm flex items-center gap-2">
+              <h3 className="font-black text-slate-900 text-sm flex items-center gap-2 uppercase tracking-wider">
                 <Wallet size={18} className="text-blue-600" />
                 Use Wallet Balance
               </h3>
-              <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-md">
+              <span className="text-xs font-bold bg-blue-100 text-blue-800 px-2.5 py-1 rounded-lg border border-blue-200">
                 Available: ₹{walletBalance.toLocaleString()}
               </span>
             </div>
 
-            <label className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${useWallet && ['online', 'prepaid'].includes(paymentMethod) ? 'border-blue-600 bg-blue-50/20' : 'border-gray-100'}`}>
+            <label className={`flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all ${useWallet && ['online', 'prepaid'].includes(paymentMethod) ? 'border-blue-600 bg-blue-50/60' : 'border-slate-200/80 bg-white/60'}`}>
               <div className="relative flex items-center">
                 <input
                   type="checkbox"
@@ -406,8 +409,8 @@ const BookingCheckoutPage = () => {
                 ></div>
               </div>
               <div className="flex-1 opacity-100">
-                <p className="text-sm font-semibold text-surface">Pay using Wallet</p>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-sm font-bold text-slate-900">Pay using Wallet</p>
+                <p className="text-xs text-slate-700 font-medium mt-0.5">
                   {!['online', 'prepaid'].includes(paymentMethod)
                     ? "Select an online payment method to use wallet balance."
                     : walletBalance > 0
@@ -419,11 +422,11 @@ const BookingCheckoutPage = () => {
           </div>
 
           {/* Payment Options Section */}
-          <div className="border-t border-gray-100 pt-5">
-            <h3 className="font-bold text-surface mb-4 text-sm">Payment Method</h3>
-            <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100">
+          <div className="border-t border-slate-200/60 pt-5">
+            <h3 className="font-black text-slate-900 mb-4 text-sm uppercase tracking-wider">Payment Method</h3>
+            <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-200 bg-white/80">
               {/* Option 1: Pay at Hotel */}
-              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'pay_at_hotel' ? 'bg-gray-50/40' : 'bg-white'}`}>
+              <label className={`flex items-start gap-3 p-3.5 cursor-pointer transition-all ${paymentMethod === 'pay_at_hotel' ? 'bg-slate-100/90 font-bold border-l-4 border-l-slate-900' : 'bg-white'}`}>
                 <input
                   type="radio"
                   name="payment"
@@ -436,17 +439,17 @@ const BookingCheckoutPage = () => {
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-0.5">
-                    <span className="font-bold text-surface text-sm">Pay at Hotel</span>
-                    <Building size={15} className="text-gray-400" />
+                    <span className="font-bold text-slate-900 text-sm">Pay at Hotel</span>
+                    <Building size={16} className="text-slate-600" />
                   </div>
-                  <p className="text-[11px] text-gray-500 leading-normal">
+                  <p className="text-xs text-slate-700 font-medium leading-normal">
                     Pay full amount at check-in. No prepayment needed.
                   </p>
                 </div>
               </label>
 
               {/* Option 2: Prepaid */}
-              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'prepaid' ? 'bg-gray-50/40' : 'bg-white'}`}>
+              <label className={`flex items-start gap-3 p-3.5 cursor-pointer transition-all ${paymentMethod === 'prepaid' ? 'bg-emerald-50/60 font-bold border-l-4 border-l-emerald-600' : 'bg-white'}`}>
                 <input
                   type="radio"
                   name="payment"
@@ -457,19 +460,19 @@ const BookingCheckoutPage = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-surface text-sm">Prepaid</span>
-                      <span className="bg-green-100 text-green-700 text-[8px] uppercase font-bold px-1.5 py-0.5 rounded">Save 5%</span>
+                      <span className="font-bold text-slate-900 text-sm">Prepaid</span>
+                      <span className="bg-emerald-100 text-emerald-800 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border border-emerald-200">Save 5%</span>
                     </div>
-                    <Tag size={15} className="text-green-600" />
+                    <Tag size={16} className="text-emerald-600" />
                   </div>
-                  <p className="text-[11px] text-gray-500 leading-normal">
+                  <p className="text-xs text-slate-700 font-medium leading-normal">
                     Pay 30% now (save 5%), remaining 70% at the hotel.
                   </p>
                 </div>
               </label>
 
               {/* Option 3: Pay Now */}
-              <label className={`flex items-start gap-3 p-3 cursor-pointer transition-all ${paymentMethod === 'online' ? 'bg-gray-50/40' : 'bg-white'}`}>
+              <label className={`flex items-start gap-3 p-3.5 cursor-pointer transition-all ${paymentMethod === 'online' ? 'bg-blue-50/60 font-bold border-l-4 border-l-blue-600' : 'bg-white'}`}>
                 <input
                   type="radio"
                   name="payment"
@@ -480,12 +483,12 @@ const BookingCheckoutPage = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-surface text-sm">Pay Now</span>
-                      <span className="bg-blue-100 text-blue-700 text-[8px] uppercase font-bold px-1.5 py-0.5 rounded">Secure</span>
+                      <span className="font-bold text-slate-900 text-sm">Pay Now</span>
+                      <span className="bg-blue-100 text-blue-800 text-[9px] uppercase font-bold px-1.5 py-0.5 rounded border border-blue-200">Secure</span>
                     </div>
-                    <CreditCard size={15} className="text-gray-400" />
+                    <CreditCard size={16} className="text-blue-600" />
                   </div>
-                  <p className="text-[11px] text-gray-500 leading-normal">
+                  <p className="text-xs text-slate-700 font-medium leading-normal">
                     Secure online payment via UPI, Cards, Netbanking.
                   </p>
                 </div>

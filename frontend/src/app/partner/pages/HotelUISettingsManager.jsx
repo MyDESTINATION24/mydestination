@@ -223,17 +223,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
               <Palette className="w-4 h-4" />
               Theme & Gradients
             </button>
-            <button
-              onClick={() => setActiveTab('services')}
-              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition cursor-pointer ${
-                activeTab === 'services' 
-                  ? 'bg-white text-amber-600 shadow-sm font-semibold' 
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Layout className="w-4 h-4" />
-              Service Cards
-            </button>
+
             <button
               onClick={() => setActiveTab('banner')}
               className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition cursor-pointer ${
@@ -492,52 +482,6 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
               </div>
             )}
 
-            {/* Tab 2: Service Cards */}
-            {activeTab === 'services' && (
-              <div className="space-y-6 animate-fadeIn">
-                <h3 className="text-base font-bold text-slate-800 border-b pb-2">Visible Hotel Services</h3>
-                <p className="text-xs text-slate-500">Toggle which services hotel guests can view & request directly.</p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { key: 'roomService', label: 'Room Service', icon: Utensils },
-                    { key: 'spaBooking', label: 'Spa & Wellness', icon: Sparkles },
-                    { key: 'cabBooking', label: 'Cab / Taxi Booking', icon: Car },
-                    { key: 'laundryService', label: 'Laundry Service', icon: Shirt },
-                    { key: 'diningBooking', label: 'Restaurant Dining', icon: Coffee },
-                    { key: 'eventHall', label: 'Banquet & Event Hall', icon: PartyPopper }
-                  ].map(({ key, label, icon: Icon }) => (
-                    <label 
-                      key={key} 
-                      className={`flex items-center justify-between p-4 rounded-xl border transition cursor-pointer ${
-                        uiConfig.activeServices[key] 
-                          ? 'border-amber-300 bg-amber-50/40 font-semibold' 
-                          : 'border-slate-200 opacity-60'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${uiConfig.activeServices[key] ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm text-slate-800">{label}</span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={uiConfig.activeServices[key]}
-                        onChange={() => setUiConfig({
-                          ...uiConfig,
-                          activeServices: {
-                            ...uiConfig.activeServices,
-                            [key]: !uiConfig.activeServices[key]
-                          }
-                        })}
-                        className="w-5 h-5 accent-amber-500 rounded cursor-pointer"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Tab 3: Banner & Content */}
             {activeTab === 'banner' && (
