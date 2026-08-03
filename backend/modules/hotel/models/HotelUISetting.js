@@ -36,6 +36,17 @@ const HotelUISettingSchema = new mongoose.Schema({
   customAnnouncement: {
     enabled: { type: Boolean, default: false },
     text: { type: String, default: '' }
+  },
+  sidebar: {
+    profileBgColor: { type: String, default: '#5F8575' },
+    headerBgColor: { type: String, default: '#ffffff' },
+    accentColor: { type: String, default: '#5F8575' }
+  },
+  header: {
+    headerBgColor: { type: String, default: '#5F8575' },
+    useGradient: { type: Boolean, default: false },
+    gradientStart: { type: String, default: '#5F8575' },
+    gradientEnd: { type: String, default: '#2E5B4B' }
   }
 }, { timestamps: true });
 

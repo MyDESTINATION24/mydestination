@@ -66,6 +66,11 @@
   @apply bg-white/80 backdrop-blur-xl border border-white/20;
 }
 
+.theme-logo-tint {
+  filter: var(--logo-filter, none);
+  transition: filter 0.3s ease;
+}
+
 .hotel-module {
   --color-background: var(--color-hotel-bg);
   --color-surface: var(--color-hotel-surface);

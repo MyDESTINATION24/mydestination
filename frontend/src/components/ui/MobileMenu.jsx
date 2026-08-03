@@ -172,7 +172,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex items-center justify-between px-5 pb-2 pt-[calc(env(safe-area-inset-top)+1.25rem)] shrink-0">
-                            <img src={activeLogo} alt="My DESTINATION" className="h-20 object-contain" />
+                            <img src={activeLogo} alt="My DESTINATION" className="h-20 object-contain theme-logo-tint" />
                             <button onClick={onClose} className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition border border-gray-100">
                                 <X size={20} className="text-gray-500" />
                             </button>
@@ -181,7 +181,7 @@ const MobileMenu = ({ isOpen, onClose }) => {
                         <div className="flex-1 overflow-y-auto overscroll-contain">
                             <div className="px-5 mb-4">
                                 {user ? (
-                                    <div className="bg-gradient-to-br from-surface to-emerald-700 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                                    <div className="rounded-2xl p-4 text-white shadow-lg relative overflow-hidden" style={{ background: 'var(--color-sidebar-profile-bg, var(--color-theme-gradient, var(--color-surface, #5F8575)))' }}>
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
     
                                         <div className="flex items-start justify-between relative z-10">

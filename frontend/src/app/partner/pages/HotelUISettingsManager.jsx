@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import logo from '../../../assets/rokologin-removebg-preview.png';
+import { getLogoFilterStyle } from '../../../utils/themeUtils';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -69,6 +70,17 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       gradientEnd: '#FF9E00',
       cardHeaderColor: '#FFD000',
       vipTheme: 'dark_gold'
+    },
+    sidebar: {
+      profileBgColor: '#5F8575',
+      headerBgColor: '#ffffff',
+      accentColor: '#5F8575'
+    },
+    header: {
+      headerBgColor: '#5F8575',
+      useGradient: true,
+      gradientStart: '#5F8575',
+      gradientEnd: '#2E5B4B'
     },
     heroBanner: {
       bannerUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
@@ -103,6 +115,8 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
           ...prev,
           ...data.data,
           theme: { ...prev.theme, ...(data.data.theme || {}) },
+          sidebar: { ...prev.sidebar, ...(data.data.sidebar || {}) },
+          header: { ...prev.header, ...(data.data.header || {}) },
           heroBanner: { ...prev.heroBanner, ...(data.data.heroBanner || {}) },
           activeServices: { ...prev.activeServices, ...(data.data.activeServices || {}) },
           customAnnouncement: { ...prev.customAnnouncement, ...(data.data.customAnnouncement || {}) }
@@ -230,6 +244,17 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
             >
               <ImageIcon className="w-4 h-4" />
               Banner & Content
+            </button>
+            <button
+              onClick={() => { setActiveTab('sidebar'); setPreviewTab('sidebar'); }}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition cursor-pointer ${
+                activeTab === 'sidebar' 
+                  ? 'bg-white text-amber-600 shadow-sm font-semibold' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Menu className="w-4 h-4" />
+              Sidebar & Headers
             </button>
           </div>
 
@@ -589,6 +614,99 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                 </div>
               </div>
             )}
+
+            {/* Tab 4: Sidebar & Headers Customizer */}
+            {activeTab === 'sidebar' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div>
+                  <h3 className="text-base font-bold text-slate-800 border-b pb-2">Sidebar & Page Headers Customizer</h3>
+                  <p className="text-xs text-slate-500 mt-1">Manage colors for the App Drawer / Sidebar and Page Headers (My Bookings, Search, etc.).</p>
+                </div>
+
+                {/* Preset Swatches for Sidebar & Header */}
+                <div className="p-4 border rounded-xl bg-slate-50/60 space-y-3">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Quick Presets</h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {[
+                      { name: 'Botanical Emerald', color: '#5F8575' },
+                      { name: 'Sun Gold', color: '#FFD000' },
+                      { name: 'Rose Velvet', color: '#FF1053' },
+                      { name: 'Dark Slate', color: '#1E293B' }
+                    ].map((preset) => (
+                      <button
+                        key={preset.name}
+                        onClick={() => setUiConfig({
+                          ...uiConfig,
+                          sidebar: { ...uiConfig.sidebar, profileBgColor: preset.color },
+                          header: { ...uiConfig.header, headerBgColor: preset.color }
+                        })}
+                        className="p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 bg-white text-left transition flex items-center gap-2 cursor-pointer shadow-2xs"
+                      >
+                        <div className="w-5 h-5 rounded-full shrink-0" style={{ backgroundColor: preset.color }} />
+                        <span className="text-[11px] font-bold text-slate-800 truncate">{preset.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Color Pickers */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Sidebar Profile Card Color */}
+                  <div className="p-4 border rounded-xl bg-slate-50/50 space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Sidebar Profile Card Color</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={uiConfig.sidebar?.profileBgColor || '#5F8575'}
+                        onChange={(e) => setUiConfig({
+                          ...uiConfig,
+                          sidebar: { ...uiConfig.sidebar, profileBgColor: e.target.value }
+                        })}
+                        className="w-10 h-10 rounded-lg cursor-pointer border-0"
+                      />
+                      <input
+                        type="text"
+                        value={uiConfig.sidebar?.profileBgColor || '#5F8575'}
+                        onChange={(e) => setUiConfig({
+                          ...uiConfig,
+                          sidebar: { ...uiConfig.sidebar, profileBgColor: e.target.value }
+                        })}
+                        className="w-28 px-2 py-1 border rounded-lg text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Header Background Color */}
+                  <div className="p-4 border rounded-xl bg-slate-50/50 space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase">Page Header Color (My Bookings)</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={uiConfig.header?.headerBgColor || '#5F8575'}
+                        onChange={(e) => setUiConfig({
+                          ...uiConfig,
+                          header: { ...uiConfig.header, headerBgColor: e.target.value }
+                        })}
+                        className="w-10 h-10 rounded-lg cursor-pointer border-0"
+                      />
+                      <input
+                        type="text"
+                        value={uiConfig.header?.headerBgColor || '#5F8575'}
+                        onChange={(e) => setUiConfig({
+                          ...uiConfig,
+                          header: { ...uiConfig.header, headerBgColor: e.target.value }
+                        })}
+                        className="w-28 px-2 py-1 border rounded-lg text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                  💡 <strong>Tip:</strong> Saving these settings updates the Sidebar profile card and page headers (like <em>My Bookings</em>) across all users in real-time.
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -610,6 +728,14 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                 }`}
               >
                 Home
+              </button>
+              <button
+                onClick={() => setPreviewTab('sidebar')}
+                className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
+                  previewTab === 'sidebar' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'text-slate-500'
+                }`}
+              >
+                Sidebar
               </button>
               <button
                 onClick={() => setPreviewTab('details')}
@@ -659,9 +785,9 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
               </div>
             )}
 
-            {/* SCREEN 1: HOME FEED */}
+            {/* SCREEN 1: HOME PREVIEW */}
             {previewTab === 'home' && (
-              <div className="flex-1 flex flex-col">
+              <div className="flex-1 flex flex-col overflow-y-auto">
                 {/* App Top Navbar with Custom Theme Color */}
                 <div 
                   className="p-3 pt-1 text-white flex flex-col gap-2 transition-all duration-300"
@@ -776,6 +902,79 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                         5.0 <Star size={8} className="fill-amber-500 text-amber-500" /> RATING
                       </span>
                       <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">1 ROOM</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SCREEN: SIDEBAR PREVIEW */}
+            {previewTab === 'sidebar' && (
+              <div className="flex-1 flex flex-col bg-slate-900/40 p-2 overflow-y-auto relative">
+                <div className="w-[85%] bg-white h-full rounded-2xl p-3 flex flex-col shadow-2xl space-y-3 animate-fadeIn">
+                  {/* Header Logo + Close */}
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <img 
+                      src={logo} 
+                      alt="Logo" 
+                      className="h-8 object-contain" 
+                      style={getLogoFilterStyle(uiConfig.sidebar?.profileBgColor || uiConfig.theme?.primaryColor || '#5F8575')}
+                    />
+                    <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <X size={12} />
+                    </div>
+                  </div>
+
+                  {/* User Profile Card */}
+                  <div 
+                    className="p-3 rounded-xl text-white shadow-sm flex items-center gap-2"
+                    style={{
+                      background: uiConfig.sidebar?.profileBgColor || (uiConfig.theme?.useGradient ? `linear-gradient(135deg, ${uiConfig.theme.gradientStart || '#FFD000'} 0%, ${uiConfig.theme.gradientEnd || '#FF9E00'} 100%)` : (uiConfig.theme?.primaryColor || '#5F8575'))
+                    }}
+                  >
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center border border-white/40">
+                      <User size={16} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-bold truncate">abhi</div>
+                      <div className="text-[9px] text-white/80">6268455485</div>
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="space-y-3 text-[10px] text-slate-600 font-bold overflow-y-auto flex-1">
+                    <div>
+                      <div className="text-[8px] text-slate-400 uppercase tracking-wider mb-1">TRAVEL & STAYS</div>
+                      <div className="space-y-1">
+                        <div className="p-1.5 bg-slate-50 rounded-lg flex items-center justify-between hover:bg-slate-100">
+                          <span className="flex items-center gap-1.5"><Briefcase size={12} className="text-slate-500" /> My Bookings</span>
+                          <ArrowUpRight size={10} className="text-slate-300" />
+                        </div>
+                        <div className="p-1.5 bg-slate-50 rounded-lg flex items-center justify-between hover:bg-slate-100">
+                          <span className="flex items-center gap-1.5"><Heart size={12} className="text-slate-500" /> Saved Places</span>
+                          <ArrowUpRight size={10} className="text-slate-300" />
+                        </div>
+                        <div className="p-1.5 bg-slate-50 rounded-lg flex items-center justify-between hover:bg-slate-100">
+                          <span className="flex items-center gap-1.5"><Wallet size={12} className="text-slate-500" /> View Wallet</span>
+                          <ArrowUpRight size={10} className="text-slate-300" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[8px] text-slate-400 uppercase tracking-wider mb-1">GROW WITH MY DESTINATION</div>
+                      <div className="space-y-1">
+                        <div className="p-1.5 bg-slate-50 rounded-lg flex items-center justify-between hover:bg-slate-100">
+                          <span className="flex items-center gap-1.5"><Gift size={12} className="text-slate-500" /> Refer & Earn</span>
+                          <ArrowUpRight size={10} className="text-slate-300" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t">
+                      <div className="p-2 border border-slate-200 text-slate-700 font-bold rounded-xl text-center text-[10px]">
+                        Log Out
+                      </div>
                     </div>
                   </div>
                 </div>

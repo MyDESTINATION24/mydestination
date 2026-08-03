@@ -30,6 +30,17 @@ const defaultSettings = {
   customAnnouncement: {
     enabled: false,
     text: ''
+  },
+  sidebar: {
+    profileBgColor: '#5F8575',
+    headerBgColor: '#ffffff',
+    accentColor: '#5F8575'
+  },
+  header: {
+    headerBgColor: '#5F8575',
+    useGradient: false,
+    gradientStart: '#5F8575',
+    gradientEnd: '#2E5B4B'
   }
 };
 
@@ -68,7 +79,7 @@ export const getHotelUISettings = async (req, res) => {
 export const updateHotelUISettings = async (req, res) => {
   try {
     const { hotelId } = req.params;
-    const { theme, heroBanner, activeServices, customAnnouncement } = req.body;
+    const { theme, heroBanner, activeServices, customAnnouncement, sidebar, header } = req.body;
 
     const settings = await HotelUISetting.findOneAndUpdate(
       { hotelId },
@@ -77,7 +88,9 @@ export const updateHotelUISettings = async (req, res) => {
         theme,
         heroBanner,
         activeServices,
-        customAnnouncement
+        customAnnouncement,
+        sidebar,
+        header
       },
       { new: true, upsert: true, runValidators: true }
     );

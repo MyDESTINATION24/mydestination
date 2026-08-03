@@ -68,7 +68,7 @@ const TopNavbar = () => {
                     </button>
                 )}
                 <Link to={isWeddingModule ? "/wedding" : isTaxiModule ? "/taxi" : "/home"}>
-                    <img src={isWeddingModule ? weddingLogo : isTaxiModule ? taxiLogo : logo} alt="My DESTINATION" className="h-12 object-contain" />
+                    <img src={isWeddingModule ? weddingLogo : isTaxiModule ? taxiLogo : logo} alt="My DESTINATION" className="h-12 object-contain theme-logo-tint" />
                 </Link>
             </div>
 

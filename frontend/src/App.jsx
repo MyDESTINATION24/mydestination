@@ -22,6 +22,7 @@ import weddingLogo from './modules/wedding-integrated/assets/logo.png';
 import { AuthProvider as WeddingVendorAuthProvider } from "./modules/wedding-integrated/vendor/context/AuthContext";
 import { VendorProvider as WeddingVendorProvider } from "./modules/wedding-integrated/vendor/context/VendorContext";
 import { initAppMode, isWebView } from './utils/deviceDetect';
+import { getLogoFilterStyle } from './utils/themeUtils';
 
 // Init app mode from URL params on very first load
 initAppMode();
@@ -698,10 +699,19 @@ function App() {
     fetch(`${API_BASE}/hotel-ui/settings/global-default`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.data?.theme) {
-          const { primaryColor, useGradient, gradientStart, gradientEnd, backgroundColor } = data.data.theme;
+        if (data.success && data.data) {
+          const theme = data.data.theme || {};
+          const sidebar = data.data.sidebar || {};
+          const header = data.data.header || {};
+          const { primaryColor, useGradient, gradientStart, gradientEnd, backgroundColor } = theme;
+          
           if (primaryColor) {
             document.documentElement.style.setProperty('--color-surface', primaryColor);
+            document.documentElement.style.setProperty('--color-hotel-surface', primaryColor);
+            const logoFilterObj = getLogoFilterStyle(primaryColor);
+            if (logoFilterObj.filter) {
+              document.documentElement.style.setProperty('--logo-filter', logoFilterObj.filter);
+            }
           }
           if (backgroundColor) {
             document.documentElement.style.setProperty('--color-hotel-bg', backgroundColor);
@@ -712,6 +722,15 @@ function App() {
           } else if (primaryColor) {
             document.documentElement.style.setProperty('--color-theme-gradient', primaryColor);
           }
+
+          // Sidebar & Header CSS Variables
+          const sidebarProfileBg = sidebar.profileBgColor || (useGradient && gradientStart && gradientEnd ? `linear-gradient(135deg, ${gradientStart} 0%, ${gradientEnd} 100%)` : primaryColor) || '#5F8575';
+          const sidebarHeaderBg = sidebar.headerBgColor || '#ffffff';
+          const headerBg = header.headerBgColor || primaryColor || '#5F8575';
+
+          document.documentElement.style.setProperty('--color-sidebar-profile-bg', sidebarProfileBg);
+          document.documentElement.style.setProperty('--color-sidebar-header-bg', sidebarHeaderBg);
+          document.documentElement.style.setProperty('--color-header-bg', headerBg);
         }
       })
       .catch(err => console.error('Failed to load global hotel UI theme:', err));
