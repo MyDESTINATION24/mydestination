@@ -339,7 +339,8 @@ const Wallet = () => {
         <Motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl shadow-slate-200 relative overflow-hidden"
+          className="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden transition-all duration-300"
+          style={{ background: 'var(--color-theme-gradient, var(--color-surface, #1e293b))' }}
         >
           <div className="relative z-10 flex flex-col gap-8">
             <div className="space-y-1">

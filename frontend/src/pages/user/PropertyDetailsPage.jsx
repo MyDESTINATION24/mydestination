@@ -624,8 +624,8 @@ const PropertyDetailsPage = () => {
 
   const handleBackNav = (e) => {
     if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      if (typeof e.preventDefault === 'function') e.preventDefault();
     }
     navigate(-1);
   };
@@ -752,12 +752,7 @@ const PropertyDetailsPage = () => {
             </div>
           </>
         )}
-        <div 
-          className="absolute top-4 left-4 z-50 pointer-events-auto"
-          onPointerDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute top-4 left-4 z-50">
           <button 
             type="button"
             onClick={handleBackNav} 

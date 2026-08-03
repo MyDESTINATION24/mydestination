@@ -96,7 +96,6 @@ const MobileMenu = ({ isOpen, onClose }) => {
 
     const growthItems = [
         { icon: Gift, label: 'Refer & Earn', path: '/refer' },
-        ...(!isWebView() ? [{ icon: BookOpen, label: 'Blogs', path: '/blogs' }] : []),
     ];
 
     const settingItems = [

@@ -163,13 +163,16 @@ const WalletPage = () => {
             <Toaster position="top-center" />
 
             {/* Header / Balance Card */}
-            <div className={`sticky top-0 z-10 ${theme.bg} px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden`}>
+            <div 
+                className={`sticky top-0 z-10 ${isWedding ? 'bg-[#81313A]' : isTaxi ? 'bg-slate-900' : ''} px-6 pt-[calc(env(safe-area-inset-top)+1.5rem)] pb-8 rounded-b-[2.5rem] shadow-lg overflow-hidden transition-all duration-300`}
+                style={!isWedding && !isTaxi ? { background: 'var(--color-theme-gradient, var(--color-surface, #5F8575))' } : {}}
+            >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
                 <h1 className="text-white text-lg font-bold mb-6 text-center">My Wallet</h1>
 
                 <div className="flex flex-col items-center">
-                    <p className={`${theme.textLight} text-xs font-bold uppercase tracking-widest mb-2`}>Available Balance</p>
+                    <p className="text-white/80 text-xs font-bold uppercase tracking-widest mb-2">Available Balance</p>
                     <div className="flex items-start text-white">
                         <span className="text-2xl mt-1 opacity-80 mr-1">₹</span>
                         <span className="text-5xl font-black tracking-tight">{balance.toLocaleString('en-IN')}</span>
@@ -179,7 +182,8 @@ const WalletPage = () => {
                 <div className="mt-8">
                     <button
                         onClick={() => setShowAddMoneySheet(true)}
-                        className={`w-full bg-white ${theme.text} py-3.5 rounded-xl font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2`}
+                        className="w-full bg-white py-3.5 rounded-xl font-bold text-sm shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        style={!isWedding && !isTaxi ? { color: 'var(--color-surface, #5F8575)' } : {}}
                     >
                         <Plus size={18} strokeWidth={3} /> Add Money
                     </button>
@@ -316,8 +320,9 @@ const WalletPage = () => {
                                 className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2
                                     ${(!addAmount || Number(addAmount) < 10)
                                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none'
-                                        : `${theme.bg} text-white ${theme.shadowColor}`
+                                        : `${isWedding ? 'bg-[#81313A]' : isTaxi ? 'bg-slate-900' : ''} text-white`
                                     }`}
+                                style={!isWedding && !isTaxi && addAmount && Number(addAmount) >= 10 ? { background: 'var(--color-theme-gradient, var(--color-surface, #5F8575))' } : {}}
                             >
                                 {processing && <Loader2 size={20} className="animate-spin" />}
                                 {processing ? 'Processing...' : 'Proceed to Pay'}
