@@ -33,7 +33,7 @@ const VendorBottomNavbar = () => {
   const navItems = allNavItems.filter((item) => !item.venueOnly || isVenueManager);
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F3E9E2] px-1 py-1.5 z-50 flex items-center justify-around pb-safe">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#F3E9E2] px-1 pt-1.5 pb-[max(env(safe-area-inset-bottom),14px)] z-50 flex items-center justify-around shadow-[0_-8px_30px_rgba(0,0,0,0.06)]">
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;

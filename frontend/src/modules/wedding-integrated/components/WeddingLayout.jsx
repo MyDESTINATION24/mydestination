@@ -542,7 +542,7 @@ const WeddingLayout = () => {
 
       {/* Bottom Navbar for Mobile */}
       {!hideNav && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-safe">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-[max(env(safe-area-inset-bottom),14px)]">
           <div className="flex items-center justify-around py-2.5 px-2">
             {navLinks.map((link) => {
               const Icon = link.icon;
