@@ -120,7 +120,7 @@ const AirwaysConfirmation = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-lg px-5 py-8">
+      <div className="mx-auto max-w-lg lg:max-w-2xl px-5 py-8 lg:py-12">
         {/* Success Header */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}

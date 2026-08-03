@@ -152,6 +152,7 @@ const serializeBanner = (item) => ({
 const serializeBannerMinimal = (item) => ({
   _id: item._id,
   image: item.image || '',
+  device: item.device || 'all',
   active: item.active !== false,
 });
 
@@ -161,6 +162,9 @@ const serializeBannerFromPayload = (item, payload = {}) => {
 
   if (keys.has('image') || keys.has('image_url') || keys.has('use_url')) {
     response.image = item.image || '';
+  }
+  if (keys.has('device')) {
+    response.device = item.device || 'all';
   }
   if (keys.has('image_url')) {
     response.image_url = String(payload.image_url || '');
@@ -374,6 +378,8 @@ const normalizeBannerPayload = async (payload, existing = null) => {
   const generatedTitle = `Banner ${new Date().toISOString()}`;
   const title = normalizeText(payload.title ?? existing?.title ?? generatedTitle);
   let image = normalizeText(payload.image ?? payload.image_url ?? existing?.image);
+  const rawDevice = normalizeText(payload.device ?? existing?.device ?? 'all').toLowerCase();
+  const device = ['all', 'mobile', 'desktop'].includes(rawDevice) ? rawDevice : 'all';
   const rawLinkType = normalizeText(payload.link_type ?? payload.redirect_type ?? existing?.link_type ?? 'external_link');
   const linkType = rawLinkType === 'app_route' ? 'deep_link' : rawLinkType;
   const redirectUrl = normalizeText(
@@ -405,6 +411,7 @@ const normalizeBannerPayload = async (payload, existing = null) => {
   return {
     title,
     image,
+    device,
     link_type: linkType,
     external_link: linkType === 'external_link' ? redirectUrl : '',
     deep_link: linkType === 'deep_link' ? redirectUrl : '',

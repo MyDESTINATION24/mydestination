@@ -266,6 +266,7 @@ const AdminTourManager = lazy(() => import('./admin/pages/tours/TourManager'));
 const AdminEVStationsManager = lazy(() => import('./admin/pages/ev-stations/ManageEVStations'));
 const UserEVStationsMap = lazy(() => import('./user/pages/ev-stations/EVStationsMap'));
 const AdminTourBookingManager = lazy(() => import('./admin/pages/tours/TourBookingManager'));
+const AdminTourBannerManager = lazy(() => import('./admin/pages/tours/TourBannerManager'));
 const AdminPricingPlaceholder = ({ title }) => (
   <div className="flex flex-col items-center justify-center min-h-[500px] text-gray-400 bg-white rounded-[32px] border border-gray-100 shadow-sm p-10">
     <MapPin size={60} strokeWidth={1} className="mb-6 opacity-20" />
@@ -1206,6 +1207,7 @@ function App() {
                 <Route path="tours/create" element={<AdminTourManager mode="create" />} />
                 <Route path="tours/edit/:id" element={<AdminTourManager mode="edit" />} />
                 <Route path="tours/bookings" element={<AdminTourBookingManager />} />
+                <Route path="tours/banners" element={<AdminTourBannerManager />} />
                 <Route path="ev-stations" element={<AdminEVStationsManager />} />
                 <Route path="pooling" element={<Navigate to="/taxi/admin/pooling/routes" replace />} />
                 <Route path="pooling/routes" element={<AdminPoolingManager />} />

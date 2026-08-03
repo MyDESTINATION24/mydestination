@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarClock, ChevronRight, Clock3, MapPin, ShieldCheck, User, ChevronLeft, ArrowLeft, Zap, AlertTriangle, RefreshCw, BatteryCharging } from 'lucide-react';
 import BottomNavbar from '../components/BottomNavbar';
 import { TrekArt } from '../components/CardArt';
+import SkyTraffic from '../../../../components/common/SkyTraffic';
 import HeaderGreeting from '../components/HeaderGreeting';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
@@ -33,6 +34,23 @@ import {
 } from '../services/currentRideService';
 
 const Motion = motion;
+
+// Banners can target a screen size. Filtering the list (rather than swapping a
+// src) is what makes a mobile creative genuinely absent on desktop.
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 768px)');
+    const onChange = (event) => setIsDesktop(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  return isDesktop;
+};
 const ACTIVE_RIDE_SYNC_INTERVAL_MS = 12000;
 const IDLE_RIDE_SYNC_INTERVAL_MS = 30000;
 const DEFERRED_SECTION_DELAY_MS = 250;
@@ -201,6 +219,7 @@ const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isDesktop = useIsDesktop();
   const { settings } = useSettings();
   const appName = settings.general?.app_name || 'App';
 
@@ -215,6 +234,17 @@ const Home = () => {
   const [banners, setBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  // 'all' shows everywhere; a mobile-only creative is genuinely absent on
+  // desktop rather than being swapped out.
+  const visibleBanners = banners.filter((banner) => {
+    const device = String(banner?.device || 'all').toLowerCase();
+    if (device === 'mobile') return !isDesktop;
+    if (device === 'desktop') return isDesktop;
+    return true;
+  });
+  // A device switch can leave the index past the end of the shorter list,
+  // which renders an empty <img> and shows the placeholder behind it.
+  const bannerIndex = visibleBanners.length ? activeBannerIndex % visibleBanners.length : 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -248,12 +278,12 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (banners.length <= 1) return undefined;
+    if (visibleBanners.length <= 1) return undefined;
     const interval = setInterval(() => {
-      setActiveBannerIndex((current) => (current + 1) % banners.length);
+      setActiveBannerIndex((current) => (current + 1) % visibleBanners.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [banners]);
+  }, [visibleBanners.length]);
   const routePrefix = location.pathname.startsWith('/taxi/user')
     ? '/taxi/user'
     : location.pathname.startsWith('/taxi')
@@ -590,47 +620,45 @@ const Home = () => {
       <style>{`
         @keyframes drive {
           0% { transform: translateX(-50px); }
-          100% { transform: translateX(530px); }
+          100% { transform: translateX(calc(100vw + 60px)); }
         }
       `}</style>
 
       <div className="relative z-10 pb-6">
-        {/* Spacer for fixed header greeting */}
-        <div className="h-[96px] md:h-[64px]" />
         <HeaderGreeting />
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
-          <div className="w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center">
+          <div className="mt-3 w-full aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] rounded-[24px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center md:mt-4 lg:mt-0">
             <div className="space-y-4 w-2/3 flex flex-col items-center">
               <div className="h-6 bg-gray-300/40 rounded-full w-1/2" />
               <div className="h-10 bg-gray-300/40 rounded-full w-3/4" />
               <div className="h-4 bg-gray-300/40 rounded-full w-1/3" />
             </div>
           </div>
-        ) : banners.length > 0 ? (
-          <div className="relative w-full h-64 md:h-72 lg:h-80 rounded-b-[40px] shadow-lg overflow-hidden bg-emerald-600 flex items-center justify-center">
+        ) : visibleBanners.length > 0 ? (
+          <div className="relative mt-3 w-full overflow-hidden rounded-[24px] aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] md:mt-4 lg:mt-0 lg:rounded-none">
             {/* Banner Slider */}
             <AnimatePresence mode="wait">
               <Motion.img
                 key={activeBannerIndex}
-                src={resolveImageUrl(banners[activeBannerIndex]?.image)}
+                src={resolveImageUrl(visibleBanners[bannerIndex]?.image)}
                 alt="Promo Banner"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.5 }}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
               />
             </AnimatePresence>
 
             {/* Navigation Dots if multiple */}
-            {banners.length > 1 && (
+            {visibleBanners.length > 1 && (
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20">
-                {banners.map((_, index) => (
+                {visibleBanners.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setActiveBannerIndex(index)}
-                    className={`h-2 rounded-full transition-all duration-300 ${index === activeBannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
+                    className={`h-2 rounded-full transition-all duration-300 ${index === bannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
                       }`}
                   />
                 ))}
@@ -639,11 +667,17 @@ const Home = () => {
 
             {/* Overlay Gradient for readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+            <SkyTraffic
+              craft={[
+                { kind: 'plane', top: '12%', width: 84, opacity: 0.42, duration: 34, delay: 0, bob: 5 },
+                { kind: 'heli',  top: '24%', width: 64, opacity: 0.34, duration: 28, delay: 11, bob: 6 },
+              ]}
+            />
           </div>
         ) : null}
 
         {/* Content Container */}
-        <div className="px-6 md:px-10 lg:px-14 py-6 space-y-6">
+        <div className="px-6 md:px-10 lg:px-8 pt-4 pb-6 md:py-6 space-y-6 w-full lg:max-w-7xl lg:mx-auto">
           {/* Back to Services button */}
 
           {/* Active Scheduled Ride Alert */}
@@ -776,7 +810,7 @@ const Home = () => {
             </div>
 
             {/* Grid of Ride, Pooling, Bus, Delivery, Char Dham, Helicopter, and EV Stations Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 lg:gap-6">
               {/* Ride Card */}
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
@@ -804,7 +838,7 @@ const Home = () => {
                 <img
                   src={taxiImg}
                   alt="Ride"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -817,15 +851,15 @@ const Home = () => {
               >
                 <div className="flex flex-col justify-between h-full z-10 w-[62%]">
                   {/* Badge */}
-                  <div className="bg-emerald-50 text-emerald-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-emerald-100/50 self-start shadow-3xs whitespace-nowrap">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="bg-amber-50 text-amber-600 rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-tight inline-flex items-center gap-1 border border-amber-100/50 self-start shadow-3xs whitespace-nowrap">
+                    <span className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
                     Share & Save
                   </div>
 
                   {/* Subtitle & Title */}
                   <div className="mt-2">
                     <p className="text-[11px] font-medium text-slate-400 leading-tight">Ride together, pay less</p>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-emerald-600 transition-colors">
+                    <h4 className="text-sm sm:text-base font-bold text-slate-900 mt-1 flex items-center group-hover:text-amber-600 transition-colors">
                       Pooling <ChevronRight size={14} className="ml-0.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" strokeWidth={3} />
                     </h4>
                   </div>
@@ -835,7 +869,7 @@ const Home = () => {
                 <img
                   src={poolingImg}
                   alt="Pooling"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="mix-blend-multiply absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -866,7 +900,7 @@ const Home = () => {
                 <img
                   src={busImg}
                   alt="Bus"
-                  className="absolute bottom-3 -right-6 w-26 h-18 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-3 -right-6 w-26 h-18 lg:w-36 lg:h-24 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -897,7 +931,7 @@ const Home = () => {
                 <img
                   src={parcelImg}
                   alt="Delivery"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="mix-blend-multiply absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -905,7 +939,7 @@ const Home = () => {
               <motion.div
                 whileHover={{ y: -3, scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => navigate('/taxi/user/tours')}
+                onClick={() => navigate('/taxi/user/tours?category=yatra')}
                 className="bg-white border border-slate-100 shadow-[0_12px_24px_rgba(15,23,42,0.03)] rounded-[28px] p-4 relative overflow-hidden h-40 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group"
               >
                 <div className="flex flex-col justify-between h-full z-10 w-[62%]">
@@ -928,7 +962,7 @@ const Home = () => {
                 <img
                   src={templeImg}
                   alt="Char Dham"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -953,7 +987,7 @@ const Home = () => {
                   </div>
                 </div>
 
-                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
+                <TrekArt className="absolute bottom-1 -right-3 w-24 h-24 lg:w-32 lg:h-32 pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500" />
               </motion.div>
 
               {/* Helicopter Card */}
@@ -983,7 +1017,7 @@ const Home = () => {
                 <img
                   src={helicopterImg}
                   alt="Helicopter"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
 
@@ -1014,7 +1048,7 @@ const Home = () => {
                 <img
                   src={evStationImg}
                   alt="EV Stations"
-                  className="absolute bottom-2 -right-4 w-22 h-22 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
+                  className="absolute bottom-2 -right-4 w-22 h-22 lg:w-32 lg:h-32 object-contain pointer-events-none drop-shadow-sm group-hover:scale-105 transition-transform duration-500"
                 />
               </motion.div>
             </div>

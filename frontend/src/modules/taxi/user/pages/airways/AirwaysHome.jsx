@@ -20,7 +20,9 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
+import { getUserTourBanner } from '../../services/toursService';
 import BottomNavbar from '../../components/BottomNavbar';
+import SkyTraffic from '../../../../../components/common/SkyTraffic';
 
 // Asset Imports (Using the generated image for consistency)
 import premiumHeliHero from '@/assets/airways/premium_heli_hero.png';
@@ -67,6 +69,8 @@ const AirwaysHome = () => {
   const [appliedFilters, setAppliedFilters] = useState({ origin: '', destination: '', travelDate: '' });
   const [view, setView] = useState('home'); // 'home' or 'results'
   const [activeInput, setActiveInput] = useState(null);
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [heroIndex, setHeroIndex] = useState(0);
 
   const loadRoutes = async (filters = {}) => {
     try {
@@ -85,6 +89,23 @@ const AirwaysHome = () => {
   useEffect(() => {
     loadRoutes(appliedFilters);
   }, [appliedFilters.origin, appliedFilters.destination, appliedFilters.travelDate]);
+
+  // Hero artwork is admin-managed (Admin -> Tours -> Banners, Airways
+  // category). Several active banners rotate; none falls back to the bundled
+  // image.
+  useEffect(() => {
+    getUserTourBanner('airways')
+      .then((list) => setHeroBanners(Array.isArray(list) ? list.filter((b) => b?.imageUrl) : []))
+      .catch(() => setHeroBanners([]));
+  }, []);
+
+  useEffect(() => {
+    if (heroBanners.length <= 1) return undefined;
+    const timer = setInterval(() => {
+      setHeroIndex((current) => (current + 1) % heroBanners.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [heroBanners.length]);
 
   useEffect(() => {
     const loadAll = async () => {
@@ -155,10 +176,32 @@ const AirwaysHome = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-24 overflow-x-hidden overflow-y-auto" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <style>{`
+        @keyframes sectorScroll {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+      `}</style>
       {/* Immersive Header */}
       <div className="relative h-[40vh] w-full overflow-hidden">
-        <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
+        {heroBanners.length > 0 ? (
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={heroBanners[heroIndex]?.id || heroIndex}
+              src={heroBanners[heroIndex]?.imageUrl}
+              alt=""
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </AnimatePresence>
+        ) : (
+          <img src={premiumHeliHero} alt="Helicopter" className="h-full w-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
+        <SkyTraffic />
         
         <div className="absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center gap-3 z-50">
            <div className="h-11 sm:h-12 min-w-0 px-3.5 sm:px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-2 sm:gap-3">
@@ -170,6 +213,20 @@ const AirwaysHome = () => {
            </button>
         </div>
 
+        {heroBanners.length > 1 ? (
+          <div className="absolute bottom-5 left-0 right-0 z-20 flex justify-center gap-1.5">
+            {heroBanners.map((item, index) => (
+              <button
+                key={item.id || index}
+                type="button"
+                aria-label={`Banner ${index + 1}`}
+                onClick={() => setHeroIndex(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${index === heroIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`}
+              />
+            ))}
+          </div>
+        ) : null}
+
         <div className="absolute bottom-16 left-5 right-5 sm:left-6 sm:right-6">
            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <p className="text-sky-300 text-[10px] font-black uppercase tracking-[0.3em]">Luxury Sky Transfers</p>
@@ -178,11 +235,12 @@ const AirwaysHome = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-lg px-5">
+      <div className="mx-auto max-w-lg lg:max-w-6xl px-5 lg:px-8">
         {/* Floating Search Panel */}
         <div className="-mt-10 relative z-10">
-           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[32px] sm:rounded-[40px] bg-white p-5 sm:p-8 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
-              <div className="space-y-4 sm:space-y-5">
+           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-[32px] sm:rounded-[40px] bg-white p-5 sm:p-8 lg:p-6 shadow-[0_32px_64px_-12px_rgba(15,23,42,0.12)] border border-slate-100">
+              {/* lg: one horizontal booking bar -- fields beside each other, button at the end */}
+              <div className="space-y-4 sm:space-y-5 lg:grid lg:grid-cols-[1.5fr_1fr_auto] lg:items-end lg:gap-4 lg:space-y-0">
                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-1.5 relative">
                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">From</label>
@@ -208,7 +266,7 @@ const AirwaysHome = () => {
                        <input type="date" value={searchForm.travelDate} onChange={(e) => setSearchForm({...searchForm, travelDate: e.target.value})} className="w-full bg-slate-50 rounded-2xl pl-9 sm:pl-12 pr-3 sm:pr-4 py-3.5 sm:py-4 text-sm font-black outline-none focus:ring-2 focus:ring-slate-100 transition-all" />
                     </div>
                  </div>
-                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full h-14 sm:h-16 rounded-3xl bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
+                 <button onClick={() => setAppliedFilters(searchForm)} className="w-full lg:w-auto lg:px-10 h-14 sm:h-16 lg:h-[52px] rounded-3xl lg:rounded-2xl bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all">
                     <Search size={20} />
                     Explore Routes
                  </button>
@@ -225,9 +283,10 @@ const AirwaysHome = () => {
                      <h3 className="text-xl font-black text-slate-950 uppercase tracking-tight">Popular Sectors</h3>
                      <Zap size={20} className="text-sky-500" />
                   </div>
-                  <div className="flex gap-4 sm:gap-5 overflow-x-auto no-scrollbar pb-4">
-                     {featuredSectors.map((s) => (
-                       <button key={s.id} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
+                  <div className="group/marquee relative overflow-hidden pb-4">
+                    <div className="flex w-max gap-4 sm:gap-5 animate-[sectorScroll_46s_linear_infinite] group-hover/marquee:[animation-play-state:paused]">
+                     {[...featuredSectors, ...featuredSectors].map((s, marqueeIndex) => (
+                       <button key={`${s.id}-${marqueeIndex}`} onClick={() => { setSearchForm({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); setAppliedFilters({ origin: s.origin, destination: s.destination, travelDate: tomorrowDateValue() }); }} className="w-[240px] sm:w-[280px] lg:w-[320px] shrink-0 h-[330px] sm:h-[400px] relative rounded-[32px] sm:rounded-[40px] overflow-hidden group">
                           <img src={s.image} alt={s.name} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                           <div className="absolute bottom-5 left-5 right-5 sm:bottom-8 sm:left-8 sm:right-8 text-left">
@@ -241,6 +300,7 @@ const AirwaysHome = () => {
                           </div>
                        </button>
                      ))}
+                    </div>
                   </div>
                </section>
                )}
@@ -270,7 +330,7 @@ const AirwaysHome = () => {
                   </button>
                </div>
 
-               <div className="space-y-6">
+               <div className="space-y-6 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
                   {loading ? [...Array(3)].map((_, i) => <div key={i} className="h-48 rounded-[40px] bg-white animate-pulse border border-slate-50" />) 
                   : flattenedFlights.length > 0 ? flattenedFlights.map((f, i) => (
                     <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} className="rounded-[32px] sm:rounded-[40px] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm hover:shadow-xl transition-all">

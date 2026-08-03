@@ -138,11 +138,11 @@ const PoolingHome = () => {
   );
 
   return (
-    <div className="min-h-screen bg-white pb-24 max-w-lg mx-auto font-sans selection:bg-emerald-100">
+    <div className="min-h-screen bg-white pb-24 mx-auto w-full max-w-lg lg:max-w-5xl font-sans selection:bg-amber-100">
       {/* Header Section */}
-      <div className="relative bg-emerald-600 px-6 pt-12 pb-28 text-white overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="relative bg-amber-600 px-6 pt-12 pb-28 lg:px-10 lg:pt-8 lg:mt-6 lg:rounded-[40px] text-white overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 h-80 w-80 rounded-full bg-amber-500/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-16 -mb-16 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
         
         <div className="relative z-20 flex items-center justify-between mb-8">
           <button 
@@ -152,7 +152,7 @@ const PoolingHome = () => {
             <ArrowLeft size={20} />
           </button>
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/10">
-            <Users size={18} className="text-emerald-200" />
+            <Users size={18} className="text-amber-200" />
           </div>
         </div>
 
@@ -164,9 +164,9 @@ const PoolingHome = () => {
           >
             <h1 className="text-5xl font-black tracking-tight leading-[0.9]">
               POOL <br />
-              <span className="text-emerald-400">RIDE.</span>
+              <span className="text-amber-400">RIDE.</span>
             </h1>
-            <p className="mt-4 text-emerald-100 font-bold uppercase text-[9px] tracking-[0.3em] bg-white/10 inline-block px-3 py-1 rounded-full backdrop-blur-sm">Verified Shared Trips</p>
+            <p className="mt-4 text-amber-100 font-bold uppercase text-[9px] tracking-[0.3em] bg-white/10 inline-block px-3 py-1 rounded-full backdrop-blur-sm">Verified Shared Trips</p>
           </motion.div>
           
           <motion.div
@@ -175,23 +175,23 @@ const PoolingHome = () => {
             transition={{ type: 'spring', damping: 15 }}
             className="relative -mr-10"
           >
-            <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
+            <div className="absolute inset-0 bg-amber-500/20 blur-3xl rounded-full" />
             <img src={taxiImg} alt="Pooling" className="relative z-10 h-40 w-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)]" />
           </motion.div>
         </div>
       </div>
 
       {/* Search Card */}
-      <div className="mx-6 -mt-16 relative z-50">
+      <div className="mx-6 lg:mx-auto lg:max-w-2xl -mt-16 relative z-50">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-[40px] bg-white p-6 shadow-2xl shadow-emerald-200/50 border border-slate-50"
+          className="rounded-[40px] bg-white p-6 shadow-2xl shadow-amber-200/50 border border-slate-50"
         >
           <div className="space-y-4">
             {/* Origin */}
             <div className="relative" ref={fromRef}>
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 z-10">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500 z-10">
                 <MapPin size={20} />
               </div>
               <input
@@ -203,7 +203,7 @@ const PoolingHome = () => {
                   setSearch({ ...search, from: e.target.value });
                   setShowFromSuggestions(true);
                 }}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-amber-50 border border-transparent focus:border-amber-100"
               />
               
               <AnimatePresence>
@@ -237,7 +237,7 @@ const PoolingHome = () => {
             <div className="relative flex justify-center -my-3 z-10">
               <button 
                 onClick={swapLocations}
-                className="h-12 w-12 rounded-2xl bg-emerald-600 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-90 transition-transform"
+                className="h-12 w-12 rounded-2xl bg-amber-600 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-90 transition-transform"
               >
                 <ArrowLeftRight size={20} className="rotate-90" />
               </button>
@@ -257,7 +257,7 @@ const PoolingHome = () => {
                   setSearch({ ...search, to: e.target.value });
                   setShowToSuggestions(true);
                 }}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-amber-50 border border-transparent focus:border-amber-100"
               />
 
               <AnimatePresence>
@@ -289,20 +289,20 @@ const PoolingHome = () => {
 
             {/* Date Selection */}
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500">
                 <Calendar size={20} />
               </div>
               <input
                 type="date"
                 value={search.date}
                 onChange={(e) => setSearch({ ...search, date: e.target.value })}
-                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-emerald-50 border border-transparent focus:border-emerald-100 appearance-none"
+                className="w-full rounded-[24px] bg-slate-50 py-5 pl-12 pr-4 text-sm font-black text-slate-900 outline-none transition focus:ring-4 focus:ring-amber-50 border border-transparent focus:border-amber-100 appearance-none"
               />
             </div>
 
             <button
               onClick={handleSearch}
-              className="mt-2 w-full rounded-[24px] bg-emerald-600 py-5 text-sm font-black text-white shadow-2xl shadow-slate-200 transition hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3"
+              className="mt-2 w-full rounded-[24px] bg-amber-600 py-5 text-sm font-black text-white shadow-2xl shadow-slate-200 transition hover:bg-black active:scale-[0.98] flex items-center justify-center gap-3"
             >
               <Search size={20} />
               Search Rides
@@ -312,7 +312,7 @@ const PoolingHome = () => {
       </div>
 
       {/* Popular Routes */}
-      <div className="mt-16 px-6">
+      <div className="mt-16 px-6 lg:px-10">
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Popular Routes</h2>
@@ -327,7 +327,7 @@ const PoolingHome = () => {
           </button>
         </div>
         
-        <div className="space-y-5">
+        <div className="space-y-5 lg:grid lg:grid-cols-2 lg:gap-6 lg:space-y-0">
           {!popularRoutes.length ? (
             <div className="rounded-[32px] border-2 border-dashed border-slate-100 bg-slate-50/50 p-10 text-center">
               <History size={32} className="mx-auto text-slate-200 mb-4" />
@@ -342,11 +342,11 @@ const PoolingHome = () => {
                 setSearch({ ...search, from: route.from, to: route.to });
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group relative overflow-hidden rounded-[40px] border border-slate-100 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-100/50"
+              className="group relative overflow-hidden rounded-[40px] border border-slate-100 bg-white p-6 transition-all hover:border-amber-200 hover:shadow-2xl hover:shadow-amber-100/50"
             >
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-5">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 text-slate-400 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 shadow-sm">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-50 text-slate-400 group-hover:bg-amber-600 group-hover:text-white transition-all duration-500 shadow-sm">
                     <ArrowLeftRight size={22} />
                   </div>
                   <div>
@@ -356,7 +356,7 @@ const PoolingHome = () => {
                       <span className="text-base font-black text-slate-900">{route.to}</span>
                     </div>
                     <div className="mt-2 flex flex-wrap items-center gap-4">
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black text-amber-600 uppercase tracking-wider bg-amber-50 px-2 py-0.5 rounded-full">
                         <Clock size={12} />
                         {route.time}
                       </div>
@@ -374,18 +374,18 @@ const PoolingHome = () => {
               </div>
               
               {/* Background Decoration */}
-              <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-50/20 rounded-full blur-2xl group-hover:bg-emerald-100/40 transition-colors" />
+              <div className="absolute -right-12 -bottom-12 w-32 h-32 bg-amber-50/20 rounded-full blur-2xl group-hover:bg-amber-100/40 transition-colors" />
             </motion.div>
           ))}
         </div>
       </div>
 
       {/* Safety Section */}
-      <div className="mt-16 px-6">
-        <div className="rounded-[40px] bg-emerald-600 p-8 text-white relative overflow-hidden">
+      <div className="mt-16 px-6 lg:px-10">
+        <div className="rounded-[40px] bg-amber-600 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center">
                    <ShieldCheck size={24} />
                 </div>
                 <h3 className="text-lg font-black tracking-tight">Travel with Peace</h3>
@@ -394,15 +394,15 @@ const PoolingHome = () => {
              <div className="flex items-center gap-4">
                 <div className="flex -space-x-3">
                    {[1,2,3,4].map(i => (
-                     <div key={i} className="w-8 h-8 rounded-full border-2 border-emerald-600 bg-emerald-500 overflow-hidden">
+                     <div key={i} className="w-8 h-8 rounded-full border-2 border-amber-600 bg-amber-500 overflow-hidden">
                         <img src={`https://ui-avatars.com/api/?name=U${i}&background=random`} alt="" />
                      </div>
                    ))}
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">10k+ Verified Users</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400">10k+ Verified Users</p>
              </div>
           </div>
-          <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl" />
         </div>
       </div>
     </div>

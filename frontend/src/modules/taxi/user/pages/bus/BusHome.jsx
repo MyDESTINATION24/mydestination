@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -103,6 +103,23 @@ const BusHome = () => {
   const { settings } = useSettings();
   const routePrefix = useMemo(() => getRoutePrefix(location.pathname), [location.pathname]);
   const busEnabled = String(settings.transportRide?.enable_bus_service || '0') === '1';
+
+  // Real profile name for the app bar; falls back to "Account" when absent.
+  const storedUserName = (() => {
+    try {
+      return JSON.parse(window.localStorage.getItem('userInfo') || '{}')?.name || '';
+    } catch {
+      return '';
+    }
+  })();
+
+  const offersRef = useRef(null);
+  const scrollOffers = (direction) => {
+    const el = offersRef.current;
+    if (!el) return;
+    // one full slide per press
+    el.scrollBy({ left: direction * el.clientWidth, behavior: 'smooth' });
+  };
 
   const [fromCity, setFromCity] = useState('');
   const [toCity, setToCity] = useState('');
@@ -393,24 +410,82 @@ const BusHome = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-5xl font-sans pb-32 lg:pb-16 relative overflow-hidden">
-      <header className="bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-8 sticky top-0 z-20 flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-b from-[#99f6e4] via-[#ccfbf1] to-[#f0fdfa] mx-auto w-full max-w-lg lg:max-w-none font-sans pb-32 lg:pb-16 relative overflow-hidden">
+      {/* The admin bus banners back the search section. They rotate on the
+          same currentBannerIndex timer that drove the old carousel. */}
+      {banners.length > 0 ? (
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[430px] overflow-hidden lg:h-[520px]">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentBannerIndex}
+              src={banners[currentBannerIndex]?.imageUrl}
+              alt=""
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: 'easeOut' }}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </AnimatePresence>
+        </div>
+      ) : null}
+
+      {/* Desktop app bar */}
+      <div className="hidden lg:block sticky top-0 z-30 bg-white border-b border-slate-100 relative">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-6 px-8 py-3.5">
+          <button onClick={() => navigate('/taxi/user')} className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+              <BusFront size={19} />
+            </span>
+            <span className="text-left leading-none">
+              <span className="block text-[15px] font-black text-slate-900">MyDestination</span>
+              <span className="mt-0.5 block text-[10px] font-bold text-slate-400">Bus Tickets</span>
+            </span>
+          </button>
+
+          <nav className="flex items-center gap-8">
+            <span className="border-b-2 border-emerald-600 pb-1 text-[13px] font-black text-emerald-700">Bus Tickets</span>
+            <button onClick={() => navigate('/taxi/user/activity')} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">My Bookings</button>
+            <button onClick={() => document.getElementById('bus-offers')?.scrollIntoView({ behavior: 'smooth' })} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">Offers</button>
+            <button onClick={() => navigate('/taxi/user/support')} className="text-[13px] font-bold text-slate-500 transition hover:text-slate-900">Help</button>
+          </nav>
+
+          <button onClick={() => navigate('/taxi/user/profile')} className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-[12px] font-black text-white">
+              {(storedUserName || 'U').charAt(0).toUpperCase()}
+            </span>
+            <span className="text-[13px] font-bold text-slate-700">
+              {storedUserName ? `Hi, ${storedUserName.split(' ')[0]}` : 'Account'}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <header className="relative bg-transparent px-5 pt-12 pb-2 lg:px-8 lg:pt-16 lg:pb-14 sticky top-0 lg:static z-20 flex items-center gap-3 lg:gap-5 lg:mx-auto lg:w-full lg:max-w-7xl">
         <button
           onClick={() => navigate(-1)}
-          className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white"
+          className="w-10 h-10 lg:w-11 lg:h-11 shrink-0 rounded-full bg-white/60 lg:bg-emerald-600 backdrop-blur-md flex items-center justify-center shadow-sm active:scale-95 transition-all hover:bg-white lg:hover:bg-emerald-700"
         >
-          <ArrowLeft size={20} className="text-gray-800" />
+          <ArrowLeft size={20} className="text-gray-800 lg:text-white" />
         </button>
         <div className="flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80">Bus Tickets</p>
-          <h1 className="text-xl font-bold text-gray-900 leading-none">Book your journey</h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#0d9488]/80 lg:hidden">Bus Tickets</p>
+          <h1 className="text-xl lg:text-[2rem] font-bold lg:font-black text-gray-900 lg:text-white lg:drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)] leading-none lg:leading-tight lg:tracking-tight">
+            <span className="lg:hidden">Book your journey</span>
+            <span className="hidden lg:inline">Book your bus journey</span>
+          </h1>
+          <p className="mt-1.5 hidden text-[13px] font-semibold text-white/90 drop-shadow-[0_1px_10px_rgba(0,0,0,0.4)] lg:block">Travel safe, travel comfortable</p>
         </div>
       </header>
  
-      <div className="px-5 pt-4 space-y-5 lg:px-8">
+      <div className="relative z-10 px-5 pt-4 space-y-5 lg:px-8 lg:mx-auto lg:w-full lg:max-w-7xl lg:space-y-7">
+        {/* lg: From / To / Date / Search collapse into one horizontal bar
+            instead of three stacked cards down a 1200px column. */}
+        <div className="space-y-5 lg:space-y-0 lg:mx-auto lg:max-w-5xl lg:rounded-[28px] lg:bg-white lg:p-4 lg:pb-6 lg:border lg:border-white lg:shadow-[0_18px_40px_-12px_rgba(13,148,136,0.28)]">
+        <div className="space-y-5 lg:space-y-0 lg:flex lg:items-center">
         {/* Source/Destination inputs */}
-        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative">
-          <div className="flex items-center gap-3 relative z-10">
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[28px] p-5 shadow-sm space-y-4 relative lg:flex lg:flex-1 lg:min-w-0 lg:items-stretch lg:space-y-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:shadow-none lg:rounded-none lg:p-0">
+          <div className="flex items-center gap-3 relative z-10 lg:flex-1 lg:min-w-0 lg:px-5 lg:py-3">
             <span className="w-5 h-5 flex items-center justify-center shrink-0">
               <span className="w-2.5 h-2.5 rounded-full border-2 border-gray-400 bg-white" />
             </span>
@@ -427,12 +502,12 @@ const BusHome = () => {
             </div>
           </div>
 
-          <div className="relative pl-8">
+          <div className="relative pl-8 lg:hidden">
             <div className="w-full h-px bg-gray-100/80" />
             <div className="absolute left-2.5 -top-[18px] bottom-[10px] border-l border-dashed border-teal-500/40" />
           </div>
 
-          <div className="flex items-center gap-3 relative z-10">
+          <div className="flex items-center gap-3 relative z-10 lg:flex-1 lg:min-w-0 lg:px-5 lg:py-3 lg:border-l lg:border-slate-100">
             <span className="w-5 h-5 flex items-center justify-center text-teal-600 shrink-0">
               <MapPin size={18} className="stroke-[2.5px]" />
             </span>
@@ -449,7 +524,7 @@ const BusHome = () => {
             </div>
           </div>
 
-          <div className="absolute right-5 top-[39%] -translate-y-1/2 z-20">
+          <div className="absolute right-5 top-[39%] -translate-y-1/2 z-20 lg:right-auto lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2">
             <button
               type="button"
               onClick={swapCities}
@@ -461,8 +536,8 @@ const BusHome = () => {
         </div>
 
         {/* Date Selection Card */}
-        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
+        <div className="bg-white/65 backdrop-blur-lg border border-white/50 rounded-[24px] p-3 shadow-sm flex items-center justify-between gap-3 lg:w-auto lg:shrink-0 lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:border-l lg:border-slate-100 lg:rounded-none lg:shadow-none lg:flex-row-reverse lg:justify-end lg:items-center lg:gap-4 lg:px-5 lg:py-3">
+          <div className="flex items-center gap-2 lg:gap-1.5">
             {horizontalQuickDates.map((item) => {
               const isSelected = date === item.value;
               return (
@@ -485,18 +560,33 @@ const BusHome = () => {
             })}
           </div>
 
-          <div className="h-10 w-px bg-gray-200/80 shrink-0" />
+          <div className="h-10 w-px bg-gray-200/80 shrink-0 lg:hidden" />
 
           <button
             type="button"
             onClick={openCalendar}
-            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none"
+            className="flex-1 flex items-center justify-end gap-2 text-right pl-2 select-none lg:flex-none lg:flex-col lg:items-start lg:gap-0.5 lg:text-left lg:pl-0"
           >
-            <Calendar size={18} className="text-teal-600 shrink-0" />
-            <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
-              {formatCalendarLabel(date) || 'Select Date'}
+            <span className="hidden lg:block text-[10px] font-black uppercase tracking-wider text-gray-400/90">Departure Date</span>
+            <span className="flex items-center gap-2">
+              <Calendar size={18} className="text-teal-600 shrink-0" />
+              <span className="text-sm font-black text-gray-800 leading-none truncate select-none">
+                {formatCalendarLabel(date) || 'Select Date'}
+              </span>
             </span>
           </button>
+        </div>
+
+        </div>
+
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSearch}
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 active:scale-95 transition-all lg:w-auto lg:mx-auto lg:mt-5 lg:px-24 lg:py-4"
+        >
+          <Search size={18} className="stroke-[2.5px]" />
+          <span>Search Buses</span>
+        </motion.button>
         </div>
 
         <datalist id="bus-route-cities">
@@ -537,89 +627,78 @@ const BusHome = () => {
           )}
 
           {/* Search Button */}
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={handleSearch}
-            className="w-full bg-black hover:bg-emerald-600 text-white py-4.5 rounded-full text-base font-black flex items-center justify-center gap-2 shadow-lg shadow-black/10 active:scale-95 transition-all"
-          >
-            <Search size={18} className="stroke-[2.5px]" />
-            <span>Search Buses</span>
-          </motion.button>
-
           {/* Ticket Banner */}
           <div className="bg-[#ccfbf1]/50 border border-teal-100/50 rounded-[20px] px-4 py-3.5 flex items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
               <span className="w-8 h-8 rounded-xl bg-white flex items-center justify-center text-teal-600 shadow-sm shrink-0">
                 <Ticket size={16} className="fill-teal-50" />
               </span>
-              <span className="text-xs font-black text-teal-800 tracking-wide">
-                Your next journey starts here
+              <span className="min-w-0">
+                <span className="block text-xs font-black text-teal-800 tracking-wide">
+                  Your next journey starts here
+                </span>
+                <span className="mt-0.5 hidden text-[11px] font-semibold text-teal-700/70 lg:block">
+                  Find the best routes, lowest fares and a comfortable ride for you.
+                </span>
               </span>
             </div>
             <ChevronRight size={16} className="text-teal-600 stroke-[2.5px]" />
           </div>
         </div>
 
-        {/* Banner Section (Dynamic Carousel / Skeleton Loading) */}
-        {bannersLoading ? (
-          <div className="w-full h-44 sm:h-52 rounded-[28px] bg-slate-100 animate-pulse mt-2" />
-        ) : banners.length > 0 ? (
-          <div className="relative overflow-hidden rounded-[28px] border border-teal-100/50 bg-white shadow-sm mt-2">
-            <div className="relative w-full h-44 sm:h-52 overflow-hidden">
-              <AnimatePresence initial={false} mode="wait">
-                <motion.img
-                  key={currentBannerIndex}
-                  src={banners[currentBannerIndex]?.imageUrl}
-                  alt={banners[currentBannerIndex]?.title || 'Promo Banner'}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.4, ease: 'easeInOut' }}
-                  onClick={() => handleBannerClick(banners[currentBannerIndex]?.linkUrl)}
-                  className="w-full h-full object-cover cursor-pointer hover:scale-[1.02] transition-transform duration-300"
-                />
-              </AnimatePresence>
-
-              {banners[currentBannerIndex]?.title && (
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-10">
-                  <p className="text-white text-xs font-bold truncate">
-                    {banners[currentBannerIndex]?.title}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {banners.length > 1 && (
-              <div className="absolute bottom-3 right-4 flex gap-1.5 z-10 bg-black/25 backdrop-blur-md px-2 py-1 rounded-full">
-                {banners.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentBannerIndex(idx)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all ${
-                      idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/40'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : null}
-
         {/* Offers & Popular Routes Drawer Card */}
-        <div className="bg-white rounded-t-[36px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t border-gray-100/60 p-6 space-y-5 -mx-5 pb-10">
-          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2" />
+        <div className="bg-white rounded-t-[36px] lg:rounded-[28px] shadow-[0_-12px_40px_rgba(0,0,0,0.03)] border-t lg:border border-gray-100/60 p-6 lg:p-7 space-y-5 -mx-5 lg:mx-0 pb-10 lg:pb-7 lg:mt-2 flex flex-col">
+          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto -mt-2 mb-2 lg:hidden" />
           
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-gray-900">Offers & Promotions</h3>
+          <div id="bus-offers" className="flex items-center justify-between scroll-mt-24">
+            <h3 className="text-base lg:text-lg font-black text-gray-900">Offers &amp; Promotions</h3>
+            <div className="hidden items-center gap-2 lg:flex">
+              <button
+                type="button"
+                aria-label="Previous offers"
+                onClick={() => scrollOffers(-1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95"
+              >
+                <ChevronLeft size={17} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next offers"
+                onClick={() => scrollOffers(1)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95"
+              >
+                <ChevronRight size={17} />
+              </button>
+            </div>
+          </div>
+
+          {/* Why book with us -- deliberately no invented numbers or guarantees */}
+          <div className="order-last hidden gap-4 border-t border-slate-100 pt-6 lg:grid lg:grid-cols-4">
+            {[
+              { icon: Route, title: 'Wide Network', text: 'Routes from operators across the country' },
+              { icon: BusFront, title: 'Multiple Choices', text: 'Compare operators, timings and seats' },
+              { icon: Ticket, title: 'Clear Fares', text: 'Fare breakdown shown before you pay' },
+              { icon: Calendar, title: 'Easy Cancellations', text: 'Manage bookings from My Bookings' },
+            ].map((item) => (
+              <div key={item.title} className="flex items-start gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <item.icon size={17} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-black text-slate-900">{item.title}</p>
+                  <p className="mt-0.5 text-[11px] font-semibold leading-snug text-slate-500">{item.text}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
           {/* Horizontal Promo Scroll */}
           {offersLoading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {[1, 2, 3].map((n) => (
                 <div
                   key={n}
-                  className="w-72 h-32 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
+                  className="w-full h-44 lg:h-64 rounded-3xl bg-slate-100 animate-pulse shrink-0 p-5 flex flex-col justify-between"
                 >
                   <div className="space-y-2">
                     <div className="h-3 bg-slate-200/80 rounded w-1/4" />
@@ -631,12 +710,12 @@ const BusHome = () => {
               ))}
             </div>
           ) : offers.length > 0 ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div ref={offersRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {offers.map((offer) => (
                 <div
                   key={offer.id || offer._id}
                   onClick={() => handleBannerClick(offer.linkUrl)}
-                  className="w-72 h-32 rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
+                  className="w-full h-44 lg:h-64 snap-start rounded-3xl overflow-hidden border border-slate-100 bg-slate-50 shrink-0 cursor-pointer shadow-sm relative group"
                 >
                   <img
                     src={offer.imageUrl}
@@ -654,9 +733,9 @@ const BusHome = () => {
               ))}
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar -mx-6 px-6">
+            <div ref={offersRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
               {/* Metro Ride Offer (From image) */}
-              <div className="w-72 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-teal-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Special Offer
@@ -677,7 +756,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 2 */}
-              <div className="w-72 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-amber-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Save Big
@@ -698,7 +777,7 @@ const BusHome = () => {
               </div>
 
               {/* Promo Offer 3 */}
-              <div className="w-72 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
+              <div className="w-full snap-start bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shrink-0 flex flex-col justify-between space-y-4">
                 <div>
                   <span className="bg-blue-600 text-white text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
                     Flexibility

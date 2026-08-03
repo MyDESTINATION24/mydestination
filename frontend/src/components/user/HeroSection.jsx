@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, Wallet, Bell } from 'lucide-react';
+import { Search, Menu, Wallet, Bell, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MobileMenu from '../../components/ui/MobileMenu';
 import { useNavigate } from 'react-router-dom';
 import walletService from '../../services/walletService';
+import BirdFlock from '../common/BirdFlock';
+import resortHero from '../../assets/hotels/resort-hero.jpg';
 
 const HeroSection = () => {
     const navigate = useNavigate();
@@ -130,7 +132,7 @@ const HeroSection = () => {
                 </div>
 
                 {/* 2. Search Bar Wrapper (Fixed below header on mobile) */}
-                <div className="w-full px-5 py-3 md:px-0 md:py-0 md:bg-transparent">
+                <div className="w-full px-5 py-3 md:hidden">
                     <div
                         onClick={handleSearchClick}
                         className="w-full bg-white h-11 md:h-14 rounded-xl md:rounded-2xl shadow-sm border border-surface/5 flex items-center px-3 md:px-4 gap-2 md:gap-3 relative overflow-hidden cursor-pointer transition-all duration-300"
@@ -170,6 +172,71 @@ const HeroSection = () => {
 
             {/* Layout spacer for fixed header block on mobile */}
             <div className="h-[156px] md:hidden shrink-0"></div>
+
+            {/* Desktop hero */}
+            <div className="hidden md:block relative -mt-2 overflow-hidden rounded-[28px] border border-white/60 shadow-[0_18px_50px_-18px_rgba(15,23,42,0.18)]">
+                <img
+                    src={resortHero}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
+                {/* Light scrim from the left -- enough for the copy to hold, not
+                    enough to wash the photo out */}
+                <div className="absolute inset-0 bg-[linear-gradient(95deg,rgba(2,20,28,0.62)_0%,rgba(2,20,28,0.38)_38%,rgba(2,20,28,0.08)_62%,transparent_82%)]" />
+                <BirdFlock
+                    tint="255,255,255"
+                    birds={[
+                        { top: '18%', width: 40, opacity: 0.75, duration: 26, delay: 0,  bob: 8, flap: 0.85 },
+                        { top: '30%', width: 30, opacity: 0.6,  duration: 33, delay: 5,  bob: 6, flap: 1.05 },
+                        { top: '12%', width: 24, opacity: 0.5,  duration: 40, delay: 11, bob: 5, flap: 1.2 },
+                    ]}
+                />
+
+                <div className="relative z-10 px-10 py-14 lg:px-14 lg:py-16">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3.5 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white backdrop-blur-md">
+                        Discover Your Perfect Stay <Sparkles size={12} className="text-emerald-500" />
+                    </span>
+
+                    <h1 className="mt-5 text-[2.6rem] font-black leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.35)] lg:text-[3.1rem]">
+                        Find the best hotels for
+                        <br />
+                        <span className="text-emerald-300">your next adventure</span>
+                    </h1>
+
+                    <p className="mt-3 text-sm font-semibold text-white/85 lg:text-base">
+                        Luxury stays, unforgettable experiences
+                    </p>
+
+                    {/* Search row */}
+                    <div className="mt-8 flex max-w-3xl items-center gap-2 rounded-[20px] border border-white/70 bg-white/95 p-2 shadow-[0_12px_36px_-12px_rgba(15,23,42,0.2)] backdrop-blur">
+                        <div
+                            onClick={handleSearchClick}
+                            className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 px-4"
+                        >
+                            <Search size={19} className="shrink-0 text-surface/40" />
+                            <span className="truncate text-sm font-medium text-surface/45">
+                                Find luxury hotels, resorts, homestays...
+                            </span>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleSearchClick}
+                            className="flex shrink-0 items-center gap-2 rounded-[14px] border border-surface/10 bg-white px-4 py-3 text-[13px] font-bold text-slate-700 transition hover:bg-slate-50"
+                        >
+                            <SlidersHorizontal size={15} />
+                            Filters
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleSearchClick}
+                            className="flex shrink-0 items-center gap-2 rounded-[14px] bg-emerald-700 px-6 py-3 text-[13px] font-black text-white shadow-lg shadow-emerald-900/15 transition hover:bg-emerald-800 active:scale-95"
+                        >
+                            <Search size={15} />
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
 
             <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 

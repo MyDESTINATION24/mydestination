@@ -20,6 +20,7 @@ const CREATE_PATH = '/admin/promotions/banner-image/create';
 
 const createInitialFormData = () => ({
   image: null,
+  device: 'all',
   image_url: '',
   use_url: false,
 });
@@ -142,6 +143,7 @@ const BannerImage = () => {
 
       const payload = {
         image: imageData,
+        device: formData.device,
         image_url: formData.image_url.trim(),
         use_url: formData.use_url,
       };
@@ -372,7 +374,7 @@ const BannerImage = () => {
               <div>
                 <label className="block text-[14px] font-semibold text-gray-900 mb-3">
                   Banner Image<span className="text-rose-500">*</span>
-                  <span className="text-gray-400 font-medium">(500px x 100px)</span>
+                  <span className="text-gray-400 font-medium"> — size it for the screens you pick below</span>
                 </label>
 
                 <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-4">
@@ -405,6 +407,34 @@ const BannerImage = () => {
                       </div>
                     </label>
                   )}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[14px] font-semibold text-gray-900 mb-3">
+                  Show On
+                  <span className="text-gray-400 font-medium"> — a phone-shaped creative set to Mobile never appears on desktop, so neither crop gets stretched</span>
+                </label>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {[
+                    { id: 'all', label: 'All devices', hint: 'Mobile and desktop' },
+                    { id: 'mobile', label: 'Mobile only', hint: 'Phones and tablets' },
+                    { id: 'desktop', label: 'Desktop only', hint: 'Large screens' },
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setFormData((current) => ({ ...current, device: option.id }))}
+                      className={`rounded-xl border p-4 text-left transition ${
+                        formData.device === option.id
+                          ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-600/10'
+                          : 'border-gray-200 bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      <p className="text-[14px] font-semibold text-gray-900">{option.label}</p>
+                      <p className="mt-0.5 text-[12px] text-gray-500">{option.hint}</p>
+                    </button>
+                  ))}
                 </div>
               </div>
 

@@ -13,6 +13,16 @@ const bannerSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    // Which screens this banner runs on. A phone-shaped creative set to
+    // 'mobile' never appears on desktop and vice versa, so neither crop is
+    // stretched. 'all' is the default, so banners created before this field
+    // keep showing everywhere.
+    device: {
+      type: String,
+      enum: ['all', 'mobile', 'desktop'],
+      default: 'all',
+      index: true,
+    },
     link_type: {
       type: String,
       enum: ['external_link', 'deep_link'],

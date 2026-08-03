@@ -57,7 +57,7 @@ const TourConfirmation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 max-w-lg mx-auto relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 mx-auto w-full max-w-lg lg:max-w-2xl relative overflow-hidden font-sans">
       
       {/* Background Glows */}
       <div className="absolute top-[-40px] right-[-30px] h-48 w-48 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />

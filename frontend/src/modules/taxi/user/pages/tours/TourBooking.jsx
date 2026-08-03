@@ -305,7 +305,7 @@ const TourBooking = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 max-w-lg mx-auto relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#F8FAFC_0%,#F1F5F9_50%,#E2E8F0_100%)] pb-12 mx-auto w-full max-w-lg lg:max-w-3xl relative overflow-x-hidden font-sans">
       
       {/* Sticky Top Header */}
       <div className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-100 bg-white/80 px-6 py-4 backdrop-blur-md">
