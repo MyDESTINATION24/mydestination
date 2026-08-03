@@ -7,6 +7,7 @@ import { getSupportConversations, markSupportMessagesRead } from '../../shared/c
 import { adminService } from '../services/adminService';
 import { hasAdminPermission } from '../constants/adminAccess';
 import toast from 'react-hot-toast';
+import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 import {
   BarChart3,
   Bell,
@@ -1377,6 +1378,12 @@ const AdminLayout = () => {
               )}
             </button>
           </div>
+
+          {!isCollapsed && (
+            <div className="px-3 pb-3 border-b border-white/10 mb-2">
+              <AdminPanelSwitcherDropdown currentPanelKey="taxi" />
+            </div>
+          )}
 
           <nav
             className="admin-sidebar-scrollbar mt-0 h-full min-h-0 flex-1 space-y-8 overflow-y-auto px-4 pb-12"

@@ -11,6 +11,7 @@ import {
 import usePartnerStore from '../store/partnerStore';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import logo from '../../../assets/rokologin-removebg-preview.png';
+import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 
 const PartnerSidebar = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
@@ -138,8 +139,13 @@ const PartnerSidebar = ({ isOpen, onClose }) => {
                         <div className="flex items-center justify-between p-5 pb-2">
                             <img src={logo} alt="My DESTINATION" className="h-[38px] object-contain" />
                             <button onClick={onClose} className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition border border-gray-100">
-                                <X size={20} className="text-gray-500" />
+                                <X size={18} className="text-gray-500" />
                             </button>
+                        </div>
+
+                        {/* Admin Panel Selector Dropdown */}
+                        <div className="px-4 py-2 border-b border-gray-100">
+                            <AdminPanelSwitcherDropdown currentPanelKey="hotel-ui" />
                         </div>
 
                         <div className="px-5 mb-6">

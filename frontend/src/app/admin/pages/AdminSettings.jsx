@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
     Settings, Shield, Bell, CreditCard, ToggleLeft,
-    ToggleRight, Save, Globe, Lock
+    ToggleRight, Save, Globe, Lock, Palette, ArrowRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import useAdminStore from '../store/adminStore';
 import adminService from '../../../services/adminService';
@@ -220,6 +221,24 @@ const AdminSettings = () => {
                         <Save size={16} />
                         {savingProfile ? 'Saving...' : 'Save Profile'}
                     </button>
+                </div>
+            </Section>
+
+            <Section title="Hotel UI & Theme Customization Studio" icon={Palette}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border border-rose-100 bg-rose-50/50 rounded-xl">
+                    <div>
+                        <h4 className="font-bold text-slate-900 text-sm">Dynamic Service UI & Theme Customizer</h4>
+                        <p className="text-xs text-slate-500 mt-1">
+                            Customize primary accent colors, corner radii, banner text, and active service cards (Spa, Cab, Dining) for the Hotel Guest App.
+                        </p>
+                    </div>
+                    <Link
+                        to="/admin/hotel-ui-customizer"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-sm transition shrink-0"
+                    >
+                        <span>Open Theme Studio</span>
+                        <ArrowRight size={14} />
+                    </Link>
                 </div>
             </Section>
 

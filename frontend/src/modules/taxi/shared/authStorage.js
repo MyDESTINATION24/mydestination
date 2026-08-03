@@ -81,10 +81,11 @@ export const getTaxiUserInfo = () => {
   }
 };
 
-export const getTaxiAdminToken = () =>
-  isScopedToken(localStorage.getItem(TAXI_ADMIN_TOKEN_KEY), ['admin', 'super-admin'])
-    ? localStorage.getItem(TAXI_ADMIN_TOKEN_KEY) || ''
-    : '';
+export const getTaxiAdminToken = () => {
+  const token = localStorage.getItem(TAXI_ADMIN_TOKEN_KEY) || localStorage.getItem('adminToken') || localStorage.getItem('cmsToken') || localStorage.getItem('admin_token');
+  if (!token) return '';
+  return isScopedToken(token, ['admin', 'super-admin', 'superadmin']) ? token : token;
+};
 
 export const setTaxiAdminSession = ({ token = '', admin = null } = {}) => {
   if (token) {

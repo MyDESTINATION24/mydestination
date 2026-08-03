@@ -696,7 +696,7 @@ const LandingPage = () => {
                     </div>
                     <div className="flex flex-col w-full pl-9 pr-2 text-left">
                       <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check In</span>
-                      <span className="text-gray-800 font-semibold text-sm">
+                      <span className={`text-sm ${searchParams.checkIn ? 'text-gray-800 font-semibold' : 'text-gray-400 font-medium'}`}>
                         {searchParams.checkIn ? (() => {
                           const [y, m, d] = searchParams.checkIn.split('-');
                           return `${d}-${m}-${y}`;
@@ -722,7 +722,7 @@ const LandingPage = () => {
                     </div>
                     <div className="flex flex-col w-full pl-9 pr-2 text-left">
                       <span className="text-[9px] font-black text-green-800 uppercase tracking-widest leading-none mb-0.5">Check Out</span>
-                      <span className="text-gray-800 font-semibold text-sm">
+                      <span className={`text-sm ${searchParams.checkOut ? 'text-gray-800 font-semibold' : 'text-gray-400 font-medium'}`}>
                         {searchParams.checkOut ? (() => {
                           const [y, m, d] = searchParams.checkOut.split('-');
                           return `${d}-${m}-${y}`;

@@ -26,6 +26,7 @@ import {
 import { adminStyles } from '../theme/themeConfig';
 import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
+import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/wedding/admin/dashboard' },
@@ -74,11 +75,16 @@ const AdminSidebar = () => {
 
   return (
     <aside className={`w-72 h-screen fixed left-0 top-0 bg-[#F8E2E5] border-r border-[hsl(353,45%,35%)]/20 z-50 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.05)]`}>
-      <div className="h-20 px-8 border-b border-[hsl(353,45%,35%)]/20 mb-4 flex items-center shrink-0">
+      <div className="h-20 px-8 border-b border-[hsl(353,45%,35%)]/20 flex items-center shrink-0">
         <h1 className={`${adminStyles.heading} text-xl font-bold tracking-tight`}>
           MY DESTINATION
           <span className="block text-[10px] mt-1 uppercase tracking-[0.2em] font-sans opacity-70">Admin Panel</span>
         </h1>
+      </div>
+
+      {/* Admin Panel Selector Dropdown */}
+      <div className="px-4 py-2 border-b border-[hsl(353,45%,35%)]/20 mb-2">
+        <AdminPanelSwitcherDropdown currentPanelKey="wedding" />
       </div>
 
       <nav className="flex-1 px-4 space-y-1 overflow-y-auto wedding-sidebar-scrollbar min-h-0">

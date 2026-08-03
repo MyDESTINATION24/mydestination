@@ -17,18 +17,24 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
+const getStoredAdminToken = () => {
+  return localStorage.getItem('adminToken') || localStorage.getItem('cmsToken') || localStorage.getItem('admin_token') || localStorage.getItem('taxiAdminToken');
+};
+
 const useAdminStore = create((set, get) => ({
   admin: null,
-  token: localStorage.getItem('adminToken') || null,
+  token: getStoredAdminToken() || null,
   isAuthenticated: false,
   loading: true,
 
   setToken: (token) => {
     if (token) {
       localStorage.setItem('adminToken', token);
+      localStorage.setItem('cmsToken', token);
       set({ token, isAuthenticated: true });
     } else {
       localStorage.removeItem('adminToken');
+      localStorage.removeItem('cmsToken');
       set({ token: null, isAuthenticated: false, admin: null });
     }
   },
@@ -39,6 +45,8 @@ const useAdminStore = create((set, get) => ({
       const { token, user } = response.data;
 
       localStorage.setItem('adminToken', token);
+      localStorage.setItem('cmsToken', token);
+      localStorage.setItem('admin_token', token);
       set({ admin: user, token, isAuthenticated: true, loading: false });
       return { success: true };
     } catch (error) {
@@ -56,9 +64,8 @@ const useAdminStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
-    const token = localStorage.getItem('adminToken');
+    const token = getStoredAdminToken();
     if (!token || token === 'undefined' || token === 'null') {
-      localStorage.removeItem('adminToken');
       set({ isAuthenticated: false, admin: null, loading: false });
       return;
     }

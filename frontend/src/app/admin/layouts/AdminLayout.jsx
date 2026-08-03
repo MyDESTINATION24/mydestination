@@ -3,13 +3,14 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, Building2, Calendar, Wallet,
-    Settings, Bell, Search, LogOut, Menu, X, DollarSign, ClipboardCheck, Star, Tag, FileText, MessageSquare, CircleHelp, Home
+    Settings, Bell, Search, LogOut, Menu, X, DollarSign, ClipboardCheck, Star, Tag, FileText, MessageSquare, CircleHelp, Home, Globe, Palette, ArrowRightLeft
 } from 'lucide-react';
 
 import logo from '../../../assets/rokologin-removebg-preview.png';
 import useAdminStore from '../store/adminStore';
 import toast from 'react-hot-toast';
 import adminService from '../../../services/adminService';
+import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 
 const AdminLayout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -69,6 +70,7 @@ const AdminLayout = () => {
 
     const MENU_ITEMS = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+        { icon: Palette, label: 'Guest Services & Theme Studio', path: '/admin/hotel-ui-customizer' },
         { icon: Users, label: 'User Management', path: '/admin/users' },
         { icon: Building2, label: 'Partner Management', path: '/admin/partners' },
         { icon: Home, label: 'Property Management', path: '/admin/properties' },
@@ -92,13 +94,19 @@ const AdminLayout = () => {
                 animate={{ width: isSidebarOpen ? 260 : 80 }}
                 className="bg-black text-white flex flex-col h-full border-r border-gray-800 shadow-2xl z-20 transition-all duration-300 relative"
             >
-                <div className="py-2 flex items-center justify-center bg-white border-b border-gray-800 transition-all duration-300">
+                <div className="py-2 flex flex-col items-center justify-center bg-white border-b border-gray-800 transition-all duration-300">
                     <img
                         src={logo}
                         alt="My DESTINATION"
-                        className={`object-contain transition-all duration-300 ${isSidebarOpen ? 'h-20 w-auto' : 'h-10 w-10'}`}
+                        className={`object-contain transition-all duration-300 ${isSidebarOpen ? 'h-16 w-auto' : 'h-10 w-10'}`}
                     />
                 </div>
+
+                {isSidebarOpen && (
+                    <div className="p-3 border-b border-gray-800 bg-gray-900/50">
+                        <AdminPanelSwitcherDropdown currentPanelKey="hotel" />
+                    </div>
+                )}
 
                 {/* Navigation */}
                 <nav className="flex-1 py-6 px-3 space-y-2 overflow-y-auto custom-scrollbar">

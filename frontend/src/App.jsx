@@ -137,6 +137,8 @@ const PartnerAbout = React.lazy(() => import('./app/partner/pages/PartnerAbout')
 const PartnerPrivacy = React.lazy(() => import('./app/partner/pages/PartnerPrivacy'));
 const PartnerContact = React.lazy(() => import('./app/partner/pages/PartnerContact'));
 const PartnerBankDetails = React.lazy(() => import('./app/partner/pages/PartnerBankDetails'));
+const HotelUISettingsManager = React.lazy(() => import('./app/partner/pages/HotelUISettingsManager'));
+const HotelServiceDynamicView = React.lazy(() => import('./components/user/HotelServiceDynamicView'));
 const BlogManager = React.lazy(() => import('./pages/manager/BlogManager'));
 const BlogDetail = React.lazy(() => import('./pages/user/BlogDetail'));
 
@@ -692,6 +694,30 @@ function App() {
   }, []);
 
   React.useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_BASE}/hotel-ui/settings/global-default`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data?.theme) {
+          const { primaryColor, useGradient, gradientStart, gradientEnd, backgroundColor } = data.data.theme;
+          if (primaryColor) {
+            document.documentElement.style.setProperty('--color-surface', primaryColor);
+          }
+          if (backgroundColor) {
+            document.documentElement.style.setProperty('--color-hotel-bg', backgroundColor);
+            document.documentElement.style.setProperty('--color-hotel-bg-grad', `linear-gradient(180deg, ${backgroundColor} 0%, #ffffff 100%)`);
+          }
+          if (useGradient && gradientStart && gradientEnd) {
+            document.documentElement.style.setProperty('--color-theme-gradient', `linear-gradient(135deg, ${gradientStart} 0%, ${gradientEnd} 100%)`);
+          } else if (primaryColor) {
+            document.documentElement.style.setProperty('--color-theme-gradient', primaryColor);
+          }
+        }
+      })
+      .catch(err => console.error('Failed to load global hotel UI theme:', err));
+  }, []);
+
+  React.useEffect(() => {
     let cachedWebToken = null;
 
     const initWebFcm = async () => {
@@ -819,6 +845,7 @@ function App() {
                 <Route path="about" element={<PartnerAbout />} />
                 <Route path="settings" element={<PartnerSettings />} />
                 <Route path="bank-details" element={<PartnerBankDetails />} />
+                <Route path="ui-customizer" element={<HotelUISettingsManager />} />
                 <Route path="profile" element={<PartnerProfile />} />
               </Route>
 
@@ -826,6 +853,10 @@ function App() {
               <Route path="privacy" element={<PartnerPrivacy />} />
               <Route path="contact" element={<PartnerContact />} />
             </Route>
+
+            {/* Hotel Guest Dynamic Service Routes */}
+            <Route path="/hotel-service-demo" element={<HotelServiceDynamicView />} />
+            <Route path="/hotel-service/:hotelId" element={<HotelServiceDynamicView />} />
 
             {/* CMS Admin Routes */}
             <Route path="/cms-admin/login" element={<CMSLogin />} />
@@ -868,6 +899,8 @@ function App() {
                 <Route path="legal" element={<AdminLegalPages />} />
                 <Route path="contact-messages" element={<AdminContactMessages />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="hotel-ui-customizer" element={<HotelUISettingsManager />} />
+                <Route path="theme-customizer" element={<HotelUISettingsManager />} />
                 <Route path="properties" element={<AdminProperties />} />
                 <Route path="properties/:id" element={<AdminHotelDetail />} />
                 <Route path="offers" element={<AdminOffers />} />

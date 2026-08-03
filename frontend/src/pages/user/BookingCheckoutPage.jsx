@@ -33,6 +33,19 @@ const BookingCheckoutPage = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user') || '{}'));
   const [walletBalance, setWalletBalance] = useState(0);
   const [useWallet, setUseWallet] = useState(false);
+  const [uiSettings, setUiSettings] = useState(null);
+
+  useEffect(() => {
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_BASE}/hotel-ui/settings/global-default`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.data) {
+          setUiSettings(data.data);
+        }
+      })
+      .catch(err => console.error("Failed to load hotel UI settings in BookingCheckoutPage", err));
+  }, []);
 
   const fetchWalletBalance = async () => {
     try {
@@ -210,21 +223,45 @@ const BookingCheckoutPage = () => {
     }
   };
 
+  const getContrastTextColor = (hexColor) => {
+    if (!hexColor || typeof hexColor !== 'string') return '#FFFFFF';
+    const hex = hexColor.replace('#', '');
+    if (hex.length !== 6) return '#FFFFFF';
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? '#0F172A' : '#FFFFFF';
+  };
+
+  const primaryThemeColor = uiSettings?.theme?.primaryColor || '#5F8575';
+  const useGradientTheme = uiSettings?.theme?.useGradient !== false;
+  const gradientStartTheme = uiSettings?.theme?.gradientStart || primaryThemeColor;
+  const gradientEndTheme = uiSettings?.theme?.gradientEnd || primaryThemeColor;
+
+  const dynamicThemeBg = useGradientTheme
+    ? `linear-gradient(135deg, ${gradientStartTheme} 0%, ${gradientEndTheme} 100%)`
+    : primaryThemeColor;
+
+  const buttonTextColor = getContrastTextColor(gradientStartTheme);
+  const isBrightTheme = getContrastTextColor(gradientStartTheme) === '#0F172A';
+  const headerTextColor = uiSettings?.theme?.secondaryColor || (isBrightTheme ? '#B45309' : primaryThemeColor);
+
   return (
-    <div className="min-h-screen bg-[var(--color-hotel-bg)] pb-20 md:pb-10">
+    <div className="min-h-screen pb-20 md:pb-10" style={{ backgroundColor: uiSettings?.theme?.backgroundColor || 'var(--color-hotel-bg)' }}>
       <div className="bg-white border-b border-gray-200 sticky top-0 z-30 pt-14 md:pt-0">
         <div className="max-w-3xl mx-auto px-4 h-16 flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <ArrowLeft size={20} className="text-surface/80" />
+          <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">
+            <ArrowLeft size={20} style={{ color: headerTextColor }} />
           </button>
-          <h1 className="text-lg font-bold text-surface">Review & Pay</h1>
+          <h1 className="text-lg font-bold" style={{ color: headerTextColor }}>Review & Pay</h1>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
 
         {/* 1. Property Summary */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4">
+        <div className="rounded-2xl p-4 shadow-sm border border-gray-100 flex gap-4" style={{ backgroundColor: uiSettings?.theme?.cardBgColor || '#ffffff' }}>
           <div className="w-24 h-24 bg-gray-200 rounded-xl overflow-hidden shrink-0">
             <img
               src={property.images?.cover || property.coverImage || "https://via.placeholder.com/150"}
@@ -234,7 +271,7 @@ const BookingCheckoutPage = () => {
           </div>
           <div>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{property.propertyType}</span>
-            <h2 className="font-bold text-surface leading-tight mb-1">{property.name}</h2>
+            <h2 className="font-bold leading-tight mb-1" style={{ color: headerTextColor }}>{property.name}</h2>
             <p className="text-xs text-gray-500 mb-2">{property.address?.city || property.address}, {property.address?.state}</p>
             <div className="flex items-center gap-1">
               <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">
@@ -245,9 +282,9 @@ const BookingCheckoutPage = () => {
         </div>
 
         {/* 2. Trip & Price Details */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
+        <div className="rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5" style={{ backgroundColor: uiSettings?.theme?.cardBgColor || '#ffffff' }}>
           <div>
-            <h3 className="font-bold text-surface mb-3 text-sm">Your Trip</h3>
+            <h3 className="font-bold mb-3 text-sm" style={{ color: headerTextColor }}>Your Trip</h3>
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-surface font-bold">
                 <span>{priceBreakdown?.nights} Nights</span>
@@ -265,7 +302,7 @@ const BookingCheckoutPage = () => {
           </div>
 
           <div className="border-t border-gray-100 pt-5">
-            <h3 className="font-bold text-surface mb-4 text-sm">Price Details</h3>
+            <h3 className="font-bold mb-4 text-sm" style={{ color: headerTextColor }}>Price Details</h3>
             <div className="space-y-3">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Base Price ({priceBreakdown?.nights} nights)</span>
@@ -324,8 +361,8 @@ const BookingCheckoutPage = () => {
               )}
 
               <div className="border-t border-gray-200 pt-3 flex justify-between items-center">
-                <span className="font-bold text-surface">Total Payable Now</span>
-                <span className="text-xl font-black text-surface">
+                <span className="font-bold" style={{ color: headerTextColor }}>Total Payable Now</span>
+                <span className="text-xl font-extrabold" style={{ color: headerTextColor }}>
                   ₹{remainingPayable.toLocaleString()}
                 </span>
               </div>
@@ -334,7 +371,7 @@ const BookingCheckoutPage = () => {
         </div>
 
         {/* 3. Wallet & Payment Options */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5">
+        <div className="rounded-2xl p-5 shadow-sm border border-gray-100 space-y-5" style={{ backgroundColor: uiSettings?.theme?.cardBgColor || '#ffffff' }}>
           {/* Wallet Section */}
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -462,7 +499,8 @@ const BookingCheckoutPage = () => {
           <button
             onClick={handleConfirmBooking}
             disabled={loading}
-            className="w-full bg-surface text-white font-bold text-lg py-4 rounded-xl shadow-lg hover:bg-gray-900 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full font-bold text-lg py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            style={{ background: dynamicThemeBg, color: buttonTextColor }}
           >
             {loading ? (
               <span className="animate-pulse">Processing...</span>

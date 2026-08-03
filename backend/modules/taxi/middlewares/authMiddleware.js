@@ -28,7 +28,7 @@ const roleModelMap = {
 
 const normalizeRole = (role = '') => {
   const value = String(role || '').toLowerCase();
-  if (value === 'super-admin') {
+  if (value === 'super-admin' || value === 'superadmin') {
     return 'admin';
   }
   return value;

@@ -7,7 +7,7 @@ import {
   Users, Calendar, Loader2, ChevronLeft, ChevronRight, MessageSquare, Tag, X, Gift,
   CheckCircle, Shield, Info, Clock, Wifi, Coffee, Car,
   BadgeCheck, Waves, Utensils, BellRing, ParkingCircle, Wind,
-  Tv, Thermometer, ChefHat, ArrowUpDown
+  Tv, Thermometer, ChefHat, ArrowUpDown, ExternalLink, Sparkles, Shirt, PartyPopper
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ModernDatePicker from '../../components/ui/ModernDatePicker';
@@ -41,6 +41,29 @@ const PropertyDetailsPage = () => {
   const [stackIndices, setStackIndices] = useState([0, 1, 2]); // [Center, Left, Right]
   const [availability, setAvailability] = useState(null);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [hotelUiConfig, setHotelUiConfig] = useState(null);
+
+  useEffect(() => {
+    if (id) {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      fetch(`${apiBase}/hotel-ui/settings/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data) {
+            setHotelUiConfig(data.data);
+            const theme = data.data.theme || {};
+            if (theme.primaryColor) {
+              document.documentElement.style.setProperty('--color-surface', theme.primaryColor);
+            }
+            if (theme.backgroundColor) {
+              document.documentElement.style.setProperty('--color-hotel-bg', theme.backgroundColor);
+              document.documentElement.style.setProperty('--color-hotel-bg-grad', `linear-gradient(180deg, ${theme.backgroundColor} 0%, #ffffff 100%)`);
+            }
+          }
+        })
+        .catch(err => console.error("Error loading hotel UI settings", err));
+    }
+  }, [id]);
 
   // Check Availability Logic
   const checkAvailability = async (directCall = false) => {
@@ -599,8 +622,65 @@ const PropertyDetailsPage = () => {
     toast.success('Coupon removed');
   };
 
+  const handleBackNav = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    navigate(-1);
+  };
+
+  // Helper: Calculate luminance to select high-contrast text color (Dark vs Light text)
+  const getContrastTextColor = (hexColor) => {
+    if (!hexColor || typeof hexColor !== 'string') return '#FFFFFF';
+    const hex = hexColor.replace('#', '');
+    if (hex.length !== 6) return '#FFFFFF';
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.6 ? '#0F172A' : '#FFFFFF';
+  };
+
+  const primaryThemeColor = hotelUiConfig?.theme?.primaryColor || '#5F8575';
+  const useGradientTheme = hotelUiConfig?.theme?.useGradient !== false;
+  const gradientStartTheme = hotelUiConfig?.theme?.gradientStart || primaryThemeColor;
+  const gradientEndTheme = hotelUiConfig?.theme?.gradientEnd || primaryThemeColor;
+
+  const dynamicThemeBg = useGradientTheme
+    ? `linear-gradient(135deg, ${gradientStartTheme} 0%, ${gradientEndTheme} 100%)`
+    : primaryThemeColor;
+
+  const buttonTextColor = getContrastTextColor(gradientStartTheme);
+
+  // Price Text Color: If theme is bright yellow/light, use high-contrast dark amber/slate for price text
+  const isBrightTheme = getContrastTextColor(gradientStartTheme) === '#0F172A';
+  const headingTextColor = hotelUiConfig?.theme?.secondaryColor || (isBrightTheme ? '#B45309' : primaryThemeColor);
+  const priceTextColor = isBrightTheme ? '#B45309' : primaryThemeColor;
+
+  // Selected Room Card Tint: subtle opacity gradient tint so background text is 100% sharp and readable
+  const selectedRoomBgTint = useGradientTheme
+    ? `linear-gradient(135deg, ${gradientStartTheme}1F 0%, ${gradientEndTheme}33 100%)`
+    : `${primaryThemeColor}1F`;
+
   return (
-    <div className="min-h-screen bg-[var(--color-hotel-bg)]">
+    <div 
+      className="min-h-screen bg-[var(--color-hotel-bg)]"
+      style={hotelUiConfig?.theme?.backgroundColor ? { backgroundColor: hotelUiConfig.theme.backgroundColor } : {}}
+    >
+      {/* Custom Announcement Banner from Theme Studio */}
+      {hotelUiConfig?.customAnnouncement?.enabled && hotelUiConfig?.customAnnouncement?.text?.trim() && !hotelUiConfig.customAnnouncement.text.includes('Spa & Wellness Services') && (
+        <div 
+          className="w-full py-2.5 px-4 text-center text-xs md:text-sm font-bold text-slate-900 shadow-sm flex items-center justify-center gap-2 relative z-20"
+          style={hotelUiConfig.theme?.useGradient 
+            ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#FFD000'} 0%, ${hotelUiConfig.theme.gradientEnd || '#FF9E00'} 100%)` }
+            : { backgroundColor: hotelUiConfig.theme?.primaryColor || '#FFD000' }
+          }
+        >
+          <span>{hotelUiConfig.customAnnouncement.text}</span>
+        </div>
+      )}
+
       {/* Header Image */}
       <div className="relative h-[40vh] md:h-[50vh] cursor-zoom-in group">
         <motion.div
@@ -672,25 +752,35 @@ const PropertyDetailsPage = () => {
             </div>
           </>
         )}
-        <div className="absolute top-14 md:top-4 left-4 z-10">
-          <button onClick={() => navigate(-1)} className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors">
-            <ArrowLeft size={20} className="text-surface" />
+        <div 
+          className="absolute top-4 left-4 z-50 pointer-events-auto"
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button 
+            type="button"
+            onClick={handleBackNav} 
+            className="bg-white/95 hover:bg-white p-2.5 rounded-full shadow-lg active:scale-90 transition-all cursor-pointer flex items-center justify-center border border-slate-200/50"
+            aria-label="Go Back"
+          >
+            <ArrowLeft size={20} className="text-slate-800" />
           </button>
         </div>
-        <div className="absolute top-14 md:top-4 right-4 flex gap-2 z-10">
+        <div className="absolute top-4 right-4 flex gap-2 z-30">
           <button
-            onClick={handleShare}
-            className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors"
+            onClick={(e) => { e.stopPropagation(); handleShare(); }}
+            className="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md active:scale-95 transition-all cursor-pointer"
           >
-            <Share2 size={20} className="text-surface" />
+            <Share2 size={20} className="text-slate-800" />
           </button>
           <button
-            onClick={handleToggleSave}
-            className="bg-white/90 p-2 rounded-full shadow-md hover:bg-white transition-colors"
+            onClick={(e) => { e.stopPropagation(); handleToggleSave(); }}
+            className="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md active:scale-95 transition-all cursor-pointer"
           >
             <Heart
               size={20}
-              className={`${isSaved ? 'fill-red-500 text-red-500' : 'text-surface'}`}
+              className={`${isSaved ? 'fill-red-500 text-red-500' : 'text-slate-800'}`}
             />
           </button>
         </div>
@@ -698,7 +788,10 @@ const PropertyDetailsPage = () => {
 
       {/* Main Content Card */}
       <div className="max-w-5xl mx-auto px-0 md:px-5 -mt-16 relative z-10">
-        <div className="bg-white rounded-t-[40px] md:rounded-[40px] shadow-[0_-10px_60px_-15px_rgba(0,0,0,0.15)] p-5 pb-28 md:p-10">
+        <div 
+          className="rounded-t-[40px] md:rounded-[40px] shadow-[0_-10px_60px_-15px_rgba(0,0,0,0.15)] p-5 pb-28 md:p-10"
+          style={{ backgroundColor: hotelUiConfig?.theme?.backgroundColor || '#ffffff' }}
+        >
 
           {/* Drag Handle Bar (for mobile feel) */}
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4 md:hidden opacity-60" />
@@ -743,6 +836,70 @@ const PropertyDetailsPage = () => {
               );
             })}
           </div>
+
+          {/* In-House Guest Services Section (Configured via Theme Studio) */}
+          {hotelUiConfig && (
+            <div className="mb-6 p-4 md:p-5 rounded-2xl border border-slate-100 shadow-xs space-y-3" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md border border-rose-100">
+                    In-House Guest Services
+                  </span>
+                  <h3 className="text-base font-bold text-slate-900 mt-1">
+                    {hotelUiConfig.heroBanner?.title || 'Guest Hospitality Services'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {hotelUiConfig.heroBanner?.subTitle || 'Available for stayed guests'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate(`/hotel-service/${id}`)}
+                  className="flex items-center justify-center gap-1.5 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer shrink-0 hover:opacity-90 active:scale-95"
+                  style={hotelUiConfig?.theme?.useGradient 
+                    ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#e11d48'} 0%, ${hotelUiConfig.theme.gradientEnd || '#be123c'} 100%)` }
+                    : { backgroundColor: hotelUiConfig?.theme?.primaryColor || '#e11d48' }
+                  }
+                >
+                  <span>Guest Portal</span>
+                  <ExternalLink size={14} />
+                </button>
+              </div>
+
+              {/* Active Service Badges */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {hotelUiConfig.activeServices?.roomService && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <Utensils size={12} className="text-rose-500" /> Room Service
+                  </span>
+                )}
+                {hotelUiConfig.activeServices?.spaBooking && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <Sparkles size={12} className="text-amber-500" /> Spa & Wellness
+                  </span>
+                )}
+                {hotelUiConfig.activeServices?.cabBooking && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <Car size={12} className="text-blue-500" /> Cab Service
+                  </span>
+                )}
+                {hotelUiConfig.activeServices?.laundryService && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <Shirt size={12} className="text-emerald-500" /> Laundry Service
+                  </span>
+                )}
+                {hotelUiConfig.activeServices?.diningBooking && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <Coffee size={12} className="text-orange-500" /> Dining Reservation
+                  </span>
+                )}
+                {hotelUiConfig.activeServices?.eventHall && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white rounded-lg text-xs font-semibold text-slate-700 border border-slate-200 shadow-2xs">
+                    <PartyPopper size={12} className="text-purple-500" /> Event Hall
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
 
           {/* Description */}
@@ -820,7 +977,7 @@ const PropertyDetailsPage = () => {
                   {visibleAmenities.map((item, idx) => {
                     const { icon, color, bg } = getAmenityConfig(item, 16);
                     return (
-                      <div key={idx} className="flex flex-col items-center justify-center py-2.5 px-1 bg-[var(--color-hotel-bg)] border border-gray-100 rounded-2xl gap-1.5 transition-all hover:shadow-md hover:bg-white active:scale-95 group">
+                      <div key={idx} className="flex flex-col items-center justify-center py-2.5 px-1 border border-gray-100 rounded-2xl gap-1.5 transition-all hover:shadow-md hover:bg-white active:scale-95 group" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}>
                         <div className={`w-9 h-9 rounded-xl shadow-sm flex items-center justify-center transition-transform group-hover:scale-110 ${bg} ${color}`}>
                           {icon}
                         </div>
@@ -835,7 +992,7 @@ const PropertyDetailsPage = () => {
           {/* Type Specific Info - Dynamic Rendering */}
           {propertyType === 'PG' && config && (
             <div className="mb-4 grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-yellow-50 rounded-xl">
+              <div className="p-4 rounded-xl border border-yellow-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#fefce8' }}>
                 <h3 className="font-bold text-yellow-900 mb-2">PG Details</h3>
                 <ul className="text-sm text-yellow-800 space-y-1">
                   <li>Type: {config.pgType}</li>
@@ -850,7 +1007,7 @@ const PropertyDetailsPage = () => {
 
           {propertyType === 'Hotel' && config && (config.hotelCategory || config.starRating) && (
             <div className="mb-4 grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-50 rounded-xl">
+              <div className="p-4 rounded-xl border border-blue-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#eff6ff' }}>
                 <h3 className="font-bold text-blue-900 mb-2">Hotel Info</h3>
                 <ul className="text-sm text-blue-800 space-y-1">
                   {config.hotelCategory && <li>Category: {config.hotelCategory}</li>}
@@ -863,7 +1020,7 @@ const PropertyDetailsPage = () => {
           {/* Have to check these later */}
           {propertyType === 'Villa' && (property.structure || config) && (
             <div className="mb-4 grid md:grid-cols-2 gap-4">
-              <div className="p-4 bg-green-50 rounded-xl">
+              <div className="p-4 rounded-xl border border-green-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#f0fdf4' }}>
                 <h3 className="font-bold text-green-900 mb-2">Villa Structure</h3>
                 <ul className="text-sm text-green-800 space-y-1">
                   {property.structure ? (
@@ -898,7 +1055,7 @@ const PropertyDetailsPage = () => {
           {propertyType === 'Resort' && config && (
             <div className="mb-6">
               <div className="grid md:grid-cols-2 gap-4 mb-4">
-                <div className="p-4 bg-teal-50 rounded-xl">
+                <div className="p-4 rounded-xl border border-teal-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#f0fdf4' }}>
                   <h3 className="font-bold text-sky-900 mb-2">Resort Highlights</h3>
                   <ul className="text-sm text-sky-800 space-y-1">
                     <li>Theme: {config.resortTheme}</li>
@@ -907,7 +1064,7 @@ const PropertyDetailsPage = () => {
                   </ul>
                 </div>
                 {property.mealPlans && property.mealPlans.length > 0 && (
-                  <div className="p-4 bg-orange-50 rounded-xl">
+                  <div className="p-4 rounded-xl border border-orange-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#fff7ed' }}>
                     <h3 className="font-bold text-orange-900 mb-2">Meal Plans</h3>
                     <div className="flex flex-wrap gap-2">
                       {property.mealPlans.map((plan, i) => (
@@ -920,7 +1077,7 @@ const PropertyDetailsPage = () => {
                 )}
               </div>
               {property.activities && property.activities.length > 0 && (
-                <div className="p-4 bg-indigo-50 rounded-xl">
+                <div className="p-4 rounded-xl border border-indigo-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#eef2ff' }}>
                   <h3 className="font-bold text-indigo-900 mb-2">Activities</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {property.activities.map((act, i) => (
@@ -979,15 +1136,17 @@ const PropertyDetailsPage = () => {
                       setSelectedRoom(room);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className={`
-                      border-2 rounded-xl p-5 cursor-pointer transition-all relative overflow-hidden flex flex-col justify-between
-                      ${selectedRoom?._id === room._id
-                        ? 'border-surface bg-surface/5 shadow-md shadow-surface/10'
-                        : 'border-gray-200 hover:border-surface/40 hover:shadow-lg'}
-                    `}
+                    className="border-2 rounded-xl p-5 cursor-pointer transition-all relative overflow-hidden flex flex-col justify-between shadow-xs"
+                    style={{
+                      borderColor: selectedRoom?._id === room._id ? (useGradientTheme ? gradientStartTheme : primaryThemeColor) : '#e5e7eb',
+                      background: selectedRoom?._id === room._id ? selectedRoomBgTint : (hotelUiConfig?.theme?.cardBgColor || '#ffffff')
+                    }}
                   >
                     {selectedRoom?._id === room._id && (
-                      <div className="absolute top-0 right-0 bg-surface text-white p-1.5 rounded-bl-xl shadow-sm">
+                      <div 
+                        className="absolute top-0 right-0 p-1.5 rounded-bl-xl shadow-sm font-bold"
+                        style={{ background: dynamicThemeBg, color: buttonTextColor }}
+                      >
                         <CheckCircle size={16} />
                       </div>
                     )}
@@ -995,20 +1154,27 @@ const PropertyDetailsPage = () => {
                     <div>
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h4 className="font-bold text-lg text-textDark mb-1">{room.type}</h4>
-                          <p className="text-xs text-gray-500 line-clamp-2">{room.description || `Comfortable ${room.type}`}</p>
+                          <h4 className="font-bold text-lg text-slate-900 mb-1">{room.type}</h4>
+                          <p className="text-xs text-slate-600 line-clamp-2">{room.description || `Comfortable ${room.type}`}</p>
                         </div>
                         <div className="text-right">
-                          <span className="block font-bold text-xl text-surface">₹{getRoomPrice(room) || 'N/A'}</span>
-                          <span className="text-[10px] text-gray-400 font-medium">per night</span>
+                          <span 
+                            className="block font-extrabold text-xl"
+                            style={{ color: priceTextColor }}
+                          >
+                            ₹{getRoomPrice(room) || 'N/A'}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-semibold">per night</span>
                         </div>
                       </div>
 
                       {getExtraPricingLabels(room).length > 0 && (
-                        <div className="text-[11px] text-gray-600 mb-4 bg-[var(--color-hotel-bg)] p-2 rounded-lg space-y-1">
+                        <div 
+                          className="text-[11px] text-slate-700 font-medium mb-4 p-2.5 rounded-lg space-y-1 bg-white/80 border border-slate-100/80 shadow-2xs"
+                        >
                           {getExtraPricingLabels(room).map((label, index) => (
                             <div key={index} className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                               {label}
                             </div>
                           ))}
@@ -1017,17 +1183,18 @@ const PropertyDetailsPage = () => {
 
                       <div className="flex gap-2 flex-wrap mb-4">
                         {room.amenities?.filter(a => a && typeof a === 'string' && a.trim()).slice(0, 4).map((am, i) => (
-                          <span key={i} className="text-[10px] bg-gray-100 px-2.5 py-1 rounded-full text-gray-600 font-medium">{am}</span>
+                          <span key={i} className="text-[10px] bg-white border border-slate-200 px-2.5 py-1 rounded-full text-slate-700 font-bold shadow-2xs">{am}</span>
                         ))}
                       </div>
                     </div>
 
-                    <div className={`
-                      w-full py-2.5 rounded-lg text-sm font-bold border-2 transition-all flex items-center justify-center gap-2
-                      ${selectedRoom?._id === room._id
-                        ? 'bg-surface text-white border-surface'
-                        : 'bg-white text-surface border-surface/20 group-hover:border-surface'}
-                    `}>
+                    <div 
+                      className="w-full py-2.5 rounded-lg text-sm font-bold border transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      style={selectedRoom?._id === room._id
+                        ? { background: dynamicThemeBg, color: buttonTextColor, borderColor: 'transparent' }
+                        : { backgroundColor: '#ffffff', color: isBrightTheme ? '#B45309' : primaryThemeColor, borderColor: isBrightTheme ? '#F59E0B' : `${primaryThemeColor}40` }
+                      }
+                    >
                       {selectedRoom?._id === room._id ? (
                         <>
                           <CheckCircle size={16} />
@@ -1042,7 +1209,7 @@ const PropertyDetailsPage = () => {
           )}
 
           {/* Booking Inputs (Date & Guest) */}
-          <div className="mb-4 p-4 bg-[var(--color-hotel-bg)] rounded-xl border border-gray-100">
+          <div className="mb-4 p-4 rounded-xl border border-gray-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}>
             <h3 className="font-bold text-textDark mb-3">Trip Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="col-span-1">
@@ -1267,7 +1434,7 @@ const PropertyDetailsPage = () => {
             )}
 
             {/* Note about limits */}
-            <div className="mt-3 bg-blue-50 text-blue-800 text-xs p-3 rounded-lg flex items-start gap-2">
+            <div className="mt-3 text-xs p-3 rounded-lg flex items-start gap-2 border border-blue-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || '#eff6ff' }}>
               <Info size={14} className="mt-0.5 shrink-0" />
               <p>
                 Max allowed: <strong>{getMaxAdults()} Adults</strong> and <strong>{getMaxChildren()} Children</strong> for current selection.
@@ -1453,7 +1620,13 @@ const PropertyDetailsPage = () => {
       </div>
 
       {/* Sticky Bottom Booking Bar */}
-      <div className="fixed bottom-4 left-4 right-4 bg-[#5F8575] rounded-[32px] p-5 shadow-2xl z-50 transition-all active:scale-[0.99]">
+      <div 
+        className="fixed bottom-4 left-4 right-4 rounded-[32px] p-5 shadow-2xl z-50 transition-all active:scale-[0.99]"
+        style={hotelUiConfig?.theme?.useGradient 
+          ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#5F8575'} 0%, ${hotelUiConfig.theme.gradientEnd || '#3d5a4e'} 100%)` }
+          : { backgroundColor: hotelUiConfig?.theme?.primaryColor || '#5F8575' }
+        }
+      >
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-6">
           <div className="flex-shrink-0">
             <p className="text-[10px] text-white/70 font-black uppercase tracking-widest">{priceBreakdown ? 'Total Price' : 'Price per night'}</p>
@@ -1466,7 +1639,8 @@ const PropertyDetailsPage = () => {
             <button
               onClick={handleBook}
               disabled={bookingLoading || checkingAvailability}
-              className="bg-white text-[#5F8575] w-full py-4 rounded-2xl font-black text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-black/10 group whitespace-nowrap"
+              className="bg-white w-full py-4 rounded-2xl font-black text-sm active:scale-95 transition-all flex items-center justify-center gap-2 shadow-xl shadow-black/10 group whitespace-nowrap"
+              style={{ color: hotelUiConfig?.theme?.primaryColor || '#5F8575' }}
             >
               {(bookingLoading || checkingAvailability) ? (
                 <>

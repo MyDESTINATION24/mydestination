@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import logo from '../../assets/rokologin-removebg-preview.png';
 
 const WebsiteHeader = () => {
@@ -79,29 +79,54 @@ const WebsiteHeader = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="lg:hidden p-2 transition-colors duration-300 text-slate-900"
+            className="lg:hidden p-2 transition-colors duration-300 text-slate-900 focus:outline-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </nav>
-      </div>
 
-      {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="fixed top-[80px] left-4 right-4 bg-white rounded-xl shadow-2xl z-[100] lg:hidden overflow-hidden border border-gray-100">
-          <div className="flex flex-col text-gray-800 font-medium uppercase tracking-widest text-[13px]">
-            <a onClick={(e) => handleScrollTo(e, 'home')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">HOME</a>
-            <a onClick={(e) => handleScrollTo(e, 'feature')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">SERVICES</a>
-            <a onClick={(e) => handleScrollTo(e, 'about')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">ABOUT US</a>
-            <a onClick={(e) => handleScrollTo(e, 'staff')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">OUR STAFF</a>
-            <Link to="/articles" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50">ARTICLES</Link>
-            <a onClick={(e) => handleScrollTo(e, 'blogs')} className="p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer">BLOGS</a>
-            <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="p-4 border-b border-gray-50 hover:bg-gray-50 font-bold text-[#065f46]">LOGIN</Link>
-            <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="p-4 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center">REGISTER</Link>
+        {/* Mobile Menu Dropdown - Attached directly under navbar */}
+        {isMobileMenuOpen && (
+          <div className="absolute top-full left-0 w-full bg-white shadow-2xl z-[100] lg:hidden border-t border-gray-100 rounded-b-2xl overflow-hidden py-2">
+            <div className="flex flex-col text-gray-800 font-medium uppercase tracking-wider text-[13px] divide-y divide-gray-100 max-w-7xl mx-auto">
+              <a onClick={(e) => handleScrollTo(e, 'home')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
+                <span>HOME</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </a>
+              <a onClick={(e) => handleScrollTo(e, 'feature')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
+                <span>SERVICES</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </a>
+              <a onClick={(e) => handleScrollTo(e, 'about')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
+                <span>ABOUT US</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </a>
+              <a onClick={(e) => handleScrollTo(e, 'staff')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
+                <span>OUR STAFF</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </a>
+              <Link to="/articles" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors">
+                <span>ARTICLES</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </Link>
+              <a onClick={(e) => handleScrollTo(e, 'blogs')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
+                <span>BLOGS</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </a>
+              <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 font-bold text-[#065f46] transition-colors">
+                <span>LOGIN</span>
+                <ChevronRight size={16} className="text-[#065f46]" />
+              </Link>
+              <div className="p-4 bg-gray-50/50">
+                <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)} className="block w-full py-3 bg-[#065f46] text-white hover:bg-[#04402f] font-bold text-center rounded-xl shadow-md transition-all uppercase tracking-wider text-xs">
+                  REGISTER
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </>
   );
 };

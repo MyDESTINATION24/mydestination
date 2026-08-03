@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, Navigate, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify, Briefcase, Info } from 'lucide-react';
+import { 
+  LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify, Briefcase, Info,
+  ChevronDown, ShieldCheck, Building2, Palette, ArrowRightLeft 
+} from 'lucide-react';
 import logo from '../../../assets/rokologin-removebg-preview.png';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
+import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 
 const CMSLayout = () => {
   const navigate = useNavigate();
 
-  // Guard: /cms-admin and every child route had no auth check at all.
-  if (!localStorage.getItem('cmsToken')) {
+  const hasAdminToken = localStorage.getItem('cmsToken') || localStorage.getItem('adminToken') || localStorage.getItem('admin_token') || localStorage.getItem('taxiAdminToken');
+  if (!hasAdminToken) {
     return <Navigate to="/cms-admin/login" replace />;
   }
 
@@ -21,11 +25,18 @@ const CMSLayout = () => {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="w-64 bg-emerald-950 text-white flex flex-col">
-        <div className="p-4 border-b border-emerald-900/50 flex items-center gap-3">
-          <div className="h-8 w-8 overflow-hidden flex-shrink-0 bg-white rounded-full p-1">
-            <img src={logo} alt="Logo" className="h-full w-auto max-w-none object-left object-cover" />
+        <div className="p-4 border-b border-emerald-900/50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 overflow-hidden flex-shrink-0 bg-white rounded-full p-1">
+              <img src={logo} alt="Logo" className="h-full w-auto max-w-none object-left object-cover" />
+            </div>
+            <span className="font-bold text-lg tracking-wide">CMS Admin</span>
           </div>
-          <span className="font-bold text-lg tracking-wide">CMS Admin</span>
+        </div>
+
+        {/* Panel Switcher Dropdown Section */}
+        <div className="px-3 py-3 border-b border-emerald-900/50 bg-emerald-900/30">
+          <AdminPanelSwitcherDropdown currentPanelKey="cms" />
         </div>
         
         <nav className="flex-1 overflow-y-auto py-4">
@@ -36,6 +47,7 @@ const CMSLayout = () => {
                 <span className="text-sm font-medium">Dashboard</span>
               </Link>
             </li>
+
             <div className="pt-4 pb-2 px-3">
               <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Website Pages</span>
             </div>
@@ -133,7 +145,7 @@ const CMSLayout = () => {
         </nav>
         
         <div className="p-4 border-t border-emerald-900/50">
-          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-red-900/50 text-red-400 transition w-full text-left">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-red-900/50 text-red-400 transition w-full text-left cursor-pointer">
             <LogOut size={18} />
             <span className="text-sm font-medium">Logout</span>
           </button>

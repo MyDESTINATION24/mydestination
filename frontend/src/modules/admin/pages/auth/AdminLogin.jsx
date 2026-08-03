@@ -64,6 +64,18 @@ const PANELS = [
   },
 ];
 
+const syncAdminTokens = (token, user) => {
+  if (!token) return;
+  localStorage.setItem('adminToken', token);
+  localStorage.setItem('cmsToken', token);
+  localStorage.setItem('admin_token', token);
+  localStorage.setItem('taxiAdminToken', token);
+  if (user) {
+    localStorage.setItem('adminInfo', JSON.stringify(user));
+    localStorage.setItem('admin_user', JSON.stringify(user));
+  }
+};
+
 // ─── Login logic per panel ────────────────────────────────────────────────────
 const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
   switch (panelKey) {
@@ -76,8 +88,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      localStorage.setItem('adminToken', token);
-      localStorage.setItem('adminInfo', JSON.stringify(user));
+      syncAdminTokens(token, user);
       if (adminStoreLogin) {
         adminStoreLogin(email, password).catch(console.error);
       }
@@ -92,8 +103,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      localStorage.setItem('admin_token', token);
-      localStorage.setItem('admin_user', JSON.stringify(user));
+      syncAdminTokens(token, user);
       return { redirectTo: '/wedding/admin/dashboard' };
     }
     case 'taxi': {
@@ -106,8 +116,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
       if (!token) throw new Error('Taxi Admin authentication failed');
 
       setTaxiAdminSession({ token, admin: user });
-      localStorage.setItem('adminToken', token);
-      localStorage.setItem('adminInfo', JSON.stringify(user));
+      syncAdminTokens(token, user);
       return { redirectTo: '/taxi/admin' };
     }
     case 'cms': {
@@ -119,8 +128,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      localStorage.setItem('cmsToken', token);
-      localStorage.setItem('adminInfo', JSON.stringify(user));
+      syncAdminTokens(token, user);
       return { redirectTo: '/cms-admin' };
     }
     default:

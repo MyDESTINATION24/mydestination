@@ -14,12 +14,24 @@ const BookingConfirmationPage = () => {
     const navigate = useNavigate();
 
 //rfdhfdh
-    // Initialize with state if available, else null
     const [booking, setBooking] = useState(location.state?.booking || null);
     const [loading, setLoading] = useState(!location.state?.booking);
     const [imgError, setImgError] = useState(false);
+    const [uiSettings, setUiSettings] = useState(null);
 
     const animate = location.state?.animate;
+
+    useEffect(() => {
+        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        fetch(`${API_BASE}/hotel-ui/settings/global-default`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setUiSettings(data.data);
+                }
+            })
+            .catch(err => console.error("Failed to load hotel UI settings in BookingConfirmationPage", err));
+    }, []);
 
     useEffect(() => {
         const loadBooking = async () => {
@@ -344,7 +356,8 @@ const BookingConfirmationPage = () => {
 
                         <button
                             onClick={() => navigate('/bookings')}
-                            className="w-full bg-black text-white font-bold py-4 rounded-2xl shadow-lg hover:bg-gray-800 transition-all flex items-center justify-center gap-2 print:hidden"
+                            className="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 print:hidden cursor-pointer"
+                            style={{ backgroundColor: uiSettings?.theme?.primaryColor || '#000000' }}
                         >
                             My Bookings
                         </button>

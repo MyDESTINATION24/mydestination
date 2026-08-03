@@ -156,7 +156,10 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
         </button>
 
         {/* Small Banner Strip (Matcha Style) */}
-        <div className="absolute bottom-0 left-0 right-0 bg-[#7d9e7d] text-white/90 text-[8px] font-bold py-1.5 text-center tracking-wide">
+        <div 
+          className="absolute bottom-0 left-0 right-0 text-slate-900 text-[8px] font-black py-1.5 text-center tracking-wide uppercase"
+          style={{ background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))' }}
+        >
           {item.suitability === 'Both' ? 'Free WiFi • Couple Friendly' : (item.suitability || 'Premium Experience')}
         </div>
       </div>
@@ -178,13 +181,13 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
 
         {/* Tags (At the very bottom - Matcha Style) */}
         <div className="flex gap-1.5 overflow-x-hidden">
-          <span className="bg-[#e2ede2] text-[#344e41] text-[8px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter">
+          <span className="bg-[var(--color-surface)]/15 text-slate-900 text-[8px] font-black px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter border border-[var(--color-surface)]/20">
             {address?.city || 'Indore'}
           </span>
-          <span className="bg-[#e2ede2] text-[#344e41] text-[8px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter">
+          <span className="bg-[var(--color-surface)]/15 text-slate-900 text-[8px] font-black px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter border border-[var(--color-surface)]/20">
             {displayRating} ★ Rating
           </span>
-          <span className="bg-[#e2ede2] text-[#344e41] text-[8px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter">
+          <span className="bg-[var(--color-surface)]/15 text-slate-900 text-[8px] font-black px-3 py-1.5 rounded-lg whitespace-nowrap uppercase tracking-tighter border border-[var(--color-surface)]/20">
             {item.details?.rooms || 1} Room
           </span>
         </div>

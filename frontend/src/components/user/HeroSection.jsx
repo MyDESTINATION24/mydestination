@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Menu, Wallet, Bell } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../../assets/rokologin-removebg-preview.png';
 import MobileMenu from '../../components/ui/MobileMenu';
 import { useNavigate } from 'react-router-dom';
 import walletService from '../../services/walletService';
@@ -11,6 +10,7 @@ const HeroSection = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
     const [walletBalance, setWalletBalance] = useState(0);
+    const [uiSettings, setUiSettings] = useState(null);
 
     const placeholders = [
         "Search in Bucharest...",
@@ -19,6 +19,18 @@ const HeroSection = () => {
         "Couple friendly stays...",
         "Search near Red Square..."
     ];
+
+    useEffect(() => {
+        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        fetch(`${API_BASE}/hotel-ui/settings/global-default`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setUiSettings(data.data);
+                }
+            })
+            .catch(err => console.error("Failed to load hotel UI settings in HeroSection", err));
+    }, []);
 
     useEffect(() => {
         const fetchWallet = async () => {
@@ -60,16 +72,33 @@ const HeroSection = () => {
         navigate('/search');
     };
 
+    const headerBgStyle = uiSettings?.theme?.useGradient
+        ? { background: `linear-gradient(135deg, ${uiSettings.theme.gradientStart || '#FFD000'} 0%, ${uiSettings.theme.gradientEnd || '#FF9E00'} 100%)` }
+        : { backgroundColor: uiSettings?.theme?.primaryColor || '#FFD000' };
+
     return (
         <section className="relative w-full px-5 pt-4 pb-2 flex flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300">
 
             {/* Fixed Sticky Header & Search Bar block on mobile, relative on desktop */}
             <div className="fixed top-0 left-0 right-0 z-[60] bg-[var(--color-hotel-bg)] flex flex-col shadow-sm md:shadow-none md:relative md:top-auto md:left-auto md:right-auto md:z-auto md:bg-transparent">
                 
+                {/* Custom Announcement Bar if Enabled in Theme Studio */}
+                {uiSettings?.customAnnouncement?.enabled && uiSettings?.customAnnouncement?.text?.trim() && !uiSettings.customAnnouncement.text.includes('Spa & Wellness Services') && (
+                    <div 
+                        className="text-[11px] font-bold py-1.5 px-4 text-slate-900 text-center shadow-xs truncate"
+                        style={headerBgStyle}
+                    >
+                        {uiSettings.customAnnouncement.text}
+                    </div>
+                )}
+
                 {/* 1. Header Row (Fixed on mobile) */}
-                <div className="flex md:hidden items-center justify-between h-[88px] pt-7 pb-2 px-5 bg-surface text-white">
+                <div 
+                    className="flex md:hidden items-center justify-between h-[88px] pt-7 pb-2 px-5 text-slate-900 transition-colors duration-300"
+                    style={headerBgStyle}
+                >
                     
-                    {/* Left Section: Menu & Logo */}
+                    {/* Left Section: Menu */}
                     <div className="flex items-center gap-2">
                         {/* Menu Button */}
                         <button
@@ -78,13 +107,6 @@ const HeroSection = () => {
                         >
                             <Menu size={24} />
                         </button>
-
-                        {/* Logo */}
-                        <img
-                            src={logo}
-                            alt="My DESTINATION Logo"
-                            className="h-10 object-contain ml-1"
-                        />
                     </div>
 
                     {/* Right Section: Wallet & Notifications */}
