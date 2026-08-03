@@ -145,9 +145,18 @@ const BookingConfirmationPage = () => {
     const contactPhone = (property.contactNumber || property.partnerId?.phone || '').replace(/\D/g, '') || null;
 
     return (
-        <div className="min-h-screen bg-gray-50 pb-12">
+        <div 
+            className="min-h-screen pb-12 transition-all duration-300"
+            style={{
+                backgroundColor: uiSettings?.theme?.backgroundColor || 'var(--color-hotel-bg, #F9FAF9)',
+                background: 'var(--color-hotel-bg-grad, linear-gradient(180deg, var(--color-hotel-bg, #F9FAF9) 0%, #ffffff 100%))'
+            }}
+        >
             {/* Header */}
-            <div className="bg-white border-b border-gray-200 sticky top-0 z-30 print:hidden pt-14 md:pt-0">
+            <div 
+                className="border-b border-gray-200/60 sticky top-0 z-30 print:hidden pt-14 md:pt-0 backdrop-blur-md transition-all duration-300"
+                style={{ background: 'var(--color-header-bg, #ffffff)' }}
+            >
                 <div className="max-w-4xl mx-auto px-4 h-16 flex items-center justify-between">
                     <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-600 hover:text-black transition-colors font-medium">
                         <ChevronLeft size={20} />
@@ -165,7 +174,10 @@ const BookingConfirmationPage = () => {
             <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
 
                 {/* 1. Status Message */}
-                <div className={`bg-white rounded-3xl p-8 text-center shadow-sm border border-gray-100 relative overflow-hidden ${isCancelled ? 'border-red-100' : ''}`}>
+                <div 
+                    className={`rounded-3xl p-8 text-center shadow-sm border border-slate-100/80 relative overflow-hidden transition-all duration-300 ${isCancelled ? 'border-red-100' : ''}`}
+                    style={{ backgroundColor: uiSettings?.theme?.cardBgColor || uiSettings?.theme?.surfaceColor || 'var(--color-surface, #ffffff)' }}
+                >
                     {isCancelled ? (
                         <>
                             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-400 to-red-600"></div>
@@ -184,7 +196,10 @@ const BookingConfirmationPage = () => {
                         </>
                     ) : (
                         <>
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-600"></div>
+                            <div 
+                                className="absolute top-0 left-0 w-full h-1.5 transition-all duration-300" 
+                                style={{ background: 'var(--color-theme-gradient, var(--color-surface, #10B981))', filter: 'brightness(0.8)' }}
+                            />
                             <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                                 <CheckCircle size={40} className="text-green-600" />
                             </div>
@@ -203,7 +218,10 @@ const BookingConfirmationPage = () => {
                     <div className="md:col-span-2 space-y-6">
 
                         {/* Property Card */}
-                        <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
+                        <div 
+                            className="rounded-3xl p-5 shadow-sm border border-slate-100/80 transition-all duration-300"
+                            style={{ backgroundColor: uiSettings?.theme?.cardBgColor || uiSettings?.theme?.surfaceColor || 'var(--color-surface, #ffffff)' }}
+                        >
                             <div className="flex flex-col sm:flex-row gap-5">
                                 <div className="w-full sm:w-32 h-32 bg-gray-200 rounded-2xl overflow-hidden shrink-0">
                                     <img
@@ -254,20 +272,23 @@ const BookingConfirmationPage = () => {
                         </div>
 
                         {/* Booking Details */}
-                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+                        <div 
+                            className="rounded-3xl p-6 shadow-sm border border-slate-100/80 transition-all duration-300"
+                            style={{ backgroundColor: uiSettings?.theme?.cardBgColor || uiSettings?.theme?.surfaceColor || 'var(--color-surface, #ffffff)' }}
+                        >
                             <h3 className="font-bold text-gray-900 mb-5 flex items-center gap-2">
                                 <FileText size={18} className="text-gray-400" />
                                 Reservation Details
                             </h3>
                             <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                                <div className="p-4 bg-gray-50 rounded-2xl">
+                                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/60">
                                     <p className="text-xs text-gray-400 font-bold uppercase mb-1">Check-in</p>
                                     <p className="font-bold text-gray-900 text-lg">
                                         {new Date(booking.checkInDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                     </p>
                                     <p className="text-xs text-gray-500">{property.checkInTime || '12:00 PM'}</p>
                                 </div>
-                                <div className="p-4 bg-gray-50 rounded-2xl">
+                                <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-100/60">
                                     <p className="text-xs text-gray-400 font-bold uppercase mb-1">Check-out</p>
                                     <p className="font-bold text-gray-900 text-lg">
                                         {new Date(booking.checkOutDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -299,7 +320,10 @@ const BookingConfirmationPage = () => {
                     {/* Right Col: Price & Payment */}
                     <div className="space-y-6">
 
-                        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 h-fit">
+                        <div 
+                            className="rounded-3xl p-6 shadow-sm border border-slate-100/80 h-fit transition-all duration-300"
+                            style={{ backgroundColor: uiSettings?.theme?.cardBgColor || uiSettings?.theme?.surfaceColor || 'var(--color-surface, #ffffff)' }}
+                        >
                             <h3 className="font-bold text-gray-900 mb-5">Payment Summary</h3>
 
                             <div className="space-y-3 mb-6">
@@ -323,17 +347,20 @@ const BookingConfirmationPage = () => {
                                         <span>-₹{booking.discount?.toLocaleString()}</span>
                                     </div>
                                 )}
-                                <div className="border-t border-gray-100 pt-3 flex justify-between items-center bg-gray-50 -mx-6 px-6 py-4 mt-4">
-                                    <span className="font-bold text-gray-900">Total Amount</span>
-                                    <span className="text-xl font-black text-gray-900">₹{booking.totalAmount?.toLocaleString()}</span>
+                                <div 
+                                    className="mt-5 p-4 rounded-2xl shadow-md border border-white/20 flex items-center justify-between transition-all duration-300 relative overflow-hidden"
+                                    style={{ background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))' }}
+                                >
+                                    <span className="font-extrabold text-sm uppercase tracking-wider text-white drop-shadow-xs">Total Amount</span>
+                                    <span className="text-2xl font-black tracking-tight text-white drop-shadow-xs">₹{booking.totalAmount?.toLocaleString()}</span>
                                 </div>
                                 {(booking.paymentMethod === 'prepaid' && booking.remainingAmount > 0) && (
-                                    <div className="bg-orange-50 -mx-6 px-6 py-3 border-b border-orange-100 flex flex-col gap-1">
-                                        <div className="flex justify-between text-sm text-gray-700">
-                                            <span>Advance Paid Now</span>
-                                            <span className="font-bold">₹{booking.amountPaid?.toLocaleString()}</span>
+                                    <div className="mt-3 p-3.5 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex flex-col gap-1.5 text-gray-900">
+                                        <div className="flex justify-between text-xs font-semibold">
+                                            <span className="opacity-80">Advance Paid Now</span>
+                                            <span className="font-black">₹{booking.amountPaid?.toLocaleString()}</span>
                                         </div>
-                                        <div className="flex justify-between text-sm text-orange-700 font-bold">
+                                        <div className="flex justify-between text-sm font-black text-orange-700">
                                             <span>To Pay at Hotel</span>
                                             <span>₹{booking.remainingAmount?.toLocaleString()}</span>
                                         </div>
@@ -341,13 +368,13 @@ const BookingConfirmationPage = () => {
                                 )}
                             </div>
 
-                            <div className={`p-4 rounded-xl flex items-center gap-3 ${booking.paymentStatus === 'paid' ? 'bg-green-50' : booking.paymentStatus === 'partial' ? 'bg-orange-50' : 'bg-yellow-50'}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${booking.paymentStatus === 'paid' ? 'bg-green-100 text-green-600' : booking.paymentStatus === 'partial' ? 'bg-orange-100 text-orange-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                            <div className={`p-4 rounded-2xl flex items-center gap-3 border transition-all duration-300 ${booking.paymentStatus === 'paid' ? 'bg-green-500/10 border-green-500/20' : booking.paymentStatus === 'partial' ? 'bg-orange-500/10 border-orange-500/20' : 'bg-amber-500/10 border-amber-500/20'}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${booking.paymentStatus === 'paid' ? 'bg-green-500 text-white' : booking.paymentStatus === 'partial' ? 'bg-orange-500 text-white' : 'bg-amber-500 text-white'}`}>
                                     {booking.paymentStatus === 'paid' ? <CheckCircle size={20} /> : <FileText size={20} />}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-bold uppercase text-gray-500">Payment Status</p>
-                                    <p className={`font-bold ${booking.paymentStatus === 'paid' ? 'text-green-700' : booking.paymentStatus === 'partial' ? 'text-orange-700' : 'text-yellow-700'}`}>
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-500">Payment Status</p>
+                                    <p className={`font-bold text-sm ${booking.paymentStatus === 'paid' ? 'text-green-800' : booking.paymentStatus === 'partial' ? 'text-orange-800' : 'text-amber-900'}`}>
                                         {booking.paymentStatus === 'paid' ? 'Paid Completely' : booking.paymentStatus === 'partial' ? 'Partially Paid (Prepaid)' : 'Pay at Hotel'}
                                     </p>
                                 </div>
@@ -356,8 +383,8 @@ const BookingConfirmationPage = () => {
 
                         <button
                             onClick={() => navigate('/bookings')}
-                            className="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 print:hidden cursor-pointer"
-                            style={{ backgroundColor: uiSettings?.theme?.primaryColor || '#000000' }}
+                            className="w-full text-white font-bold py-4 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 print:hidden cursor-pointer active:scale-[0.98]"
+                            style={{ background: 'var(--color-theme-gradient, var(--color-surface, #5F8575))' }}
                         >
                             My Bookings
                         </button>

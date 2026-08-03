@@ -702,16 +702,21 @@ function App() {
         if (data.success && data.data) {
           const theme = data.data.theme || {};
           const sidebar = data.data.sidebar || {};
-          const header = data.data.header || {};
-          const { primaryColor, useGradient, gradientStart, gradientEnd, backgroundColor } = theme;
+          const { primaryColor, cardBgColor, surfaceColor, useGradient, gradientStart, gradientEnd, backgroundColor } = theme;
           
           if (primaryColor) {
-            document.documentElement.style.setProperty('--color-surface', primaryColor);
-            document.documentElement.style.setProperty('--color-hotel-surface', primaryColor);
+            document.documentElement.style.setProperty('--color-primary', primaryColor);
             const logoFilterObj = getLogoFilterStyle(primaryColor);
             if (logoFilterObj.filter) {
               document.documentElement.style.setProperty('--logo-filter', logoFilterObj.filter);
             }
+          }
+
+          // CARDS & FILL COLOR (cardBgColor / surfaceColor controls card container background shade)
+          const cardFillColor = cardBgColor || surfaceColor || primaryColor;
+          if (cardFillColor) {
+            document.documentElement.style.setProperty('--color-surface', cardFillColor);
+            document.documentElement.style.setProperty('--color-hotel-surface', cardFillColor);
           }
           if (backgroundColor) {
             document.documentElement.style.setProperty('--color-hotel-bg', backgroundColor);
