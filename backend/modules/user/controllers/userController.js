@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Partner from '../../partner/models/Partner.js';
 import Admin from '../../admin/models/Admin.js';
 import bcrypt from 'bcryptjs';
+import { assignPushTokenToEntity } from '../../taxi/services/pushTokenService.js';
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -193,10 +194,27 @@ export const toggleSavedHotel = async (req, res) => {
 // @access  Private
 export const updateFcmToken = async (req, res) => {
   try {
-    const { fcmToken, platform } = req.body;
+    const { platform } = req.body;
+    // Driver app sends `token`, the web clients send `fcmToken`.
+    const fcmToken = req.body.fcmToken || req.body.token;
 
     if (!fcmToken) {
       return res.status(400).json({ success: false, message: 'Please provide FCM token' });
+    }
+
+    // Taxi drivers store push tokens as fcmTokenMobile/fcmTokenWeb, which is what
+    // dispatch reads. The fcmTokens.{app,web} shape below is hotel/wedding-only.
+    if (req.auth?.role === 'driver') {
+      const saved = assignPushTokenToEntity(req.user, { token: fcmToken, platform });
+      await req.user.save();
+
+      console.log(`[FCM Universal] driver ${req.user._id} ${saved.platform} token updated.`);
+
+      return res.json({
+        success: true,
+        message: 'FCM token updated successfully',
+        platform: saved.platform,
+      });
     }
 
     const targetPlatform = platform === 'app' ? 'app' : 'web';

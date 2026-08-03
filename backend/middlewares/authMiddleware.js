@@ -2,6 +2,37 @@ import jwt from 'jsonwebtoken';
 import User from '../modules/user/models/User.js';
 import Partner from '../modules/partner/models/Partner.js';
 import Admin from '../modules/admin/models/Admin.js';
+import { Driver } from '../modules/taxi/driver/models/Driver.js';
+
+// Taxi tokens carry the account id in `sub` (see taxi tokenService), not `id`, so
+// `protect` cannot resolve them. Push-token registration is the one endpoint the
+// taxi apps share with the hotel/wedding apps, so it accepts taxi drivers too.
+// Scoped deliberately: this does NOT widen `protect` for every other route.
+export const protectPushToken = async (req, res, next) => {
+  const token = req.headers.authorization?.startsWith('Bearer')
+    ? req.headers.authorization.split(' ')[1]
+    : null;
+
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded.id && decoded.sub && String(decoded.role || '').toLowerCase() === 'driver') {
+        const driver = await Driver.findById(decoded.sub);
+
+        if (driver) {
+          req.user = driver;
+          req.auth = { role: 'driver', sub: String(driver._id) };
+          return next();
+        }
+      }
+    } catch {
+      // Fall through to `protect`, which reports the auth failure.
+    }
+  }
+
+  return protect(req, res, next);
+};
 
 export const protect = async (req, res, next) => {
   try {

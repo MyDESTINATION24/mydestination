@@ -1,13 +1,13 @@
 import express from 'express';
 import { getUserProfile, updateUserProfile, deleteUserAccount, updateFcmToken, getNotifications, markNotificationRead, deleteNotifications, markAllNotificationsRead, getSavedHotels, toggleSavedHotel } from '../controllers/userController.js';
-import { protect } from '../../../middlewares/authMiddleware.js';
+import { protect, protectPushToken } from '../../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.get('/profile', protect, getUserProfile);
 router.put('/profile', protect, updateUserProfile);
 router.delete('/profile', protect, deleteUserAccount);
-router.post('/fcm-token', protect, updateFcmToken);
+router.post('/fcm-token', protectPushToken, updateFcmToken);
 
 // Wishlist Routes
 router.get('/saved-hotels', protect, getSavedHotels);

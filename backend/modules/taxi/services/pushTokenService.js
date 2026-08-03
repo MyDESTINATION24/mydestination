@@ -1,6 +1,6 @@
 import { ApiError } from '../../../utils/ApiError.js';
 
-const MOBILE_PLATFORMS = new Set(['android', 'ios', 'mobile']);
+const MOBILE_PLATFORMS = new Set(['android', 'ios', 'mobile', 'app']);
 const WEB_PLATFORMS = new Set(['web', 'browser', 'pwa']);
 
 export const normalizePushPlatform = (platform) => {
