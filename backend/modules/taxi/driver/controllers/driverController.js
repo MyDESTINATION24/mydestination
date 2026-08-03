@@ -2483,7 +2483,7 @@ export const saveDriverFcmToken = async (req, res) => {
   const entity = await resolvePushTokenEntityForRole(req);
 
   const saved = assignPushTokenToEntity(entity, {
-    token: req.body?.token,
+    token: req.body?.token || req.body?.fcmToken,
     platform: req.body?.platform,
   });
 
