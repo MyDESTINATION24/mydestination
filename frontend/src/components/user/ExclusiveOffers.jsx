@@ -68,7 +68,10 @@ const ExclusiveOffers = () => {
             </h2>
 
             {/* Horizontal auto-scroll container using website's fade logic */}
-            <div className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] mx-5 rounded-xl overflow-hidden shadow-md shadow-gray-200/50">
+            <div 
+              className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] mx-5 overflow-hidden shadow-md shadow-gray-200/50 transition-all duration-300"
+              style={{ borderRadius: 'var(--banner-radius, var(--card-radius, 16px))' }}
+            >
                 {offers.map((offer, index) => {
                     const isActive = currentSlide === index;
                     return (

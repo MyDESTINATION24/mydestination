@@ -28,6 +28,11 @@ const BookingConfirmationPage = () => {
             .then(data => {
                 if (data.success && data.data) {
                     setUiSettings(data.data);
+                    if (data.data.theme?.borderRadius) {
+                        document.documentElement.style.setProperty('--card-radius', data.data.theme.borderRadius);
+                        document.documentElement.style.setProperty('--hotel-card-radius', data.data.theme.borderRadius);
+                        document.documentElement.style.setProperty('--border-radius', data.data.theme.borderRadius);
+                    }
                 }
             })
             .catch(err => console.error("Failed to load hotel UI settings in BookingConfirmationPage", err));

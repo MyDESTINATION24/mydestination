@@ -17,7 +17,8 @@ const defaultSettings = {
   heroBanner: {
     bannerUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
     title: 'Welcome to Grand Luxury Stay',
-    subTitle: 'Enjoy world-class hospitality & premium room service'
+    subTitle: 'Enjoy world-class hospitality & premium room service',
+    bannerRadius: '16px'
   },
   activeServices: {
     roomService: true,

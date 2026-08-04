@@ -121,6 +121,12 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
           activeServices: { ...prev.activeServices, ...(data.data.activeServices || {}) },
           customAnnouncement: { ...prev.customAnnouncement, ...(data.data.customAnnouncement || {}) }
         }));
+        const rVal = data.data.theme?.borderRadius || '16px';
+        const bVal = data.data.heroBanner?.bannerRadius || rVal;
+        document.documentElement.style.setProperty('--card-radius', rVal);
+        document.documentElement.style.setProperty('--hotel-card-radius', rVal);
+        document.documentElement.style.setProperty('--border-radius', rVal);
+        document.documentElement.style.setProperty('--banner-radius', bVal);
       }
     } catch (err) {
       console.error('Failed to load UI config:', err);
@@ -132,6 +138,12 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
   const handleSave = async () => {
     try {
       setSaving(true);
+      const rVal = uiConfig.theme?.borderRadius || '16px';
+      const bVal = uiConfig.heroBanner?.bannerRadius || rVal;
+      document.documentElement.style.setProperty('--card-radius', rVal);
+      document.documentElement.style.setProperty('--hotel-card-radius', rVal);
+      document.documentElement.style.setProperty('--border-radius', rVal);
+      document.documentElement.style.setProperty('--banner-radius', bVal);
       const res = await fetch(`${API_BASE}/hotel-ui/settings/global-default`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -453,30 +465,177 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                   </div>
                 </div>
 
-                {/* Card Style & Curves */}
-                <h3 className="text-base font-bold text-slate-800 border-b pb-2 pt-2">Card Curves & Border Radius</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {[
-                    { label: 'Soft (12px)', value: '12px' },
-                    { label: 'Curved (16px)', value: '16px' },
-                    { label: 'Super (24px)', value: '24px' },
-                    { label: 'Pill (9999px)', value: '9999px' }
-                  ].map(option => (
-                    <button
-                      key={option.value}
-                      onClick={() => setUiConfig({
-                        ...uiConfig,
-                        theme: { ...uiConfig.theme, borderRadius: option.value }
-                      })}
-                      className={`py-2 px-3 text-xs font-bold rounded-xl border transition cursor-pointer ${
-                        uiConfig.theme.borderRadius === option.value
-                          ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-2xs'
-                          : 'border-slate-200 text-slate-600 bg-white hover:bg-slate-50'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                {/* Card Style & Curves Custom Editing Studio */}
+                <div className="space-y-4 pt-2 border-t mt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800">Card Curves & Border Radius Studio</h3>
+                      <p className="text-xs text-slate-500">Full editing control: customize curve radius manually or select preset styles.</p>
+                    </div>
+                    <span className="text-xs font-mono font-extrabold bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-300 w-fit">
+                      Active: {uiConfig.theme.borderRadius || '16px'}
+                    </span>
+                  </div>
+
+                  {/* Preset Radius Buttons */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Preset Curve Styles</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                      {[
+                        { label: 'Square (0px)', value: '0px' },
+                        { label: 'Soft (12px)', value: '12px' },
+                        { label: 'Curved (16px)', value: '16px' },
+                        { label: 'Super (24px)', value: '24px' },
+                        { label: 'Extra (36px)', value: '36px' },
+                        { label: 'Pill (9999px)', value: '9999px' }
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            const newRadius = option.value;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              theme: { ...prev.theme, borderRadius: newRadius }
+                            }));
+                            document.documentElement.style.setProperty('--card-radius', newRadius);
+                            document.documentElement.style.setProperty('--hotel-card-radius', newRadius);
+                            document.documentElement.style.setProperty('--border-radius', newRadius);
+                          }}
+                          className={`py-2 px-2 text-xs font-bold rounded-xl border transition cursor-pointer text-center ${
+                            uiConfig.theme.borderRadius === option.value
+                              ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-2xs ring-2 ring-amber-400/20'
+                              : 'border-slate-200 text-slate-600 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Editing Tools: Slider & Direct Text/Number Input */}
+                  <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      {/* Interactive Radius Slider */}
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                          <label htmlFor="card-radius-range">Drag Curve Radius (0px - 50px)</label>
+                          <span className="font-mono text-amber-600 font-extrabold bg-white px-2 py-0.5 border rounded-md shadow-2xs">
+                            {parseInt(uiConfig.theme.borderRadius) || 0}px
+                          </span>
+                        </div>
+                        <input
+                          id="card-radius-range"
+                          type="range"
+                          min="0"
+                          max="50"
+                          step="1"
+                          value={parseInt(uiConfig.theme.borderRadius) || 0}
+                          onChange={(e) => {
+                            const val = `${e.target.value}px`;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              theme: { ...prev.theme, borderRadius: val }
+                            }));
+                            document.documentElement.style.setProperty('--card-radius', val);
+                            document.documentElement.style.setProperty('--hotel-card-radius', val);
+                            document.documentElement.style.setProperty('--border-radius', val);
+                          }}
+                          className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Manual Value Custom Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-700 uppercase block">Custom Radius Input (e.g., 18px, 20px, 30px)</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={uiConfig.theme.borderRadius || '16px'}
+                            placeholder="e.g. 18px"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setUiConfig(prev => ({
+                                ...prev,
+                                theme: { ...prev.theme, borderRadius: val }
+                              }));
+                              document.documentElement.style.setProperty('--card-radius', val);
+                              document.documentElement.style.setProperty('--hotel-card-radius', val);
+                              document.documentElement.style.setProperty('--border-radius', val);
+                            }}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-xs font-mono font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUiConfig(prev => ({
+                                ...prev,
+                                theme: { ...prev.theme, borderRadius: '9999px' }
+                              }));
+                              document.documentElement.style.setProperty('--card-radius', '9999px');
+                              document.documentElement.style.setProperty('--hotel-card-radius', '9999px');
+                              document.documentElement.style.setProperty('--border-radius', '9999px');
+                            }}
+                            className="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold shrink-0 hover:bg-slate-900 cursor-pointer shadow-xs"
+                          >
+                            Pill Mode
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Real-time Interactive Card Radius Preview */}
+                    <div className="pt-3 border-t border-slate-200/80">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-2">Live Radius Preview Boxes</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div 
+                          className="p-4 bg-white border border-slate-200 shadow-sm transition-all duration-200 space-y-2"
+                          style={{ borderRadius: uiConfig.theme.borderRadius || '16px' }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-slate-900">Standard Card Curve</span>
+                            <span 
+                              className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5" 
+                              style={{ borderRadius: uiConfig.theme.borderRadius || '16px' }}
+                            >
+                              Radius: {uiConfig.theme.borderRadius || '16px'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500">Live preview of card corner roundness matching your settings.</p>
+                          <button 
+                            type="button"
+                            className="w-full py-1.5 text-xs font-bold text-white shadow-xs"
+                            style={{ 
+                              backgroundColor: uiConfig.theme.primaryColor || '#FFD000',
+                              borderRadius: uiConfig.theme.borderRadius || '16px' 
+                            }}
+                          >
+                            Card Button
+                          </button>
+                        </div>
+
+                        <div 
+                          className="p-4 text-white shadow-sm transition-all duration-200 space-y-2 flex flex-col justify-between"
+                          style={{ 
+                            borderRadius: uiConfig.theme.borderRadius || '16px',
+                            background: activeGradientStyle.background || activeGradientStyle.backgroundColor
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black">Gradient Surface Box</span>
+                            <span 
+                              className="text-[10px] bg-white/20 backdrop-blur-md font-bold px-2 py-0.5 text-white" 
+                              style={{ borderRadius: uiConfig.theme.borderRadius || '16px' }}
+                            >
+                              Live Curve
+                            </span>
+                          </div>
+                          <p className="text-xs opacity-90">Applies dynamically across hotel card containers & buttons.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -526,6 +685,92 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                       })}
                       className="w-full px-3 py-2 border rounded-xl text-sm font-mono text-xs"
                     />
+                  </div>
+
+                  {/* Banner Border Radius Studio Control */}
+                  <div className="pt-4 border-t space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700 uppercase">Banner Border Radius Studio</label>
+                      <span className="text-xs font-mono font-extrabold bg-amber-100 text-amber-800 px-3 py-0.5 rounded-full border border-amber-300">
+                        {uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius || '16px'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                      {[
+                        { label: 'Square (0px)', value: '0px' },
+                        { label: 'Soft (12px)', value: '12px' },
+                        { label: 'Curved (16px)', value: '16px' },
+                        { label: 'Super (24px)', value: '24px' },
+                        { label: 'Extra (36px)', value: '36px' },
+                        { label: 'Pill (9999px)', value: '9999px' }
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            const newRadius = option.value;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              heroBanner: { ...prev.heroBanner, bannerRadius: newRadius }
+                            }));
+                            document.documentElement.style.setProperty('--banner-radius', newRadius);
+                          }}
+                          className={`py-2 px-2 text-xs font-bold rounded-xl border transition cursor-pointer text-center ${
+                            (uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius) === option.value
+                              ? 'border-amber-500 bg-amber-50 text-amber-700 shadow-2xs ring-2 ring-amber-400/20'
+                              : 'border-slate-200 text-slate-600 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                          <label htmlFor="banner-radius-range">Drag Banner Curve Slider</label>
+                          <span className="font-mono text-amber-600 font-extrabold bg-white px-2 py-0.5 border rounded-md shadow-2xs">
+                            {parseInt(uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius) || 0}px
+                          </span>
+                        </div>
+                        <input
+                          id="banner-radius-range"
+                          type="range"
+                          min="0"
+                          max="50"
+                          step="1"
+                          value={parseInt(uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius) || 0}
+                          onChange={(e) => {
+                            const val = `${e.target.value}px`;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              heroBanner: { ...prev.heroBanner, bannerRadius: val }
+                            }));
+                            document.documentElement.style.setProperty('--banner-radius', val);
+                          }}
+                          className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-700 uppercase block">Custom Banner Radius Input</label>
+                        <input
+                          type="text"
+                          value={uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius || '16px'}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              heroBanner: { ...prev.heroBanner, bannerRadius: val }
+                            }));
+                            document.documentElement.style.setProperty('--banner-radius', val);
+                          }}
+                          className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-xs font-mono font-bold text-slate-800"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   <div className="pt-4 border-t">
@@ -789,8 +1034,8 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                     </div>
 
                     <div 
-                      className="relative overflow-hidden shadow-sm h-24 bg-slate-800 text-white flex items-end p-2.5"
-                      style={{ borderRadius: uiConfig.theme.borderRadius }}
+                      className="relative overflow-hidden shadow-sm h-24 bg-slate-800 text-white flex items-end p-2.5 transition-all duration-200"
+                      style={{ borderRadius: uiConfig.heroBanner?.bannerRadius || uiConfig.theme?.borderRadius || '16px' }}
                     >
                       <img 
                         src={uiConfig.heroBanner.bannerUrl} 
@@ -810,10 +1055,13 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
 
                   {/* Hotel Property Listing Card */}
                   <div 
-                    className="bg-white p-2.5 border border-slate-100 shadow-sm space-y-2"
+                    className="bg-white p-2.5 border border-slate-100 shadow-sm space-y-2 transition-all duration-200"
                     style={{ borderRadius: uiConfig.theme.borderRadius }}
                   >
-                    <div className="relative h-28 rounded-xl overflow-hidden">
+                    <div 
+                      className="relative h-28 overflow-hidden transition-all duration-200"
+                      style={{ borderRadius: `calc(${uiConfig.theme.borderRadius || '16px'} * 0.8)` }}
+                    >
                       <img 
                         src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=600&q=80" 
                         alt="Hotel Charlene" 
@@ -822,7 +1070,13 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                       <div className="absolute top-2 left-2 p-1.5 bg-white/80 backdrop-blur-md rounded-full shadow-xs text-slate-600">
                         <Heart size={12} />
                       </div>
-                      <div className="absolute top-2 right-2 px-2 py-0.5 bg-white/90 backdrop-blur-md rounded-full text-slate-900 text-xs font-black shadow-xs">
+                      <div 
+                        className="absolute top-0 right-0 px-3 py-1 bg-white/95 backdrop-blur-md text-slate-900 text-xs font-black shadow-xs"
+                        style={{ 
+                          borderBottomLeftRadius: uiConfig.theme.borderRadius || '16px',
+                          borderTopRightRadius: `calc(${uiConfig.theme.borderRadius || '16px'} * 0.8)`
+                        }}
+                      >
                         ₹ 5k
                       </div>
                       <div 
