@@ -122,13 +122,19 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
     }
   };
 
+  const dynamicRadius = 'var(--card-radius, var(--hotel-card-radius, 16px))';
+
   return (
     <div
       onClick={() => navigate(`/hotel/${_id}`)}
-      className={`group relative h-[240px] w-full rounded-[2.2rem] bg-white shadow-xl cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 p-2.5 ${className}`}
+      className={`group relative h-[240px] w-full bg-white shadow-xl cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 p-2.5 ${className}`}
+      style={{ borderRadius: dynamicRadius }}
     >
       {/* Top Section: Image Area */}
-      <div className="relative h-[66%] w-full bg-[#f0f4f0] rounded-[1.8rem] overflow-hidden">
+      <div 
+        className="relative h-[66%] w-full bg-[#f0f4f0] overflow-hidden"
+        style={{ borderRadius: `calc(${dynamicRadius} * 0.8)` }}
+      >
         <img
           src={imageSrc}
           alt={displayName}
@@ -140,7 +146,13 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
         />
 
         {/* Price Tag (Top Right - Matcha Style) */}
-        <div className="absolute top-0 right-0 bg-white px-4 py-2 rounded-bl-3xl rounded-tr-[1.8rem] shadow-sm z-10 flex flex-col items-center justify-center">
+        <div 
+          className="absolute top-0 right-0 bg-white px-4 py-2 shadow-sm z-10 flex flex-col items-center justify-center"
+          style={{
+            borderBottomLeftRadius: dynamicRadius,
+            borderTopRightRadius: `calc(${dynamicRadius} * 0.8)`
+          }}
+        >
           <span className="text-xl font-bold text-[#1a261a] leading-none">
             <span className="mr-0.5">₹</span>
             {displayPrice ? (displayPrice >= 1000 ? (displayPrice / 1000).toFixed(0) + 'k' : displayPrice) : '-'}

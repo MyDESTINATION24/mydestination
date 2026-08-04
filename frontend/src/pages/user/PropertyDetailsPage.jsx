@@ -59,6 +59,11 @@ const PropertyDetailsPage = () => {
               document.documentElement.style.setProperty('--color-hotel-bg', theme.backgroundColor);
               document.documentElement.style.setProperty('--color-hotel-bg-grad', `linear-gradient(180deg, ${theme.backgroundColor} 0%, #ffffff 100%)`);
             }
+            if (theme.borderRadius) {
+              document.documentElement.style.setProperty('--card-radius', theme.borderRadius);
+              document.documentElement.style.setProperty('--hotel-card-radius', theme.borderRadius);
+              document.documentElement.style.setProperty('--border-radius', theme.borderRadius);
+            }
           }
         })
         .catch(err => console.error("Error loading hotel UI settings", err));

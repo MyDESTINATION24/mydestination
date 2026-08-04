@@ -702,7 +702,7 @@ function App() {
         if (data.success && data.data) {
           const theme = data.data.theme || {};
           const sidebar = data.data.sidebar || {};
-          const { primaryColor, cardBgColor, surfaceColor, useGradient, gradientStart, gradientEnd, backgroundColor } = theme;
+          const { primaryColor, cardBgColor, surfaceColor, useGradient, gradientStart, gradientEnd, backgroundColor, borderRadius } = theme;
           
           if (primaryColor) {
             document.documentElement.style.setProperty('--color-primary', primaryColor);
@@ -711,6 +711,14 @@ function App() {
               document.documentElement.style.setProperty('--logo-filter', logoFilterObj.filter);
             }
           }
+
+          const heroBanner = data.data.heroBanner || {};
+          const cardRadiusVal = borderRadius || '16px';
+          const bannerRadiusVal = heroBanner.bannerRadius || cardRadiusVal;
+          document.documentElement.style.setProperty('--card-radius', cardRadiusVal);
+          document.documentElement.style.setProperty('--hotel-card-radius', cardRadiusVal);
+          document.documentElement.style.setProperty('--border-radius', cardRadiusVal);
+          document.documentElement.style.setProperty('--banner-radius', bannerRadiusVal);
 
           // CARDS & FILL COLOR (cardBgColor / surfaceColor controls card container background shade)
           const cardFillColor = cardBgColor || surfaceColor || primaryColor;

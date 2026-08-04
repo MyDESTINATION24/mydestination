@@ -65,7 +65,7 @@ const HotelServiceDynamicView = ({ hotelId = 'global-default' }) => {
       {customAnnouncement?.enabled && customAnnouncement?.text?.trim() && !customAnnouncement.text.includes('Spa & Wellness Services') && (
         <div 
           className="p-3 text-center text-sm font-semibold text-white shadow-sm flex items-center justify-center gap-2"
-          style={{ backgroundColor: primaryColor, borderRadius: '12px' }}
+          style={{ backgroundColor: primaryColor, borderRadius }}
         >
           <span>{customAnnouncement.text}</span>
         </div>

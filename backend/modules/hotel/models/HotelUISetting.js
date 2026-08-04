@@ -23,7 +23,8 @@ const HotelUISettingSchema = new mongoose.Schema({
   heroBanner: {
     bannerUrl: { type: String, default: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' },
     title: { type: String, default: 'Welcome to Grand Luxury Stay' },
-    subTitle: { type: String, default: 'Enjoy world-class hospitality & premium room service' }
+    subTitle: { type: String, default: 'Enjoy world-class hospitality & premium room service' },
+    bannerRadius: { type: String, default: '16px' }
   },
   activeServices: {
     roomService: { type: Boolean, default: true },
