@@ -34,8 +34,14 @@ export const initializeFirebase = () => {
       }
     }
 
-    // Initialize Firebase Admin
-    if (!admin.apps.length) {
+    // Initialize Firebase Admin.
+    // Check for the DEFAULT app specifically: other services (e.g. WeddingFCM)
+    // register *named* apps, which still count towards admin.apps.length. Testing
+    // the length would skip our init and then admin.app() would throw because the
+    // default app was never created -- leaving taxi push silently dead.
+    const defaultApp = admin.apps.find((app) => app?.name === '[DEFAULT]');
+
+    if (!defaultApp) {
       firebaseAdmin = admin.initializeApp({
         credential: admin.credential.cert({
           projectId: serviceAccount.project_id,
