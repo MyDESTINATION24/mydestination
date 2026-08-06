@@ -36,6 +36,44 @@ const AUTH_KEYS = [
   'driverRegistrationSession',
 ];
 
+// Push registration markers are not credentials, but they gate re-registration,
+// so logout has to reset them too. The browser path skips re-sending while
+// `lastBrowserFcmRegistration` still matches role+token, and the native bridge
+// only re-submits what is *pending* -- a successful registration clears that.
+// Leaving these behind means the next account to log in on this device never
+// registers its token and silently receives no ride notifications.
+const PUSH_LAST_BROWSER_KEY = 'lastBrowserFcmRegistration';
+const PUSH_LAST_NATIVE_KEY = 'lastNativeFcmRegistration';
+const PUSH_PENDING_NATIVE_KEY = 'pendingNativeFcmRegistration';
+
+const resetPushRegistration = () => {
+  // Re-arm the native bridge: the device token stays valid across logout, so
+  // keep it but drop the role binding. `inferRole` then resolves the role from
+  // whoever logs in next, and the bridge's focus/visibilitychange retry
+  // re-submits it against the new session.
+  try {
+    const last = JSON.parse(localStorage.getItem(PUSH_LAST_NATIVE_KEY) || 'null');
+
+    if (last?.token) {
+      localStorage.setItem(PUSH_PENDING_NATIVE_KEY, JSON.stringify({
+        token: last.token,
+        role: '',
+        platform: last.platform || 'mobile',
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+  } catch {}
+
+  [PUSH_LAST_BROWSER_KEY, PUSH_LAST_NATIVE_KEY].forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {}
+    try {
+      sessionStorage.removeItem(key);
+    } catch {}
+  });
+};
+
 export const clearAllAuth = () => {
   AUTH_KEYS.forEach((key) => {
     try {
@@ -45,6 +83,8 @@ export const clearAllAuth = () => {
       sessionStorage.removeItem(key);
     } catch {}
   });
+
+  resetPushRegistration();
 };
 
 export default clearAllAuth;
