@@ -702,6 +702,7 @@ function App() {
         if (data.success && data.data) {
           const theme = data.data.theme || {};
           const sidebar = data.data.sidebar || {};
+          const header = data.data.header || {};
           const { primaryColor, cardBgColor, surfaceColor, useGradient, gradientStart, gradientEnd, backgroundColor, borderRadius } = theme;
           
           if (primaryColor) {

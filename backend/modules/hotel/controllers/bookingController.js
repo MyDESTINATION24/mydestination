@@ -17,6 +17,7 @@ import notificationService from '../../../services/notificationService.js';
 import referralService from '../../../services/referralService.js';
 import User from '../../user/models/User.js';
 import whatsappService from '../../../utils/whatsappService.js';
+import crypto from 'crypto';
 
 // Initialize Razorpay instance for refunds
 let razorpayInstance;
@@ -282,7 +283,7 @@ export const createBooking = async (req, res) => {
     // Verification: TotalAmount - Tax - Commission = ((Gross - Discount) + Tax) - Tax - Commission = Gross - Discount - Commission.
     const partnerPayout = Math.floor(totalAmount - taxes - adminCommission);
 
-    const bookingId = `BK-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const bookingId = crypto.randomBytes(5).toString('hex').toUpperCase();
 
     // Determine User Model based on mongoose document model name
     const userModel = req.user.constructor.modelName;

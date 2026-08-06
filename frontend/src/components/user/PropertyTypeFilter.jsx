@@ -36,14 +36,17 @@ const PropertyTypeFilter = ({ selectedType, onSelectType }) => {
           >
             <div 
               className={`
-                w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm
+                w-12 h-12 flex items-center justify-center shadow-sm
                 transition-all duration-300
                 ${isSelected
                   ? 'scale-105 shadow-md font-bold text-slate-900'
                   : 'bg-white text-slate-700 hover:bg-gray-50 border border-gray-100'
                 }
               `}
-              style={isSelected ? { background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))' } : {}}
+              style={{
+                borderRadius: 'var(--icon-radius, 1rem)',
+                ...(isSelected ? { background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))' } : {})
+              }}
             >
               <Icon size={20} strokeWidth={2} />
             </div>

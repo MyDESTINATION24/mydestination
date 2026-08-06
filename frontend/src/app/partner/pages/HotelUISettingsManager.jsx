@@ -65,6 +65,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       cardBgColor: '#F8FAFC',
       fontFamily: 'Inter, sans-serif',
       borderRadius: '16px',
+      iconRadius: '1.25rem',
       useGradient: true,
       gradientStart: '#FFD000',
       gradientEnd: '#FF9E00',
@@ -123,10 +124,12 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
         }));
         const rVal = data.data.theme?.borderRadius || '16px';
         const bVal = data.data.heroBanner?.bannerRadius || rVal;
+        const iVal = data.data.theme?.iconRadius || '1.25rem';
         document.documentElement.style.setProperty('--card-radius', rVal);
         document.documentElement.style.setProperty('--hotel-card-radius', rVal);
         document.documentElement.style.setProperty('--border-radius', rVal);
         document.documentElement.style.setProperty('--banner-radius', bVal);
+        document.documentElement.style.setProperty('--icon-radius', iVal);
       }
     } catch (err) {
       console.error('Failed to load UI config:', err);
@@ -140,10 +143,12 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       setSaving(true);
       const rVal = uiConfig.theme?.borderRadius || '16px';
       const bVal = uiConfig.heroBanner?.bannerRadius || rVal;
+      const iVal = uiConfig.theme?.iconRadius || '1.25rem';
       document.documentElement.style.setProperty('--card-radius', rVal);
       document.documentElement.style.setProperty('--hotel-card-radius', rVal);
       document.documentElement.style.setProperty('--border-radius', rVal);
       document.documentElement.style.setProperty('--banner-radius', bVal);
+      document.documentElement.style.setProperty('--icon-radius', iVal);
       const res = await fetch(`${API_BASE}/hotel-ui/settings/global-default`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -632,6 +637,134 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                             </span>
                           </div>
                           <p className="text-xs opacity-90">Applies dynamically across hotel card containers & buttons.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation & Icon Curves Custom Editing Studio */}
+                <div className="space-y-4 pt-2 border-t mt-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-2">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-800">Navigation & Category Icon Curve Studio</h3>
+                      <p className="text-xs text-slate-500">Customize the roundness of bottom navigation and property category icons.</p>
+                    </div>
+                    <span className="text-xs font-mono font-extrabold bg-amber-100 text-amber-800 px-3 py-1 rounded-full border border-amber-300 w-fit">
+                      Active: {uiConfig.theme.iconRadius || '1.25rem'}
+                    </span>
+                  </div>
+
+                  {/* Preset Visual Shape Buttons for Icons */}
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-2">Preset Icon Shape Designs</label>
+                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                      {[
+                        { label: 'Square', value: '0px' },
+                        { label: 'Slight Curve', value: '8px' },
+                        { label: 'Rounded', value: '1rem' },
+                        { label: 'Circle', value: '50%' },
+                        { label: 'Leaf', value: '50% 0 50% 0' },
+                        { label: 'Teardrop', value: '50% 50% 50% 0' }
+                      ].map(option => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => {
+                            const newRadius = option.value;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              theme: { ...prev.theme, iconRadius: newRadius }
+                            }));
+                            document.documentElement.style.setProperty('--icon-radius', newRadius);
+                          }}
+                          className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 cursor-pointer gap-3 ${
+                            uiConfig.theme.iconRadius === option.value
+                              ? 'border-amber-500 bg-amber-50 shadow-sm ring-2 ring-amber-400/20'
+                              : 'border-slate-200 bg-white hover:bg-slate-50'
+                          }`}
+                        >
+                          <div 
+                            className={`w-10 h-10 shadow-sm transition-all duration-300 ${
+                              uiConfig.theme.iconRadius === option.value 
+                                ? 'bg-amber-500' 
+                                : 'bg-slate-300'
+                            }`}
+                            style={{ borderRadius: option.value }}
+                          />
+                          <span className={`text-[10px] font-bold ${
+                            uiConfig.theme.iconRadius === option.value 
+                              ? 'text-amber-800' 
+                              : 'text-slate-600'
+                          }`}>
+                            {option.label}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Editing Tools: Slider & Direct Text/Number Input */}
+                  <div className="p-4 bg-slate-50/90 rounded-2xl border border-slate-200 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      {/* Interactive Radius Slider */}
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-xs font-bold text-slate-700">
+                          <label htmlFor="icon-radius-range">Drag Curve Radius (0px - 50px)</label>
+                          <span className="font-mono text-amber-600 font-extrabold bg-white px-2 py-0.5 border rounded-md shadow-2xs">
+                            {parseInt(uiConfig.theme.iconRadius) || 0}px
+                          </span>
+                        </div>
+                        <input
+                          id="icon-radius-range"
+                          type="range"
+                          min="0"
+                          max="50"
+                          step="1"
+                          value={parseInt(uiConfig.theme.iconRadius) || 0}
+                          onChange={(e) => {
+                            const val = `${e.target.value}px`;
+                            setUiConfig(prev => ({
+                              ...prev,
+                              theme: { ...prev.theme, iconRadius: val }
+                            }));
+                            document.documentElement.style.setProperty('--icon-radius', val);
+                          }}
+                          className="w-full accent-amber-500 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Manual Value Custom Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-slate-700 uppercase block">Custom Radius Input (e.g., 18px, 20px, 30px)</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={uiConfig.theme.iconRadius || '1.25rem'}
+                            placeholder="e.g. 50%, 1rem, 20px"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setUiConfig(prev => ({
+                                ...prev,
+                                theme: { ...prev.theme, iconRadius: val }
+                              }));
+                              document.documentElement.style.setProperty('--icon-radius', val);
+                            }}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-xs font-mono font-bold text-slate-800 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUiConfig(prev => ({
+                                ...prev,
+                                theme: { ...prev.theme, iconRadius: '9999px' }
+                              }));
+                              document.documentElement.style.setProperty('--icon-radius', '9999px');
+                            }}
+                            className="px-3 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold shrink-0 hover:bg-slate-900 cursor-pointer shadow-xs"
+                          >
+                            Pill Mode
+                          </button>
                         </div>
                       </div>
                     </div>

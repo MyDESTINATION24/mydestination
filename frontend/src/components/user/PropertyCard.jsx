@@ -100,6 +100,9 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
   const displayPrice =
     typeof rawPrice === 'number' && rawPrice > 0 ? rawPrice : null;
 
+  const originalPriceRaw = item.originalPrice ?? item.strikePrice ?? item.mrp;
+  const displayOriginalPrice = typeof originalPriceRaw === 'number' && originalPriceRaw > displayPrice ? originalPriceRaw : null;
+
   const imageSrc =
     images?.cover ||
     cleanImageUrl(item.coverImage) ||
@@ -147,15 +150,20 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
 
         {/* Price Tag (Top Right - Matcha Style) */}
         <div 
-          className="absolute top-0 right-0 bg-white px-4 py-2 shadow-sm z-10 flex flex-col items-center justify-center"
+          className="absolute top-0 right-0 bg-white px-3 py-1.5 shadow-sm z-10 flex flex-col items-end justify-center"
           style={{
             borderBottomLeftRadius: dynamicRadius,
             borderTopRightRadius: `calc(${dynamicRadius} * 0.8)`
           }}
         >
+          {displayOriginalPrice && (
+            <span className="text-[10px] font-bold text-gray-400 line-through leading-none mb-0.5">
+              ₹{displayOriginalPrice.toLocaleString('en-IN')}
+            </span>
+          )}
           <span className="text-xl font-bold text-[#1a261a] leading-none">
             <span className="mr-0.5">₹</span>
-            {displayPrice ? (displayPrice >= 1000 ? (displayPrice / 1000).toFixed(0) + 'k' : displayPrice) : '-'}
+            {displayPrice ? displayPrice.toLocaleString('en-IN') : '-'}
           </span>
         </div>
 
