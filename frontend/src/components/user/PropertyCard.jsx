@@ -150,7 +150,7 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
 
         {/* Price Tag (Top Right - Matcha Style) */}
         <div 
-          className="absolute top-0 right-0 bg-white px-3 py-1.5 shadow-sm z-10 flex flex-col items-end justify-center"
+          className="absolute top-0 right-0 bg-white px-4 py-2 shadow-sm z-10 flex flex-col items-end justify-center"
           style={{
             borderBottomLeftRadius: dynamicRadius,
             borderTopRightRadius: `calc(${dynamicRadius} * 0.8)`
