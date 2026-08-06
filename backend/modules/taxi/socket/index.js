@@ -43,6 +43,20 @@ const onAsync = (socket, handler) => async (payload = {}) => {
 export const configureTaxiSocketServer = (httpServer) => {
   const io = new Server(httpServer, {
     path: '/taxi/socket.io',
+    // A backgrounded Android WebView throttles JS timers, so the client stops
+    // answering pings and the default 20s pingTimeout drops a driver who is
+    // simply waiting with the screen off. A long timeout with a slower ping
+    // rides that out.
+    pingInterval: 20000,
+    pingTimeout: 60000,
+    // The real fix for a socket that dies mid-search: on reconnect within the
+    // window, Socket.IO restores the session's rooms AND replays the events
+    // missed while it was gone -- so a ride request emitted during a two
+    // minute dropout still lands instead of vanishing.
+    connectionStateRecovery: {
+      maxDisconnectionDuration: 2 * 60 * 1000,
+      skipMiddlewares: false,
+    },
     cors: {
       origin: (origin, callback) => {
         if (!origin) return callback(null, true);

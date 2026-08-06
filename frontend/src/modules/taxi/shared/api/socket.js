@@ -125,6 +125,34 @@ class SocketService {
     this.listeners = new Map();
   }
 
+  // Force an immediate reconnect instead of waiting for a heartbeat to fail.
+  ensureAlive(reason = 'lifecycle') {
+    if (!this.socket) return;
+    if (this.socket.connected) return;
+
+    console.info('[socket] forcing reconnect', { reason });
+    this.socket.connect();
+  }
+
+  installLifecycleHandlers() {
+    if (this.lifecycleHandlersInstalled) return;
+    if (typeof document === 'undefined' || typeof window === 'undefined') return;
+
+    this.lifecycleHandlersInstalled = true;
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.ensureAlive('foreground');
+      }
+    });
+
+    // pageshow fires on WebView restore from the back/forward cache, where
+    // visibilitychange sometimes does not.
+    window.addEventListener('pageshow', () => this.ensureAlive('pageshow'));
+    window.addEventListener('online', () => this.ensureAlive('online'));
+    window.addEventListener('focus', () => this.ensureAlive('focus'));
+  }
+
   attachRegisteredListeners() {
     if (!this.socket) {
       return;
@@ -184,12 +212,20 @@ class SocketService {
       timeout: 10000,
     });
     this.attachRegisteredListeners();
+    this.installLifecycleHandlers();
 
     this.socket.on('connect', () => {
       console.info('[socket] connected', {
         role: options.role || 'unknown',
         socketId: this.socket?.id || null,
+        // true when the server replayed what we missed while disconnected;
+        // false means a cold session, so screens should refetch their state
+        recovered: this.socket?.recovered === true,
       });
+
+      if (this.socket?.recovered !== true) {
+        window.dispatchEvent(new CustomEvent('taxi-socket-cold-reconnect'));
+      }
     });
 
     this.socket.on('connect_error', (error) => {
