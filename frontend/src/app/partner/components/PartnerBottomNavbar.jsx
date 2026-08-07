@@ -59,7 +59,7 @@ const PartnerBottomNavbar = () => {
               {isActive && (
                 <motion.div
                   layoutId="partner-active-pill"
-                  className="absolute inset-x-1 inset-y-0 bg-[var(--color-textDark)]/10 rounded-xl -z-10"
+                  className="absolute inset-x-1 inset-y-0 bg-gray-900/10 rounded-xl -z-10"
                   initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
@@ -67,11 +67,11 @@ const PartnerBottomNavbar = () => {
 
               <Icon
                 size={22}
-                className={`transition-colors duration-200 ${isActive ? 'text-[var(--color-textDark)] fill-[var(--color-textDark)]/10' : 'text-gray-400'}`}
+                className={`transition-colors duration-200 ${isActive ? 'text-gray-900 fill-gray-900/10' : 'text-gray-400'}`}
                 strokeWidth={isActive ? 2.5 : 2}
               />
 
-              <span className={`text-[9px] font-bold tracking-wide transition-colors duration-200 ${isActive ? 'text-[var(--color-textDark)]' : 'text-gray-400'}`}>
+              <span className={`text-[9px] font-bold tracking-wide transition-colors duration-200 ${isActive ? 'text-gray-900' : 'text-gray-400'}`}>
                 {item.name}
               </span>
             </button>

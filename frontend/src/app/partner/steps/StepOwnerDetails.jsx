@@ -166,7 +166,7 @@ const ImageUploader = ({ label, value, onChange, placeholder = "Upload Image", o
           <div className="absolute inset-0 bg-black/25 flex items-center justify-center gap-3 transition-opacity">
             <button
               onClick={() => onView(imageUrl)}
-              className="p-2.5 bg-white/90 rounded-full text-[var(--color-surface)] hover:bg-white transition-colors shadow-lg backdrop-blur-sm"
+              className="p-2.5 bg-white/90 rounded-full text-[#0A4720] hover:bg-white transition-colors shadow-lg backdrop-blur-sm"
               title="View Image"
               type="button"
             >
@@ -192,17 +192,17 @@ const ImageUploader = ({ label, value, onChange, placeholder = "Upload Image", o
               type="button"
               onClick={handleCameraCapture}
               disabled={uploading}
-              className="w-full border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors border-[var(--color-surface)] bg-[var(--color-surface)]/5 hover:bg-[var(--color-surface)]/10 disabled:opacity-50"
+              className="w-full border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors border-[#0A4720] bg-[#0A4720]/5 hover:bg-[#0A4720]/10 disabled:opacity-50"
             >
               {uploading ? (
-                <Loader2 size={24} className="text-[var(--color-surface)] animate-spin" />
+                <Loader2 size={24} className="text-[#0A4720] animate-spin" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-[var(--color-surface)] flex items-center justify-center shadow-sm text-white">
+                <div className="w-10 h-10 rounded-full bg-[#0A4720] flex items-center justify-center shadow-sm text-white">
                   <Camera size={20} />
                 </div>
               )}
               <div className="text-center">
-                <p className="text-xs font-bold text-[var(--color-surface)]">
+                <p className="text-xs font-bold text-[#0A4720]">
                   {uploading ? 'Uploading...' : 'Take Photo'}
                 </p>
                 <p className="text-[10px] text-gray-500 mt-1">Use your camera</p>
@@ -221,10 +221,10 @@ const ImageUploader = ({ label, value, onChange, placeholder = "Upload Image", o
             />
             <div className={`
                border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center gap-2 transition-colors
-               ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-[var(--color-surface)] hover:bg-[var(--color-surface)]/5 bg-gray-50'}
+               ${error ? 'border-red-300 bg-red-50' : 'border-gray-300 hover:border-[#0A4720] hover:bg-[#0A4720]/5 bg-gray-50'}
             `}>
               {uploading ? (
-                <Loader2 size={24} className="text-[var(--color-surface)] animate-spin" />
+                <Loader2 size={24} className="text-[#0A4720] animate-spin" />
               ) : (
                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm text-gray-400">
                   <Upload size={16} />
@@ -315,12 +315,12 @@ const StepOwnerDetails = () => {
       </AnimatePresence>
       {/* Aadhaar Section */}
       <div className="space-y-4 pt-2">
-        <h3 className="text-sm font-black text-[var(--color-textDark)]">Aadhaar Verification</h3>
+        <h3 className="text-sm font-black text-gray-900">Aadhaar Verification</h3>
 
         <div>
           <label className="block text-xs font-bold text-gray-500 mb-1">Aadhaar Number</label>
           <input
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-surface)] tracking-widest font-mono"
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A4720] tracking-widest font-mono"
             placeholder="XXXX XXXX XXXX"
             maxLength={12}
             onFocus={handleFocus}
@@ -349,13 +349,13 @@ const StepOwnerDetails = () => {
 
       {/* PAN Section */}
       <div className="space-y-4 pt-2 border-t border-gray-100">
-        <h3 className="text-sm font-black text-[var(--color-textDark)]">PAN Verification</h3>
+        <h3 className="text-sm font-black text-gray-900">PAN Verification</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-bold text-gray-500 mb-1">PAN Number</label>
             <input
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[var(--color-surface)] font-mono"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#0A4720] font-mono"
               placeholder="ABCDE1234F"
               maxLength={10}
               onFocus={handleFocus}

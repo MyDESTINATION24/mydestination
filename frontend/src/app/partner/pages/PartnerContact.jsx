@@ -62,28 +62,28 @@ const PartnerContact = () => {
       <main ref={contentRef} className="max-w-3xl mx-auto px-4 pt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[var(--color-surface)]/10 flex items-center justify-center text-[var(--color-surface)]">
+            <div className="w-9 h-9 rounded-full bg-[#0A4720]/10 flex items-center justify-center text-[#0A4720]">
               <Mail size={18} />
             </div>
             <div>
               <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide">Email</p>
               <a
                 href="mailto:mydestinationhub@gmail.com"
-                className="text-xs text-gray-500 hover:text-[var(--color-surface)] transition-colors break-all"
+                className="text-xs text-gray-500 hover:text-[#0A4720] transition-colors break-all"
               >
                 mydestinationhub@gmail.com
               </a>
             </div>
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[var(--color-surface)]/10 flex items-center justify-center text-[var(--color-surface)]">
+            <div className="w-9 h-9 rounded-full bg-[#0A4720]/10 flex items-center justify-center text-[#0A4720]">
               <Phone size={18} />
             </div>
             <div>
               <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide">Phone</p>
               <a
                 href="tel:+916232314147"
-                className="text-xs text-gray-500 hover:text-[var(--color-surface)] transition-colors"
+                className="text-xs text-gray-500 hover:text-[#0A4720] transition-colors"
               >
                 6232314147
               </a>
@@ -113,7 +113,7 @@ const PartnerContact = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[var(--color-surface)]/60"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#0A4720]/60"
                 placeholder="Your name"
               />
             </div>
@@ -123,7 +123,7 @@ const PartnerContact = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[var(--color-surface)]/60"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#0A4720]/60"
                 placeholder="you@hotel.com"
               />
             </div>
@@ -136,7 +136,7 @@ const PartnerContact = () => {
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[var(--color-surface)]/60"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#0A4720]/60"
                 placeholder="+91"
               />
             </div>
@@ -146,7 +146,7 @@ const PartnerContact = () => {
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[var(--color-surface)]/60"
+                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#0A4720]/60"
                 placeholder="Billing, onboarding, payouts..."
               />
             </div>
@@ -158,7 +158,7 @@ const PartnerContact = () => {
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[var(--color-surface)]/60 resize-none"
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:ring-2 focus:ring-[#0A4720]/60 resize-none"
               placeholder="Share context so we can assist you faster."
             />
           </div>
@@ -166,7 +166,7 @@ const PartnerContact = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 mt-2 bg-[var(--color-surface)] text-white py-3 rounded-xl text-sm font-bold active:scale-95 disabled:opacity-60 disabled:active:scale-100 transition-transform"
+            className="w-full flex items-center justify-center gap-2 mt-2 bg-[#0A4720] text-white py-3 rounded-xl text-sm font-bold active:scale-95 disabled:opacity-60 disabled:active:scale-100 transition-transform"
           >
             <Send size={16} />
             {submitting ? 'Sending...' : 'Send to Support'}

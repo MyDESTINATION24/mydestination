@@ -7,7 +7,7 @@ const NotificationItem = ({ notif }) => {
     const iconMap = {
         success: <CheckCircle size={18} className="text-green-600" />,
         alert: <AlertCircle size={18} className="text-red-600" />,
-        info: <Info size={18} className="text-blue-600" />,
+        info: <Info size={18} className="text-[#0A4720]" />,
         promo: <Tag size={18} className="text-orange-600" />,
     };
 
@@ -25,14 +25,14 @@ const NotificationItem = ({ notif }) => {
             </div>
             <div className="flex-1">
                 <div className="flex justify-between items-start mb-1">
-                    <h4 className={`text-sm font-bold ${notif.read ? 'text-gray-700' : 'text-[var(--color-textDark)]'}`}>{notif.title}</h4>
+                    <h4 className={`text-sm font-bold ${notif.read ? 'text-gray-700' : 'text-gray-900'}`}>{notif.title}</h4>
                     <span className="text-[10px] font-medium text-gray-400">{notif.time}</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed mb-2">
                     {notif.desc}
                 </p>
                 {!notif.read && (
-                    <button className="text-[10px] font-bold text-[var(--color-surface)] border-b border-[var(--color-surface)]/20 hover:border-[var(--color-surface)] transition-colors">Mark as Read</button>
+                    <button className="text-[10px] font-bold text-[#0A4720] border-b border-[#0A4720]/20 hover:border-[#0A4720] transition-colors">Mark as Read</button>
                 )}
             </div>
             {!notif.read && (
@@ -67,8 +67,8 @@ const PartnerNotifications = () => {
 
             <main className="max-w-3xl mx-auto px-4 pt-6">
                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-black text-[var(--color-textDark)] text-lg">Recent</h3>
-                    <button className="text-xs font-bold text-gray-400 hover:text-[var(--color-surface)] transition-colors">Mark all read</button>
+                    <h3 className="font-black text-gray-900 text-lg">Recent</h3>
+                    <button className="text-xs font-bold text-gray-400 hover:text-[#0A4720] transition-colors">Mark all read</button>
                 </div>
 
                 <div ref={listRef}>

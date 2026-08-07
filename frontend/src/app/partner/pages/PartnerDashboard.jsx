@@ -39,7 +39,7 @@ const PartnerDashboard = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-[var(--color-surface)] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-[#0A4720] border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -52,7 +52,7 @@ const PartnerDashboard = () => {
                 {/* Header & Greeting */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <div>
-                        <h1 className="text-2xl font-black text-[var(--color-textDark)]">
+                        <h1 className="text-2xl font-black text-gray-900">
                             Welcome back, {user?.name?.split(' ')[0] || 'Partner'}! 👋
                         </h1>
                         <p className="text-gray-500 mt-1 text-sm font-medium">
@@ -64,7 +64,7 @@ const PartnerDashboard = () => {
                         {/* Add Property - High Visible */}
                         <button
                             onClick={() => navigate('/hotel/join')}
-                            className="flex items-center gap-2 bg-[var(--color-surface)] hover:bg-[var(--color-textDark)] text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95"
+                            className="flex items-center gap-2 bg-[#0A4720] hover:bg-[#063818] text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md active:scale-95"
                         >
                             <Plus size={18} />
                             Add Property
@@ -93,7 +93,7 @@ const PartnerDashboard = () => {
                         subtext="Available to withdraw"
                         actionLabel="Withdraw"
                         onAction={() => navigate('/hotel/wallet')}
-                        colorClass="text-blue-600"
+                        colorClass="text-[#0A4720]"
                     />
 
                     <DashboardStatCard

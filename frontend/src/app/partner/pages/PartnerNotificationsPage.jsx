@@ -117,7 +117,7 @@ const PartnerNotificationsPage = () => {
     switch (type) {
       case 'booking': return "bg-green-100 text-green-600";
       case 'offer': return "bg-green-100 text-green-600";
-      default: return "bg-blue-100 text-blue-600";
+      default: return "bg-blue-100 text-[#0A4720]";
     }
   };
 

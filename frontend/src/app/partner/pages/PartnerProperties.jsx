@@ -93,7 +93,7 @@ const PartnerProperties = () => {
           <div className="flex gap-2">
             <button
               onClick={() => navigate('/hotel/join')}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-surface)] text-white text-[11px] font-bold uppercase tracking-wide active:scale-95"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0A4720] text-white text-[11px] font-bold uppercase tracking-wide active:scale-95"
             >
               <PlusCircle size={14} /> Add New
             </button>

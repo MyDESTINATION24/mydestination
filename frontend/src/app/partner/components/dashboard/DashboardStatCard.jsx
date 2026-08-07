@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-const DashboardStatCard = ({ icon: Icon, label, value, subtext, actionLabel, onAction, colorClass = "text-[var(--color-surface)]" }) => {
+const DashboardStatCard = ({ icon: Icon, label, value, subtext, actionLabel, onAction, colorClass = "text-[#0A4720]" }) => {
   // Handle card click - navigate to respective page
   const handleCardClick = (e) => {
     // Don't trigger if clicking on the action button (let button handle its own click)
@@ -25,7 +25,7 @@ const DashboardStatCard = ({ icon: Icon, label, value, subtext, actionLabel, onA
     <div 
       onClick={handleCardClick}
       className={`bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between h-full transition-all ${
-        onAction ? 'cursor-pointer hover:scale-[1.01] hover:shadow-md hover:border-[var(--color-surface)]/20 active:scale-[0.99]' : ''
+        onAction ? 'cursor-pointer hover:scale-[1.01] hover:shadow-md hover:border-[#0A4720]/20 active:scale-[0.99]' : ''
       }`}
     >
       <div className="flex justify-between items-start mb-1 sm:mb-2">
@@ -35,7 +35,7 @@ const DashboardStatCard = ({ icon: Icon, label, value, subtext, actionLabel, onA
         {actionLabel && (
           <button
             onClick={handleActionClick}
-            className="text-[9px] sm:text-xs font-semibold text-[var(--color-surface)] hover:underline whitespace-nowrap ml-1 z-10 relative"
+            className="text-[9px] sm:text-xs font-semibold text-[#0A4720] hover:underline whitespace-nowrap ml-1 z-10 relative"
           >
             {actionLabel}
           </button>

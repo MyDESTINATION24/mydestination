@@ -64,16 +64,16 @@ const PartnerSidebar = ({ isOpen, onClose }) => {
             onClick={() => handleNavigation(path)}
             className="flex items-center gap-4 w-full p-2.5 hover:bg-gray-50 rounded-xl transition-all group active:scale-95"
         >
-            <div className="w-8 h-8 rounded-full bg-[var(--color-surface)]/5 flex items-center justify-center group-hover:bg-[var(--color-surface)]/10 transition-colors">
-                <Icon size={16} className="text-[var(--color-surface)]" />
+            <div className="w-8 h-8 rounded-full bg-[#0A4720]/5 flex items-center justify-center group-hover:bg-[#0A4720]/10 transition-colors">
+                <Icon size={16} className="text-[#0A4720]" />
             </div>
             <span className="flex-1 text-left font-medium text-gray-700 text-sm">{label}</span>
             {badge && (
-                <span className="text-[10px] font-bold bg-[var(--color-surface)] text-white px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-[#0A4720] text-white px-2 py-0.5 rounded-full">
                     {badge}
                 </span>
             )}
-            <ChevronRight size={14} className="text-gray-300 group-hover:text-[var(--color-surface)] transition-colors" />
+            <ChevronRight size={14} className="text-gray-300 group-hover:text-[#0A4720] transition-colors" />
         </button>
     );
 
@@ -149,7 +149,7 @@ const PartnerSidebar = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="px-5 mb-6">
-                            <div className="bg-gradient-to-br from-[var(--color-surface)] to-[#2A6364] rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                            <div className="bg-gradient-to-br from-[#0A4720] to-[#2A6364] rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
 
                                 <div className="flex items-start justify-between relative z-10">

@@ -13,8 +13,8 @@ const Field = ({ label, value, icon: Icon, isEditing, onChange }) => (
         <div className="flex items-center justify-between mb-2">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">{label}</label>
         </div>
-        <div className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${isEditing ? 'bg-white border-[var(--color-surface)] ring-4 ring-[var(--color-surface)]/5 shadow-inner' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isEditing ? 'bg-[var(--color-surface)] text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
+        <div className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${isEditing ? 'bg-white border-[#0A4720] ring-4 ring-[#0A4720]/5 shadow-inner' : 'bg-gray-50/50 border-gray-100 hover:border-gray-200'}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${isEditing ? 'bg-[#0A4720] text-white' : 'bg-white text-gray-400 shadow-sm'}`}>
                 <Icon size={18} />
             </div>
             {isEditing ? (
@@ -22,11 +22,11 @@ const Field = ({ label, value, icon: Icon, isEditing, onChange }) => (
                     type="text"
                     value={value}
                     onChange={onChange}
-                    className="flex-1 bg-transparent text-sm font-bold text-[var(--color-textDark)] focus:outline-none placeholder:text-gray-300"
+                    className="flex-1 bg-transparent text-sm font-bold text-gray-900 focus:outline-none placeholder:text-gray-300"
                     placeholder={`Enter ${label}`}
                 />
             ) : (
-                <span className="flex-1 text-sm font-bold text-[var(--color-textDark)]">{value || 'Not set'}</span>
+                <span className="flex-1 text-sm font-bold text-gray-900">{value || 'Not set'}</span>
             )}
         </div>
     </div>
@@ -267,7 +267,7 @@ const PartnerProfile = () => {
                 {/* Avatar Section */}
                 <div className="text-center mb-10 relative">
                     <div className="relative inline-block">
-                        <div className="w-28 h-28 bg-[var(--color-surface)] text-white rounded-full flex items-center justify-center text-4xl font-black mx-auto shadow-2xl shadow-[var(--color-surface)]/30 relative border-4 border-white overflow-hidden bg-gradient-to-br from-[var(--color-surface)] to-[#006b68]">
+                        <div className="w-28 h-28 bg-[#0A4720] text-white rounded-full flex items-center justify-center text-4xl font-black mx-auto shadow-2xl shadow-[#0A4720]/30 relative border-4 border-white overflow-hidden bg-gradient-to-br from-[#0A4720] to-[#006b68]">
                             {uploading ? (
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
@@ -284,7 +284,7 @@ const PartnerProfile = () => {
                         <button
                             onClick={() => isFlutterApp() ? handleCameraCapture() : fileInputRef.current?.click()}
                             disabled={uploading}
-                            className="absolute bottom-1 right-1 w-9 h-9 bg-white text-[var(--color-surface)] rounded-full flex items-center justify-center shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all z-10"
+                            className="absolute bottom-1 right-1 w-9 h-9 bg-white text-[#0A4720] rounded-full flex items-center justify-center shadow-lg border border-gray-100 hover:scale-110 active:scale-95 transition-all z-10"
                         >
                             <Camera size={18} />
                         </button>
@@ -300,7 +300,7 @@ const PartnerProfile = () => {
                     />
 
                     <div className="mt-4">
-                        <h2 className="text-2xl font-black text-[var(--color-textDark)]">{profile.name || 'Partner'}</h2>
+                        <h2 className="text-2xl font-black text-gray-900">{profile.name || 'Partner'}</h2>
                         <div className="flex items-center justify-center gap-2 mt-1.5">
                             <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${statusClass}`}>
                                 {statusLabel}
@@ -313,13 +313,13 @@ const PartnerProfile = () => {
                 <div className="bg-white p-6 pb-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 border border-gray-100 mb-6 transition-all duration-500">
                     <div className="flex items-center justify-between mb-10 pb-4 border-b border-gray-50">
                         <div>
-                            <p className="text-[10px] text-[var(--color-surface)] font-black uppercase tracking-[0.2em] mb-1">Account & Settings</p>
-                            <h3 className="text-xl font-black text-[var(--color-textDark)]">Personal Profile</h3>
+                            <p className="text-[10px] text-[#0A4720] font-black uppercase tracking-[0.2em] mb-1">Account & Settings</p>
+                            <h3 className="text-xl font-black text-gray-900">Personal Profile</h3>
                         </div>
                         <button
                             onClick={handleToggleEdit}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all shadow-lg active:scale-95 ${isEditing
-                                ? 'bg-[var(--color-surface)] text-white shadow-[var(--color-surface)]/20'
+                                ? 'bg-[#0A4720] text-white shadow-[#0A4720]/20'
                                 : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                                 }`}
                         >
@@ -415,7 +415,7 @@ const PartnerProfile = () => {
                                     <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6 border-2 border-red-100/50">
                                         <AlertTriangle size={36} className="text-red-500" />
                                     </div>
-                                    <h3 className="text-2xl font-black text-[var(--color-textDark)] mb-2 uppercase tracking-tight">Delete Account?</h3>
+                                    <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">Delete Account?</h3>
                                     <p className="text-sm font-medium text-gray-500 leading-relaxed mb-8">
                                         Are you absolutely sure? This action is <span className="text-red-500 font-black">permanent</span> and will deactivate all your properties immediately.
                                     </p>

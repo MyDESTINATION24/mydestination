@@ -13,7 +13,7 @@ const PartnerJoinPropertyType = () => {
       badge: 'Business & Leisure',
       icon: Building2,
       route: '/hotel/join-hotel',
-      color: 'bg-blue-50 text-blue-600',
+      color: 'bg-blue-50 text-[#0A4720]',
     },
     {
       key: 'resort',

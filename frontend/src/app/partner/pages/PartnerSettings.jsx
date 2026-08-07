@@ -16,7 +16,7 @@ const SettingItem = ({ icon: Icon, label, type = "toggle", value, onChange }) =>
         {type === "toggle" && (
             <button
                 onClick={() => onChange(!value)}
-                className={`w-10 h-6 rounded-full p-1 transition-colors ${value ? 'bg-[var(--color-surface)]' : 'bg-gray-200'}`}
+                className={`w-10 h-6 rounded-full p-1 transition-colors ${value ? 'bg-[#0A4720]' : 'bg-gray-200'}`}
             >
                 <div className={`w-4 h-4 bg-white rounded-full transition-transform ${value ? 'translate-x-4' : 'translate-x-0'}`}></div>
             </button>

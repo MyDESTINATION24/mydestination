@@ -10,11 +10,11 @@ const TransactionRow = ({ txn }) => {
     return (
         <div className="flex items-center justify-between p-4 bg-white border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors cursor-pointer group">
             <div className="flex items-center gap-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isCredit ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isCredit ? 'bg-[#E8F5E9] text-[#0A4720]' : 'bg-red-50 text-red-600'}`}>
                     {isCredit ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                 </div>
                 <div>
-                    <h4 className="font-bold text-[var(--color-textDark)] text-sm group-hover:text-[var(--color-surface)] transition-colors">{txn.description}</h4>
+                    <h4 className="font-bold text-gray-900 text-sm group-hover:text-[#0A4720] transition-colors">{txn.description}</h4>
                     <div className="flex items-center gap-2 text-[10px] text-gray-400 font-medium mt-0.5">
                         <span className="bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 uppercase tracking-wide">{txn._id?.slice(-8).toUpperCase()}</span>
                         <span>•</span>
@@ -23,11 +23,11 @@ const TransactionRow = ({ txn }) => {
                 </div>
             </div>
             <div className="text-right">
-                <div className={`font-black text-sm ${isCredit ? 'text-green-600' : 'text-[var(--color-textDark)]'}`}>
+                <div className={`font-black text-sm ${isCredit ? 'text-[#0A4720]' : 'text-gray-900'}`}>
                     {isCredit ? '+' : '-'}₹{txn.amount?.toLocaleString('en-IN')}
                 </div>
-                <div className={`text-[10px] font-bold uppercase tracking-wide mt-0.5 ${txn.status === 'completed' || txn.status === 'success' ? 'text-green-500' :
-                    txn.status === 'pending' ? 'text-orange-500' : 'text-red-500'
+                <div className={`text-[10px] px-2 py-0.5 rounded-full inline-block font-bold uppercase tracking-wide mt-0.5 ${txn.status === 'completed' || txn.status === 'success' ? 'bg-[#E8F5E9] text-[#0A4720]' :
+                    txn.status === 'pending' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-600'
                     }`}>
                     {txn.status}
                 </div>
@@ -84,7 +84,7 @@ const PartnerTransactions = () => {
                     <div className="flex bg-gray-100 p-1 rounded-xl">
                         <button
                             onClick={() => setFilter('all')}
-                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === 'all' ? 'bg-white shadow-sm text-[var(--color-surface)]' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === 'all' ? 'bg-white shadow-sm text-[#0A4720]' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             All
                         </button>
@@ -104,10 +104,10 @@ const PartnerTransactions = () => {
 
                     {/* Date / Download */}
                     <div className="flex gap-2">
-                        <button className="w-9 h-9 flex items-center justify-center bg-gray-50 rounded-lg text-gray-500 hover:bg-[var(--color-surface)] hover:text-white transition-colors" title="Filter by date">
+                        <button className="w-9 h-9 flex items-center justify-center bg-gray-50 rounded-lg text-gray-500 hover:bg-[#0A4720] hover:text-white transition-colors" title="Filter by date">
                             <Calendar size={16} />
                         </button>
-                        <button className="w-9 h-9 flex items-center justify-center bg-gray-50 rounded-lg text-gray-500 hover:bg-[var(--color-surface)] hover:text-white transition-colors" title="Download report">
+                        <button className="w-9 h-9 flex items-center justify-center bg-gray-50 rounded-lg text-gray-500 hover:bg-[#0A4720] hover:text-white transition-colors" title="Download report">
                             <Download size={16} />
                         </button>
                     </div>
@@ -121,14 +121,14 @@ const PartnerTransactions = () => {
                     <input
                         type="text"
                         placeholder="Search by ID or Description..."
-                        className="w-full h-12 bg-white rounded-2xl pl-12 pr-4 text-sm font-medium border border-gray-200 shadow-sm focus:outline-none focus:border-[var(--color-surface)]/20 transition-colors"
+                        className="w-full h-12 bg-white rounded-2xl pl-12 pr-4 text-sm font-medium border border-gray-200 shadow-sm focus:outline-none focus:border-[#0A4720]/20 transition-colors"
                     />
                     <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                 </div>
 
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 animate-spin text-[var(--color-surface)]" />
+                        <Loader2 className="w-8 h-8 animate-spin text-[#0A4720]" />
                     </div>
                 ) : (
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden" ref={listRef}>

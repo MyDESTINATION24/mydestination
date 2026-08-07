@@ -60,7 +60,7 @@ const PartnerPrivacy = () => {
               <Shield size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-black text-[var(--color-textDark)]">
+              <h2 className="text-lg font-black text-gray-900">
                 {page?.title || 'Partner data and privacy'}
               </h2>
             </div>

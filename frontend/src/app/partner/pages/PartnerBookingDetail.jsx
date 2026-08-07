@@ -274,7 +274,7 @@ const PartnerBookingDetail = () => {
               <div className="flex items-center gap-2">
                 <span className={`font-bold px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wide border ${
                   booking.paymentStatus === 'paid' ? 'bg-green-50 text-green-700 border-green-100' : 
-                  booking.paymentStatus === 'partial' ? 'bg-blue-50 text-blue-700 border-blue-100' : 
+                  booking.paymentStatus === 'partial' ? 'bg-blue-50 text-[#063818] border-blue-100' : 
                   'bg-yellow-50 text-yellow-700 border-yellow-100'
                 }`}>
                   {booking.paymentStatus === 'partial' ? 'Partial (30% Paid)' : booking.paymentStatus === 'paid' ? 'Fully Paid' : 'Pay At Hotel'}
