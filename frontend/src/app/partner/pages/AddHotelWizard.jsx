@@ -763,7 +763,7 @@ const AddHotelWizard = () => {
       setStep(step - 1);
     } else {
       localStorage.removeItem(STORAGE_KEY);
-      navigate(-1);
+      navigate('/hotel/join');
     }
   };
 
@@ -841,7 +841,7 @@ const AddHotelWizard = () => {
 
   const handleExit = () => {
     localStorage.removeItem(STORAGE_KEY);
-    navigate(-1);
+    navigate('/hotel/join');
   };
 
   const isEditingSubItem = (step === 4 && editingNearbyIndex !== null) || (step === 6 && editingRoomType !== null);

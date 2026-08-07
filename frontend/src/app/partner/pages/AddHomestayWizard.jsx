@@ -771,7 +771,7 @@ const AddHomestayWizard = () => {
       setStep(step - 1);
     } else {
       localStorage.removeItem(STORAGE_KEY);
-      navigate(-1);
+      navigate('/hotel/join');
     }
   };
 
@@ -851,7 +851,7 @@ const AddHomestayWizard = () => {
 
   const handleExit = () => {
     localStorage.removeItem(STORAGE_KEY);
-    navigate(-1);
+    navigate('/hotel/join');
   };
 
   return (

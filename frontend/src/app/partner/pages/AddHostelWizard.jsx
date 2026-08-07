@@ -785,7 +785,7 @@ const AddHostelWizard = () => {
       setStep(step - 1);
     } else {
       localStorage.removeItem(STORAGE_KEY);
-      navigate(-1);
+      navigate('/hotel/join');
     }
   };
 
@@ -843,7 +843,7 @@ const AddHostelWizard = () => {
 
   const handleExit = () => {
     localStorage.removeItem(STORAGE_KEY);
-    navigate(-1);
+    navigate('/hotel/join');
   };
 
   return (
