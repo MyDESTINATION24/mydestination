@@ -123,6 +123,7 @@ const sendPushToTargets = async ({
   body,
   image = '',
   data = {},
+  ttlSeconds = 0,
 }) => {
   const messaging = getFirebaseMessaging();
 
@@ -173,8 +174,15 @@ const sendPushToTargets = async ({
       },
       android: {
         priority: 'high',
+        // Without a ttl, FCM holds an undeliverable message for 4 WEEKS. A phone
+        // that was offline during dispatch would otherwise light up with "New
+        // ride request" for a ride that finished hours ago.
+        ...(ttlSeconds > 0 ? { ttl: ttlSeconds * 1000 } : {}),
         notification: image ? { imageUrl: image } : undefined,
       },
+      ...(ttlSeconds > 0
+        ? { apns: { headers: { 'apns-expiration': String(Math.floor(Date.now() / 1000) + ttlSeconds) } } }
+        : {}),
       webpush: {
         notification: {
           title,
@@ -347,6 +355,7 @@ export const sendPushNotificationToEntities = async ({
   body,
   image = '',
   data = {},
+  ttlSeconds = 0,
 }) => {
   const targets = await collectDirectTargets({ userIds, driverIds });
   return sendPushToTargets({
@@ -355,5 +364,6 @@ export const sendPushNotificationToEntities = async ({
     body,
     image,
     data,
+    ttlSeconds,
   });
 };
