@@ -520,6 +520,9 @@ const emitRideRequestToDrivers = async ({
       serviceType: ride.serviceType || 'ride',
       userId: String(ride.userId?._id || ride.userId || ''),
     },
+    // A ride request is worthless once this dispatch attempt closes -- drop it
+    // rather than let FCM deliver it hours later off the default 4 week ttl.
+    ttlSeconds: dispatchConfig.retryWindowSeconds,
   }).catch((error) => {
     console.error('Failed to send driver ride-request push notification', error);
   });

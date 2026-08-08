@@ -15,6 +15,7 @@ import { Ride } from '../user/models/Ride.js';
 import User from '../../user/models/User.js';
 import { UserWallet } from '../user/models/UserWallet.js';
 import { consumeUserSubscriptionRide, resolveApplicableUserSubscription } from '../user/services/subscriptionService.js';
+import { sendPushNotificationToEntities } from './pushNotificationService.js';
 import { applyPromoToRideInTransaction } from './promoService.js';
 import { getTipSettings } from './appSettingsService.js';
 import { getBidRideSettings } from './transportSettingsService.js';
@@ -1589,6 +1590,61 @@ export const acceptRideAssignment = async ({ rideId, driverId }) => {
   throw lastError || new ApiError(500, 'Failed to accept ride');
 };
 
+// What the rider is told when the driver moves the ride along. Only statuses
+// listed here notify -- ACCEPTED is deliberately absent because dispatchService
+// already pushes 'Ride accepted' when the driver is assigned, and pushing again
+// here would double-notify.
+//
+// Note the naming: ARRIVING is when the driver reaches the *pickup* (it is what
+// sets ride.arrivedAt), while ARRIVED is reaching the *destination*.
+const rideStatusUserPush = {
+  [RIDE_LIVE_STATUS.ARRIVING]: {
+    title: 'Driver arrived',
+    body: (ride) => (ride.driverId?.name
+      ? `${ride.driverId.name} is waiting at your pickup point.`
+      : 'Your driver is waiting at the pickup point.'),
+    type: 'driver_arrived',
+  },
+  [RIDE_LIVE_STATUS.STARTED]: {
+    title: 'Ride started',
+    body: (ride) => (ride.dropAddress ? `On the way to ${ride.dropAddress}.` : 'Your ride has started.'),
+    type: 'ride_started',
+  },
+  [RIDE_LIVE_STATUS.ARRIVED]: {
+    title: 'You have arrived',
+    body: () => 'You have reached your destination.',
+    type: 'ride_arrived',
+  },
+  [RIDE_LIVE_STATUS.COMPLETED]: {
+    title: 'Ride completed',
+    body: (ride) => (Number(ride.fare) > 0
+      ? `Trip complete. Fare Rs ${Number(ride.fare).toFixed(2)}.`
+      : 'Your trip is complete.'),
+    type: 'ride_completed',
+  },
+};
+
+const notifyUserOfRideStatus = (ride, nextStatus) => {
+  const config = rideStatusUserPush[nextStatus];
+
+  if (!config || !ride?.userId) {
+    return;
+  }
+
+  sendPushNotificationToEntities({
+    userIds: [String(ride.userId?._id || ride.userId)],
+    title: config.title,
+    body: config.body(ride),
+    data: {
+      type: config.type,
+      rideId: String(ride._id),
+      serviceType: ride.serviceType || 'ride',
+    },
+  }).catch((error) => {
+    console.error(`Failed to send user ${config.type} push notification`, error);
+  });
+};
+
 const rideStatusConfig = {
   [RIDE_LIVE_STATUS.ACCEPTED]: {
     persistedStatus: RIDE_STATUS.ACCEPTED,
@@ -1690,6 +1746,10 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
       populatedRide.$locals = populatedRide.$locals || {};
       populatedRide.$locals.walletUpdate = walletUpdate;
     }
+
+    // Fire-and-forget, and only after the transaction commits: the rider must
+    // never be told the ride started if the write later rolled back.
+    notifyUserOfRideStatus(populatedRide || ride, nextStatus);
 
     return populatedRide;
   } catch (error) {
