@@ -44,9 +44,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const sendOtp = async (phone) => {
     try {
-      const response = await api.post('/wedding/vendor/login', { email, password });
+      const response = await api.post('/wedding/vendor/send-otp', { phone });
+      if (response.data.success) {
+        return { 
+          success: true, 
+          message: response.data.message, 
+          debugOtp: response.data.debugOtp 
+        };
+      }
+      return { success: false, error: response.data.message };
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to send OTP. Please try again.";
+      return { success: false, error: message };
+    }
+  };
+
+  const login = async (identifier, credential) => {
+    try {
+      const payload = typeof identifier === 'object' 
+        ? identifier 
+        : (String(identifier).includes('@') 
+            ? { email: identifier, password: credential } 
+            : { phone: identifier, otp: credential });
+
+      const response = await api.post('/wedding/vendor/login', payload);
 
       if (response.data.success) {
         const { token, user: existingUser } = response.data;
@@ -76,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user,
         loading,
         signup,
+        sendOtp,
         login,
         logout,
       }}

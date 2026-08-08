@@ -1,6 +1,7 @@
 import express from 'express';
 import { 
   registerVendor, 
+  sendVendorOtp,
   loginVendor,
   updatePassword,
   getMe
@@ -174,6 +175,7 @@ router.post('/enquiries/:id/pay-and-book', protect, confirmBooking);
 
 // Auth Routes (Vendor)
 router.post('/vendor/register', registerVendor);
+router.post('/vendor/send-otp', sendVendorOtp);
 router.post('/vendor/login', loginVendor);
 
 // Vendor Profile Routes (Protected)

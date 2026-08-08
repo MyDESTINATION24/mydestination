@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getCategories } from "../../data/categoryApi";
 import { useAuth } from "../../context/AuthContext";
-import { Loader2, ArrowRight, ChevronDown, Eye, EyeOff } from "lucide-react";
+import { Loader2, ArrowRight, ChevronDown } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   Select,
@@ -19,26 +19,35 @@ const VendorSignup = () => {
   
   const { signup } = useAuth();
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    password: "",
     category: "",
   });
   const [errors, setErrors] = useState({});
+
+  const defaultCategories = [
+    { _id: '1', name: 'Wedding Planner' },
+    { _id: '2', name: 'Photographers' },
+    { _id: '3', name: 'Bridal Wear' },
+    { _id: '4', name: 'Food & Catering' },
+    { _id: '5', name: 'Pre Wedding Shoot' },
+    { _id: '6', name: 'Venue Manager' }
+  ];
 
   useEffect(() => {
     const fetchCats = async () => {
       try {
         const res = await getCategories();
-        if (res.success) {
+        if (res.success && res.categories && res.categories.length > 0) {
           setCategories(res.categories);
+        } else {
+          setCategories(defaultCategories);
         }
       } catch (error) {
-        toast.error("Failed to load categories.");
+        setCategories(defaultCategories);
       } finally {
         setLoadingInitial(false);
       }
@@ -206,36 +215,21 @@ const VendorSignup = () => {
                     avoidCollisions={true} 
                     className="z-[100] max-h-[200px] overflow-y-auto bg-white shadow-2xl border-border"
                   >
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
+                    {categories && categories.length > 0 ? (
+                      categories.map((cat, idx) => (
+                        <SelectItem key={cat._id || cat.id || cat.slug || idx} value={cat.name}>
+                          {cat.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="p-2 text-center text-xs text-muted-foreground">No categories found</div>
+                    )}
                   </SelectContent>
                 </Select>
                 {loadingInitial && (
                   <Loader2 className="w-4 h-4 animate-spin absolute right-10 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 )}
               </div>
-            </div>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className={`${inputClass} pr-10`}
-                required
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors focus:outline-none"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
             </div>
 
             <button
