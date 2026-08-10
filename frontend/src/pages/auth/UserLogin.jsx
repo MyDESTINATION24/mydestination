@@ -23,7 +23,9 @@ const UserLogin = ({ theme = 'hotel' }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [step, setStep] = useState(1);
-    const [phone, setPhone] = useState('6268455485');
+    const [phone, setPhone] = useState('');
+    const [phoneTouched, setPhoneTouched] = useState(false);
+    const isPhoneValid = phone.length === 10 && /^[6-9]\d{9}$/.test(phone);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -295,11 +297,20 @@ const UserLogin = ({ theme = 'hotel' }) => {
                                         <label className="font-black text-[10px] uppercase tracking-widest block mb-1 px-1" style={{ color: primary }}>
                                             Mobile Number
                                         </label>
-                                        <div className="flex items-center bg-[#F8F9F5] rounded-2xl border-2 border-transparent transition-all h-14 shadow-sm"
-                                            style={{ '--tw-ring-color': light }}
-                                            onFocus={e => e.currentTarget.style.borderColor = light}
-                                            onBlur={e => e.currentTarget.style.borderColor = 'transparent'}>
-                                            <div className="pl-5 pr-3 font-black border-r h-8 flex items-center" style={{ color: primary, borderColor: faint }}>
+                                        <div 
+                                            className={`flex items-center bg-[#F8F9F5] rounded-2xl border-2 transition-all h-14 shadow-sm ${
+                                                phoneTouched && !isPhoneValid ? 'border-red-500 bg-red-50/30' : 'border-transparent'
+                                            }`}
+                                            onFocus={e => { if (!phoneTouched || isPhoneValid) e.currentTarget.style.borderColor = light; }}
+                                            onBlur={e => { 
+                                                setPhoneTouched(true);
+                                                if (!isPhoneValid) {
+                                                    e.currentTarget.style.borderColor = '#ef4444';
+                                                } else {
+                                                    e.currentTarget.style.borderColor = 'transparent';
+                                                }
+                                            }}>
+                                            <div className="pl-5 pr-3 font-black border-r h-8 flex items-center" style={{ color: phoneTouched && !isPhoneValid ? '#ef4444' : primary, borderColor: faint }}>
                                                 <span className="text-sm">+91</span>
                                             </div>
                                             <input
@@ -308,6 +319,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
                                                 onChange={(e) => {
                                                     const val = e.target.value.replace(/\D/g, '');
                                                     if (val.length <= 10) setPhone(val);
+                                                    setPhoneTouched(true);
                                                 }}
                                                 placeholder="9876543210"
                                                 className="flex-1 bg-transparent px-4 font-black outline-none w-full h-full text-lg"
@@ -315,6 +327,11 @@ const UserLogin = ({ theme = 'hotel' }) => {
                                                 required
                                             />
                                         </div>
+                                        {phoneTouched && !isPhoneValid && (
+                                            <p className="text-red-500 text-[10px] font-bold mt-1 px-2 flex items-center gap-1">
+                                                <span>•</span> {phone === '' ? 'Mobile number is required' : 'Enter a valid 10-digit mobile number starting with 6-9'}
+                                            </p>
+                                        )}
                                     </div>
 
                                     {error && (
@@ -329,7 +346,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
 
                                     <button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || !isPhoneValid}
                                         className="w-full text-white h-14 rounded-2xl font-black text-sm shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                         style={{ backgroundColor: primary, boxShadow: `0 8px 24px ${primary}40` }}
                                     >
@@ -434,15 +451,6 @@ const UserLogin = ({ theme = 'hotel' }) => {
                                 Create Account
                             </button>
                         </p>
-                        {isWedding ? (
-                            <button onClick={() => navigate('/login')} className="mt-2 text-xs font-bold opacity-40 hover:opacity-70 transition" style={{ color: primary }}>
-                                Looking for Hotels? →
-                            </button>
-                        ) : (
-                            <button onClick={() => navigate('/wedding/login')} className="mt-2 text-xs font-bold opacity-40 hover:opacity-70 transition" style={{ color: primary }}>
-                                Planning a Wedding? →
-                            </button>
-                        )}
                     </div>
                 </div>
             </motion.main>

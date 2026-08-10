@@ -293,16 +293,6 @@ const UserLoginPage = ({ theme = 'hotel' }) => {
                         Create Account
                     </button>
                 </p>
-                {isWedding && (
-                    <button onClick={() => navigate('/login')} className="mt-2 text-white/40 text-xs hover:text-white/60 transition">
-                        Looking for Hotels? Login here →
-                    </button>
-                )}
-                {!isWedding && (
-                    <button onClick={() => navigate('/wedding/login')} className="mt-2 text-white/40 text-xs hover:text-white/60 transition">
-                        Planning a Wedding? Login here →
-                    </button>
-                )}
             </div>
         </div>
     );

@@ -89,6 +89,16 @@ export const authService = {
     }
   },
 
+  // Validate Referral Code
+  validateReferral: async (referralCode) => {
+    try {
+      const response = await api.post('/auth/validate-referral', { referralCode });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Send OTP
   sendOtp: async (phone, type = 'login', role = 'user', email = '') => {
     try {

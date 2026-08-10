@@ -83,8 +83,8 @@ export const sendOtp = async (req, res) => {
         });
       }
 
-      // Check Approval Status for Vendors/Partners
-      if (user.role === 'vendor' || user.role === 'partner') {
+      // Check Approval Status ONLY for Vendors/Partners (Not regular Users)
+      if ((role === 'partner' || role === 'vendor') && (user.role === 'vendor' || user.role === 'partner')) {
         if (user.partnerApprovalStatus !== 'approved') {
           return res.status(403).json({
             success: false,
@@ -445,6 +445,11 @@ export const verifyOtp = async (req, res) => {
       // REFERRAL: Process Signup Referral
       if (referralCode) {
         console.log(`[REFERRAL_DEBUG] User signup with code: ${referralCode}`);
+        const ReferralCodeModel = (await import('../../referral/models/ReferralCode.js')).default;
+        const validCode = await ReferralCodeModel.findOne({ code: referralCode.toUpperCase(), isActive: true });
+        if (!validCode) {
+          return res.status(400).json({ message: 'Invalid referral code provided' });
+        }
         referralService.processReferralSignup(user, referralCode).catch(err => console.error('[REFERRAL_DEBUG] Referral Signup Error:', err));
       }
 
@@ -459,8 +464,8 @@ export const verifyOtp = async (req, res) => {
 
     }
 
-    // BLOCK LOGIN IF NOT APPROVED (FOR VENDORS AND PARTNERS)
-    if (user.role === 'vendor' || user.role === 'partner') {
+    // BLOCK LOGIN IF NOT APPROVED (ONLY FOR VENDORS AND PARTNERS)
+    if ((role === 'partner' || role === 'vendor') && (user.role === 'vendor' || user.role === 'partner')) {
       if (user.partnerApprovalStatus !== 'approved') {
         return res.status(403).json({
           success: false,
@@ -1052,6 +1057,30 @@ export const uploadProfileImage = async (req, res) => {
 
   } catch (error) {
     console.error('Upload Profile Image Error:', error);
-    res.status(500).json({ message: 'Server error uploading image' });
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ message: 'Failed to upload profile image' });
+  }
+};
+
+export const validateReferralCode = async (req, res) => {
+  try {
+    const { referralCode } = req.body;
+    if (!referralCode || !referralCode.trim()) {
+      return res.status(400).json({ valid: false, message: 'Referral code is required' });
+    }
+
+    const ReferralCodeModel = (await import('../../referral/models/ReferralCode.js')).default;
+    const code = await ReferralCodeModel.findOne({ code: referralCode.trim().toUpperCase(), isActive: true });
+
+    if (!code) {
+      return res.status(404).json({ valid: false, message: 'Invalid referral code' });
+    }
+
+    return res.status(200).json({ valid: true, message: 'Valid referral code' });
+  } catch (error) {
+    console.error('Validate Referral Code Error:', error);
+    return res.status(500).json({ valid: false, message: 'Server error checking referral code' });
   }
 };

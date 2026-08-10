@@ -48,7 +48,7 @@ const SettingsPage = () => {
                 <h2 className="text-2xl font-black">App Preferences</h2>
             </div>
 
-            <div className="px-5 mt-8 relative z-10 space-y-4 pb-24">
+            <div className="px-5 mt-8 relative z-10 space-y-4 pb-16">
                 {user ? (
                     <>
                         {/* Logout Section */}

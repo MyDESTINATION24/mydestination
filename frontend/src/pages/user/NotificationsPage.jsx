@@ -168,7 +168,7 @@ const NotificationsPage = () => {
                 </div>
             </div>
 
-            <div className="px-5 pt-4 relative z-10 space-y-4 pb-24">
+            <div className="px-5 pt-4 relative z-10 space-y-4 pb-16">
                 {loading ? (
                     <div className="flex justify-center pt-20">
                         <div className="animate-spin w-8 h-8 border-4 border-surface border-t-transparent rounded-full"></div>

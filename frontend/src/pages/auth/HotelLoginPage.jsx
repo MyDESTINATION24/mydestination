@@ -9,12 +9,13 @@ import toast from 'react-hot-toast';
 const HotelLoginPage = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
-    const [phone, setPhone] = useState('6268455485');
+    const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);
-    const [canResend, setCanResend] = useState(false);
+    const [phoneTouched, setPhoneTouched] = useState(false);
+    const isPhoneValid = phone.length === 10 && /^[6-9]\d{9}$/.test(phone);
 
     useEffect(() => {
         let interval;
@@ -109,17 +110,30 @@ const HotelLoginPage = () => {
                                             <input
                                                 type="tel"
                                                 value={phone}
-                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                                onChange={(e) => {
+                                                    setPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
+                                                    setPhoneTouched(true);
+                                                }}
+                                                onBlur={() => setPhoneTouched(true)}
                                                 placeholder="9876543210"
-                                                className="w-full px-5 py-4 bg-gray-50 border-transparent rounded-2xl focus:bg-white focus:ring-4 focus:ring-green-50 outline-none transition-all font-bold text-lg"
+                                                className={`w-full px-5 py-4 bg-gray-50 border-2 rounded-2xl focus:bg-white outline-none transition-all font-bold text-lg ${
+                                                    phoneTouched && !isPhoneValid 
+                                                        ? 'border-red-500 bg-red-50/30' 
+                                                        : 'border-transparent focus:ring-4 focus:ring-green-50'
+                                                }`}
                                                 required
                                             />
                                         </div>
+                                        {phoneTouched && !isPhoneValid && (
+                                            <p className="text-red-500 text-[10px] font-bold mt-1 px-2 flex items-center gap-1">
+                                                <span>•</span> {phone === '' ? 'Mobile number is required' : 'Enter a valid 10-digit mobile number starting with 6-9'}
+                                            </p>
+                                        )}
                                     </div>
                                     {error && <p className="text-red-500 text-[10px] font-bold text-center mt-2">{error}</p>}
                                     <button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || !isPhoneValid}
                                         className="w-full bg-[#39593f] text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-100 active:scale-95 transition-all disabled:opacity-50"
                                     >
                                         {loading ? <Loader2 className="animate-spin mx-auto" /> : 'Continue'}

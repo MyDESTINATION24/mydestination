@@ -273,7 +273,7 @@ const ProfileEdit = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-hotel-bg)] flex flex-col items-center pt-safe-top pb-24 md:pb-10 font-sans">
+    <div className="min-h-screen bg-[var(--color-hotel-bg)] flex flex-col items-center pt-safe-top pb-16 md:pb-10 font-sans">
 
       {/* Sticky Header */}
       <div className="sticky top-0 left-0 right-0 w-full z-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 pt-14 pb-4 md:py-4 shadow-sm mb-6">

@@ -30,7 +30,76 @@ const UserSignup = ({ theme = 'hotel' }) => {
         email: '',
         referralCode: ''
     });
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [touched, setTouched] = useState({
+        name: false,
+        phone: false,
+        email: false,
+        referralCode: false
+    });
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const [referralStatus, setReferralStatus] = useState({ state: 'idle', message: '' }); // idle | checking | valid | invalid
+
+    useEffect(() => {
+        const code = formData.referralCode.trim();
+        if (!code || code.length < 4) {
+            setReferralStatus({ state: 'idle', message: '' });
+            return;
+        }
+
+        setReferralStatus({ state: 'checking', message: 'Validating referral code...' });
+        const timer = setTimeout(async () => {
+            try {
+                const res = await authService.validateReferral(code);
+                if (res.valid) {
+                    setReferralStatus({ state: 'valid', message: '₹100 CREDIT WILL BE APPLIED' });
+                } else {
+                    setReferralStatus({ state: 'invalid', message: 'Invalid referral code' });
+                }
+            } catch (err) {
+                setReferralStatus({ state: 'invalid', message: err.message || 'Invalid referral code' });
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [formData.referralCode]);
+
+    const getFieldErrors = () => {
+        const errors = {};
+        if (formData.name.trim() === '') {
+            errors.name = 'Full Name is required';
+        } else if (formData.name.trim().length < 3) {
+            errors.name = 'Full Name must be at least 3 characters';
+        } else if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
+            errors.name = 'Full Name should contain letters only';
+        }
+
+        if (formData.phone === '') {
+            errors.phone = 'Phone Number is required';
+        } else if (formData.phone.length !== 10) {
+            errors.phone = 'Phone Number must be exactly 10 digits';
+        } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+            errors.phone = 'Enter a valid Indian 10-digit mobile number';
+        }
+
+        if (formData.email.trim() !== '' && !emailRegex.test(formData.email.trim())) {
+            errors.email = 'Please enter a valid email address';
+        }
+
+        if (formData.referralCode.trim() !== '') {
+            if (formData.referralCode.trim().length < 4) {
+                errors.referralCode = 'Referral Code must be at least 4 characters';
+            } else if (referralStatus.state === 'invalid') {
+                errors.referralCode = referralStatus.message;
+            }
+        }
+
+        return errors;
+    };
+
+    const fieldErrors = getFieldErrors();
+    const isFormValid = Object.keys(fieldErrors).length === 0;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);
@@ -245,34 +314,75 @@ const UserSignup = ({ theme = 'hotel' }) => {
                             >
                                 <form onSubmit={handleSendOTP} className="space-y-3">
                                     <div className="space-y-2">
+                                        {/* Full Name Field */}
                                         <div className="relative">
                                             <label className="font-black text-[10px] uppercase tracking-widest block mb-1 px-1" style={{ color: primary }}>Full Name</label>
-                                            <div className="flex items-center bg-[#F8F9F5] rounded-2xl border-2 border-transparent transition-all h-14"
-                                                 onFocus={e => e.currentTarget.style.borderColor = light}
-                                                 onBlur={e => e.currentTarget.style.borderColor = 'transparent'}>
-                                                <User size={18} className="ml-4" style={{ color: light }} />
+                                            <div 
+                                                className={`flex items-center bg-[#F8F9F5] rounded-2xl border-2 transition-all h-14 ${
+                                                    touched.name && fieldErrors.name 
+                                                        ? 'border-red-500 bg-red-50/30' 
+                                                        : 'border-transparent'
+                                                }`}
+                                                onFocus={e => { if (!touched.name || !fieldErrors.name) e.currentTarget.style.borderColor = light; }}
+                                                onBlur={e => { 
+                                                    setTouched(prev => ({ ...prev, name: true }));
+                                                    if (touched.name && fieldErrors.name) {
+                                                        e.currentTarget.style.borderColor = '#ef4444';
+                                                    } else {
+                                                        e.currentTarget.style.borderColor = 'transparent';
+                                                    }
+                                                }}
+                                            >
+                                                <User size={18} className="ml-4" style={{ color: touched.name && fieldErrors.name ? '#ef4444' : light }} />
                                                 <input
                                                     type="text"
                                                     value={formData.name}
-                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    onChange={(e) => {
+                                                        const cleanVal = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                                                        setFormData({ ...formData, name: cleanVal });
+                                                        setTouched(prev => ({ ...prev, name: true }));
+                                                    }}
                                                     placeholder="John Doe"
                                                     className="flex-1 bg-transparent px-4 font-black outline-none h-full"
                                                     style={{ color: primary }}
                                                     required
                                                 />
                                             </div>
+                                            {touched.name && fieldErrors.name && (
+                                                <p className="text-red-500 text-[10px] font-bold mt-1 px-2 flex items-center gap-1">
+                                                    <span>•</span> {fieldErrors.name}
+                                                </p>
+                                            )}
                                         </div>
 
+                                        {/* Phone Number Field */}
                                         <div className="relative">
                                             <label className="font-black text-[10px] uppercase tracking-widest block mb-1 px-1" style={{ color: primary }}>Phone Number</label>
-                                            <div className="flex items-center bg-[#F8F9F5] rounded-2xl border-2 border-transparent transition-all h-14"
-                                                 onFocus={e => e.currentTarget.style.borderColor = light}
-                                                 onBlur={e => e.currentTarget.style.borderColor = 'transparent'}>
-                                                <Phone size={18} className="ml-4" style={{ color: light }} />
+                                            <div 
+                                                className={`flex items-center bg-[#F8F9F5] rounded-2xl border-2 transition-all h-14 ${
+                                                    touched.phone && fieldErrors.phone 
+                                                        ? 'border-red-500 bg-red-50/30' 
+                                                        : 'border-transparent'
+                                                }`}
+                                                onFocus={e => { if (!touched.phone || !fieldErrors.phone) e.currentTarget.style.borderColor = light; }}
+                                                onBlur={e => { 
+                                                    setTouched(prev => ({ ...prev, phone: true }));
+                                                    if (touched.phone && fieldErrors.phone) {
+                                                        e.currentTarget.style.borderColor = '#ef4444';
+                                                    } else {
+                                                        e.currentTarget.style.borderColor = 'transparent';
+                                                    }
+                                                }}
+                                            >
+                                                <Phone size={18} className="ml-4" style={{ color: touched.phone && fieldErrors.phone ? '#ef4444' : light }} />
                                                 <input
                                                     type="tel"
                                                     value={formData.phone}
-                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
+                                                    onChange={(e) => {
+                                                        const cleanVal = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                                        setFormData({ ...formData, phone: cleanVal });
+                                                        setTouched(prev => ({ ...prev, phone: true }));
+                                                    }}
                                                     placeholder="9876543210"
                                                     maxLength={10}
                                                     className="flex-1 bg-transparent px-4 font-black outline-none h-full"
@@ -280,26 +390,54 @@ const UserSignup = ({ theme = 'hotel' }) => {
                                                     required
                                                 />
                                             </div>
+                                            {touched.phone && fieldErrors.phone && (
+                                                <p className="text-red-500 text-[10px] font-bold mt-1 px-2 flex items-center gap-1">
+                                                    <span>•</span> {fieldErrors.phone}
+                                                </p>
+                                            )}
                                         </div>
 
+                                        {/* Email Field */}
                                         <div className="relative">
                                             <label className="font-black text-[10px] uppercase tracking-widest block mb-1 px-1" style={{ color: primary }}>Email <span className="lowercase text-[9px]">(Optional)</span></label>
-                                            <div className="flex items-center bg-[#F8F9F5] rounded-2xl border-2 border-transparent transition-all h-14"
-                                                 onFocus={e => e.currentTarget.style.borderColor = light}
-                                                 onBlur={e => e.currentTarget.style.borderColor = 'transparent'}>
-                                                <Mail size={18} className="ml-4" style={{ color: light }} />
+                                            <div 
+                                                className={`flex items-center bg-[#F8F9F5] rounded-2xl border-2 transition-all h-14 ${
+                                                    touched.email && fieldErrors.email 
+                                                        ? 'border-red-500 bg-red-50/30' 
+                                                        : 'border-transparent'
+                                                }`}
+                                                onFocus={e => { if (!touched.email || !fieldErrors.email) e.currentTarget.style.borderColor = light; }}
+                                                onBlur={e => { 
+                                                    setTouched(prev => ({ ...prev, email: true }));
+                                                    if (touched.email && fieldErrors.email) {
+                                                        e.currentTarget.style.borderColor = '#ef4444';
+                                                    } else {
+                                                        e.currentTarget.style.borderColor = 'transparent';
+                                                    }
+                                                }}
+                                            >
+                                                <Mail size={18} className="ml-4" style={{ color: touched.email && fieldErrors.email ? '#ef4444' : light }} />
                                                 <input
                                                     type="email"
                                                     value={formData.email}
-                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    onChange={(e) => {
+                                                        setFormData({ ...formData, email: e.target.value.trim() });
+                                                        setTouched(prev => ({ ...prev, email: true }));
+                                                    }}
                                                     placeholder="you@example.com"
                                                     className="flex-1 bg-transparent px-4 font-black outline-none h-full"
                                                     style={{ color: primary }}
                                                 />
                                             </div>
+                                            {touched.email && fieldErrors.email && (
+                                                <p className="text-red-500 text-[10px] font-bold mt-1 px-2 flex items-center gap-1">
+                                                    <span>•</span> {fieldErrors.email}
+                                                </p>
+                                            )}
                                         </div>
 
-                                        <div className="bg-[#F8F9F5] p-3 rounded-2xl border space-y-2" style={{ borderColor: faint }}>
+                                        {/* Referral Code Field */}
+                                        <div className="bg-[#F8F9F5] p-3 rounded-2xl border space-y-2" style={{ borderColor: touched.referralCode && fieldErrors.referralCode ? '#ef4444' : referralStatus.state === 'valid' ? '#22c55e' : faint }}>
                                             <div className="flex items-center gap-2">
                                                 <Gift size={14} style={{ color: primary }} />
                                                 <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: primary }}>Referral Code</span>
@@ -307,13 +445,29 @@ const UserSignup = ({ theme = 'hotel' }) => {
                                             <input
                                                 type="text"
                                                 value={formData.referralCode}
-                                                onChange={(e) => setFormData({ ...formData, referralCode: e.target.value.toUpperCase() })}
+                                                onChange={(e) => {
+                                                    const cleanVal = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                                                    setFormData({ ...formData, referralCode: cleanVal });
+                                                    setTouched(prev => ({ ...prev, referralCode: true }));
+                                                }}
                                                 placeholder="FRIEND100"
-                                                className="w-full bg-white px-4 py-2 rounded-xl border outline-none h-10 uppercase tracking-widest text-center text-xs font-black"
-                                                style={{ color: primary, borderColor: faint }}
+                                                className={`w-full bg-white px-4 py-2 rounded-xl border outline-none h-10 uppercase tracking-widest text-center text-xs font-black ${
+                                                    touched.referralCode && fieldErrors.referralCode ? 'border-red-500 text-red-500' : referralStatus.state === 'valid' ? 'border-green-500 text-green-700' : ''
+                                                }`}
+                                                style={{ color: primary, borderColor: touched.referralCode && fieldErrors.referralCode ? '#ef4444' : referralStatus.state === 'valid' ? '#22c55e' : faint }}
                                             />
-                                            {formData.referralCode && (
-                                                <p className="text-[8px] font-black text-center animate-pulse tracking-tighter" style={{ color: light }}>₹100 CREDIT WILL BE APPLIED</p>
+                                            {referralStatus.state === 'checking' && (
+                                                <p className="text-[9px] font-bold text-center text-gray-500 animate-pulse">Checking referral code...</p>
+                                            )}
+                                            {referralStatus.state === 'valid' && (
+                                                <p className="text-[9px] font-black text-center text-green-600 tracking-tight flex items-center justify-center gap-1">
+                                                    ✓ {referralStatus.message}
+                                                </p>
+                                            )}
+                                            {(touched.referralCode || referralStatus.state === 'invalid') && fieldErrors.referralCode && (
+                                                <p className="text-red-500 text-[9px] font-bold text-center">
+                                                    ✕ {fieldErrors.referralCode}
+                                                </p>
                                             )}
                                         </div>
                                     </div>
@@ -326,7 +480,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
 
                                     <button
                                         type="submit"
-                                        disabled={loading}
+                                        disabled={loading || !isFormValid}
                                         className="w-full text-white h-14 rounded-2xl font-black text-sm active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                         style={{ backgroundColor: primary, boxShadow: `0 8px 24px ${primary}40` }}
                                     >
@@ -399,15 +553,6 @@ const UserSignup = ({ theme = 'hotel' }) => {
                             Already have an account?{' '}
                             <button onClick={() => navigate(isWedding ? '/wedding/login' : '/login')} className="font-black hover:underline ml-1 px-1" style={{ color: primary }}>Log in</button>
                         </p>
-                        {isWedding ? (
-                            <button onClick={() => navigate('/signup')} className="mt-2 text-xs font-bold opacity-40 hover:opacity-70 transition" style={{ color: primary }}>
-                                Looking for Hotels? →
-                            </button>
-                        ) : (
-                            <button onClick={() => navigate('/wedding/signup')} className="mt-2 text-xs font-bold opacity-40 hover:opacity-70 transition" style={{ color: primary }}>
-                                Planning a Wedding? →
-                            </button>
-                        )}
                     </div>
                 </div>
             </motion.main>

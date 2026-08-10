@@ -42,7 +42,7 @@ const SavedPlacesPage = () => {
                 <p className="text-sm text-white/70">Hotels you have loved and saved.</p>
             </div>
 
-            <div className="max-w-7xl mx-auto px-5 pt-8 pb-24">
+            <div className="max-w-7xl mx-auto px-5 pt-8 pb-16">
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
                         <Loader2 size={32} className="animate-spin text-surface" />
