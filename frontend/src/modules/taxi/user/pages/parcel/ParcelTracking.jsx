@@ -29,6 +29,7 @@ import carIcon from '../../../../assets/icons/car.png';
 import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
+import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 
 const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
 const DEFAULT_CENTER = { lat: 22.7196, lng: 75.8577 };
@@ -198,6 +199,11 @@ const ParcelTracking = () => {
       calculateBearing(driverPosition, activeDestination),
     );
   }, [activeDestination, driverPosition, rideRealtime?.driverLocation?.heading, routePath]);
+  // Tween between socket fixes so the captain glides instead of teleporting.
+  const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
+    driverPosition,
+    displayDriverHeading,
+  );
   const fare = rideRealtime?.fare || state.fare || 45;
   const otp = String(rideRealtime?.otp || state.otp || '');
   const completedAt = rideRealtime?.completedAt || state.completedAt || Date.now();
@@ -732,7 +738,7 @@ const ParcelTracking = () => {
                 options={{ strokeColor: '#0f172a', strokeOpacity: 0.9, strokeWeight: 6 }}
               />
             )}
-            <RotatingVehicleMarker position={driverPosition} iconUrl={vehicleIcon} heading={displayDriverHeading} />
+            <RotatingVehicleMarker position={smoothDriverPosition || driverPosition} iconUrl={vehicleIcon} heading={smoothDriverHeading} />
             <MarkerF position={activeDestination} />
           </GoogleMap>
         ) : (

@@ -25,6 +25,7 @@ import { socketService } from '../../../shared/api/socket';
 import api from '../../../shared/api/axiosInstance';
 import carIcon from '../../../assets/icons/car.png';
 import { getLocalDriverToken } from '../services/registrationService';
+import { useSmoothedLatLng } from '../../shared/hooks/useSmoothedLatLng';
 
 const MAP_CONTAINER_STYLE = {
     width: '100%',
@@ -1203,6 +1204,13 @@ const ActiveTrip = () => {
             calculateBearing(driverPosition, activeDestination),
         );
     }, [activeDestination, driverHeading, driverPosition, routePath]);
+    // GPS fixes arrive in discrete jumps; tween between them so the marker
+    // glides. Only the rendered marker is smoothed -- publishDriverLocation
+    // still broadcasts the raw fix, so the rider's ETA stays accurate.
+    const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
+        driverPosition,
+        displayDriverHeading,
+    );
     const displayDriverHeadingRef = React.useRef(displayDriverHeading);
 
     const callContact = (phone) => {
@@ -1886,9 +1894,9 @@ const ActiveTrip = () => {
                             </>
                         )}
                         <RotatingVehicleMarker
-                            position={driverPosition}
+                            position={smoothDriverPosition || driverPosition}
                             iconUrl={vehicleIconUrl}
-                            heading={displayDriverHeading}
+                            heading={smoothDriverHeading}
                             title="Driver"
                         />
                         <MarkerF

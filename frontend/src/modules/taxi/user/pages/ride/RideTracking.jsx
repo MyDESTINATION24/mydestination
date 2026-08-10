@@ -14,6 +14,7 @@ import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSettings } from '../../../../shared/context/SettingsContext';
+import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 
 const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
 const DEFAULT_CENTER = { lat: 22.7196, lng: 75.8577 };
@@ -422,6 +423,12 @@ const RideTracking = () => {
       calculateBearing(driverPosition, activeDestination),
     );
   }, [activeDestination, driverPosition, rideRealtime?.driverLocation?.heading, routePath]);
+  // Socket fixes land every few seconds; tween between them so the vehicle
+  // glides and turns instead of teleporting.
+  const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
+    driverPosition,
+    displayDriverHeading,
+  );
   const vehicleLabel = driver.vehicle || driver.vehicleType || (serviceType === 'parcel' ? 'Parcel' : 'Taxi');
   const nextDriverImage = resolveAssetUrl(
     driver.profileImage || driver.profile_image || driver.image || driver.avatar || driver.selfie || '',
@@ -1209,10 +1216,10 @@ const RideTracking = () => {
             )}
             {hasLiveDriverLocation ? (
               <RotatingVehicleMarker
-                position={driverPosition}
+                position={smoothDriverPosition || driverPosition}
                 title="Driver"
                 iconUrl={vehicleIcon}
-                heading={displayDriverHeading}
+                heading={smoothDriverHeading}
               />
             ) : null}
             <MarkerF
