@@ -716,10 +716,12 @@ function App() {
           const heroBanner = data.data.heroBanner || {};
           const cardRadiusVal = borderRadius || '16px';
           const bannerRadiusVal = heroBanner.bannerRadius || cardRadiusVal;
+          const iconRadiusVal = theme.iconRadius || '50%';
           document.documentElement.style.setProperty('--card-radius', cardRadiusVal);
           document.documentElement.style.setProperty('--hotel-card-radius', cardRadiusVal);
           document.documentElement.style.setProperty('--border-radius', cardRadiusVal);
           document.documentElement.style.setProperty('--banner-radius', bannerRadiusVal);
+          document.documentElement.style.setProperty('--icon-radius', iconRadiusVal);
 
           // CARDS & FILL COLOR (cardBgColor / surfaceColor controls card container background shade)
           const cardFillColor = cardBgColor || surfaceColor || primaryColor;

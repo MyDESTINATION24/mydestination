@@ -63,12 +63,12 @@ const BottomNavbar = () => {
                             className={`flex flex-col items-center gap-1 min-w-[70px] transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"}`}
                         >
                             <div 
-                                className={`w-12 h-11 flex items-center justify-center transition-all duration-500 ${isActive
+                                className={`w-11 h-11 flex items-center justify-center transition-all duration-500 ${isActive
                                     ? "font-bold shadow-2xs" 
                                     : "text-slate-400"
                                 }`}
                                 style={{
-                                    borderRadius: 'var(--icon-radius, 1.25rem)',
+                                    borderRadius: 'var(--icon-radius, 50%)',
                                     ...(isActive ? { background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))', color: '#1a261a' } : {})
                                 }}
                             >

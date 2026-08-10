@@ -44,6 +44,21 @@ import { getLogoFilterStyle } from '../../../utils/themeUtils';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+const parseRadiusToPx = (val) => {
+  if (!val) return 24;
+  if (typeof val === 'number') return val;
+  const str = String(val).trim();
+  if (str === '50%' || str === '9999px' || str === 'full') return 24;
+  if (str.endsWith('rem')) {
+    return Math.round(parseFloat(str) * 16);
+  }
+  if (str.endsWith('%')) {
+    return Math.round((parseFloat(str) / 100) * 48);
+  }
+  const parsed = parseFloat(str);
+  return isNaN(parsed) ? 24 : Math.round(parsed);
+};
+
 const PRESET_PALETTES = [
   { name: 'Vibrant Sun Gold', start: '#FFD000', end: '#FF9E00', primary: '#FFD000', vip: 'dark_gold' },
   { name: 'Luxury Amber Glow', start: '#FFE066', end: '#F59E0B', primary: '#F59E0B', vip: 'dark_gold' },
@@ -65,7 +80,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       cardBgColor: '#F8FAFC',
       fontFamily: 'Inter, sans-serif',
       borderRadius: '16px',
-      iconRadius: '1.25rem',
+      iconRadius: '50%',
       useGradient: true,
       gradientStart: '#FFD000',
       gradientEnd: '#FF9E00',
@@ -124,7 +139,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
         }));
         const rVal = data.data.theme?.borderRadius || '16px';
         const bVal = data.data.heroBanner?.bannerRadius || rVal;
-        const iVal = data.data.theme?.iconRadius || '1.25rem';
+        const iVal = data.data.theme?.iconRadius || '50%';
         document.documentElement.style.setProperty('--card-radius', rVal);
         document.documentElement.style.setProperty('--hotel-card-radius', rVal);
         document.documentElement.style.setProperty('--border-radius', rVal);
@@ -143,7 +158,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       setSaving(true);
       const rVal = uiConfig.theme?.borderRadius || '16px';
       const bVal = uiConfig.heroBanner?.bannerRadius || rVal;
-      const iVal = uiConfig.theme?.iconRadius || '1.25rem';
+      const iVal = uiConfig.theme?.iconRadius || '50%';
       document.documentElement.style.setProperty('--card-radius', rVal);
       document.documentElement.style.setProperty('--hotel-card-radius', rVal);
       document.documentElement.style.setProperty('--border-radius', rVal);
@@ -662,8 +677,9 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                       {[
                         { label: 'Square', value: '0px' },
                         { label: 'Slight Curve', value: '8px' },
-                        { label: 'Rounded', value: '1rem' },
-                        { label: 'Circle', value: '50%' },
+                        { label: 'Medium Round', value: '16px' },
+                        { label: 'Smooth Curve', value: '24px' },
+                        { label: 'Circle / Pill', value: '50%' },
                         { label: 'Leaf', value: '50% 0 50% 0' },
                         { label: 'Teardrop', value: '50% 50% 50% 0' }
                       ].map(option => (
@@ -710,18 +726,18 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                       {/* Interactive Radius Slider */}
                       <div className="space-y-1.5">
                         <div className="flex justify-between items-center text-xs font-bold text-slate-700">
-                          <label htmlFor="icon-radius-range">Drag Curve Radius (0px - 50px)</label>
+                          <label htmlFor="icon-radius-range">Drag Curve Radius (0px - 100px)</label>
                           <span className="font-mono text-amber-600 font-extrabold bg-white px-2 py-0.5 border rounded-md shadow-2xs">
-                            {parseInt(uiConfig.theme.iconRadius) || 0}px
+                            {parseRadiusToPx(uiConfig.theme.iconRadius)}px
                           </span>
                         </div>
                         <input
                           id="icon-radius-range"
                           type="range"
                           min="0"
-                          max="50"
+                          max="100"
                           step="1"
-                          value={parseInt(uiConfig.theme.iconRadius) || 0}
+                          value={parseRadiusToPx(uiConfig.theme.iconRadius)}
                           onChange={(e) => {
                             const val = `${e.target.value}px`;
                             setUiConfig(prev => ({
@@ -1152,11 +1168,11 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                 <div className="p-3 space-y-3 flex-1 overflow-y-auto bg-slate-50/80">
                   {/* Category Filter Chips */}
                   <div className="flex gap-1.5 overflow-x-auto text-[11px] font-semibold text-slate-600 no-scrollbar pb-1">
-                    <span className="px-3 py-1 text-white shadow-2xs font-bold rounded-full" style={activeGradientStyle}>All</span>
-                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-full">Hotel</span>
-                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-full">Villa</span>
-                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-full">Resort</span>
-                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-full">Homestay</span>
+                    <span className="px-3 py-1 text-white shadow-2xs font-bold transition-all duration-300" style={{ ...activeGradientStyle, borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>All</span>
+                    <span className="px-3 py-1 bg-white border border-slate-200 transition-all duration-300" style={{ borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>Hotel</span>
+                    <span className="px-3 py-1 bg-white border border-slate-200 transition-all duration-300" style={{ borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>Villa</span>
+                    <span className="px-3 py-1 bg-white border border-slate-200 transition-all duration-300" style={{ borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>Resort</span>
+                    <span className="px-3 py-1 bg-white border border-slate-200 transition-all duration-300" style={{ borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>Homestay</span>
                   </div>
 
                   {/* Exclusive Offers Banner */}
@@ -1482,7 +1498,7 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
                 <span>SERVICES</span>
               </div>
               <div className="flex flex-col items-center gap-0.5 cursor-pointer text-amber-600 font-black">
-                <div className="p-1 bg-amber-50 rounded-full">
+                <div className="p-1 bg-amber-50 flex items-center justify-center transition-all duration-300" style={{ borderRadius: uiConfig.theme.iconRadius || 'var(--icon-radius, 1.25rem)' }}>
                   <Grid size={14} className="text-amber-600" />
                 </div>
                 <span>HOME</span>

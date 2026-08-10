@@ -8,6 +8,7 @@ const defaultSettings = {
     cardBgColor: '#F8FAFC',
     fontFamily: 'Inter, sans-serif',
     borderRadius: '16px',
+    iconRadius: '50%',
     useGradient: true,
     gradientStart: '#FFD000',
     gradientEnd: '#FF9E00',

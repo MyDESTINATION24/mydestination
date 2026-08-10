@@ -14,6 +14,7 @@ const HotelUISettingSchema = new mongoose.Schema({
     cardBgColor: { type: String, default: '#F8FAFC' },
     fontFamily: { type: String, default: 'Inter, sans-serif' },
     borderRadius: { type: String, default: '16px' },
+    iconRadius: { type: String, default: '50%' },
     useGradient: { type: Boolean, default: true },
     gradientStart: { type: String, default: '#FFD000' },
     gradientEnd: { type: String, default: '#FF9E00' },

@@ -44,7 +44,7 @@ const PropertyTypeFilter = ({ selectedType, onSelectType }) => {
                 }
               `}
               style={{
-                borderRadius: 'var(--icon-radius, 1rem)',
+                borderRadius: 'var(--icon-radius, 50%)',
                 ...(isSelected ? { background: 'var(--color-theme-gradient, var(--color-surface, #FFD000))' } : {})
               }}
             >
