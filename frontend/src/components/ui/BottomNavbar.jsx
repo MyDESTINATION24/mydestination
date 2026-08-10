@@ -50,8 +50,8 @@ const BottomNavbar = () => {
     };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-[max(env(safe-area-inset-bottom),4px)] print:hidden">
-            <div className="flex items-center justify-around py-1.5 px-2">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden pb-[env(safe-area-inset-bottom,0px)]">
+            <div className="flex items-center justify-around py-1 px-1">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.name;
@@ -60,10 +60,10 @@ const BottomNavbar = () => {
                         <button
                             key={item.name}
                             onClick={() => handleNavClick(item)}
-                            className={`flex flex-col items-center gap-1 min-w-[70px] transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"}`}
+                            className={`flex flex-col items-center gap-0.5 min-w-[64px] py-0.5 transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"}`}
                         >
                             <div 
-                                className={`w-11 h-11 flex items-center justify-center transition-all duration-500 ${isActive
+                                className={`w-9 h-9 flex items-center justify-center transition-all duration-500 ${isActive
                                     ? "font-bold shadow-2xs" 
                                     : "text-slate-400"
                                 }`}

@@ -343,7 +343,7 @@ const Layout = ({ children }) => {
     <>
       {showUserNavs && <TopNavbar />}
 
-      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-20 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : isMarketingRoute ? 'marketing-module' : 'hotel-module'}`}>
+      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-14 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : isMarketingRoute ? 'marketing-module' : 'hotel-module'}`}>
         {showMaintenanceOverlay ? (
           <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-6 py-10 text-center bg-gradient-to-b from-[#111827] via-[#0f172a] to-black">
             <div className="flex flex-col items-center justify-center max-w-md w-full">
