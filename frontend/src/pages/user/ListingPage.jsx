@@ -106,7 +106,7 @@ const ListingPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="min-h-screen bg-gray-50 pb-20"
+            className="bg-gray-50 pb-16"
         >
             {/* 1. Header & Search Bar (Sticky & Premium) */}
             <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm pt-safe-top transition-all">

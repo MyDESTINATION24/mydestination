@@ -35,10 +35,6 @@ const VendorLogin = () => {
     setLoading(false);
 
     if (res.success) {
-      toast.success(res.message || "OTP sent successfully!");
-      if (res.debugOtp) {
-        toast(`[Demo Mode] Your OTP is: ${res.debugOtp}`, { icon: "🔑", duration: 6000 });
-      }
       setStep(2);
     } else {
       toast.error(res.error || "Failed to send OTP");
@@ -50,12 +46,7 @@ const VendorLogin = () => {
     const res = await sendOtp(phone);
     setResending(false);
 
-    if (res.success) {
-      toast.success("OTP resent successfully!");
-      if (res.debugOtp) {
-        toast(`[Demo Mode] Your OTP is: ${res.debugOtp}`, { icon: "🔑", duration: 6000 });
-      }
-    } else {
+    if (!res.success) {
       toast.error(res.error || "Failed to resend OTP");
     }
   };
@@ -71,7 +62,6 @@ const VendorLogin = () => {
     const res = await login(phone, otp.trim());
 
     if (res.success) {
-      toast.success("Welcome back!");
       // Check if they have an active vendor profile
       const vendorRes = await getVendor();
       if (vendorRes?.vendor?.status !== "draft") {

@@ -181,7 +181,7 @@ const SearchPage = () => {
     ];
 
     return (
-        <div className="min-h-screen pb-24">
+        <div className="pb-16">
 
             {/* Sticky Header */}
             <div className="sticky top-0 z-30 backdrop-blur-md border-b border-gray-100 pb-3 pt-14 px-4 md:pt-3 shadow-sm transition-all" style={{ background: 'var(--color-header-bg, var(--color-theme-gradient, var(--color-hotel-bg, #f5fcf5)))' }}>

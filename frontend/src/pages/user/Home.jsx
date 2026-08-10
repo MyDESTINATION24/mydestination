@@ -17,7 +17,7 @@ const Home = () => {
     }, []);
 
     return (
-        <main className="min-h-screen pb-24">
+        <main className="pb-16">
             <HeroSection />
 
             <div className={`z-30 transition-all                 ${isSticky ? 'fixed top-0 left-0 right-0 p-3 bg-transparent backdrop-blur-xl shadow-md border-b border-surface/5' : 'relative'}
