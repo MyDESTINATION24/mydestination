@@ -536,14 +536,14 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-24 md:pb-16" : ""}`}>
+      <main className={`${!hideNav ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-14 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 
       {/* Bottom Navbar for Mobile */}
       {!hideNav && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] pb-[max(env(safe-area-inset-bottom),14px)]">
-          <div className="flex items-center justify-around py-2.5 px-2">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden">
+          <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
             {navLinks.map((link) => {
               const Icon = link.icon;
               const isActive = location.pathname === link.to || (link.to !== '/wedding' && location.pathname.startsWith(link.to));
@@ -552,10 +552,10 @@ const WeddingLayout = () => {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`flex flex-col items-center gap-1 min-w-[70px] transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"
+                  className={`flex flex-col items-center gap-0.5 min-w-[64px] py-0.5 transition-all duration-300 ${isActive ? "scale-105" : "hover:scale-105"
                     }`}
                 >
-                  <div className={`w-12 h-11 rounded-[1.25rem] flex items-center justify-center transition-all duration-500 ${isActive
+                  <div className={`w-9 h-9 rounded-[1.25rem] flex items-center justify-center transition-all duration-500 ${isActive
                       ? "bg-[#81313A]/10 text-[#81313A]"
                       : "text-slate-400"
                     }`}>
