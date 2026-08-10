@@ -757,7 +757,7 @@ const PropertyDetailsPage = () => {
             </div>
           </>
         )}
-        <div className="absolute top-4 left-4 z-50">
+        <div className="absolute top-[max(env(safe-area-inset-top),16px)] left-4 z-50">
           <button 
             type="button"
             onClick={handleBackNav} 
@@ -767,7 +767,7 @@ const PropertyDetailsPage = () => {
             <ArrowLeft size={20} className="text-slate-800" />
           </button>
         </div>
-        <div className="absolute top-4 right-4 flex gap-2 z-30">
+        <div className="absolute top-[max(env(safe-area-inset-top),16px)] right-4 flex gap-2 z-50">
           <button
             onClick={(e) => { e.stopPropagation(); handleShare(); }}
             className="bg-white/90 hover:bg-white p-2.5 rounded-full shadow-md active:scale-95 transition-all cursor-pointer"
