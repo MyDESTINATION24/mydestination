@@ -30,6 +30,10 @@ import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
+import { distanceToPathMeters, trimPathToPosition } from '../../../shared/utils/routePath';
+
+// How far the vehicle may stray from the drawn route before re-requesting one.
+const ROUTE_DEVIATION_M = 60;
 
 const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
 const DEFAULT_CENTER = { lat: 22.7196, lng: 75.8577 };
@@ -153,6 +157,12 @@ const ParcelTracking = () => {
   const state = useMemo(() => location.state || storedRide || {}, [location.state, storedRide]);
   const [rideRealtime, setRideRealtime] = useState(null);
   const [routePath, setRoutePath] = useState([]);
+  // Mirrors routePath so the directions effect can read it without depending on it.
+  const routePathRef = useRef([]);
+  const routeDestinationRef = useRef(null);
+  useEffect(() => {
+    routePathRef.current = routePath;
+  }, [routePath]);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [shareToast, setShareToast] = useState(false);
@@ -203,6 +213,11 @@ const ParcelTracking = () => {
   const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
     driverPosition,
     displayDriverHeading,
+  );
+  // Draw only the road still ahead, starting at the marker.
+  const displayRoutePath = useMemo(
+    () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
+    [driverPosition, routePath, smoothDriverPosition],
   );
   const fare = rideRealtime?.fare || state.fare || 45;
   const otp = String(rideRealtime?.otp || state.otp || '');
@@ -582,6 +597,16 @@ const ParcelTracking = () => {
       return;
     }
 
+    // Keep the existing route while the captain is following it -- re-routing on
+    // every fix returned a slightly different path each time, making the line jump.
+    const existingPath = routePathRef.current;
+    const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
+    const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
+
+    if (existingPath.length > 1 && destinationUnchanged && onRoute) {
+      return;
+    }
+
     let active = true;
     const directionsService = new window.google.maps.DirectionsService();
     directionsService.route({
@@ -595,6 +620,7 @@ const ParcelTracking = () => {
       }
 
       if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+        routeDestinationRef.current = activeDestination;
         setRoutePath(result.routes[0].overview_path.map(p => ({ lat: p.lat(), lng: p.lng() })));
         return;
       }
@@ -732,9 +758,9 @@ const ParcelTracking = () => {
               ]
             }}
           >
-            {routePath.length > 0 && (
+            {displayRoutePath.length > 0 && (
               <PolylineF
-                path={routePath}
+                path={displayRoutePath}
                 options={{ strokeColor: '#0f172a', strokeOpacity: 0.9, strokeWeight: 6 }}
               />
             )}

@@ -26,6 +26,11 @@ import api from '../../../shared/api/axiosInstance';
 import carIcon from '../../../assets/icons/car.png';
 import { getLocalDriverToken } from '../services/registrationService';
 import { useSmoothedLatLng } from '../../shared/hooks/useSmoothedLatLng';
+import { distanceToPathMeters, trimPathToPosition } from '../../shared/utils/routePath';
+
+// How far the vehicle may stray from the drawn route before asking Directions
+// for a new one. Below this we just trim the path we already have.
+const ROUTE_DEVIATION_M = 60;
 
 const MAP_CONTAINER_STYLE = {
     width: '100%',
@@ -793,6 +798,13 @@ const ActiveTrip = () => {
     const [driverPosition, setDriverPosition] = useState(initialDriverPosition);
     const [driverHeading, setDriverHeading] = useState(null);
     const [routePath, setRoutePath] = useState([]);
+    // Mirrors routePath so the directions effect can read the live route without
+    // depending on it. Synced from state because simulation mode also writes it.
+    const routePathRef = useRef([]);
+    const routeDestinationRef = useRef(null);
+    useEffect(() => {
+        routePathRef.current = routePath;
+    }, [routePath]);
     const [routeError, setRouteError] = useState('');
     const [isSimulationEnabled, setIsSimulationEnabled] = useState(false);
     const [isSimulationRunning, setIsSimulationRunning] = useState(false);
@@ -1210,6 +1222,12 @@ const ActiveTrip = () => {
     const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
         driverPosition,
         displayDriverHeading,
+    );
+    // Draw only the road still ahead, starting at the marker, so the line
+    // shortens smoothly instead of being redrawn from the original origin.
+    const displayRoutePath = useMemo(
+        () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
+        [driverPosition, routePath, smoothDriverPosition],
     );
     const displayDriverHeadingRef = React.useRef(displayDriverHeading);
 
@@ -1699,6 +1717,17 @@ const ActiveTrip = () => {
             return;
         }
 
+        // Keep the existing route while the driver is following it. Re-routing on
+        // every GPS fix returned a slightly different overview_path each time,
+        // which is what made the line jump.
+        const existingPath = routePathRef.current;
+        const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
+        const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
+
+        if (existingPath.length > 1 && destinationUnchanged && onRoute) {
+            return;
+        }
+
         let active = true;
         const directionsService = new window.google.maps.DirectionsService();
 
@@ -1715,6 +1744,7 @@ const ActiveTrip = () => {
                 }
 
                 if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+                    routeDestinationRef.current = activeDestination;
                     setRoutePath(
                         result.routes[0].overview_path.map((point) => ({
                             lat: point.lat(),
@@ -1871,10 +1901,10 @@ const ActiveTrip = () => {
                         onUnmount={() => setMap(null)}
                         options={mapOptions}
                     >
-                        {routePath.length > 1 && (
+                        {displayRoutePath.length > 1 && (
                             <>
                                 <PolylineF
-                                    path={routePath}
+                                    path={displayRoutePath}
                                     options={{
                                         strokeColor: '#000000',
                                         strokeOpacity: 0.16,
@@ -1883,7 +1913,7 @@ const ActiveTrip = () => {
                                     }}
                                 />
                                 <PolylineF
-                                    path={routePath}
+                                    path={displayRoutePath}
                                     options={{
                                         strokeColor: routeStrokeColor,
                                         strokeOpacity: 0.95,

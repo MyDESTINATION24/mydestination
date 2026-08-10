@@ -15,6 +15,11 @@ import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSettings } from '../../../../shared/context/SettingsContext';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
+import { distanceToPathMeters, trimPathToPosition } from '../../../shared/utils/routePath';
+
+// How far the vehicle may stray from the drawn route before it is worth asking
+// Directions for a new one. Below this we just trim the path we already have.
+const ROUTE_DEVIATION_M = 60;
 
 const MAP_CONTAINER_STYLE = { width: '100%', height: '100%' };
 const DEFAULT_CENTER = { lat: 22.7196, lng: 75.8577 };
@@ -321,6 +326,15 @@ const RideTracking = () => {
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [rideRealtime, setRideRealtime] = useState(null);
   const [routePath, setRoutePath] = useState([]);
+  // Mirrors routePath so the directions effect can read the current route
+  // without depending on it (which would re-trigger itself endlessly).
+  const routePathRef = useRef([]);
+  const routeDestinationRef = useRef(null);
+  const applyRoutePath = React.useCallback((path, destination) => {
+    routePathRef.current = path;
+    routeDestinationRef.current = destination || null;
+    setRoutePath(path);
+  }, []);
   const [routeError, setRouteError] = useState('');
   const [map, setMap] = useState(null);
   const [driverImageFallback, setDriverImageFallback] = useState('');
@@ -428,6 +442,12 @@ const RideTracking = () => {
   const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
     driverPosition,
     displayDriverHeading,
+  );
+  // Draw only the road still ahead, starting at the marker. The line shortens
+  // smoothly as the vehicle advances instead of being redrawn each fix.
+  const displayRoutePath = useMemo(
+    () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
+    [driverPosition, routePath, smoothDriverPosition],
   );
   const vehicleLabel = driver.vehicle || driver.vehicleType || (serviceType === 'parcel' ? 'Parcel' : 'Taxi');
   const nextDriverImage = resolveAssetUrl(
@@ -917,20 +937,32 @@ const RideTracking = () => {
 
   useEffect(() => {
     if (isScheduledUpcoming && !hasLiveDriverLocation) {
-      setRoutePath([]);
+      applyRoutePath([], null);
       setRouteError('');
       return;
     }
 
     if (!isLoaded || !window.google?.maps?.DirectionsService) {
-      setRoutePath([driverPosition, activeDestination]);
+      applyRoutePath([driverPosition, activeDestination], activeDestination);
       setRouteError('');
       return;
     }
 
     if (arePositionsNearlyEqual(driverPosition, activeDestination)) {
-      setRoutePath([driverPosition]);
+      applyRoutePath([driverPosition], activeDestination);
       setRouteError('');
+      return;
+    }
+
+    // Keep the route we already have while the driver is following it. Asking
+    // Directions on every fix returned a slightly different overview_path each
+    // time, which is what made the blue line jump (and burned a Directions call
+    // every few seconds per active ride).
+    const existingPath = routePathRef.current;
+    const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
+    const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
+
+    if (existingPath.length > 1 && destinationUnchanged && onRoute) {
       return;
     }
 
@@ -950,17 +982,18 @@ const RideTracking = () => {
         }
 
         if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
-          setRoutePath(
+          applyRoutePath(
             result.routes[0].overview_path.map((point) => ({
               lat: point.lat(),
               lng: point.lng(),
             })),
+            activeDestination,
           );
           setRouteError('');
           return;
         }
 
-        setRoutePath([driverPosition, activeDestination]);
+        applyRoutePath([driverPosition, activeDestination], activeDestination);
         setRouteError(status || 'Directions unavailable');
       },
     );
@@ -968,7 +1001,7 @@ const RideTracking = () => {
     return () => {
       active = false;
     };
-  }, [activeDestination, driverPosition, hasLiveDriverLocation, isLoaded, isScheduledUpcoming]);
+  }, [activeDestination, applyRoutePath, driverPosition, hasLiveDriverLocation, isLoaded, isScheduledUpcoming]);
 
   useEffect(() => {
     if (!map || !window.google?.maps) {
@@ -1204,9 +1237,9 @@ const RideTracking = () => {
               gestureHandling: 'greedy',
             }}
           >
-            {routePath.length > 1 && hasLiveDriverLocation && (
+            {displayRoutePath.length > 1 && hasLiveDriverLocation && (
               <PolylineF
-                path={routePath}
+                path={displayRoutePath}
                 options={{
                   strokeColor: '#111827',
                   strokeOpacity: 0.9,
