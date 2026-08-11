@@ -108,6 +108,15 @@ export const configureTaxiSocketServer = (httpServer) => {
   io.on('connection', async (socket) => {
     const identity = socket.auth;
 
+    // Registered before the awaits below: this handler exists purely to prove
+    // the transport is alive, so it must not be missable during connection
+    // setup. Events that arrive before their listener is attached are dropped.
+    socket.on('client:health', (ack) => {
+      if (typeof ack === 'function') {
+        ack({ ok: true, at: Date.now() });
+      }
+    });
+
     addSocketSubscriptions(socket, { role: identity.role, entityId: identity.sub });
 
     socket.join(getSupportParticipantRoom(identity.role, identity.sub));
@@ -119,16 +128,6 @@ export const configureTaxiSocketServer = (httpServer) => {
         console.error('Failed to notify late-available driver on socket connect', error);
       });
     }
-
-    // Liveness probe. A suspended Android WebView has its TCP connection killed
-    // by the OS without the client ever seeing a close, so socket.connected
-    // stays true while nothing actually flows. The client round-trips this with
-    // a short timeout to tell a live socket from a zombie one.
-    socket.on('client:health', (ack) => {
-      if (typeof ack === 'function') {
-        ack({ ok: true, at: Date.now() });
-      }
-    });
 
     socket.on('chat:join', ({ conversationKey }) => {
       if (conversationKey) {
