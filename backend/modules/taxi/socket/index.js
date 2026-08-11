@@ -120,6 +120,16 @@ export const configureTaxiSocketServer = (httpServer) => {
       });
     }
 
+    // Liveness probe. A suspended Android WebView has its TCP connection killed
+    // by the OS without the client ever seeing a close, so socket.connected
+    // stays true while nothing actually flows. The client round-trips this with
+    // a short timeout to tell a live socket from a zombie one.
+    socket.on('client:health', (ack) => {
+      if (typeof ack === 'function') {
+        ack({ ok: true, at: Date.now() });
+      }
+    });
+
     socket.on('chat:join', ({ conversationKey }) => {
       if (conversationKey) {
         const parsed = parseSupportConversationKey(conversationKey);

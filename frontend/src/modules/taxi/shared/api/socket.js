@@ -118,20 +118,89 @@ const dispatchStaleAuthEvent = ({ role = '', message = '', token = '' } = {}) =>
   }));
 };
 
+// How long a health round trip may take before the socket is judged stale.
+const HEALTH_PROBE_TIMEOUT_MS = 5000;
+// An idle driver waiting for a request is exactly who a zombie socket hurts,
+// and no lifecycle event fires while they sit there -- so probe on a timer too.
+const HEALTH_HEARTBEAT_MS = 25000;
+
 class SocketService {
   constructor() {
     this.socket = null;
     this.currentToken = null;
     this.listeners = new Map();
+    this.healthProbeInFlight = false;
+    this.healthTimer = null;
   }
 
-  // Force an immediate reconnect instead of waiting for a heartbeat to fail.
-  ensureAlive(reason = 'lifecycle') {
+  // Tear the transport down and dial again. disconnect() first matters: calling
+  // connect() on a socket that still believes it is connected is a no-op.
+  forceReconnect(reason) {
     if (!this.socket) return;
-    if (this.socket.connected) return;
 
     console.info('[socket] forcing reconnect', { reason });
+
+    try {
+      this.socket.disconnect();
+    } catch {
+      // already gone; the connect below is what matters
+    }
+
     this.socket.connect();
+  }
+
+  // socket.connected is only what the client BELIEVES. When Android suspends a
+  // WebView the OS kills the TCP connection without the client ever seeing a
+  // close, so the flag stays true while nothing flows -- a zombie socket that
+  // silently drops ride requests until the ping timeout finally fires.
+  // The only reliable test is a round trip.
+  probeConnection(reason) {
+    if (!this.socket) return;
+
+    if (!this.socket.connected) {
+      this.forceReconnect(reason);
+      return;
+    }
+
+    if (this.healthProbeInFlight) return;
+    this.healthProbeInFlight = true;
+
+    this.socket
+      .timeout(HEALTH_PROBE_TIMEOUT_MS)
+      .emit('client:health', (error) => {
+        this.healthProbeInFlight = false;
+
+        if (error) {
+          console.warn('[socket] health probe timed out, socket is stale', { reason });
+          this.forceReconnect(`stale:${reason}`);
+        }
+      });
+  }
+
+  ensureAlive(reason = 'lifecycle') {
+    this.probeConnection(reason);
+  }
+
+  // A driver waiting for a request can sit idle for a long time, which is
+  // exactly when a zombie socket goes unnoticed. Probe on a timer too, not only
+  // on lifecycle events.
+  startHealthHeartbeat() {
+    if (this.healthTimer) return;
+
+    this.healthTimer = setInterval(() => {
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+        return;
+      }
+
+      this.probeConnection('heartbeat');
+    }, HEALTH_HEARTBEAT_MS);
+  }
+
+  stopHealthHeartbeat() {
+    if (!this.healthTimer) return;
+
+    clearInterval(this.healthTimer);
+    this.healthTimer = null;
   }
 
   installLifecycleHandlers() {
@@ -151,6 +220,8 @@ class SocketService {
     window.addEventListener('pageshow', () => this.ensureAlive('pageshow'));
     window.addEventListener('online', () => this.ensureAlive('online'));
     window.addEventListener('focus', () => this.ensureAlive('focus'));
+
+    this.startHealthHeartbeat();
   }
 
   attachRegisteredListeners() {
@@ -255,6 +326,10 @@ class SocketService {
         role: options.role || 'unknown',
         reason,
       });
+
+      // A probe that was in flight will never be answered now; clear the guard
+      // so the next one is allowed to run.
+      this.healthProbeInFlight = false;
     });
 
     return this.socket;
@@ -262,6 +337,8 @@ class SocketService {
 
   disconnect() {
     if (this.socket) {
+      this.stopHealthHeartbeat();
+      this.healthProbeInFlight = false;
       this.socket.disconnect();
       this.socket = null;
       this.currentToken = null;
