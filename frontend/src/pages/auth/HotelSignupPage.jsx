@@ -89,11 +89,11 @@ const HotelSignup = () => {
                 <div className="h-full bg-[#39593f] transition-all duration-300" style={{ width: `${progress}%` }}></div>
             </div>
 
-            <main className="flex-1 overflow-y-auto p-6 max-w-lg mx-auto w-full">
+            <main className="flex-1 overflow-y-auto p-6 pb-10 max-w-lg mx-auto w-full">
                 <StepWrapper stepKey={currentStep}>{renderStep()}</StepWrapper>
             </main>
 
-            <footer className="p-6 border-t border-gray-100 flex gap-4">
+            <footer className="sticky bottom-0 z-20 bg-white p-6 pb-12 sm:pb-6 pb-[max(3rem,env(safe-area-inset-bottom))] border-t border-gray-100 flex gap-4 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
                 {currentStep > 1 && (
                     <button onClick={prevStep} className="px-6 py-4 rounded-2xl bg-gray-50 font-bold text-[#39593f] transition-all">Back</button>
                 )}

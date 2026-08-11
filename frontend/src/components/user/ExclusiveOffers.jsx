@@ -37,14 +37,10 @@ const ExclusiveOffers = () => {
 
     if (loading) {
         return (
-            <div className="py-2 pl-5">
+            <div className="max-w-7xl mx-auto px-5 py-2">
                 <div className="h-5 w-40 bg-gray-100 rounded animate-pulse mb-3"></div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar">
-                    {[1, 2].map(i => (
-                        <div key={i} className="w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] flex-shrink-0 h-[96px] bg-gray-100 rounded-xl animate-pulse flex items-center justify-center">
-                            <Loader2 className="text-gray-200 animate-spin" size={16} />
-                        </div>
-                    ))}
+                <div className="w-full h-[100px] sm:h-[130px] md:h-[160px] bg-gray-100 rounded-xl animate-pulse flex items-center justify-center">
+                    <Loader2 className="text-gray-200 animate-spin" size={24} />
                 </div>
             </div>
         );
@@ -61,15 +57,15 @@ const ExclusiveOffers = () => {
     };
 
     return (
-        <section className="py-2 mt-1 overflow-hidden">
-            <h2 className="text-lg font-bold text-surface mb-2.5 flex items-center gap-2 pl-5">
+        <section className="max-w-7xl mx-auto px-5 py-2 mt-1 overflow-hidden">
+            <h2 className="text-lg md:text-xl font-bold text-surface mb-2.5 flex items-center gap-2">
                 Exclusive offers for you
-                <div className="bg-accent/10 px-1.5 py-0.5 rounded text-[9px] font-bold text-accent">NEW</div>
+                <div className="bg-accent/10 px-1.5 py-0.5 rounded text-[9px] md:text-xs font-bold text-accent">NEW</div>
             </h2>
 
             {/* Horizontal auto-scroll container using website's fade logic */}
             <div 
-              className="relative w-[calc(100vw-40px)] sm:w-[280px] md:w-[300px] h-[96px] mx-5 overflow-hidden shadow-md shadow-gray-200/50 transition-all duration-300"
+              className="relative w-full h-[135px] sm:h-[155px] md:h-[175px] overflow-hidden shadow-md shadow-gray-200/50 transition-all duration-300"
               style={{ borderRadius: 'var(--banner-radius, var(--card-radius, 16px))' }}
             >
                 {offers.map((offer, index) => {
@@ -78,7 +74,7 @@ const ExclusiveOffers = () => {
                         <div
                             key={offer._id || offer.id}
                             onClick={() => handleOfferClick(offer)}
-                            className={`absolute inset-0 w-full h-full cursor-pointer active:scale-95 transition-all duration-1000 ease-in-out ${
+                            className={`absolute inset-0 w-full h-full cursor-pointer active:scale-[0.99] transition-all duration-1000 ease-in-out ${
                                 isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
                             }`}
                         >
@@ -90,18 +86,24 @@ const ExclusiveOffers = () => {
                             />
 
                             {/* Dark Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent flex flex-col justify-center p-3.5 text-white items-start">
-                                <span className="bg-accent text-[7.5px] font-black px-1 py-0.5 rounded tracking-widest uppercase mb-0.5">
+                            <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-transparent flex flex-col justify-center px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-5 text-white items-start">
+                                <span className="bg-accent text-[9px] sm:text-[10px] md:text-xs font-bold px-2 py-0.5 rounded tracking-wider uppercase mb-1 shadow-sm">
                                     {offer.discountType === 'percentage' ? `${offer.discountValue}% OFF` : `₹${offer.discountValue} OFF`}
                                 </span>
-                                <h3 className="text-[13px] font-black leading-tight max-w-[85%] drop-shadow-md line-clamp-1">{offer.title}</h3>
-                                <p className="text-[8px] font-semibold text-gray-300 mt-0.5 max-w-[80%] leading-normal drop-shadow-md line-clamp-1">{offer.subtitle}</p>
+                                <h3 className="text-base sm:text-lg md:text-xl font-extrabold leading-snug max-w-[90%] sm:max-w-[70%] drop-shadow-md truncate py-0.5">
+                                    {offer.title}
+                                </h3>
+                                {offer.subtitle && (
+                                    <p className="text-[11px] sm:text-xs md:text-sm font-medium text-gray-200 max-w-[85%] sm:max-w-[60%] leading-snug drop-shadow-md truncate pb-0.5">
+                                        {offer.subtitle}
+                                    </p>
+                                )}
 
-                                <div className="mt-1.5 flex items-center gap-2">
-                                    <button className="px-2 py-0.5 bg-white text-black text-[8px] font-black rounded-md shadow-sm">
-                                        {offer.btnText || "Copy Code"}
+                                <div className="mt-2 sm:mt-2.5 flex items-center gap-2.5 sm:gap-3">
+                                    <button className="px-3 py-1 bg-white text-black text-[10px] sm:text-xs font-bold rounded-md shadow-sm hover:bg-gray-100 transition-colors">
+                                        {offer.btnText || "Book now"}
                                     </button>
-                                    <span className="text-[7.5px] text-white/60 font-medium border-l border-white/20 pl-2">
+                                    <span className="text-[10px] sm:text-xs text-white/80 font-medium border-l border-white/30 pl-2.5 sm:pl-3">
                                         Code: <span className="text-white font-bold">{offer.code}</span>
                                     </span>
                                 </div>

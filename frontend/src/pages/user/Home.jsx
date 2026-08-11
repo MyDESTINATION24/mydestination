@@ -6,27 +6,18 @@ import PropertyFeed from '../../components/user/PropertyFeed';
 
 const Home = () => {
     const [selectedType, setSelectedType] = useState('All');
-    const [isSticky, setIsSticky] = useState(false);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setIsSticky(window.scrollY > 300);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     return (
         <main className="pb-16">
             <HeroSection />
 
-            <div className={`z-30 transition-all                 ${isSticky ? 'fixed top-0 left-0 right-0 p-3 bg-transparent backdrop-blur-xl shadow-md border-b border-surface/5' : 'relative'}
-`}>
-                <PropertyTypeFilter
-                    className="bg-white/80 backdrop-blur-sm"
-                    selectedType={selectedType}
-                    onSelectType={setSelectedType}
-                />
+            <div className="sticky top-[148px] md:top-16 z-30 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-xs transition-all">
+                <div className="max-w-7xl mx-auto">
+                    <PropertyTypeFilter
+                        selectedType={selectedType}
+                        onSelectType={setSelectedType}
+                    />
+                </div>
             </div>
 
             <ExclusiveOffers />
