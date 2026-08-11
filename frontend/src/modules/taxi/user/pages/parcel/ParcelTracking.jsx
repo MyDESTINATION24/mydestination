@@ -31,6 +31,7 @@ import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
+import { resolveIconHeadingOffset } from '../../../shared/utils/vehicleIconHeading';
 
 // How far the vehicle may stray from the drawn route before re-requesting one.
 const ROUTE_DEVIATION_M = 60;
@@ -201,6 +202,8 @@ const ParcelTracking = () => {
 
   const driver = useMemo(() => mergeDriverSnapshot(state.driver || {}, rideRealtime?.driver || {}), [state.driver, rideRealtime?.driver]);
   const vehicleIcon = getTrackingVehicleIcon(state, driver);
+  // Admin-uploaded map icons are drawn nose-left; bundled ones are nose-up.
+  const iconHeadingOffset = resolveIconHeadingOffset(vehicleIcon, [carIcon, bikeIcon, autoIcon, deliveryIcon]);
   const displayDriverHeading = useMemo(() => {
     if (Number.isFinite(Number(rideRealtime?.driverLocation?.heading))) {
       return normalizeHeading(rideRealtime.driverLocation.heading);
@@ -771,7 +774,7 @@ const ParcelTracking = () => {
                 options={{ strokeColor: '#0f172a', strokeOpacity: 0.9, strokeWeight: 6 }}
               />
             )}
-            <RotatingVehicleMarker position={smoothDriverPosition || driverPosition} iconUrl={vehicleIcon} heading={smoothDriverHeading} />
+            <RotatingVehicleMarker position={smoothDriverPosition || driverPosition} iconUrl={vehicleIcon} heading={smoothDriverHeading + iconHeadingOffset} />
             <MarkerF position={activeDestination} />
           </GoogleMap>
         ) : (

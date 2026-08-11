@@ -27,6 +27,7 @@ import carIcon from '../../../assets/icons/car.png';
 import { getLocalDriverToken } from '../services/registrationService';
 import { useSmoothedLatLng } from '../../shared/hooks/useSmoothedLatLng';
 import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../shared/utils/routePath';
+import { resolveIconHeadingOffset } from '../../shared/utils/vehicleIconHeading';
 
 // How far the vehicle may stray from the drawn route before asking Directions
 // for a new one. Below this we just trim the path we already have.
@@ -697,6 +698,8 @@ const ActiveTrip = () => {
     const [resolvedPickupCoords, setResolvedPickupCoords] = useState(null);
     const [resolvedDropCoords, setResolvedDropCoords] = useState(null);
     const vehicleIconUrl = liveRaw.vehicleIconUrl || liveRequest.vehicleIconUrl || effectiveState.vehicleIconUrl || carIcon;
+    // Admin-uploaded map icons are drawn nose-left; the bundled one is nose-up.
+    const iconHeadingOffset = resolveIconHeadingOffset(vehicleIconUrl, [carIcon]);
 
     const pickupAddressLabel = String(
         liveRaw?.pickupAddress ||
@@ -1928,7 +1931,7 @@ const ActiveTrip = () => {
                         <RotatingVehicleMarker
                             position={smoothDriverPosition || driverPosition}
                             iconUrl={vehicleIconUrl}
-                            heading={smoothDriverHeading}
+                            heading={smoothDriverHeading + iconHeadingOffset}
                             title="Driver"
                         />
                         <MarkerF

@@ -16,6 +16,7 @@ import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSettings } from '../../../../shared/context/SettingsContext';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
+import { resolveIconHeadingOffset } from '../../../shared/utils/vehicleIconHeading';
 
 // How far the vehicle may stray from the drawn route before it is worth asking
 // Directions for a new one. Below this we just trim the path we already have.
@@ -432,6 +433,8 @@ const RideTracking = () => {
   const waitingChargeableMinutes = Math.max(0, Math.ceil(waitingElapsedSeconds / 60) - freeWaitingBeforeMinutes);
   const isWaitingForOtp = Boolean(waitingStartedAt) && !['started', 'ongoing', 'arrived', 'completed', 'cancelled', 'delivered'].includes(tripStatus);
   const vehicleIcon = getTrackingVehicleIcon(trackingSnapshot, driver);
+  // Admin-uploaded map icons are drawn nose-left; bundled ones are nose-up.
+  const iconHeadingOffset = resolveIconHeadingOffset(vehicleIcon, [carIcon, bikeIcon, autoIcon, deliveryIcon]);
   const displayDriverHeading = useMemo(() => {
     if (Number.isFinite(Number(rideRealtime?.driverLocation?.heading))) {
       return normalizeHeading(rideRealtime.driverLocation.heading);
@@ -1265,7 +1268,7 @@ const RideTracking = () => {
                 position={smoothDriverPosition || driverPosition}
                 title="Driver"
                 iconUrl={vehicleIcon}
-                heading={smoothDriverHeading}
+                heading={smoothDriverHeading + iconHeadingOffset}
               />
             ) : null}
             <MarkerF
