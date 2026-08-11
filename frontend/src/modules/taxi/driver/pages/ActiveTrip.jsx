@@ -26,8 +26,14 @@ import api from '../../../shared/api/axiosInstance';
 import carIcon from '../../../assets/icons/car.png';
 import { getLocalDriverToken } from '../services/registrationService';
 import { useSmoothedLatLng } from '../../shared/hooks/useSmoothedLatLng';
-import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../shared/utils/routePath';
+import { distanceMeters, distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../shared/utils/routePath';
 import { resolveIconHeadingOffset } from '../../shared/utils/vehicleIconHeading';
+
+// Below these the phone is treated as stationary and the icon holds its last
+// bearing. GPS wanders several metres while parked, so re-aiming on every fix
+// made the marker spin in place.
+const MIN_HEADING_SPEED_MPS = 0.7;  // ~2.5 km/h
+const MIN_HEADING_MOVE_M = 8;
 
 // How far the vehicle may stray from the drawn route before asking Directions
 // for a new one. Below this we just trim the path we already have.
@@ -800,6 +806,9 @@ const ActiveTrip = () => {
     const [map, setMap] = useState(null);
     const [driverPosition, setDriverPosition] = useState(initialDriverPosition);
     const [driverHeading, setDriverHeading] = useState(null);
+    // Previous accepted fix, kept in a ref so the watchPosition callback can
+    // measure travel without doing side effects inside a state updater.
+    const lastFixRef = useRef(null);
     const [routePath, setRoutePath] = useState([]);
     // Mirrors routePath so the directions effect can read the live route without
     // depending on it. Synced from state because simulation mode also writes it.
@@ -1628,23 +1637,42 @@ const ActiveTrip = () => {
                     lng: pos.coords.longitude,
                 };
 
-                setDriverPosition((previousPosition) => {
-                    hasResolvedLivePositionRef.current = true;
-                    const nextHeading = normalizeHeading(
-                        pos.coords.heading,
-                        calculateBearing(previousPosition, nextPosition, displayDriverHeadingRef.current),
-                    );
-                    setDriverHeading(nextHeading);
-                    if (rideId) {
-                        socketService.emit('ride:driver-location:update', {
-                            rideId,
-                            coordinates: [nextPosition.lng, nextPosition.lat],
-                            heading: nextHeading,
-                            speed: pos.coords.speed,
-                        });
-                    }
-                    return nextPosition;
-                });
+                const previousPosition = lastFixRef.current;
+                const heldHeading = displayDriverHeadingRef.current;
+                const movedMeters = previousPosition ? distanceMeters(previousPosition, nextPosition) : 0;
+                const deviceSpeed = Number(pos.coords.speed);
+                const deviceHeading = Number(pos.coords.heading);
+
+                // A parked phone still reports fixes that wander several metres,
+                // and the old 1.1m bearing guard was well inside that noise -- so
+                // a stationary vehicle's icon span. Only re-aim when the device
+                // reports real speed, or it has actually covered ground.
+                const isMoving = (Number.isFinite(deviceSpeed) && deviceSpeed >= MIN_HEADING_SPEED_MPS)
+                    || movedMeters >= MIN_HEADING_MOVE_M;
+
+                let nextHeading = heldHeading;
+
+                if (isMoving) {
+                    // Trust the device's own bearing when it has one; it is the
+                    // true compass/GPS heading. Otherwise derive it from travel.
+                    nextHeading = Number.isFinite(deviceHeading)
+                        ? normalizeHeading(deviceHeading)
+                        : calculateBearing(previousPosition, nextPosition, heldHeading);
+                }
+
+                lastFixRef.current = nextPosition;
+                hasResolvedLivePositionRef.current = true;
+                setDriverPosition(nextPosition);
+                setDriverHeading(nextHeading);
+
+                if (rideId) {
+                    socketService.emit('ride:driver-location:update', {
+                        rideId,
+                        coordinates: [nextPosition.lng, nextPosition.lat],
+                        heading: nextHeading,
+                        speed: pos.coords.speed,
+                    });
+                }
             },
             () => {},
             {
