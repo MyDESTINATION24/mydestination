@@ -30,7 +30,7 @@ import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
-import { distanceToPathMeters, trimPathToPosition } from '../../../shared/utils/routePath';
+import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
 
 // How far the vehicle may stray from the drawn route before re-requesting one.
 const ROUTE_DEVIATION_M = 60;
@@ -623,10 +623,10 @@ const ParcelTracking = () => {
         return;
       }
 
-      if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+      if (status === 'OK' && result?.routes?.[0]) {
         routeDestinationRef.current = activeDestination;
         routeIsDirectionsRef.current = true;
-        setRoutePath(result.routes[0].overview_path.map(p => ({ lat: p.lat(), lng: p.lng() })));
+        setRoutePath(extractDetailedPath(result.routes[0]));
         return;
       }
 

@@ -15,7 +15,7 @@ import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSettings } from '../../../../shared/context/SettingsContext';
 import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
-import { distanceToPathMeters, trimPathToPosition } from '../../../shared/utils/routePath';
+import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
 
 // How far the vehicle may stray from the drawn route before it is worth asking
 // Directions for a new one. Below this we just trim the path we already have.
@@ -996,12 +996,9 @@ const RideTracking = () => {
           return;
         }
 
-        if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
+        if (status === 'OK' && result?.routes?.[0]) {
           applyRoutePath(
-            result.routes[0].overview_path.map((point) => ({
-              lat: point.lat(),
-              lng: point.lng(),
-            })),
+            extractDetailedPath(result.routes[0]),
             activeDestination,
             true,
           );
