@@ -174,25 +174,6 @@ const SelectLocation = () => {
       ? '/taxi'
       : '';
 
-  // All known locations â€” filtered live as user types
-  const allResults = [
-    { title: 'Vijay Nagar', address: 'Vijay Nagar, Indore, Madhya Pradesh' },
-    { title: 'Vijay Nagar Square', address: 'Vijay Nagar Square, Bhagyashree Colony, Indore' },
-    { title: 'Vijayawada', address: 'Vijayawada, Andhra Pradesh, India' },
-    { title: 'Vijay Nagar Police Station', address: 'Vijay Nagar Police Station, Sector D, Indore' },
-    { title: 'Rajwada', address: 'Rajwada, Old Palasia, Indore, MP' },
-    { title: 'Bhawarkua', address: 'Bhawarkua, Indore, Madhya Pradesh' },
-    { title: 'MG Road', address: 'MG Road, Indore, Madhya Pradesh' },
-    { title: 'Palasia Square', address: 'Palasia Square, AB Road, Indore' },
-    { title: 'LIG Colony', address: 'LIG Colony, Indore, Madhya Pradesh' },
-    { title: 'Scheme No 54', address: 'Scheme No 54, Vijay Nagar, Indore' },
-    { title: 'Bhangadh', address: 'Bhangadh, Indore, Madhya Pradesh' },
-    { title: 'AB Road', address: 'AB Road, Indore, Madhya Pradesh' },
-    { title: 'Geeta Bhawan', address: 'Geeta Bhawan, Indore, Madhya Pradesh' },
-    { title: 'Sapna Sangeeta', address: 'Sapna Sangeeta Road, Indore, MP' },
-    { title: 'Mahalaxmi Nagar', address: 'Mahalaxmi Nagar, Indore, Madhya Pradesh' },
-  ];
-
   const zoneBounds = useMemo(() => getBoundsFromPaths(zonePaths), [zonePaths]);
 
   useEffect(() => {
@@ -418,17 +399,6 @@ const SelectLocation = () => {
   };
 
   const query = getQuery();
-  const localSearchResults = useMemo(
-    () =>
-      query.trim().length >= 1
-        ? allResults.filter(
-          (result) =>
-            result.title.toLowerCase().includes(query.toLowerCase())
-            || result.address.toLowerCase().includes(query.toLowerCase()),
-        )
-        : allResults.slice(0, 6),
-    [query],
-  );
 
   useEffect(() => {
     if (!query.trim() || query.trim().length < 3 || !HAS_VALID_GOOGLE_MAPS_KEY || !autocompleteServiceRef.current) {
@@ -456,7 +426,14 @@ const SelectLocation = () => {
         sessionToken: getAutocompleteSessionToken(),
       };
 
-      if (zoneBounds) {
+      // Bias to where the rider actually is, so "MG Road" resolves to the one
+      // in their city. Their own pickup point is the best signal we have; the
+      // service zone is the fallback when we do not have a fix yet.
+      if (Array.isArray(pickupCoords) && pickupCoords.length === 2
+        && Number.isFinite(Number(pickupCoords[0])) && Number.isFinite(Number(pickupCoords[1]))) {
+        request.location = new window.google.maps.LatLng(Number(pickupCoords[1]), Number(pickupCoords[0]));
+        request.radius = 30000;
+      } else if (zoneBounds) {
         request.bounds = zoneBounds;
       }
 
@@ -482,13 +459,15 @@ const SelectLocation = () => {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [query, zoneBounds]);
+  }, [pickupCoords, query, zoneBounds]);
 
+  // Suggestions come only from Places, biased to where the rider actually is.
+  // There used to be a hardcoded Indore list merged in here, which meant a rider
+  // anywhere else was offered Vijay Nagar and Rajwada before typing a character.
   const searchResults = useMemo(() => {
-    const merged = [...remoteResults, ...localSearchResults];
     const seen = new Set();
 
-    return merged.filter((result) => {
+    return remoteResults.filter((result) => {
       const key = `${String(result.title || '').trim().toLowerCase()}|${String(result.address || '').trim().toLowerCase()}`;
       if (!key || seen.has(key)) {
         return false;
@@ -497,7 +476,7 @@ const SelectLocation = () => {
       seen.add(key);
       return true;
     });
-  }, [localSearchResults, remoteResults]);
+  }, [remoteResults]);
 
   const showMapToast = () => {
     // Reset map center to pickup or current location before opening
