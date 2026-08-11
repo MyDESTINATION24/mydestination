@@ -5820,6 +5820,29 @@ export const listVehiclePreferences = async () => {
   return listPreferences();
 };
 
+// The admin form posts images as data: URIs. Persisting those put 11MB of
+// base64 into 13 documents, which the vehicle-type catalog then had to ship on
+// every load. Push them to Cloudinary and keep only the URL.
+const persistVehicleImage = async (value) => {
+  const raw = String(value ?? '').trim();
+
+  if (!raw || !raw.startsWith('data:')) {
+    return raw;
+  }
+
+  try {
+    const uploaded = await uploadDataUrlToCloudinary({
+      dataUrl: raw,
+      publicIdPrefix: 'vehicle-type',
+    });
+    return uploaded.secureUrl;
+  } catch (error) {
+    // Keep the inline image rather than losing it -- slow beats missing.
+    console.warn('Cloudinary upload failed for vehicle type:', error.message);
+    return raw;
+  }
+};
+
 export const createVehicleType = async (payload) => {
   if (!payload.name?.trim()) {
     throw new ApiError(400, 'Vehicle name is required');
@@ -5829,7 +5852,11 @@ export const createVehicleType = async (payload) => {
     throw new ApiError(400, 'Transport type is required');
   }
 
-  const mapIcon = payload.map_icon ?? payload.mapIcon ?? payload.icon ?? payload.image ?? '';
+  const rawMapIcon = payload.map_icon ?? payload.mapIcon ?? payload.icon ?? payload.image ?? '';
+  const mapIcon = await persistVehicleImage(rawMapIcon);
+  const vehicleImage = payload.image !== undefined && payload.image !== rawMapIcon
+    ? await persistVehicleImage(payload.image)
+    : mapIcon;
   const transportType = normalizeVehicleTransportType(payload.transport_type);
 
   const vehicle = await Vehicle.create({
@@ -5849,7 +5876,7 @@ export const createVehicleType = async (payload) => {
     delivery_distance_pricing: ['delivery', 'both'].includes(transportType)
       ? normalizeDeliveryDistancePricing(payload.delivery_distance_pricing)
       : normalizeDeliveryDistancePricing(),
-    image: payload.image ?? mapIcon,
+    image: vehicleImage,
     icon: mapIcon,
     map_icon: mapIcon,
     status: Number(payload.status ?? 1) ? 1 : 0,
@@ -5892,10 +5919,13 @@ export const updateVehicleType = async (id, payload) => {
     vehicle.icon_types = payload.icon_types || 'car';
   }
   if (payload.image !== undefined) {
-    vehicle.image = payload.image ?? '';
+    vehicle.image = await persistVehicleImage(payload.image);
   }
   if (payload.icon !== undefined || payload.map_icon !== undefined || payload.mapIcon !== undefined || payload.image !== undefined) {
-    const mapIcon = payload.map_icon ?? payload.mapIcon ?? payload.icon ?? payload.image ?? '';
+    const rawMapIcon = payload.map_icon ?? payload.mapIcon ?? payload.icon ?? payload.image ?? '';
+    // Reuse the already-uploaded URL when the icon is the same asset as the
+    // image, so one form submit does not upload the same file twice.
+    const mapIcon = rawMapIcon === payload.image ? vehicle.image : await persistVehicleImage(rawMapIcon);
     vehicle.icon = mapIcon;
     vehicle.map_icon = mapIcon;
   }
