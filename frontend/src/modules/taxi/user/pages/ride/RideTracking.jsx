@@ -694,21 +694,23 @@ const RideTracking = () => {
 
         const mergedDriver = mergeDriverSnapshot(fallbackDriver, payload?.driver || {});
 
-        setRideRealtime({
+        setRideRealtime((prev) => ({
           pickup: {
-            coordinates: payload?.pickupLocation?.coordinates,
-            address: payload?.pickupAddress || latestStateRef.current.pickup || 'Pickup',
+            coordinates: payload?.pickupLocation?.coordinates || prev?.pickup?.coordinates,
+            address: payload?.pickupAddress || prev?.pickup?.address || latestStateRef.current.pickup || 'Pickup',
           },
           drop: {
-            coordinates: payload?.dropLocation?.coordinates,
-            address: payload?.dropAddress || latestStateRef.current.drop || 'Drop',
+            coordinates: payload?.dropLocation?.coordinates || prev?.drop?.coordinates,
+            address: payload?.dropAddress || prev?.drop?.address || latestStateRef.current.drop || 'Drop',
           },
+          // Keep the last known location if this refetch did not carry one --
+          // otherwise a re-hydrate mid-trip blanks the vehicle icon.
           driverLocation: payload?.lastDriverLocation
             ? {
                 coordinates: payload.lastDriverLocation.coordinates,
                 heading: payload.lastDriverLocation.heading,
               }
-            : null,
+            : prev?.driverLocation || null,
           status: payload?.liveStatus || payload?.status || 'accepted',
           fare: payload?.fare || latestStateRef.current.fare || 0,
           paymentMethod: payload?.paymentMethod || latestStateRef.current.paymentMethod || 'Cash',
@@ -722,7 +724,7 @@ const RideTracking = () => {
           completedAt: payload?.completedAt || null,
           feedback: payload?.feedback || null,
           driver: mergedDriver,
-        });
+        }));
 
         saveCurrentRide({
           ...latestStateRef.current,
@@ -829,20 +831,27 @@ const RideTracking = () => {
       const latestFallbackDriver = latestFallbackDriverRef.current;
 
       setRideRealtime((prev) => ({
+        // Same reasoning as driverLocation below: a status-only payload omits
+        // these, and the fallback chain bottoms out at a hardcoded Indore
+        // coordinate, which would fling the markers across the map.
         pickup: {
-          coordinates: payload.pickupLocation?.coordinates,
-          address: payload.pickupAddress || latestState.pickup || 'Pickup',
+          coordinates: payload.pickupLocation?.coordinates || prev?.pickup?.coordinates,
+          address: payload.pickupAddress || prev?.pickup?.address || latestState.pickup || 'Pickup',
         },
         drop: {
-          coordinates: payload.dropLocation?.coordinates,
-          address: payload.dropAddress || latestState.drop || 'Drop',
+          coordinates: payload.dropLocation?.coordinates || prev?.drop?.coordinates,
+          address: payload.dropAddress || prev?.drop?.address || latestState.drop || 'Drop',
         },
+        // Fall back to the location we already have. ride:state replaces the
+        // whole object, and its payload carries lastDriverLocation only
+        // sometimes -- dropping to null on a status change (e.g. arrival) made
+        // the vehicle icon vanish off the rider's map mid-trip.
         driverLocation: payload.lastDriverLocation
           ? {
               coordinates: payload.lastDriverLocation.coordinates,
               heading: payload.lastDriverLocation.heading,
             }
-          : null,
+          : prev?.driverLocation || null,
         status: payload.liveStatus || payload.status || 'accepted',
         fare: payload.fare || prev?.fare || latestState.fare || 0,
         paymentMethod: payload.paymentMethod || prev?.paymentMethod || latestState.paymentMethod || 'Cash',
