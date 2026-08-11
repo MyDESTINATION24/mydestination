@@ -160,6 +160,9 @@ const ParcelTracking = () => {
   // Mirrors routePath so the directions effect can read it without depending on it.
   const routePathRef = useRef([]);
   const routeDestinationRef = useRef(null);
+  // Only a real Directions result may be reused -- a straight-line fallback also
+  // has length > 1 and trivially passes the "still on route" check.
+  const routeIsDirectionsRef = useRef(false);
   useEffect(() => {
     routePathRef.current = routePath;
   }, [routePath]);
@@ -588,6 +591,7 @@ const ParcelTracking = () => {
   // Route Path Update
   useEffect(() => {
     if (!isLoaded || !window.google?.maps?.DirectionsService) {
+      routeIsDirectionsRef.current = false;
       setRoutePath(arePositionsNearlyEqual(driverPosition, activeDestination) ? [driverPosition] : [driverPosition, activeDestination]);
       return;
     }
@@ -603,7 +607,7 @@ const ParcelTracking = () => {
     const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
     const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
 
-    if (existingPath.length > 1 && destinationUnchanged && onRoute) {
+    if (routeIsDirectionsRef.current && existingPath.length > 1 && destinationUnchanged && onRoute) {
       return;
     }
 
@@ -621,9 +625,12 @@ const ParcelTracking = () => {
 
       if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
         routeDestinationRef.current = activeDestination;
+        routeIsDirectionsRef.current = true;
         setRoutePath(result.routes[0].overview_path.map(p => ({ lat: p.lat(), lng: p.lng() })));
         return;
       }
+
+      routeIsDirectionsRef.current = false;
 
       setRoutePath([driverPosition, activeDestination]);
     });
