@@ -84,7 +84,7 @@ const RotatingVehicleMarker = ({ position, iconUrl = deliveryIcon, heading = 0, 
   >
     <div title={title} className="pointer-events-none flex h-14 w-14 items-center justify-center">
       <div
-        className="flex h-11 w-11 items-center justify-center transition-transform duration-500 ease-out"
+        className="flex h-11 w-11 items-center justify-center"
         style={{ transform: `rotate(${normalizeHeading(heading)}deg)` }}
       >
         <img
