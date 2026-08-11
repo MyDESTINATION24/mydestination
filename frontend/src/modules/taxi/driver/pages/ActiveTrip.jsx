@@ -802,6 +802,9 @@ const ActiveTrip = () => {
     // depending on it. Synced from state because simulation mode also writes it.
     const routePathRef = useRef([]);
     const routeDestinationRef = useRef(null);
+    // Only a real Directions result may be reused -- a straight-line fallback
+    // also has length > 1 and trivially passes the "still on route" check.
+    const routeIsDirectionsRef = useRef(false);
     useEffect(() => {
         routePathRef.current = routePath;
     }, [routePath]);
@@ -1702,6 +1705,7 @@ const ActiveTrip = () => {
         }
 
         if (!isLoaded || !window.google?.maps?.DirectionsService) {
+            routeIsDirectionsRef.current = false;
             setRoutePath(buildFallbackRoute(driverPosition, activeDestination));
             setRouteError('');
             return;
@@ -1724,7 +1728,7 @@ const ActiveTrip = () => {
         const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
         const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
 
-        if (existingPath.length > 1 && destinationUnchanged && onRoute) {
+        if (routeIsDirectionsRef.current && existingPath.length > 1 && destinationUnchanged && onRoute) {
             return;
         }
 
@@ -1745,6 +1749,7 @@ const ActiveTrip = () => {
 
                 if (status === 'OK' && result?.routes?.[0]?.overview_path?.length) {
                     routeDestinationRef.current = activeDestination;
+                    routeIsDirectionsRef.current = true;
                     setRoutePath(
                         result.routes[0].overview_path.map((point) => ({
                             lat: point.lat(),
@@ -1754,6 +1759,8 @@ const ActiveTrip = () => {
                     setRouteError('');
                     return;
                 }
+
+                routeIsDirectionsRef.current = false;
 
                 setRoutePath(buildFallbackRoute(driverPosition, activeDestination));
                 setRouteError(status || 'Directions unavailable');

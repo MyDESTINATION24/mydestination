@@ -330,9 +330,15 @@ const RideTracking = () => {
   // without depending on it (which would re-trigger itself endlessly).
   const routePathRef = useRef([]);
   const routeDestinationRef = useRef(null);
-  const applyRoutePath = React.useCallback((path, destination) => {
+  // Only a real Directions result may be reused. A straight-line fallback also
+  // has length > 1 and trivially passes the "still on route" check, so without
+  // this flag the placeholder drawn before Maps loads would stick forever and
+  // the route would never follow actual roads.
+  const routeIsDirectionsRef = useRef(false);
+  const applyRoutePath = React.useCallback((path, destination, fromDirections = false) => {
     routePathRef.current = path;
     routeDestinationRef.current = destination || null;
+    routeIsDirectionsRef.current = fromDirections;
     setRoutePath(path);
   }, []);
   const [routeError, setRouteError] = useState('');
@@ -962,7 +968,7 @@ const RideTracking = () => {
     const destinationUnchanged = arePositionsNearlyEqual(routeDestinationRef.current, activeDestination);
     const onRoute = distanceToPathMeters(existingPath, driverPosition) <= ROUTE_DEVIATION_M;
 
-    if (existingPath.length > 1 && destinationUnchanged && onRoute) {
+    if (routeIsDirectionsRef.current && existingPath.length > 1 && destinationUnchanged && onRoute) {
       return;
     }
 
@@ -988,6 +994,7 @@ const RideTracking = () => {
               lng: point.lng(),
             })),
             activeDestination,
+            true,
           );
           setRouteError('');
           return;

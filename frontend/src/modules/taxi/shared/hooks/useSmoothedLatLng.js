@@ -25,12 +25,18 @@ export const useSmoothedLatLng = (target, targetHeading = 0, durationMs = TWEEN_
   const [renderedHeading, setRenderedHeading] = useState(() => Number(targetHeading) || 0);
 
   // Latest rendered values, read inside the rAF loop without re-subscribing.
+  // Written only from commit() below -- never during render, which React
+  // forbids and which breaks under StrictMode's double invocation.
   const currentRef = useRef(rendered);
   const currentHeadingRef = useRef(renderedHeading);
   const frameRef = useRef(0);
 
-  currentRef.current = rendered;
-  currentHeadingRef.current = renderedHeading;
+  const commit = (position, headingValue) => {
+    currentRef.current = position;
+    currentHeadingRef.current = headingValue;
+    setRendered(position);
+    setRenderedHeading(headingValue);
+  };
 
   const targetLat = isFiniteLatLng(target) ? Number(target.lat) : null;
   const targetLng = isFiniteLatLng(target) ? Number(target.lng) : null;
@@ -50,9 +56,13 @@ export const useSmoothedLatLng = (target, targetHeading = 0, durationMs = TWEEN_
         || Math.abs(targetLng - from.lng) > SNAP_DISTANCE_DEG);
 
     if (!from || jumped || prefersReducedMotion() || durationMs <= 0) {
-      setRendered({ lat: targetLat, lng: targetLng });
-      setRenderedHeading(nextHeading);
-      return undefined;
+      // Deferred a frame rather than committed inline: setState directly in an
+      // effect body cascades renders. One frame is imperceptible for a snap.
+      frameRef.current = requestAnimationFrame(() => {
+        commit({ lat: targetLat, lng: targetLng }, nextHeading);
+      });
+
+      return () => cancelAnimationFrame(frameRef.current);
     }
 
     if (from.lat === targetLat && from.lng === targetLng && fromHeading === nextHeading) {
@@ -69,11 +79,13 @@ export const useSmoothedLatLng = (target, targetHeading = 0, durationMs = TWEEN_
       // settling rather than a linear slide.
       const eased = 1 - (1 - progress) * (1 - progress);
 
-      setRendered({
-        lat: from.lat + (targetLat - from.lat) * eased,
-        lng: from.lng + (targetLng - from.lng) * eased,
-      });
-      setRenderedHeading(fromHeading + headingDelta * eased);
+      commit(
+        {
+          lat: from.lat + (targetLat - from.lat) * eased,
+          lng: from.lng + (targetLng - from.lng) * eased,
+        },
+        fromHeading + headingDelta * eased,
+      );
 
       if (progress < 1) {
         frameRef.current = requestAnimationFrame(step);
