@@ -131,6 +131,8 @@ class SocketService {
     this.listeners = new Map();
     this.healthProbeInFlight = false;
     this.healthTimer = null;
+    // Ride rooms this client has joined, replayed after a cold reconnect.
+    this.joinedRideIds = new Set();
   }
 
   // Tear the transport down and dial again. disconnect() first matters: calling
@@ -294,7 +296,12 @@ class SocketService {
         recovered: this.socket?.recovered === true,
       });
 
+      this.healthProbeInFlight = false;
+
       if (this.socket?.recovered !== true) {
+        // Cold session: the server kept no rooms for us, so re-join before
+        // telling screens to refetch. Otherwise live updates never resume.
+        this.rejoinRooms();
         window.dispatchEvent(new CustomEvent('taxi-socket-cold-reconnect'));
       }
     });
@@ -339,6 +346,8 @@ class SocketService {
     if (this.socket) {
       this.stopHealthHeartbeat();
       this.healthProbeInFlight = false;
+      // Full teardown (logout / app exit): these rooms are no longer ours.
+      this.joinedRideIds.clear();
       this.socket.disconnect();
       this.socket = null;
       this.currentToken = null;
@@ -386,9 +395,33 @@ class SocketService {
   }
 
   emit(event, data) {
+    // Remember room joins so they can be replayed after a cold reconnect.
+    // Screens emit ride:join once, from an effect keyed on rideId, so nothing
+    // re-runs when the socket comes back -- without this the client reconnects
+    // successfully but sits outside the ride room receiving nothing.
+    if (event === 'ride:join' && data?.rideId) {
+      this.joinedRideIds.add(String(data.rideId));
+    }
+
     if (this.socket) {
       this.socket.emit(event, data);
     }
+  }
+
+  // Server-side room membership is restored automatically only while the
+  // connectionStateRecovery window holds. Past that the session is cold and the
+  // rooms are gone, so they have to be re-joined explicitly.
+  rejoinRooms() {
+    if (!this.socket || this.joinedRideIds.size === 0) return;
+
+    this.joinedRideIds.forEach((rideId) => {
+      console.info('[socket] rejoining ride room after cold reconnect', { rideId });
+      this.socket.emit('ride:join', { rideId });
+    });
+  }
+
+  forgetRideRoom(rideId) {
+    this.joinedRideIds.delete(String(rideId));
   }
 
   isConnected() {
