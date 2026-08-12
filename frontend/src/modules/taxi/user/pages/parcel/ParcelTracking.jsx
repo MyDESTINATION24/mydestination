@@ -29,9 +29,8 @@ import carIcon from '../../../../assets/icons/car.png';
 import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
-import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
-import { resolveIconHeadingOffset } from '../../../shared/utils/vehicleIconHeading';
+import SmoothVehicleMarker from '../../../shared/components/SmoothVehicleMarker';
 
 // How far the vehicle may stray from the drawn route before re-requesting one.
 const ROUTE_DEVIATION_M = 60;
@@ -77,27 +76,6 @@ const getRouteHeading = (position, path = [], fallback = 0) => {
   return nextPoint ? calculateBearing(position, nextPoint, fallback) : fallback;
 };
 
-const RotatingVehicleMarker = ({ position, iconUrl = deliveryIcon, heading = 0, title = 'Delivery Captain' }) => (
-  <OverlayViewF
-    position={position}
-    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-    getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h / 2) })}
-  >
-    <div title={title} className="pointer-events-none flex h-14 w-14 items-center justify-center">
-      <div
-        className="flex h-11 w-11 items-center justify-center"
-        style={{ transform: `rotate(${normalizeHeading(heading)}deg)` }}
-      >
-        <img
-          src={iconUrl || deliveryIcon}
-          alt={title}
-          className="h-12 w-12 object-contain drop-shadow-[0_8px_10px_rgba(15,23,42,0.35)]"
-          draggable={false}
-        />
-      </div>
-    </div>
-  </OverlayViewF>
-);
 
 const getTrackingVehicleIcon = (ride, driver) => {
   const customIcon = String(
@@ -202,8 +180,6 @@ const ParcelTracking = () => {
 
   const driver = useMemo(() => mergeDriverSnapshot(state.driver || {}, rideRealtime?.driver || {}), [state.driver, rideRealtime?.driver]);
   const vehicleIcon = getTrackingVehicleIcon(state, driver);
-  // Admin-uploaded map icons are drawn nose-left; bundled ones are nose-up.
-  const iconHeadingOffset = resolveIconHeadingOffset(vehicleIcon, [carIcon, bikeIcon, autoIcon, deliveryIcon]);
   const displayDriverHeading = useMemo(() => {
     if (Number.isFinite(Number(rideRealtime?.driverLocation?.heading))) {
       return normalizeHeading(rideRealtime.driverLocation.heading);
@@ -215,15 +191,12 @@ const ParcelTracking = () => {
       calculateBearing(driverPosition, activeDestination),
     );
   }, [activeDestination, driverPosition, rideRealtime?.driverLocation?.heading, routePath]);
-  // Tween between socket fixes so the captain glides instead of teleporting.
-  const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
-    driverPosition,
-    displayDriverHeading,
-  );
-  // Draw only the road still ahead, starting at the marker.
+  // Trimmed against the RAW fix, not the tweened marker position -- doing it
+  // per animation frame rescanned a full-resolution path and redrew the whole
+  // polyline 60 times a second. Smoothing lives inside SmoothVehicleMarker.
   const displayRoutePath = useMemo(
-    () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
-    [driverPosition, routePath, smoothDriverPosition],
+    () => trimPathToPosition(routePath, driverPosition),
+    [driverPosition, routePath],
   );
   const fare = rideRealtime?.fare || state.fare || 45;
   const otp = String(rideRealtime?.otp || state.otp || '');
@@ -774,7 +747,7 @@ const ParcelTracking = () => {
                 options={{ strokeColor: '#0f172a', strokeOpacity: 0.9, strokeWeight: 6 }}
               />
             )}
-            <RotatingVehicleMarker position={smoothDriverPosition || driverPosition} iconUrl={vehicleIcon} heading={smoothDriverHeading + iconHeadingOffset} />
+            <SmoothVehicleMarker position={driverPosition} iconUrl={vehicleIcon} fallbackIcon={deliveryIcon} bundledIcons={[carIcon, bikeIcon, autoIcon, deliveryIcon]} heading={displayDriverHeading} title="Delivery Captain" />
             <MarkerF position={activeDestination} />
           </GoogleMap>
         ) : (

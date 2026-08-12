@@ -25,9 +25,8 @@ import { socketService } from '../../../shared/api/socket';
 import api from '../../../shared/api/axiosInstance';
 import carIcon from '../../../assets/icons/car.png';
 import { getLocalDriverToken } from '../services/registrationService';
-import { useSmoothedLatLng } from '../../shared/hooks/useSmoothedLatLng';
 import { distanceMeters, distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../shared/utils/routePath';
-import { resolveIconHeadingOffset } from '../../shared/utils/vehicleIconHeading';
+import SmoothVehicleMarker from '../../shared/components/SmoothVehicleMarker';
 
 // Below these the phone is treated as stationary and the icon holds its last
 // bearing. GPS wanders several metres while parked, so re-aiming on every fix
@@ -344,32 +343,7 @@ const getRouteHeading = (position, path = [], fallback = 0) => {
     return nextPoint ? calculateBearing(position, nextPoint, fallback) : fallback;
 };
 
-const getVehicleMarkerOffset = (width, height) => ({
-    x: -(width / 2),
-    y: -(height / 2),
-});
 
-const RotatingVehicleMarker = ({ position, iconUrl = carIcon, heading = 0, title = 'Driver' }) => (
-    <OverlayViewF
-        position={position}
-        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-        getPixelPositionOffset={getVehicleMarkerOffset}
-    >
-        <div title={title} className="pointer-events-none flex h-14 w-14 items-center justify-center">
-            <div
-                className="flex h-11 w-11 items-center justify-center"
-                style={{ transform: `rotate(${normalizeHeading(heading)}deg)` }}
-            >
-                <img
-                    src={iconUrl || carIcon}
-                    alt={title}
-                    className="h-12 w-12 object-contain drop-shadow-[0_8px_10px_rgba(15,23,42,0.35)]"
-                    draggable={false}
-                />
-            </div>
-        </div>
-    </OverlayViewF>
-);
 
 const getCurrentCoords = () => new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
@@ -704,8 +678,6 @@ const ActiveTrip = () => {
     const [resolvedPickupCoords, setResolvedPickupCoords] = useState(null);
     const [resolvedDropCoords, setResolvedDropCoords] = useState(null);
     const vehicleIconUrl = liveRaw.vehicleIconUrl || liveRequest.vehicleIconUrl || effectiveState.vehicleIconUrl || carIcon;
-    // Admin-uploaded map icons are drawn nose-left; the bundled one is nose-up.
-    const iconHeadingOffset = resolveIconHeadingOffset(vehicleIconUrl, [carIcon]);
 
     const pickupAddressLabel = String(
         liveRaw?.pickupAddress ||
@@ -1231,18 +1203,15 @@ const ActiveTrip = () => {
             calculateBearing(driverPosition, activeDestination),
         );
     }, [activeDestination, driverHeading, driverPosition, routePath]);
-    // GPS fixes arrive in discrete jumps; tween between them so the marker
-    // glides. Only the rendered marker is smoothed -- publishDriverLocation
-    // still broadcasts the raw fix, so the rider's ETA stays accurate.
-    const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
-        driverPosition,
-        displayDriverHeading,
-    );
-    // Draw only the road still ahead, starting at the marker, so the line
-    // shortens smoothly instead of being redrawn from the original origin.
+    // Trimmed against the RAW fix, not the tweened marker position. Recomputing
+    // this every animation frame rescanned a full-resolution path and handed
+    // Google Maps a fresh multi-thousand-point polyline 60 times a second,
+    // which is what made the map crawl. Once per fix looks identical.
+    // Smoothing itself lives inside SmoothVehicleMarker so a moving vehicle
+    // does not re-render this whole screen every frame.
     const displayRoutePath = useMemo(
-        () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
-        [driverPosition, routePath, smoothDriverPosition],
+        () => trimPathToPosition(routePath, driverPosition),
+        [driverPosition, routePath],
     );
     const displayDriverHeadingRef = React.useRef(displayDriverHeading);
 
@@ -1956,10 +1925,12 @@ const ActiveTrip = () => {
                                 />
                             </>
                         )}
-                        <RotatingVehicleMarker
-                            position={smoothDriverPosition || driverPosition}
+                        <SmoothVehicleMarker
+                            position={driverPosition}
                             iconUrl={vehicleIconUrl}
-                            heading={smoothDriverHeading + iconHeadingOffset}
+                            fallbackIcon={carIcon}
+                            bundledIcons={[carIcon]}
+                            heading={displayDriverHeading}
                             title="Driver"
                         />
                         <MarkerF

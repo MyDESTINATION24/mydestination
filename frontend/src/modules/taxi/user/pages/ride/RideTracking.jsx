@@ -14,9 +14,8 @@ import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
 import deliveryIcon from '../../../../assets/icons/Delivery.png';
 import { useSettings } from '../../../../shared/context/SettingsContext';
-import { useSmoothedLatLng } from '../../../shared/hooks/useSmoothedLatLng';
 import { distanceToPathMeters, extractDetailedPath, trimPathToPosition } from '../../../shared/utils/routePath';
-import { resolveIconHeadingOffset } from '../../../shared/utils/vehicleIconHeading';
+import SmoothVehicleMarker from '../../../shared/components/SmoothVehicleMarker';
 
 // How far the vehicle may stray from the drawn route before it is worth asking
 // Directions for a new one. Below this we just trim the path we already have.
@@ -74,32 +73,7 @@ const getRouteHeading = (position, path = [], fallback = 0) => {
   return nextPoint ? calculateBearing(position, nextPoint, fallback) : fallback;
 };
 
-const getVehicleMarkerOffset = (width, height) => ({
-  x: -(width / 2),
-  y: -(height / 2),
-});
 
-const RotatingVehicleMarker = ({ position, iconUrl = carIcon, heading = 0, title = 'Driver' }) => (
-  <OverlayViewF
-    position={position}
-    mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-    getPixelPositionOffset={getVehicleMarkerOffset}
-  >
-    <div title={title} className="pointer-events-none flex h-14 w-14 items-center justify-center">
-      <div
-        className="flex h-11 w-11 items-center justify-center"
-        style={{ transform: `rotate(${normalizeHeading(heading)}deg)` }}
-      >
-        <img
-          src={iconUrl || carIcon}
-          alt={title}
-          className="h-12 w-12 object-contain drop-shadow-[0_8px_10px_rgba(15,23,42,0.35)]"
-          draggable={false}
-        />
-      </div>
-    </div>
-  </OverlayViewF>
-);
 
 const getTrackingVehicleIcon = (ride, driver) => {
   const customIcon = String(
@@ -433,8 +407,6 @@ const RideTracking = () => {
   const waitingChargeableMinutes = Math.max(0, Math.ceil(waitingElapsedSeconds / 60) - freeWaitingBeforeMinutes);
   const isWaitingForOtp = Boolean(waitingStartedAt) && !['started', 'ongoing', 'arrived', 'completed', 'cancelled', 'delivered'].includes(tripStatus);
   const vehicleIcon = getTrackingVehicleIcon(trackingSnapshot, driver);
-  // Admin-uploaded map icons are drawn nose-left; bundled ones are nose-up.
-  const iconHeadingOffset = resolveIconHeadingOffset(vehicleIcon, [carIcon, bikeIcon, autoIcon, deliveryIcon]);
   const displayDriverHeading = useMemo(() => {
     if (Number.isFinite(Number(rideRealtime?.driverLocation?.heading))) {
       return normalizeHeading(rideRealtime.driverLocation.heading);
@@ -446,17 +418,13 @@ const RideTracking = () => {
       calculateBearing(driverPosition, activeDestination),
     );
   }, [activeDestination, driverPosition, rideRealtime?.driverLocation?.heading, routePath]);
-  // Socket fixes land every few seconds; tween between them so the vehicle
-  // glides and turns instead of teleporting.
-  const { position: smoothDriverPosition, heading: smoothDriverHeading } = useSmoothedLatLng(
-    driverPosition,
-    displayDriverHeading,
-  );
-  // Draw only the road still ahead, starting at the marker. The line shortens
-  // smoothly as the vehicle advances instead of being redrawn each fix.
+  // Trimmed against the RAW fix, not the tweened marker position. Recomputing
+  // this every animation frame rescanned a full-resolution path and handed
+  // Google Maps a fresh multi-thousand-point polyline 60 times a second, which
+  // is what made the map crawl. Once per fix looks identical.
   const displayRoutePath = useMemo(
-    () => trimPathToPosition(routePath, smoothDriverPosition || driverPosition),
-    [driverPosition, routePath, smoothDriverPosition],
+    () => trimPathToPosition(routePath, driverPosition),
+    [driverPosition, routePath],
   );
   const vehicleLabel = driver.vehicle || driver.vehicleType || (serviceType === 'parcel' ? 'Parcel' : 'Taxi');
   const nextDriverImage = resolveAssetUrl(
@@ -1264,11 +1232,13 @@ const RideTracking = () => {
               />
             )}
             {hasLiveDriverLocation ? (
-              <RotatingVehicleMarker
-                position={smoothDriverPosition || driverPosition}
+              <SmoothVehicleMarker
+                position={driverPosition}
                 title="Driver"
                 iconUrl={vehicleIcon}
-                heading={smoothDriverHeading + iconHeadingOffset}
+                fallbackIcon={carIcon}
+                bundledIcons={[carIcon, bikeIcon, autoIcon, deliveryIcon]}
+                heading={displayDriverHeading}
               />
             ) : null}
             <MarkerF
