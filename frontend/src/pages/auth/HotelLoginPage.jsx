@@ -68,7 +68,7 @@ const HotelLoginPage = () => {
             setLoading(true);
 
             // Directly call API to get and store a real JWT token
-            await authService.verifyOtp({ phone, otp: otpString, role: 'partner' });
+            const res = await authService.verifyOtp({ phone, otp: otpString, role: 'partner' });
 
             try {
                 window.dispatchEvent(new CustomEvent('fcm:register'));
@@ -76,7 +76,11 @@ const HotelLoginPage = () => {
                 console.warn('[FCM] Could not dispatch register event', fcmError);
             }
 
-            navigate('/hotel/dashboard');
+            if (res?.user?.partnerApprovalStatus !== 'approved') {
+                navigate('/hotel/pending-approval');
+            } else {
+                navigate('/hotel/dashboard');
+            }
         } catch (err) {
             setError(err.message || 'Verification failed');
         } finally {

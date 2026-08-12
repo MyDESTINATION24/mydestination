@@ -138,6 +138,7 @@ const PartnerAbout = React.lazy(() => import('./app/partner/pages/PartnerAbout')
 const PartnerPrivacy = React.lazy(() => import('./app/partner/pages/PartnerPrivacy'));
 const PartnerContact = React.lazy(() => import('./app/partner/pages/PartnerContact'));
 const PartnerBankDetails = React.lazy(() => import('./app/partner/pages/PartnerBankDetails'));
+const PartnerPendingApproval = React.lazy(() => import('./app/partner/pages/PartnerPendingApproval'));
 const HotelUISettingsManager = React.lazy(() => import('./app/partner/pages/HotelUISettingsManager'));
 const HotelServiceDynamicView = React.lazy(() => import('./components/user/HotelServiceDynamicView'));
 const BlogManager = React.lazy(() => import('./pages/manager/BlogManager'));
@@ -327,8 +328,8 @@ const Layout = ({ children }) => {
   const showUserBottomNav = showUserNavs && !hideUserBottomNavOn.some(r => location.pathname.includes(r)) && !hideNavsDueToSlider;
 
   // Partner Bottom Nav should show in Partner App (authenticated pages)
-  const isPartnerPublic = location.pathname === '/hotel/privacy' || location.pathname === '/hotel/contact';
-  const showPartnerBottomNav = isPartnerApp && location.pathname !== '/hotel' && !isPartnerPublic && !hideNavsDueToSlider;
+  const isPartnerPublic = location.pathname === '/hotel/privacy' || location.pathname === '/hotel/contact' || location.pathname === '/hotel/pending-approval';
+  const showPartnerBottomNav = isPartnerApp && location.pathname !== '/hotel' && location.pathname !== '/hotel/pending-approval' && !isPartnerPublic && !hideNavsDueToSlider;
 
   const isAuthRoute = ['/login', '/signup', '/hotel/login', '/hotel/register'].some(route =>
     location.pathname.startsWith(route)
@@ -467,6 +468,8 @@ const PartnerProtectedRoute = ({ children }) => {
   const isPending = user.partnerApprovalStatus !== 'approved';
   if (isPending) {
     const allowedPending = [
+      '/hotel/pending-approval',
+      '/hotel/register',
       '/hotel/dashboard',
       '/hotel/partner-dashboard',
       '/hotel/join',
@@ -479,7 +482,7 @@ const PartnerProtectedRoute = ({ children }) => {
       '/hotel/join-homestay'
     ];
     if (!allowedPending.some(p => location.pathname.startsWith(p))) {
-      return <Navigate to="/hotel/dashboard" replace />;
+      return <Navigate to="/hotel/pending-approval" replace />;
     }
   }
 
@@ -574,7 +577,15 @@ const PartnerPublicRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const user = userRaw ? JSON.parse(userRaw) : null;
+  const location = useLocation();
+
   if (token && user?.role === 'partner') {
+    if (location.search.includes('mode=edit')) {
+      return children ? children : <Outlet />;
+    }
+    if (user.partnerApprovalStatus !== 'approved') {
+      return <Navigate to="/hotel/pending-approval" replace />;
+    }
     return <Navigate to="/hotel/dashboard" replace />;
   }
   return children;
@@ -861,6 +872,7 @@ function App() {
                 <Route path="join-homestay" element={<AddHomestayWizard />} />
                 <Route path="partner-dashboard" element={<PartnerDashboard />} />
                 <Route path="dashboard" element={<PartnerDashboard />} />
+                <Route path="pending-approval" element={<PartnerPendingApproval />} />
 
                 {/* Partner Sub-pages */}
                 <Route path="properties" element={<PartnerProperties />} />

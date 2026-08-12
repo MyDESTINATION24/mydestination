@@ -83,19 +83,6 @@ export const sendOtp = async (req, res) => {
         });
       }
 
-      // Check Approval Status ONLY for Vendors/Partners (Not regular Users)
-      if ((role === 'partner' || role === 'vendor') && (user.role === 'vendor' || user.role === 'partner')) {
-        if (user.partnerApprovalStatus !== 'approved') {
-          return res.status(403).json({
-            success: false,
-            message: user.partnerApprovalStatus === 'rejected'
-              ? 'Your application has been rejected. Please contact support.'
-              : 'Your account is pending admin approval. You will be able to login once approved.',
-            partnerApprovalStatus: user.partnerApprovalStatus
-          });
-        }
-      }
-
       if (user.isDeleted) {
         // We allow them to request OTP. Re-activation happens in verifyOtp.
         console.log(`[AUTH] Deleted account ${phone} requesting OTP for re-activation.`);
@@ -286,15 +273,25 @@ export const registerPartner = async (req, res) => {
       );
     }
 
+    const token = generateToken(partner._id, partner.role);
+
     res.status(201).json({
       success: true,
-      message: 'Registration successful! Your account is pending admin approval. You can login once approved.',
-      partner: {
+      message: 'Registration successful! Your account is pending admin approval.',
+      token,
+      user: {
         id: partner._id,
         name: partner.name,
         email: partner.email,
         phone: partner.phone,
-        partnerApprovalStatus: partner.partnerApprovalStatus
+        role: partner.role,
+        isPartner: true,
+        partnerApprovalStatus: partner.partnerApprovalStatus,
+        aadhaarNumber: partner.aadhaarNumber,
+        aadhaarFront: partner.aadhaarFront,
+        aadhaarBack: partner.aadhaarBack,
+        panNumber: partner.panNumber,
+        panCardImage: partner.panCardImage
       }
     });
 
@@ -462,17 +459,6 @@ export const verifyOtp = async (req, res) => {
         body: `${user.name} has joined the platform.`
       }, { type: 'new_user_registration', userId: user._id }).catch(err => console.error('Admin User alert failed:', err));
 
-    }
-
-    // BLOCK LOGIN IF NOT APPROVED (ONLY FOR VENDORS AND PARTNERS)
-    if ((role === 'partner' || role === 'vendor') && (user.role === 'vendor' || user.role === 'partner')) {
-      if (user.partnerApprovalStatus !== 'approved') {
-        return res.status(403).json({
-          success: false,
-          message: 'Your profile is pending admin approval. You can login once your account is verified and approved.',
-          partnerApprovalStatus: user.partnerApprovalStatus
-        });
-      }
     }
 
     const token = generateToken(user._id, user.role);
@@ -680,7 +666,10 @@ export const getMe = async (req, res) => {
         address: user.address,
         profileImage: user.profileImage,
         aadhaarNumber: user.aadhaarNumber,
+        aadhaarFront: user.aadhaarFront,
+        aadhaarBack: user.aadhaarBack,
         panNumber: user.panNumber,
+        panCardImage: user.panCardImage,
         partnerSince: user.partnerSince,
         createdAt: user.createdAt
       }
@@ -698,7 +687,7 @@ export const getMe = async (req, res) => {
  */
 export const updateProfile = async (req, res) => {
   try {
-    const { name, email, phone, address, profileImage, profileImagePublicId } = req.body;
+    const { name, email, phone, address, profileImage, profileImagePublicId, aadhaarNumber, aadhaarFront, aadhaarBack, panNumber, panCardImage } = req.body;
     const currentUser = req.user; // From middleware
 
     // Determine Model based on role
@@ -735,6 +724,16 @@ export const updateProfile = async (req, res) => {
       }
     }
 
+    if (aadhaarNumber !== undefined) user.aadhaarNumber = aadhaarNumber;
+    if (aadhaarFront !== undefined) user.aadhaarFront = aadhaarFront;
+    if (aadhaarBack !== undefined) user.aadhaarBack = aadhaarBack;
+    if (panNumber !== undefined) user.panNumber = panNumber;
+    if (panCardImage !== undefined) user.panCardImage = panCardImage;
+
+    if (user.role === 'partner' || currentUser.role === 'partner') {
+      user.partnerApprovalStatus = 'pending';
+    }
+
     if (address) {
       user.address = {
         street: address.street || user.address?.street || '',
@@ -769,8 +768,14 @@ export const updateProfile = async (req, res) => {
         phone: user.phone,
         role: user.role,
         isPartner: user.isPartner || false,
+        partnerApprovalStatus: user.partnerApprovalStatus,
         address: user.address,
         profileImage: user.profileImage,
+        aadhaarNumber: user.aadhaarNumber,
+        aadhaarFront: user.aadhaarFront,
+        aadhaarBack: user.aadhaarBack,
+        panNumber: user.panNumber,
+        panCardImage: user.panCardImage,
         partnerSince: user.partnerSince,
         createdAt: user.createdAt
       }

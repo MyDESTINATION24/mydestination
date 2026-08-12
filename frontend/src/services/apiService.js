@@ -185,6 +185,16 @@ export const authService = {
     }
   },
 
+  // Get Current User Profile
+  getMe: async () => {
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Logout
   logout: () => {
     clearAllAuth();

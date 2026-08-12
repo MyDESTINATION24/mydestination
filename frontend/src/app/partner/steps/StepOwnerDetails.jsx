@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import usePartnerStore from '../store/partnerStore';
 import { authService } from '../../../services/apiService';
-import { Upload, X, Check, Loader2, Image as ImageIcon, Eye, Camera } from 'lucide-react';
+import { Upload, X, Check, Loader2, Image as ImageIcon, Eye, Camera, CheckCircle2, AlertCircle } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { isFlutterApp, openFlutterCamera, uploadBase64Image } from '../../../utils/flutterBridge';
 
@@ -315,30 +315,51 @@ const StepOwnerDetails = () => {
       </AnimatePresence>
       {/* Aadhaar Section */}
       <div className="space-y-4 pt-2">
-        <h3 className="text-sm font-black text-gray-900">Aadhaar Verification</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-black text-gray-900">Aadhaar Verification</h3>
+          <span className="text-[10px] text-gray-400 font-mono">12 Digits</span>
+        </div>
 
         <div>
-          <label className="block text-xs font-bold text-gray-500 mb-1">Aadhaar Number</label>
-          <input
-            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0A4720] tracking-widest font-mono"
-            placeholder="XXXX XXXX XXXX"
-            maxLength={12}
-            onFocus={handleFocus}
-            value={formData.aadhaar_number}
-            onChange={e => handleChange('aadhaar_number', e.target.value.replace(/\D/g, '').slice(0, 12))}
-          />
+          <label className="block text-xs font-bold text-gray-700 mb-1">Aadhaar Number</label>
+          <div className="relative">
+            <input
+              className={`w-full border rounded-xl px-3 py-2.5 text-sm transition-all focus:outline-none tracking-widest font-mono ${
+                formData.aadhaar_number
+                  ? /^\d{12}$/.test(formData.aadhaar_number)
+                    ? 'border-emerald-500 bg-emerald-50/20 text-gray-900 focus:ring-2 focus:ring-emerald-500/20'
+                    : 'border-rose-400 bg-rose-50/20 text-rose-900 focus:ring-2 focus:ring-rose-400/20'
+                  : 'border-gray-200 focus:ring-2 focus:ring-[#39593f]/20 focus:border-[#39593f]'
+              }`}
+              placeholder="12-digit Aadhaar Number"
+              maxLength={12}
+              onFocus={handleFocus}
+              value={formData.aadhaar_number || ''}
+              onChange={e => handleChange('aadhaar_number', e.target.value.replace(/\D/g, '').slice(0, 12))}
+            />
+            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              {formData.aadhaar_number && (
+                /^\d{12}$/.test(formData.aadhaar_number) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <AlertCircle size={16} className="text-rose-400" />
+              )}
+            </div>
+          </div>
+          {formData.aadhaar_number && !/^\d{12}$/.test(formData.aadhaar_number) && (
+            <p className="text-[11px] text-rose-500 mt-1 font-medium">
+              Aadhaar number must be exactly 12 numeric digits ({12 - (formData.aadhaar_number?.length || 0)} digits remaining)
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <ImageUploader
-            label="Front Image"
+            label="Aadhaar Front Image"
             value={formData.aadhaar_front}
             onChange={(url) => handleChange('aadhaar_front', url)}
             onView={setPreviewImage}
             placeholder="Front Side"
           />
           <ImageUploader
-            label="Back Image"
+            label="Aadhaar Back Image"
             value={formData.aadhaar_back}
             onChange={(url) => handleChange('aadhaar_back', url)}
             onView={setPreviewImage}
@@ -348,23 +369,44 @@ const StepOwnerDetails = () => {
       </div>
 
       {/* PAN Section */}
-      <div className="space-y-4 pt-2 border-t border-gray-100">
-        <h3 className="text-sm font-black text-gray-900">PAN Verification</h3>
+      <div className="space-y-4 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-black text-gray-900">PAN Verification</h3>
+          <span className="text-[10px] text-gray-400 font-mono">Format: ABCDE1234F</span>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-gray-500 mb-1">PAN Number</label>
-            <input
-              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#0A4720] font-mono"
-              placeholder="ABCDE1234F"
-              maxLength={10}
-              onFocus={handleFocus}
-              value={formData.pan_number}
-              onChange={e => {
-                const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-                handleChange('pan_number', val.slice(0, 10));
-              }}
-            />
+            <label className="block text-xs font-bold text-gray-700 mb-1">PAN Card Number</label>
+            <div className="relative">
+              <input
+                className={`w-full border rounded-xl px-3 py-2.5 text-sm uppercase transition-all focus:outline-none font-mono tracking-widest ${
+                  formData.pan_number
+                    ? /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_number)
+                      ? 'border-emerald-500 bg-emerald-50/20 text-gray-900 focus:ring-2 focus:ring-emerald-500/20'
+                      : 'border-rose-400 bg-rose-50/20 text-rose-900 focus:ring-2 focus:ring-rose-400/20'
+                    : 'border-gray-200 focus:ring-2 focus:ring-[#39593f]/20 focus:border-[#39593f]'
+                }`}
+                placeholder="ABCDE1234F"
+                maxLength={10}
+                onFocus={handleFocus}
+                value={formData.pan_number || ''}
+                onChange={e => {
+                  const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                  handleChange('pan_number', val.slice(0, 10));
+                }}
+              />
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                {formData.pan_number && (
+                  /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_number) ? <CheckCircle2 size={16} className="text-emerald-500" /> : <AlertCircle size={16} className="text-rose-400" />
+                )}
+              </div>
+            </div>
+            {formData.pan_number && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan_number) && (
+              <p className="text-[11px] text-rose-500 mt-1 font-medium">
+                PAN must be 10 characters (5 letters, 4 numbers, 1 letter e.g. ABCDE1234F)
+              </p>
+            )}
           </div>
           <ImageUploader
             label="PAN Card Image"
