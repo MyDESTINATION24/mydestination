@@ -1,7 +1,5 @@
 import simplify from 'simplify-js';
 import { getFirebaseDatabase, firebaseServerTimestamp } from '../../../../config/firebase.js';
-import { SOCKET_EVENTS } from '../events.js';
-import { getRideRoom } from '../../services/rideService.js';
 
 const SIMPLIFY_INTERVAL_MS = 3_000;
 const ROUTE_TOLERANCE = 0.0001;
@@ -74,7 +72,13 @@ export const updateDriverRoute = ({ io, rideId, driverId, coordinates }) => {
     updatedAt: new Date().toISOString(),
   };
 
-  io.to(getRideRoom(rideId)).emit(SOCKET_EVENTS.RIDE_DRIVER_ROUTE_UPDATED, payload);
+  // Deliberately NOT broadcast. This payload carries the whole breadcrumb
+  // buffer, which grows for the length of the trip, and it was being pushed to
+  // every client on every location fix -- so each phone spent the ride
+  // receiving and parsing an ever-larger array. No client has ever subscribed
+  // to RIDE_DRIVER_ROUTE_UPDATED; the rider's line is drawn from Directions.
+  // The buffer is still kept and persisted below, which is what actually uses it.
+  //
   // Firebase is best-effort; never hold up the socket location update path.
   setImmediate(() => maybeWriteRouteToFirebase({ driverId, points: nextBuffer }));
 

@@ -1805,13 +1805,8 @@ export const appendRideMessage = async ({ rideId, role, senderId, message }) => 
 
 export const updateRideDriverLocation = async ({ rideId, driverId, coordinates, heading = null, speed = null }) => {
   const normalizedCoords = normalizePoint(coordinates, 'coordinates');
-  const ride = await Ride.findOne({ _id: rideId, driverId });
 
-  if (!ride) {
-    throw new ApiError(404, 'Assigned ride not found');
-  }
-
-  ride.lastDriverLocation = {
+  const lastDriverLocation = {
     type: 'Point',
     coordinates: normalizedCoords,
     heading: Number.isFinite(Number(heading)) ? Number(heading) : null,
@@ -1819,14 +1814,26 @@ export const updateRideDriverLocation = async ({ rideId, driverId, coordinates, 
     updatedAt: new Date(),
   };
 
-  await ride.save();
+  // One round trip, not two. This runs on every GPS ping of every active ride,
+  // and the rider's marker update is only emitted once it resolves -- so a
+  // findOne + full document save() against Atlas put that latency directly in
+  // the live-tracking path twice over.
+  const ride = await Ride.findOneAndUpdate(
+    { _id: rideId, driverId },
+    { $set: { lastDriverLocation } },
+    { new: true, projection: { _id: 1 } },
+  );
+
+  if (!ride) {
+    throw new ApiError(404, 'Assigned ride not found');
+  }
 
   return {
     rideId: String(ride._id),
     coordinates: normalizedCoords,
-    heading: ride.lastDriverLocation.heading,
-    speed: ride.lastDriverLocation.speed,
-    updatedAt: ride.lastDriverLocation.updatedAt,
+    heading: lastDriverLocation.heading,
+    speed: lastDriverLocation.speed,
+    updatedAt: lastDriverLocation.updatedAt,
   };
 };
 
