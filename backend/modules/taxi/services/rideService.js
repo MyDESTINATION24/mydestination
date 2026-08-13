@@ -1751,6 +1751,21 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
     // never be told the ride started if the write later rolled back.
     notifyUserOfRideStatus(populatedRide || ride, nextStatus);
 
+    if (nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
+      // The transaction above cleared isOnRide, but nothing re-offered this
+      // driver the rides already searching -- that only happened when a driver
+      // went online or reconnected. So after finishing a trip they sat idle
+      // until some brand new request happened to come in.
+      //
+      // Imported lazily: dispatchService imports this module, and a top-level
+      // import back would be a cycle.
+      import('./dispatchService.js')
+        .then(({ notifyLateAvailableDriver }) => notifyLateAvailableDriver(driverId))
+        .catch((error) => {
+          console.error('Failed to re-offer searching rides to freed driver', error);
+        });
+    }
+
     return populatedRide;
   } catch (error) {
     await session.abortTransaction();

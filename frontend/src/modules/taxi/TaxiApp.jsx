@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import AppErrorBoundary from '../../components/common/AppErrorBoundary';
 import { MapPin, FileText } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
@@ -721,7 +722,7 @@ function App() {
   const isUserAuthRoute = false; // We don't render user auth routes in TaxiApp anymore
 
   return (
-    
+    <AppErrorBoundary>
       <SettingsProvider>
         {!isUserAuthRoute ? <RentalLocationTracker /> : null}
         <AppAutoUpdater />
@@ -1742,7 +1743,7 @@ function App() {
           </Suspense>
         </MainLayout>
       </SettingsProvider>
-    
+    </AppErrorBoundary>
   );
 }
 
