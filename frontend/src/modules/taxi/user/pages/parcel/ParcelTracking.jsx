@@ -17,7 +17,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { GoogleMap, MarkerF, OverlayView, OverlayViewF, PolylineF } from '@react-google-maps/api';
-import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
+import { HAS_VALID_GOOGLE_MAPS_KEY, useLiteGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { socketService } from '../../../../shared/api/socket';
 import api from '../../../../shared/api/axiosInstance';
 import { BACKEND_ORIGIN } from '../../../../shared/api/runtimeConfig';
@@ -159,7 +159,7 @@ const ParcelTracking = () => {
     enable_tips: '1',
     min_tip_amount: '10',
   });
-  const { isLoaded, loadError } = useAppGoogleMapsLoader();
+  const { isLoaded, loadError } = useLiteGoogleMapsLoader();
   const latestStateRef = useRef(state);
   const latestDriverRef = useRef(state.driver || {});
   const latestRideRealtimeRef = useRef(null);

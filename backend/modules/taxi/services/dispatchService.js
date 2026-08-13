@@ -1082,16 +1082,27 @@ export const notifyLateAvailableDriver = async (driverId) => {
     const dispatchState = getDispatchState(rideId);
     const driverKey = String(driver._id);
 
-    if (
-      dispatchState.notifiedDriverIds.includes(driverKey) ||
-      dispatchState.rejectedDriverIds.includes(driverKey)
-    ) {
+    // Only a rejection disqualifies a driver. Being in notifiedDriverIds must
+    // NOT, because the original dispatch records a driver as notified even when
+    // the emit went to a room with no live socket -- a backgrounded WebView, a
+    // dropped connection. Skipping them here meant a driver who reconnected
+    // while the ride was still searching never received it, for the whole life
+    // of the ride. This function exists precisely to reach drivers who have
+    // just become reachable, so re-delivery is the point.
+    if (dispatchState.rejectedDriverIds.includes(driverKey)) {
       continue;
     }
 
     const dispatchConfig = await resolveTransportDispatchConfig();
 
-    if (dispatchConfig.dispatchType === 'one_by_one' && dispatchState.driverIds.length > 0) {
+    // In one_by_one the request belongs to a single driver at a time. Don't
+    // hand it to someone else -- but if the holder is the one reconnecting,
+    // re-deliver it to them rather than leaving them staring at nothing.
+    if (
+      dispatchConfig.dispatchType === 'one_by_one'
+      && dispatchState.driverIds.length > 0
+      && !dispatchState.driverIds.includes(driverKey)
+    ) {
       continue;
     }
 
@@ -1116,7 +1127,9 @@ export const notifyLateAvailableDriver = async (driverId) => {
       ? searchRadiusMeters
       : radius;
 
-    const nextNotifiedDriverIds = [...dispatchState.notifiedDriverIds, driverKey];
+    // Deduped: this driver may already be recorded from the dispatch attempt
+    // whose emit they never actually received.
+    const nextNotifiedDriverIds = [...new Set([...dispatchState.notifiedDriverIds, driverKey])];
     const nextDriverIds = dispatchConfig.dispatchType === 'broadcast'
       ? [...new Set([...dispatchState.driverIds, driverKey])]
       : dispatchState.driverIds.length

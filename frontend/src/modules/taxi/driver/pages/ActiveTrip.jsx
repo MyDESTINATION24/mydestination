@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleMap, MarkerF, OverlayView, OverlayViewF, PolylineF } from '@react-google-maps/api';
-import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../admin/utils/googleMaps';
+import { HAS_VALID_GOOGLE_MAPS_KEY, useLiteGoogleMapsLoader } from '../../admin/utils/googleMaps';
 import { socketService } from '../../../shared/api/socket';
 import api from '../../../shared/api/axiosInstance';
 import carIcon from '../../../assets/icons/car.png';
@@ -796,7 +796,7 @@ const ActiveTrip = () => {
     const [isSimulationEnabled, setIsSimulationEnabled] = useState(false);
     const [isSimulationRunning, setIsSimulationRunning] = useState(false);
     const [simulationStep, setSimulationStep] = useState(0);
-    const { isLoaded, loadError } = useAppGoogleMapsLoader();
+    const { isLoaded, loadError } = useLiteGoogleMapsLoader();
     const simulationPathRef = React.useRef([]);
     const simulationTimerRef = React.useRef(null);
     const isSimulationEnabledRef = React.useRef(false);
