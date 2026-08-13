@@ -6,6 +6,33 @@ import React from 'react';
 //
 // This keeps the failure visible and recoverable, and prints the component
 // stack so the actual line can be found from a device console.
+// A WebView caches index.html hard. After a deploy it can still ask for the
+// previous build's hashed chunks, which no longer exist -- every lazy() route
+// then rejects and the screen goes blank. That is not a bug to show the user,
+// it is a stale bundle, and the fix is to fetch the new index.html once.
+const RELOAD_GUARD_KEY = 'appErrorBoundaryReloadedAt';
+const RELOAD_GUARD_WINDOW_MS = 30000;
+
+const isStaleChunkError = (error) => /Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk .* failed|Importing a module script failed/i
+  .test(String(error?.message || error));
+
+// Reload at most once per window, so a genuine persistent failure shows the
+// error instead of trapping the app in a refresh loop.
+const canReloadOnce = () => {
+  try {
+    const last = Number(sessionStorage.getItem(RELOAD_GUARD_KEY) || 0);
+
+    if (Date.now() - last < RELOAD_GUARD_WINDOW_MS) {
+      return false;
+    }
+
+    sessionStorage.setItem(RELOAD_GUARD_KEY, String(Date.now()));
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 class AppErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -18,6 +45,11 @@ class AppErrorBoundary extends React.Component {
 
   componentDidCatch(error, info) {
     console.error('[app-error-boundary] render failed', error, info?.componentStack);
+
+    if (isStaleChunkError(error) && canReloadOnce()) {
+      console.warn('[app-error-boundary] stale bundle detected, reloading once');
+      window.location.reload();
+    }
   }
 
   render() {

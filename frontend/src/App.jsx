@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
+import AppErrorBoundary from './components/common/AppErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Clock, Loader2 } from 'lucide-react';
@@ -828,7 +829,7 @@ function App() {
 
 
   return (
-    <>
+    <AppErrorBoundary>
       <ScrollToTop />
       <Toaster
         position="top-center"
@@ -1105,7 +1106,7 @@ function App() {
           </Routes>
         </Suspense>
       </Layout>
-    </>
+    </AppErrorBoundary>
   );
 }
 
