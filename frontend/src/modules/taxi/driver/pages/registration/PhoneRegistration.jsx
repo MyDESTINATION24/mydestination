@@ -68,8 +68,14 @@ const PhoneRegistration = () => {
             //{ id: 'service_center_staff', label: 'Staff', Icon: UserRound },
         ]
         : [
+            // Must mirror the roles registration actually supports. Bus and
+            // Pooling were offered at login but not here, so those accounts
+            // could never be created -- and picking them elsewhere silently
+            // produced a plain driver account.
             { id: 'driver', label: 'Driver', Icon: UserRound },
             { id: 'owner', label: 'Owner', Icon: Briefcase },
+            { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
+            { id: 'pooling', label: 'Pooling', Icon: Sparkles },
         ];
 
     const modeConfig = useMemo(() => {

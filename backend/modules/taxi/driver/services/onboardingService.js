@@ -47,7 +47,20 @@ const normalizePhone = (phone) => {
   return digits.length === 12 && digits.startsWith('91') ? digits.slice(2) : digits;
 };
 
-const normalizeRole = (role) => (String(role || 'driver').toLowerCase() === 'owner' ? 'owner' : 'driver');
+// Registration must recognise the same roles login does. It used to collapse
+// everything except 'owner' into 'driver', which meant:
+//   - the bus_driver branch in completeOnboarding could never run, so no bus
+//     driver account could be created at all;
+//   - 'pooling' was impossible, so nobody could ever hold the pooling token
+//     that /pooling/dashboard requires -- the screen was unreachable;
+//   - and someone who picked "Bus" or "Pooling" silently got a plain driver
+//     account instead of being told the role was not supported.
+const REGISTERABLE_ROLES = new Set(['driver', 'owner', 'bus_driver', 'pooling']);
+
+const normalizeRole = (role) => {
+  const normalized = String(role || 'driver').toLowerCase().replace(/-/g, '_');
+  return REGISTERABLE_ROLES.has(normalized) ? normalized : 'driver';
+};
 const normalizeServiceCategories = (value, fallback = 'taxi') => {
   const rawValues = Array.isArray(value)
     ? value
@@ -1193,7 +1206,14 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
     message: 'Driver registration completed successfully',
     driver: publicDriverPayload(driver),
     documents: normalizedDocuments,
-    token: signAccessToken({ sub: String(driver._id), role: 'driver' }),
+    // A pooling driver is a Driver row -- /pooling/dashboard looks them up with
+    // Driver.findById -- but the route is gated on the 'pooling' role, so the
+    // token has to carry the role they actually registered for. Signing
+    // 'driver' here is what left the pooling dashboard unreachable.
+    token: signAccessToken({
+      sub: String(driver._id),
+      role: String(session.role || '').toLowerCase() === 'pooling' ? 'pooling' : 'driver',
+    }),
     session: publicSessionPayload(session),
   };
 };
