@@ -16,8 +16,11 @@ const driverRegistrationSessionSchema = new mongoose.Schema(
       trim: true,
     },
     role: {
+      // Must list every role registration accepts. This was ['driver','owner'],
+      // so a bus, pooling or service-centre session failed validation on save
+      // and the sign-up died before the OTP was even sent.
       type: String,
-      enum: ['driver', 'owner'],
+      enum: ['driver', 'owner', 'bus_driver', 'pooling', 'service_center'],
       default: 'driver',
     },
     status: {

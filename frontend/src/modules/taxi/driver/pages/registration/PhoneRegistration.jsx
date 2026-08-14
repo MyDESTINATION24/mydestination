@@ -64,7 +64,9 @@ const PhoneRegistration = () => {
             { id: 'owner', label: 'Owner', Icon: Briefcase },
             { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
             { id: 'pooling', label: 'Pooling', Icon: Sparkles },
-            //{ id: 'service_center', label: 'Center', Icon: Building2 },
+            { id: 'service_center', label: 'Center', Icon: Building2 },
+            // Staff are created by their centre rather than self-registering,
+            // so there is no sign-up to pair this with yet.
             //{ id: 'service_center_staff', label: 'Staff', Icon: UserRound },
         ]
         : [
@@ -76,6 +78,7 @@ const PhoneRegistration = () => {
             { id: 'owner', label: 'Owner', Icon: Briefcase },
             { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
             { id: 'pooling', label: 'Pooling', Icon: Sparkles },
+            { id: 'service_center', label: 'Center', Icon: Building2 },
         ];
 
     const modeConfig = useMemo(() => {

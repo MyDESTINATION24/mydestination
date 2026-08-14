@@ -7,6 +7,7 @@ import { Driver } from '../models/Driver.js';
 import { DriverRegistrationSession } from '../models/DriverRegistrationSession.js';
 import { Owner } from '../../admin/models/Owner.js';
 import { ServiceLocation } from '../../admin/models/ServiceLocation.js';
+import { ServiceStore } from '../../admin/models/ServiceStore.js';
 import { Vehicle } from '../../admin/models/Vehicle.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
 import {
@@ -55,7 +56,7 @@ const normalizePhone = (phone) => {
 //     that /pooling/dashboard requires -- the screen was unreachable;
 //   - and someone who picked "Bus" or "Pooling" silently got a plain driver
 //     account instead of being told the role was not supported.
-const REGISTERABLE_ROLES = new Set(['driver', 'owner', 'bus_driver', 'pooling']);
+const REGISTERABLE_ROLES = new Set(['driver', 'owner', 'bus_driver', 'pooling', 'service_center']);
 
 const normalizeRole = (role) => {
   const normalized = String(role || 'driver').toLowerCase().replace(/-/g, '_');
@@ -507,7 +508,14 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
   }
 
   const normalizedRole = normalizeRole(role);
-  const existingDriver = await Driver.findOne({ phone: normalizedPhone });
+  const isServiceCenterRegistration = normalizedRole === 'service_center';
+
+  // A service centre is its own record keyed on owner_phone, so it is checked
+  // against ServiceStore rather than the driver book -- otherwise a centre
+  // owner who also drives could never register their centre.
+  const existingDriver = isServiceCenterRegistration
+    ? null
+    : await Driver.findOne({ phone: normalizedPhone });
   const existingOwner =
     normalizedRole === 'owner'
       ? await Owner.findOne({
@@ -517,13 +525,18 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
           ],
         })
       : null;
+  const existingServiceCenter = isServiceCenterRegistration
+    ? await ServiceStore.findOne({ owner_phone: normalizedPhone })
+    : null;
 
-  if (existingDriver || existingOwner) {
+  if (existingDriver || existingOwner || existingServiceCenter) {
     throw new ApiError(
       409,
       normalizedRole === 'owner'
         ? 'Phone number is already registered as an owner'
-        : 'Phone number is already registered',
+        : isServiceCenterRegistration
+          ? 'Phone number is already registered as a service center'
+          : 'Phone number is already registered',
     );
   }
 
@@ -950,7 +963,10 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
 
   const serviceLocationCoordinates = getValidatedServiceLocationCoordinates(resolvedServiceLocation || {});
   const isOwnerRegistration = String(session.role || '').toLowerCase() === 'owner';
+  const isServiceCenterRegistration = String(session.role || '').toLowerCase() === 'service_center';
 
+  // A centre is a fixed premises, so it must resolve to a real service
+  // location -- unlike an owner, who registers a company before any vehicle.
   if (!serviceLocationCoordinates && !isOwnerRegistration) {
     throw new ApiError(400, `Unsupported service location: ${session.vehicle.locationName}`);
   }
@@ -964,6 +980,64 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
     ? getGenericVehicleTypeFromCatalog(selectedVehicle)
     : getVehicleType(session.vehicle.vehicleTypeId, session.vehicle.registerFor);
   const submittedAt = new Date();
+
+  if (isServiceCenterRegistration) {
+    const normalizedMobile = String(session.phone || '').trim();
+
+    // Re-checked at completion, not just at OTP: two sessions for the same
+    // number could otherwise both finish and create duplicate centres.
+    const duplicateCenter = await ServiceStore.findOne({ owner_phone: normalizedMobile }).lean();
+
+    if (duplicateCenter) {
+      throw new ApiError(409, 'A service center is already registered with this phone number');
+    }
+
+    const centerName = String(
+      session.vehicle.companyName || session.personal.fullName || '',
+    ).trim();
+
+    if (!centerName) {
+      throw new ApiError(400, 'Service center name is required');
+    }
+
+    const serviceCenter = await ServiceStore.create({
+      name: centerName,
+      zone_id: zone?._id || null,
+      service_location_id: resolvedServiceLocation?._id || session.vehicle.locationId || null,
+      address: String(session.vehicle.companyAddress || '').trim(),
+      owner_name: String(session.personal.fullName || '').trim(),
+      owner_phone: normalizedMobile,
+      latitude: serviceLocationCoordinates ? serviceLocationCoordinates[1] : undefined,
+      longitude: serviceLocationCoordinates ? serviceLocationCoordinates[0] : undefined,
+      location: serviceLocationCoordinates ? toPoint(serviceLocationCoordinates, 'location') : undefined,
+      // Self-registered centres are held for review. Admin-created ones keep
+      // the model defaults and stay live.
+      approve: false,
+      active: false,
+      status: 'inactive',
+    });
+
+    session.status = 'completed';
+    session.completedAt = submittedAt;
+    await session.save();
+    await DriverRegistrationSession.deleteOne({ _id: session._id });
+
+    return {
+      message: 'Service center registration completed successfully',
+      serviceCenter: {
+        id: serviceCenter._id,
+        name: serviceCenter.name,
+        ownerName: serviceCenter.owner_name,
+        phone: serviceCenter.owner_phone,
+        address: serviceCenter.address,
+        approve: serviceCenter.approve,
+        status: serviceCenter.status,
+      },
+      documents: normalizedDocuments,
+      token: signAccessToken({ sub: String(serviceCenter._id), role: 'service_center' }),
+      session: publicSessionPayload(session),
+    };
+  }
 
   if (isOwnerRegistration) {
     const normalizedEmail = String(session.personal.email || '').trim().toLowerCase();

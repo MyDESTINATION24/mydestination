@@ -62,6 +62,14 @@ const serviceStoreSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Admin-created centres stay live by default, which is why the two fields
+    // above are unchanged. Self-registered ones set this false and go inactive
+    // until an admin approves, so signing up cannot put a centre straight in
+    // front of customers.
+    approve: {
+      type: Boolean,
+      default: true,
+    },
     fcmTokenWeb: {
       type: String,
       default: '',
