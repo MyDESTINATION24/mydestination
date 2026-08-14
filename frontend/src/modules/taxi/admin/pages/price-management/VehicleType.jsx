@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '../../../../shared/api/axiosInstance';
 import { useTaxiTransportTypes } from '../../../../shared/hooks/useTaxiTransportTypes';
+import { resolveIconHeadingOffset } from '../../../shared/utils/vehicleIconHeading';
 
 import CarIcon from '../../../../assets/icons/car.png';
 import BikeIcon from '../../../../assets/icons/bike.png';
@@ -387,6 +388,33 @@ const VehicleType = ({ mode: propMode }) => {
     }
     return iconMap[formData.icon_types] || CarIcon;
   }, [formData.icon_types, formData.map_icon]);
+
+  // Preview state. The app rotates this icon by the vehicle's bearing, so the
+  // admin needs to see it rotating too -- a flat preview is what let a
+  // side-on upload ship and look like the vehicle was sliding sideways.
+  const [previewHeading, setPreviewHeading] = useState(0);
+  const [isPreviewDriving, setIsPreviewDriving] = useState(false);
+  const [previewIconAspect, setPreviewIconAspect] = useState(null);
+
+  // Re-measure whenever the icon changes, so the detection cannot go stale.
+  useEffect(() => {
+    setPreviewIconAspect(null);
+  }, [mapIconPreview]);
+
+  // Same rule the maps use, so this preview cannot drift from reality.
+  const previewIconOffset = useMemo(() => {
+    const isUpload = Boolean(formData.map_icon);
+    return resolveIconHeadingOffset(isUpload ? mapIconPreview : null, [], isUpload ? previewIconAspect : null);
+  }, [formData.map_icon, mapIconPreview, previewIconAspect]);
+
+  useEffect(() => {
+    if (!isPreviewDriving) {
+      return undefined;
+    }
+
+    const timer = setInterval(() => setPreviewHeading((value) => (value + 6) % 360), 60);
+    return () => clearInterval(timer);
+  }, [isPreviewDriving]);
 
   const availableSupportVehicles = useMemo(
     () => vehicles.filter((item) => String(item.id) !== String(id)),
@@ -914,9 +942,69 @@ const VehicleType = ({ mode: propMode }) => {
               <div className="relative h-[228px] overflow-hidden rounded-2xl border border-slate-200 bg-white">
                 <img src={MapBackground} alt="Map preview" className="absolute inset-0 h-full w-full object-cover opacity-25" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <img src={mapIconPreview} alt="Icon preview" className="h-16 w-16 object-contain drop-shadow-xl" />
+                  {/* Rotated exactly as the driver and rider maps rotate it, so a
+                      wrongly-oriented upload is obvious here instead of shipping
+                      and looking like the vehicle is sliding sideways. */}
+                  <div style={{ transform: `rotate(${(previewHeading + previewIconOffset) % 360}deg)` }}>
+                    <img
+                      src={mapIconPreview}
+                      alt="Icon preview"
+                      className="h-16 w-16 object-contain drop-shadow-xl"
+                      onLoad={(event) => {
+                        const { naturalWidth, naturalHeight } = event.currentTarget;
+
+                        if (naturalWidth > 0 && naturalHeight > 0) {
+                          setPreviewIconAspect(naturalWidth / naturalHeight);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* The direction the icon should be facing, to compare against. */}
+                <div className="absolute left-1/2 top-3 -translate-x-1/2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  heading {Math.round(previewHeading)}&deg;
                 </div>
               </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewDriving((running) => !running)}
+                  className="rounded-xl bg-slate-900 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-slate-800"
+                >
+                  {isPreviewDriving ? 'Stop preview' : 'Preview drive'}
+                </button>
+
+                {[['N', 0], ['E', 90], ['S', 180], ['W', 270]].map(([label, value]) => (
+                  <button
+                    key={label}
+                    type="button"
+                    onClick={() => { setIsPreviewDriving(false); setPreviewHeading(value); }}
+                    className={`h-8 w-8 rounded-lg text-[11px] font-bold transition ${
+                      Math.round(previewHeading) === value
+                        ? 'bg-orange-500 text-white'
+                        : 'bg-white text-slate-600 shadow-sm hover:text-orange-500'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+
+                <span className="text-[11px] font-semibold text-slate-500">
+                  {previewIconAspect === null
+                    ? 'Reading icon…'
+                    : previewIconOffset === 0
+                      ? 'Detected nose-up — no rotation applied'
+                      : `Detected nose-sideways — +${previewIconOffset}° applied`}
+                </span>
+              </div>
+
+              <p className="mt-2 text-[11px] font-medium text-slate-500">
+                The icon must point the way it is travelling. Draw map icons top-down
+                with the nose pointing up; a wide, side-on image is auto-corrected by
+                a quarter turn.
+              </p>
               {formData.map_icon ? (
                 <button
                   type="button"

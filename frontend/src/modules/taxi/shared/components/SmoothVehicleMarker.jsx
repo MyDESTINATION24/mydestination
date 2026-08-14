@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { OverlayView, OverlayViewF } from '@react-google-maps/api';
 import { useSmoothedLatLng } from '../hooks/useSmoothedLatLng';
 import { resolveIconHeadingOffset } from '../utils/vehicleIconHeading';
@@ -34,14 +34,23 @@ const SmoothVehicleMarker = ({
   const { position: smoothPosition, heading: smoothHeading } = useSmoothedLatLng(position, heading, {
     path: routePath,
   });
+
+  // Admin uploads do not share one orientation -- the Bike icon is drawn
+  // nose-up, the Auto icon nose-left -- so which way this particular file
+  // points is read from its own proportions once it loads.
+  const [iconAspectRatio, setIconAspectRatio] = useState(null);
+
+  useEffect(() => {
+    setIconAspectRatio(null);
+  }, [iconUrl]);
+
   const renderPosition = smoothPosition || position;
 
   if (!renderPosition) {
     return null;
   }
 
-  // Bundled artwork is drawn nose-up; admin uploads are drawn nose-left.
-  const headingOffset = resolveIconHeadingOffset(iconUrl, bundledIcons);
+  const headingOffset = resolveIconHeadingOffset(iconUrl, bundledIcons, iconAspectRatio);
 
   return (
     <OverlayViewF
@@ -61,6 +70,13 @@ const SmoothVehicleMarker = ({
             alt={title}
             className="h-12 w-12 object-contain drop-shadow-[0_8px_10px_rgba(15,23,42,0.35)]"
             draggable={false}
+            onLoad={(event) => {
+              const { naturalWidth, naturalHeight } = event.currentTarget;
+
+              if (naturalWidth > 0 && naturalHeight > 0) {
+                setIconAspectRatio(naturalWidth / naturalHeight);
+              }
+            }}
           />
         </div>
       </div>
