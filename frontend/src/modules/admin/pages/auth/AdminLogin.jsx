@@ -223,30 +223,30 @@ const AdminLogin = () => {
       case 'forgot-email':
         return (
           <motion.form initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            onSubmit={handleForgotPassword} className="space-y-5">
-            <h2 className="text-2xl font-bold text-gray-800 text-center">Reset Password</h2>
-            <p className="text-gray-500 text-sm text-center mb-6">Enter your registered email address.</p>
+            onSubmit={handleForgotPassword} className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-800 text-center">Reset Password</h2>
+            <p className="text-gray-500 text-xs text-center mb-4">Enter your registered email address.</p>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider ml-1">Email</label>
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider ml-1">Email</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-4 w-4 text-gray-400" />
                 </div>
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
+                  className="w-full pl-9 pr-4 py-2 text-xs bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
                   style={{ '--tw-ring-color': currentPanel.color }}
                   placeholder="admin@mydestination.com" />
               </div>
             </div>
 
             <button type="submit" disabled={isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-semibold shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
+              className={`w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-white font-semibold text-xs shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
               {isLoading ? 'Sending...' : 'Send OTP'}
             </button>
-            <div className="text-center mt-4">
+            <div className="text-center mt-3">
               <button type="button" onClick={() => { setView('login'); resetMessages(); }}
-                className="text-sm font-medium hover:underline transition-colors"
+                className="text-xs font-medium hover:underline transition-colors"
                 style={{ color: currentPanel.color }}>
                 Back to Login
               </button>
@@ -257,30 +257,30 @@ const AdminLogin = () => {
       case 'verify-otp':
         return (
           <motion.form initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            onSubmit={handleVerifyOtp} className="space-y-5">
-            <h2 className="text-2xl font-bold text-gray-800 text-center">Verify OTP</h2>
-            <p className="text-gray-500 text-sm text-center mb-6">Enter the OTP sent to {email}</p>
+            onSubmit={handleVerifyOtp} className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-800 text-center">Verify OTP</h2>
+            <p className="text-gray-500 text-xs text-center mb-4">Enter the OTP sent to {email}</p>
 
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider ml-1">OTP Code</label>
+              <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider ml-1">OTP Code</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <KeyRound className="h-5 w-5 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <KeyRound className="h-4 w-4 text-gray-400" />
                 </div>
                 <input type="text" required value={otp} onChange={(e) => setOtp(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
+                  className="w-full pl-9 pr-4 py-2 text-xs bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
                   style={{ '--tw-ring-color': currentPanel.color }}
                   placeholder="Enter 6-digit OTP" />
               </div>
             </div>
 
             <button type="submit" disabled={isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-semibold shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
+              className={`w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-white font-semibold text-xs shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
               {isLoading ? 'Verifying...' : 'Verify OTP'}
             </button>
-            <div className="text-center mt-4">
+            <div className="text-center mt-3">
               <button type="button" onClick={() => { setView('login'); resetMessages(); }}
-                className="text-sm font-medium hover:underline transition-colors"
+                className="text-xs font-medium hover:underline transition-colors"
                 style={{ color: currentPanel.color }}>
                 Cancel
               </button>
@@ -291,43 +291,43 @@ const AdminLogin = () => {
       case 'reset-password':
         return (
           <motion.form initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-            onSubmit={handleResetPassword} className="space-y-5">
-            <h2 className="text-2xl font-bold text-gray-800 text-center">New Password</h2>
+            onSubmit={handleResetPassword} className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-800 text-center">New Password</h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider ml-1">New Password</label>
+                <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider ml-1">New Password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400" />
                   </div>
                   <input type={showPassword ? 'text' : 'password'} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3 bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
+                    className="w-full pl-9 pr-10 py-2 text-xs bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
                     style={{ '--tw-ring-color': currentPanel.color }}
                     placeholder="••••••••" />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-gray-600 uppercase tracking-wider ml-1">Confirm Password</label>
+                <label className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider ml-1">Confirm Password</label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-4 w-4 text-gray-400" />
                   </div>
                   <input type={showPassword ? 'text' : 'password'} required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-11 pr-10 py-3 bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
+                    className="w-full pl-9 pr-10 py-2 text-xs bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
                     style={{ '--tw-ring-color': currentPanel.color }}
                     placeholder="••••••••" />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-gray-600"
                     onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </div>
                 </div>
               </div>
             </div>
 
             <button type="submit" disabled={isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-semibold shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
+              className={`w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-white font-semibold text-xs shadow-lg shadow-${currentPanel.color}/30 transform transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed ${currentPanel.buttonColor}`}>
               {isLoading ? 'Updating...' : 'Set Password'}
             </button>
           </motion.form>
@@ -337,29 +337,29 @@ const AdminLogin = () => {
       default:
         return (
           <motion.form initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-            onSubmit={handleLogin} className="space-y-4">
+            onSubmit={handleLogin} className="space-y-3">
 
             {/* Custom Dropdown for Panel Selection */}
             <div className="space-y-1 relative">
-              <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest ml-1">Select Management Panel</label>
+              <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Select Management Panel</label>
 
               <div
-                className={`relative w-full cursor-pointer flex items-center p-2.5 rounded-xl border ${panelDropdownOpen ? currentPanel.border : 'border-gray-200/60'} bg-white/60 backdrop-blur-md transition-all group`}
+                className={`relative w-full cursor-pointer flex items-center p-2 rounded-xl border ${panelDropdownOpen ? currentPanel.border : 'border-gray-200/60'} bg-white/60 backdrop-blur-md transition-all group`}
                 onClick={() => setPanelDropdownOpen(!panelDropdownOpen)}
                 style={{
                   borderColor: panelDropdownOpen ? currentPanel.color : undefined,
                   boxShadow: panelDropdownOpen ? `0 0 0 3px ${currentPanel.color}20` : undefined
                 }}
               >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mr-3 shadow-sm ${currentPanel.bg}`}>
-                  <currentPanel.icon size={18} style={{ color: currentPanel.color }} />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-2.5 shadow-sm ${currentPanel.bg}`}>
+                  <currentPanel.icon size={16} style={{ color: currentPanel.color }} />
                 </div>
                 <div className="flex-1 text-left">
-                  <div className={`text-[13px] font-bold ${currentPanel.textColor}`}>{currentPanel.label}</div>
-                  <div className="text-[10px] text-gray-500 font-medium">{currentPanel.sublabel}</div>
+                  <div className={`text-[12px] font-bold ${currentPanel.textColor}`}>{currentPanel.label}</div>
+                  <div className="text-[9px] text-gray-500 font-medium">{currentPanel.sublabel}</div>
                 </div>
                 <div className={`ml-2 transition-transform duration-300 ${panelDropdownOpen ? 'rotate-180' : ''}`}>
-                  <ChevronDown size={18} className="text-gray-400" />
+                  <ChevronDown size={16} className="text-gray-400" />
                 </div>
               </div>
 
@@ -375,21 +375,21 @@ const AdminLogin = () => {
                     {PANELS.map((panel) => (
                       <div
                         key={panel.key}
-                        className={`flex items-center p-3 cursor-pointer transition-colors ${selectedPanel === panel.key ? panel.bg : 'hover:bg-gray-50/80'}`}
+                        className={`flex items-center p-2.5 cursor-pointer transition-colors ${selectedPanel === panel.key ? panel.bg : 'hover:bg-gray-50/80'}`}
                         onClick={() => {
                           setSelectedPanel(panel.key);
                           setPanelDropdownOpen(false);
                           setError('');
                         }}
                       >
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 shadow-sm ${selectedPanel === panel.key ? 'bg-white' : panel.bg}`}>
-                          <panel.icon size={16} style={{ color: panel.color }} />
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center mr-2.5 shadow-sm ${selectedPanel === panel.key ? 'bg-white' : panel.bg}`}>
+                          <panel.icon size={15} style={{ color: panel.color }} />
                         </div>
                         <div className="flex-1">
-                          <div className={`text-[13px] font-bold ${selectedPanel === panel.key ? panel.textColor : 'text-gray-700'}`}>
+                          <div className={`text-[12px] font-bold ${selectedPanel === panel.key ? panel.textColor : 'text-gray-700'}`}>
                             {panel.label}
                           </div>
-                          <div className="text-[10px] text-gray-400 font-medium">{panel.sublabel}</div>
+                          <div className="text-[9px] text-gray-400 font-medium">{panel.sublabel}</div>
                         </div>
                       </div>
                     ))}
@@ -399,7 +399,7 @@ const AdminLogin = () => {
             </div>
 
             {/* Inputs */}
-            <div className="space-y-3 pt-1">
+            <div className="space-y-2 pt-0.5">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Official Email Address</label>
                 <div className="relative">
@@ -407,7 +407,7 @@ const AdminLogin = () => {
                     <Mail className="h-4 w-4 text-gray-400" />
                   </div>
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white/60 border border-gray-200/60 rounded-xl text-gray-800 font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all backdrop-blur-sm shadow-inner"
+                    className="w-full pl-9 pr-4 py-2 text-xs bg-white/60 border border-gray-200/60 rounded-xl text-gray-800 font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all backdrop-blur-sm shadow-inner"
                     style={{ '--tw-ring-color': currentPanel.color }}
                     placeholder="admin@mydestination.com" />
                 </div>
@@ -420,7 +420,7 @@ const AdminLogin = () => {
                     <Lock className="h-4 w-4 text-gray-400" />
                   </div>
                   <input type={showPassword ? 'text' : 'password'} required value={password} onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-white/60 border border-gray-200/60 rounded-xl text-gray-800 font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all backdrop-blur-sm shadow-inner"
+                    className="w-full pl-9 pr-10 py-2 text-xs bg-white/60 border border-gray-200/60 rounded-xl text-gray-800 font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all backdrop-blur-sm shadow-inner"
                     style={{ '--tw-ring-color': currentPanel.color }}
                     placeholder="••••••••" />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
@@ -440,7 +440,7 @@ const AdminLogin = () => {
             </div>
 
             <button type="submit" disabled={isLoading}
-              className={`w-full flex justify-center items-center py-3 px-4 rounded-xl text-white font-bold text-xs uppercase tracking-wider shadow-lg transform transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none ${currentPanel.buttonColor}`}
+              className={`w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-white font-bold text-xs uppercase tracking-wider shadow-lg transform transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none ${currentPanel.buttonColor}`}
               style={{ boxShadow: `0 8px 20px -5px ${currentPanel.color}60` }}>
               {isLoading ? 'Authenticating...' : `Login to ${currentPanel.label}`}
               {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
@@ -452,7 +452,7 @@ const AdminLogin = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-gray-900 bg-cover bg-center bg-no-repeat relative"
+      className="h-screen w-screen overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 bg-gray-900 bg-cover bg-center bg-no-repeat relative"
       style={{ backgroundImage: `url(${adminBg})` }}
     >
       {/* Dark overlay for better contrast */}
@@ -460,9 +460,9 @@ const AdminLogin = () => {
 
       <motion.div
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="w-full max-w-[380px] z-10"
+        className="w-full max-w-[370px] z-10 my-auto flex flex-col items-center"
       >
-        <div className="bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-3xl p-6 sm:p-8 relative overflow-hidden">
+        <div className="w-full bg-white/90 backdrop-blur-xl border border-white/40 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] rounded-2xl p-5 sm:p-6 relative overflow-hidden">
 
           {/* Decorative glowing orb behind the form */}
           <div
@@ -475,36 +475,36 @@ const AdminLogin = () => {
           ></div>
 
           {/* Header */}
-          <div className="flex flex-col items-center mb-6 text-center relative z-10">
+          <div className="flex flex-col items-center mb-4 text-center relative z-10">
             <motion.div
               key={currentPanel.key}
               initial={{ scale: 0.8, rotate: -10 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring" }}
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-4 shadow-xl cursor-pointer hover:scale-105 transition-transform"
+              className="w-11 h-11 rounded-xl flex items-center justify-center text-white mb-2.5 shadow-xl cursor-pointer hover:scale-105 transition-transform"
               style={{
                 background: `linear-gradient(135deg, ${currentPanel.color}, ${currentPanel.color}dd)`,
                 boxShadow: `0 10px 25px -5px ${currentPanel.color}60`
               }}
               onClick={() => navigate('/')}>
-              <currentPanel.icon size={26} strokeWidth={2.5} />
+              <currentPanel.icon size={22} strokeWidth={2.5} />
             </motion.div>
 
-            <div className="flex items-center gap-2 px-4 py-1.5 bg-white/60 backdrop-blur-sm border border-gray-100 rounded-full shadow-sm mb-2">
-              <span className="text-gray-800 font-extrabold text-[10px] uppercase tracking-[3px]">Admin Access Portal</span>
+            <div className="flex items-center gap-2 px-3.5 py-1 bg-white/60 backdrop-blur-sm border border-gray-100 rounded-full shadow-sm mb-1">
+              <span className="text-gray-800 font-extrabold text-[10px] uppercase tracking-[2.5px]">Admin Access Portal</span>
             </div>
-            <p className="text-gray-500 text-xs font-medium mt-2">Sign in to manage operations</p>
+            <p className="text-gray-500 text-[11px] font-medium mt-1">Sign in to manage operations</p>
           </div>
 
           {/* Error/Success Messages */}
           <AnimatePresence>
             {error && (
-              <motion.div initial={{ opacity: 0, height: 0, mb: 0 }} animate={{ opacity: 1, height: 'auto', mb: 16 }} exit={{ opacity: 0, height: 0, mb: 0 }}
-                className="bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center shadow-sm">
+              <motion.div initial={{ opacity: 0, height: 0, mb: 0 }} animate={{ opacity: 1, height: 'auto', mb: 12 }} exit={{ opacity: 0, height: 0, mb: 0 }}
+                className="bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-600 px-3 py-2 rounded-xl text-xs flex items-center shadow-sm">
                 <span className="mr-2">⚠️</span> {error}
               </motion.div>
             )}
             {success && (
-              <motion.div initial={{ opacity: 0, height: 0, mb: 0 }} animate={{ opacity: 1, height: 'auto', mb: 16 }} exit={{ opacity: 0, height: 0, mb: 0 }}
-                className="bg-green-50/80 backdrop-blur-sm border border-green-200 text-green-600 px-4 py-3 rounded-xl text-sm flex items-center shadow-sm">
+              <motion.div initial={{ opacity: 0, height: 0, mb: 0 }} animate={{ opacity: 1, height: 'auto', mb: 12 }} exit={{ opacity: 0, height: 0, mb: 0 }}
+                className="bg-green-50/80 backdrop-blur-sm border border-green-200 text-green-600 px-3 py-2 rounded-xl text-xs flex items-center shadow-sm">
                 <span className="mr-2">✅</span> {success}
               </motion.div>
             )}
@@ -515,7 +515,7 @@ const AdminLogin = () => {
           </div>
         </div>
 
-        <p className="text-center text-white/70 text-xs mt-6 font-medium tracking-wide drop-shadow-md">
+        <p className="text-center text-white/70 text-xs mt-3 font-medium tracking-wide drop-shadow-md">
           &copy; {new Date().getFullYear()} MyDESTINATION. All rights reserved.
         </p>
       </motion.div>

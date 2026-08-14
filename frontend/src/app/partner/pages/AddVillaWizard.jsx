@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { propertyService, hotelService } from '../../../services/apiService';
 // Compression removed - Cloudinary handles optimization
-import { CheckCircle, FileText, Home, Image, Plus, Trash2, MapPin, Search, BedDouble, Wifi, Snowflake, Coffee, ShowerHead, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Upload, X, Clock, Loader2, Camera } from 'lucide-react';
+import { CheckCircle, FileText, Home, Image, Plus, Trash2, MapPin, Search, Eye, BedDouble, Wifi, Snowflake, Coffee, ShowerHead, ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Upload, X, Clock, Loader2, Camera } from 'lucide-react';
 import logo from '../../../assets/rokologin-removebg-preview.png';
 import { isFlutterApp, openFlutterCamera } from '../../../utils/flutterBridge';
 
@@ -453,7 +453,7 @@ const AddVillaWizard = () => {
       }
 
       const res = await hotelService.uploadImages(fd);
-      const urls = Array.isArray(res?.urls) ? res.urls : [];
+      const urls = Array.isArray(res?.urls) ? res.urls : (Array.isArray(res?.files) ? res.files.map(f => typeof f === 'string' ? f : f.url) : []);
       console.log('Upload done, urls:', urls);
       onDone(urls);
     } catch (err) {
@@ -532,7 +532,14 @@ const AddVillaWizard = () => {
       }
     } catch (err) {
       console.error('[Camera] Error:', err);
-      setError(err.message || 'Camera capture failed');
+      if (type === 'cover') coverImageFileInputRef.current?.click();
+      else if (type === 'gallery') propertyImagesFileInputRef.current?.click();
+      else if (type.startsWith('doc_')) {
+        const idx = parseInt(type.split('_')[1], 10);
+        if (!isNaN(idx)) documentInputRefs.current[idx]?.click();
+      } else {
+        setError(err.message || 'Camera capture failed');
+      }
     } finally {
       setUploading(null);
     }
@@ -548,11 +555,11 @@ const AddVillaWizard = () => {
       inventoryType: 'entire',
       roomCategory: 'entire',
       maxAdults: '',
-      maxChildren: 0,
+      maxChildren: '',
       totalInventory: '1',
       pricePerNight: '',
-      extraAdultPrice: 0,
-      extraChildPrice: 0,
+      extraAdultPrice: '',
+      extraChildPrice: '',
       images: [],
       amenities: [],
       isActive: true
@@ -1588,8 +1595,8 @@ const AddVillaWizard = () => {
                           )}
                         </button>
                         {doc.fileUrl && (
-                          <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors border border-gray-200 hover:border-emerald-200 bg-white">
-                            <Search size={18} />
+                          <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors border border-gray-200 hover:border-emerald-200 bg-white" title="View Document">
+                            <Eye size={18} />
                           </a>
                         )}
                       </div>
@@ -1688,46 +1695,48 @@ const AddVillaWizard = () => {
         </div>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-40">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <button
-            onClick={handleBack}
-            disabled={step === 1 || loading || isEditingSubItem}
-            className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Back
-          </button>
-
-          {step < 9 && (
+      {step < 10 && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-40">
+          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
             <button
-              onClick={clearCurrentStep}
-              disabled={loading}
-              className="px-4 py-3 rounded-xl border border-red-200 text-red-600 font-bold hover:bg-red-50 disabled:opacity-50 transition-all text-sm"
+              onClick={handleBack}
+              disabled={step === 1 || loading || isEditingSubItem}
+              className="px-6 py-3 rounded-xl font-bold text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Clear Step
+              Back
             </button>
-          )}
 
-          <button
-            onClick={step === 9 ? submitAll : handleNext}
-            disabled={
-              loading ||
-              isEditingSubItem ||
-              (step === 6 && roomTypes.length === 0)
-            }
-            className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Processing...
-              </>
-            ) : (
-              step === 9 ? 'Submit Property' : 'Next Step'
+            {step < 9 && (
+              <button
+                onClick={clearCurrentStep}
+                disabled={loading}
+                className="px-4 py-3 rounded-xl border border-red-200 text-red-600 font-bold hover:bg-red-50 disabled:opacity-50 transition-all text-sm"
+              >
+                Clear Step
+              </button>
             )}
-          </button>
+
+            <button
+              onClick={step === 9 ? submitAll : handleNext}
+              disabled={
+                loading ||
+                isEditingSubItem ||
+                (step === 6 && roomTypes.length === 0)
+              }
+              className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                step === 9 ? 'Submit Property' : 'Next Step'
+              )}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
 
     </div>

@@ -946,6 +946,9 @@ export const getHotelDetails = async (req, res) => {
 
     const roomTypes = await RoomType.find({ propertyId: id, isActive: true });
     const documents = await PropertyDocument.findOne({ propertyId: id });
+    const bookings = await Booking.find({ propertyId: id })
+      .populate('userId', 'name email phone')
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -953,7 +956,7 @@ export const getHotelDetails = async (req, res) => {
         ...property.toObject(),
         rooms: roomTypes
       },
-      bookings: [],
+      bookings,
       documents
     });
   } catch (e) {
@@ -966,7 +969,7 @@ export const getBookingDetails = async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findById(id)
       .populate('userId', 'name email phone avatar')
-      .populate('propertyId', 'propertyName name address location coverImage')
+      .populate('propertyId', 'propertyName name address location coverImage checkInTime checkOutTime contactNumber partnerId')
       .populate('roomTypeId', 'name type');
     if (!booking) return res.status(404).json({ success: false, message: 'Booking not found' });
     res.status(200).json({ success: true, booking });

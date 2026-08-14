@@ -44,25 +44,30 @@ const PartnerHeader = ({ title, subtitle, showMenu = true }) => {
 
     return (
         <>
-            <div className="flex items-center justify-between relative h-16 px-4 pt-2 bg-white/50 backdrop-blur-sm sticky top-0 z-30 border-b border-gray-100/50">
-                {showMenu ? (
-                    <button
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="p-1.5 rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-100"
-                    >
-                        <Menu size={18} className="text-gray-900" />
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="p-1.5 rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-100"
-                    >
-                        <ChevronLeft size={18} className="text-gray-900" />
-                    </button>
-                )}
+            <div className="flex items-center justify-between relative h-16 px-4 bg-white/90 backdrop-blur-sm sticky top-0 z-30 border-b border-gray-100/50">
+                <div className="flex items-center gap-3">
+                    {showMenu ? (
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="p-1.5 rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-100"
+                        >
+                            <Menu size={18} className="text-gray-900" />
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="p-1.5 rounded-full bg-white hover:bg-gray-100 transition shadow-sm border border-gray-100"
+                        >
+                            <ChevronLeft size={18} className="text-gray-900" />
+                        </button>
+                    )}
 
-                <div className="flex-1 flex justify-center items-center">
-                    <img src={logo} alt="My DESTINATION" className="h-12 object-contain drop-shadow-sm" />
+                    <img 
+                        src={logo} 
+                        alt="My DESTINATION" 
+                        className="h-10 md:h-12 object-contain drop-shadow-sm cursor-pointer" 
+                        onClick={() => navigate('/hotel/dashboard')} 
+                    />
                 </div>
 
                 <div className="flex items-center gap-2">

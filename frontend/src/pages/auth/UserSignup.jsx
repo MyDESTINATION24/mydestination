@@ -342,7 +342,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
                                                         setFormData({ ...formData, name: cleanVal });
                                                         setTouched(prev => ({ ...prev, name: true }));
                                                     }}
-                                                    placeholder="John Doe"
+                                                    placeholder="Full Name"
                                                     className="flex-1 bg-transparent px-4 font-black outline-none h-full"
                                                     style={{ color: primary }}
                                                     required
@@ -383,7 +383,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
                                                         setFormData({ ...formData, phone: cleanVal });
                                                         setTouched(prev => ({ ...prev, phone: true }));
                                                     }}
-                                                    placeholder="9876543210"
+                                                    placeholder="00000 00000"
                                                     maxLength={10}
                                                     className="flex-1 bg-transparent px-4 font-black outline-none h-full"
                                                     style={{ color: primary }}
@@ -450,7 +450,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
                                                     setFormData({ ...formData, referralCode: cleanVal });
                                                     setTouched(prev => ({ ...prev, referralCode: true }));
                                                 }}
-                                                placeholder="FRIEND100"
+                                                placeholder="MyDESTINATION"
                                                 className={`w-full bg-white px-4 py-2 rounded-xl border outline-none h-10 uppercase tracking-widest text-center text-xs font-black ${
                                                     touched.referralCode && fieldErrors.referralCode ? 'border-red-500 text-red-500' : referralStatus.state === 'valid' ? 'border-green-500 text-green-700' : ''
                                                 }`}

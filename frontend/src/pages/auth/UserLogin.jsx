@@ -321,7 +321,7 @@ const UserLogin = ({ theme = 'hotel' }) => {
                                                     if (val.length <= 10) setPhone(val);
                                                     setPhoneTouched(true);
                                                 }}
-                                                placeholder="9876543210"
+                                                placeholder="00000 00000"
                                                 className="flex-1 bg-transparent px-4 font-black outline-none w-full h-full text-lg"
                                                 style={{ color: primary }}
                                                 required

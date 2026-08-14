@@ -49,6 +49,8 @@ const HotelLogin = () => {
             // Pre-fill OTP for default partner number
             if (contact === '9589814119') {
                 setOtp(['1', '2', '3', '4', '5', '6']);
+            } else {
+                setOtp(['', '', '', '', '', '']);
             }
         } catch (err) {
             setError(err.message || 'Failed to send OTP');
@@ -264,7 +266,7 @@ const HotelLogin = () => {
 
                                     <button
                                         type="button"
-                                        onClick={() => setStep(1)}
+                                        onClick={() => { setStep(1); setOtp(['', '', '', '', '', '']); setError(''); }}
                                         className="w-full text-gray-500 text-sm hover:text-gray-700"
                                     >
                                         Change {method === 'phone' ? 'number' : 'email'}

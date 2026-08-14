@@ -13,6 +13,7 @@ const PartnerBookingDetail = () => {
   const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const fetchBooking = async () => {
     try {
@@ -55,18 +56,24 @@ const PartnerBookingDetail = () => {
 
   const handleCheckIn = async () => {
     if (!window.confirm("Confirm Guest Check-In?")) return;
+    if (actionLoading) return;
+    setActionLoading(true);
     try {
       await bookingService.checkIn(id);
       toast.success("Checked In Successfully");
       fetchBooking();
     } catch (error) {
       toast.error(error.message || "Action Failed");
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleCheckOut = async () => {
+    if (!window.confirm("Confirm Guest Check-Out?")) return;
+    if (actionLoading) return;
+    setActionLoading(true);
     try {
-      if (!window.confirm("Confirm Guest Check-Out?")) return;
       await bookingService.checkOut(id);
       toast.success("Checked Out Successfully");
       fetchBooking();
@@ -84,6 +91,8 @@ const PartnerBookingDetail = () => {
       } else {
         toast.error(error.message || "Action Failed");
       }
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -292,18 +301,20 @@ const PartnerBookingDetail = () => {
         {canCheckIn && (
           <button
             onClick={handleCheckIn}
-            className="col-span-2 bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
+            disabled={actionLoading}
+            className={`col-span-2 bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-transform flex items-center justify-center gap-2 ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
           >
-            <LogIn size={20} /> Check In Guest
+            <LogIn size={20} /> {actionLoading ? 'Processing...' : 'Check In Guest'}
           </button>
         )}
 
         {canCheckOut && (
           <button
             onClick={handleCheckOut}
-            className="col-span-2 bg-black text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2"
+            disabled={actionLoading}
+            className={`col-span-2 bg-black text-white font-bold py-4 rounded-xl shadow-lg transition-transform flex items-center justify-center gap-2 ${actionLoading ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
           >
-            <LogOut size={20} /> Check Out Guest
+            <LogOut size={20} /> {actionLoading ? 'Processing...' : 'Check Out Guest'}
           </button>
         )}
 

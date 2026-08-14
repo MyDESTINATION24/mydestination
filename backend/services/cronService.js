@@ -106,7 +106,7 @@ class CronService {
       // Assuming unpaid bookings should be paid within 30 minutes
       const pendingBookings = await Booking.find({
         paymentStatus: 'pending',
-        bookingStatus: 'pending',
+        bookingStatus: { $in: ['pending', 'awaiting_payment'] },
         'notificationsSent.paymentExpiryWarning': false,
         createdAt: { $lte: new Date(now.getTime() - 15 * 60 * 1000) } // Older than 15 mins
       }).populate('userId');
@@ -125,6 +125,26 @@ class CronService {
         await booking.save();
         console.log(`[Cron] Payment warning sent for Booking: ${booking.bookingId}`);
       }
+
+      // D. Auto-Cancel Expired Unpaid Bookings (Older than 30 mins)
+      const expiredBookings = await Booking.find({
+        paymentStatus: 'pending',
+        bookingStatus: { $in: ['pending', 'awaiting_payment'] },
+        createdAt: { $lte: new Date(now.getTime() - 30 * 60 * 1000) } // Older than 30 mins
+      });
+
+      if (expiredBookings.length > 0) {
+        console.log(`[Cron] Found ${expiredBookings.length} expired unpaid bookings. Cancelling them...`);
+        for (const booking of expiredBookings) {
+          booking.bookingStatus = 'cancelled';
+          await booking.save();
+
+          // Release Inventory
+          await mongoose.model('AvailabilityLedger').deleteMany({ referenceId: booking._id });
+          console.log(`[Cron] Auto-cancelled and released inventory for unpaid Booking: ${booking.bookingId || booking._id}`);
+        }
+      }
+
 
     } catch (error) {
       console.error('[Cron Error] processBookingReminders failed:', error);

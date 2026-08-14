@@ -1,6 +1,7 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertTriangle, CheckCircle } from 'lucide-react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 'danger', confirmText = 'Confirm', extraContent }) => {
     if (!isOpen) return null;
@@ -11,16 +12,16 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
         warning: { bg: 'bg-amber-50', icon: 'text-amber-600', button: 'bg-amber-600 hover:bg-amber-700' },
     };
 
-    const style = colors[type];
+    const style = colors[type] || colors.danger;
 
-    return (
+    const modalContent = (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="fixed inset-0 top-0 left-0 w-screen h-screen z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden"
+                    className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden relative z-10"
                 >
                     <div className="p-6 text-center">
                         <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${style.bg}`}>
@@ -49,6 +50,8 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
             </div>
         </AnimatePresence>
     );
+
+    return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default ConfirmationModal;

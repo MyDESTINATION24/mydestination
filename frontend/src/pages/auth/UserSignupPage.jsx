@@ -182,7 +182,7 @@ const UserSignupPage = () => {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="John Doe"
+                                            placeholder="Full Name"
                                             className="flex-1 outline-none text-gray-900 font-medium placeholder:text-gray-300"
                                             autoFocus
                                         />
@@ -221,7 +221,7 @@ const UserSignupPage = () => {
                                                     name="phone"
                                                     value={formData.phone}
                                                     onChange={handleChange}
-                                                    placeholder="9876543210"
+                                                    placeholder="00000 00000"
                                                     className="flex-1 outline-none text-gray-900 font-medium placeholder:text-gray-300"
                                                 />
                                             </>

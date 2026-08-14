@@ -1170,8 +1170,17 @@ export const markCheckIn = async (req, res) => {
       return res.status(400).json({ message: 'Booking must be confirmed to check in.' });
     }
 
+    // Atomic update to prevent race conditions
+    const updateResult = await mongoose.model('Booking').updateOne(
+      { _id: id, bookingStatus: 'confirmed' },
+      { $set: { bookingStatus: 'checked_in' } }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(400).json({ message: 'Booking is already checked in or status changed.' });
+    }
+
     booking.bookingStatus = 'checked_in';
-    await booking.save();
 
     if (booking.userId) {
       const ut = booking.userModel ? booking.userModel.toLowerCase() : 'user';
@@ -1230,9 +1239,18 @@ export const markCheckOut = async (req, res) => {
       }
     }
 
+    // Atomic update to prevent race conditions
+    const updateResult = await mongoose.model('Booking').updateOne(
+      { _id: id, bookingStatus: 'checked_in' },
+      { $set: { bookingStatus: 'checked_out' } }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(400).json({ message: 'Booking is already checked out or status changed.' });
+    }
+
     booking.bookingStatus = 'checked_out';
     // booking.actualCheckOutDate = new Date(); // Ideally add to schema
-    await booking.save();
 
     // --- RELEASE INVENTORY (Early Checkout) ---
     try {

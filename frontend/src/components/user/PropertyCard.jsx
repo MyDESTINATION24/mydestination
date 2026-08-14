@@ -81,10 +81,8 @@ const PropertyCard = ({ property, data, className = "", isSaved: initialIsSaved 
 
   const reviewCount = item.totalReviews || item.reviews || 0;
 
-  // Show rating if it exists and is > 0, otherwise show 'New'
-  // Or if user specifically wants to see 0.0, we can adjust. 
-  // Standard is: if no reviews, show New.
-  const displayRating = (Number(rawRating) > 0) ? Number(rawRating).toFixed(1) : 'New';
+  // Show rating if it has reviews and is > 0, otherwise show 'New'
+  const displayRating = (reviewCount > 0 && Number(rawRating) > 0) ? Number(rawRating).toFixed(1) : 'New';
 
   // Improved Price Logic - Check more fields
   const rawPrice =

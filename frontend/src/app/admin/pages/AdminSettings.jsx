@@ -155,10 +155,8 @@ const AdminSettings = () => {
             setSavingSettings(true);
             await adminService.updatePlatformSettings({
                 platformOpen,
-                maintenanceMode: maintenance,
+                maintenanceMode: false,
                 bookingDisabledMessage: bookingMessage,
-                maintenanceTitle,
-                maintenanceMessage,
                 defaultCommission: Number(commission),
                 taxRate: Number(taxRate)
             });
@@ -296,13 +294,6 @@ const AdminSettings = () => {
                     </div>
                     <ToggleSwitch enabled={platformOpen} onChange={setPlatformOpen} />
                 </div>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="font-medium text-gray-900">Maintenance Mode</p>
-                        <p className="text-sm text-gray-500">Show maintenance screen to all users.</p>
-                    </div>
-                    <ToggleSwitch enabled={maintenance} onChange={setMaintenance} />
-                </div>
                 <div className="grid grid-cols-1 gap-4 pt-2">
                     <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">User message when booking is disabled</label>
@@ -312,26 +303,6 @@ const AdminSettings = () => {
                             onChange={(e) => setBookingMessage(e.target.value)}
                             className="w-full p-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-black text-sm"
                             placeholder="Bookings are temporarily disabled. Please try again later."
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Maintenance title</label>
-                        <input
-                            type="text"
-                            value={maintenanceTitle}
-                            onChange={(e) => setMaintenanceTitle(e.target.value)}
-                            className="w-full p-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-black text-sm"
-                            placeholder="We will be back soon."
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1">Maintenance description</label>
-                        <textarea
-                            rows={3}
-                            value={maintenanceMessage}
-                            onChange={(e) => setMaintenanceMessage(e.target.value)}
-                            className="w-full p-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-black text-sm resize-none"
-                            placeholder="The platform is under scheduled maintenance. Please check back in some time."
                         />
                     </div>
                 </div>

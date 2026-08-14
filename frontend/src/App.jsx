@@ -330,22 +330,20 @@ const Layout = ({ children }) => {
 
   // Partner Bottom Nav should show in Partner App (authenticated pages)
   const isPartnerPublic = location.pathname === '/hotel/privacy' || location.pathname === '/hotel/contact' || location.pathname === '/hotel/pending-approval';
-  const showPartnerBottomNav = isPartnerApp && location.pathname !== '/hotel' && location.pathname !== '/hotel/pending-approval' && !isPartnerPublic && !hideNavsDueToSlider;
+  const isWizardRoute = location.pathname.includes('/join');
+  const showPartnerBottomNav = isPartnerApp && location.pathname !== '/hotel' && location.pathname !== '/hotel/pending-approval' && !isPartnerPublic && !isWizardRoute && !hideNavsDueToSlider;
 
   const isAuthRoute = ['/login', '/signup', '/hotel/login', '/hotel/register'].some(route =>
     location.pathname.startsWith(route)
   );
 
-  const showMaintenanceOverlay =
-    platformStatus.maintenanceMode &&
-    !isCmsRoute &&
-    !isAuthRoute;
+  const showMaintenanceOverlay = false;
 
   return (
     <>
       {showUserNavs && <TopNavbar />}
 
-      <div className={`min-h-screen ${isTaxiRoute ? '' : 'md:pt-16'} ${showUserBottomNav || showPartnerBottomNav ? 'pb-14 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : isMarketingRoute ? 'marketing-module' : 'hotel-module'}`}>
+      <div className={`min-h-screen ${showUserNavs ? 'md:pt-16' : ''} ${showUserBottomNav || showPartnerBottomNav ? 'pb-14 md:pb-0' : ''} ${isWeddingRoute ? 'wedding-module' : isMarketingRoute ? 'marketing-module' : 'hotel-module'}`}>
         {showMaintenanceOverlay ? (
           <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center px-6 py-10 text-center bg-gradient-to-b from-[#111827] via-[#0f172a] to-black">
             <div className="flex flex-col items-center justify-center max-w-md w-full">

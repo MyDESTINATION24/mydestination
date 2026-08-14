@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { propertyService, hotelService } from '../../../services/apiService';
 // Compression removed - Cloudinary handles optimization
 import {
-  CheckCircle, FileText, Home, Image, Plus, Trash2, MapPin, Search,
+  CheckCircle, FileText, Home, Image, Plus, Trash2, MapPin, Search, Eye,
   BedDouble, Wifi, Tv, Snowflake, Coffee, ShowerHead, Umbrella, Waves, Mountain, Trees, Sun, ArrowLeft, ArrowRight, Clock, Loader2, Camera, X
 } from 'lucide-react';
 
@@ -388,11 +388,11 @@ const AddResortWizard = () => {
       inventoryType: 'room',
       roomCategory: 'private',
       maxAdults: '',
-      maxChildren: 0,
+      maxChildren: '',
       totalInventory: '',
       pricePerNight: '',
-      extraAdultPrice: 0,
-      extraChildPrice: 0,
+      extraAdultPrice: '',
+      extraChildPrice: '',
       images: [],
       amenities: [],
       isActive: true
@@ -493,7 +493,14 @@ const AddResortWizard = () => {
       }
     } catch (err) {
       console.error('[Camera] Error:', err);
-      setError(err.message || 'Camera capture failed');
+      if (type === 'cover') coverImageFileInputRef.current?.click();
+      else if (type === 'gallery') propertyImagesFileInputRef.current?.click();
+      else if (type.startsWith('doc_')) {
+        const idx = parseInt(type.split('_')[1], 10);
+        if (!isNaN(idx)) documentInputRefs.current[idx]?.click();
+      } else {
+        setError(err.message || 'Camera capture failed');
+      }
     } finally {
       setUploading(null);
     }
@@ -533,7 +540,7 @@ const AddResortWizard = () => {
       }
 
       const res = await hotelService.uploadImages(fd);
-      const urls = Array.isArray(res?.urls) ? res.urls : [];
+      const urls = Array.isArray(res?.urls) ? res.urls : (Array.isArray(res?.files) ? res.files.map(f => typeof f === 'string' ? f : f.url) : []);
       console.log('Upload done, urls:', urls);
       onDone(urls);
     } catch (err) {
@@ -1464,11 +1471,11 @@ const AddResortWizard = () => {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-500">Extra Adult Price (₹)</label>
-                        <input className="input w-full" type="number" value={editingRoomType.extraAdultPrice} onChange={e => setEditingRoomType({ ...editingRoomType, extraAdultPrice: e.target.value })} />
+                        <input className="input w-full" type="number" value={editingRoomType.extraAdultPrice} onChange={e => setEditingRoomType({ ...editingRoomType, extraAdultPrice: e.target.value })} placeholder="0" />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-500">Extra Child Price (₹)</label>
-                        <input className="input w-full" type="number" value={editingRoomType.extraChildPrice} onChange={e => setEditingRoomType({ ...editingRoomType, extraChildPrice: e.target.value })} />
+                        <input className="input w-full" type="number" value={editingRoomType.extraChildPrice} onChange={e => setEditingRoomType({ ...editingRoomType, extraChildPrice: e.target.value })} placeholder="0" />
                       </div>
                     </div>
 
@@ -1626,8 +1633,8 @@ const AddResortWizard = () => {
                           )}
                         </button>
                         {doc.fileUrl && (
-                          <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors border border-gray-200 hover:border-emerald-200 bg-white">
-                            <Search size={18} />
+                          <a href={doc.fileUrl} target="_blank" rel="noreferrer" className="p-2.5 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors border border-gray-200 hover:border-emerald-200 bg-white" title="View Document">
+                            <Eye size={18} />
                           </a>
                         )}
                       </div>
@@ -1669,31 +1676,62 @@ const AddResortWizard = () => {
               {error && <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg">{error}</div>}
 
               <div className="space-y-4">
-                <div className="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm">
-                  <h3 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Property Details</h3>
-                  <div className="space-y-1">
-                    <div className="text-lg font-bold text-emerald-900">{propertyForm.propertyName || 'No Name'}</div>
-                    <div className="text-sm font-semibold text-emerald-600">{propertyForm.resortType} Resort</div>
-                    <div className="text-sm text-gray-600 flex items-start gap-1">
-                      <MapPin size={14} className="mt-0.5 shrink-0" /> {propertyForm.address.fullAddress || 'No Address'}
+                {/* Property & Basic Info */}
+                <div className="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm space-y-3">
+                  <div className="flex justify-between items-start border-b border-gray-100 pb-3">
+                    <div>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Property Details</h3>
+                      <div className="text-lg font-bold text-emerald-900 mt-0.5">{propertyForm.propertyName || 'No Name'}</div>
+                      <div className="text-xs text-gray-600 flex items-start gap-1 mt-1">
+                        <MapPin size={14} className="mt-0.5 shrink-0 text-emerald-600" /> {propertyForm.address.fullAddress || `${propertyForm.address.city}, ${propertyForm.address.state}`}
+                      </div>
                     </div>
+                    {propertyForm.coverImage && (
+                      <img src={propertyForm.coverImage} alt="Cover" className="w-14 h-14 object-cover rounded-xl border border-gray-200 shrink-0 ml-2" />
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 pt-1">
+                    <div><span className="font-bold text-gray-800">Contact:</span> {propertyForm.contactNumber || 'N/A'}</div>
+                    <div><span className="font-bold text-gray-800">Suitability:</span> {propertyForm.suitability !== 'none' ? propertyForm.suitability : 'General'}</div>
+                    <div><span className="font-bold text-gray-800">Check-in:</span> {propertyForm.checkInTime || 'Standard'}</div>
+                    <div><span className="font-bold text-gray-800">Check-out:</span> {propertyForm.checkOutTime || 'Standard'}</div>
                   </div>
                 </div>
 
+                {/* Photos & Amenities Stats */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="border border-gray-200 rounded-2xl p-4 bg-white shadow-sm">
+                    <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Photos</div>
+                    <div className="text-sm font-bold text-gray-900 mt-1">
+                      {propertyForm.coverImage ? '1 Cover' : '0 Cover'} + {propertyForm.propertyImages.length} Gallery
+                    </div>
+                  </div>
+                  <div className="border border-gray-200 rounded-2xl p-4 bg-white shadow-sm">
+                    <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Amenities</div>
+                    <div className="text-sm font-bold text-gray-900 mt-1">{propertyForm.amenities.length} Selected</div>
+                  </div>
+                </div>
+
+                {/* Room Types */}
                 <div className="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm">
                   <h3 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Cottages & Rooms ({roomTypes.length})</h3>
                   {roomTypes.length > 0 ? (
                     <div className="space-y-2">
                       {roomTypes.map((rt, i) => (
-                        <div key={i} className="flex justify-between items-center text-sm">
-                          <span className="text-gray-600 font-medium">{rt.name}</span>
-                          <span className="font-bold text-gray-900">₹{rt.pricePerNight}</span>
+                        <div key={i} className="flex justify-between items-center text-sm border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                          <div>
+                            <span className="text-gray-900 font-bold block">{rt.name}</span>
+                            <span className="text-xs text-gray-500 font-medium">Inv: {rt.totalInventory} | Max: {rt.maxAdults || 2}A</span>
+                          </div>
+                          <span className="font-extrabold text-emerald-700">₹{rt.pricePerNight}</span>
                         </div>
                       ))}
                     </div>
                   ) : <div className="text-xs text-red-500 font-medium bg-red-50 p-2 rounded-lg">No room types added!</div>}
                 </div>
 
+                {/* Documents */}
                 <div className="border border-gray-200 rounded-2xl p-5 bg-white shadow-sm">
                   <h3 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Documents ({propertyForm.documents.filter(d => d.fileUrl).length}/{propertyForm.documents.length})</h3>
                   <div className="space-y-2">
@@ -1701,9 +1739,9 @@ const AddResortWizard = () => {
                       <div key={i} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           {doc.fileUrl ? <CheckCircle size={14} className="text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border border-gray-300 bg-gray-50"></div>}
-                          <span className={doc.fileUrl ? 'text-gray-700' : 'text-gray-500'}>{doc.name}</span>
+                          <span className={doc.fileUrl ? 'text-gray-700 font-medium' : 'text-gray-500'}>{doc.name}</span>
                         </div>
-                        <span className="text-xs text-gray-400">{doc.fileUrl ? 'Attached' : 'Optional'}</span>
+                        <span className="text-xs text-emerald-600 font-bold">{doc.fileUrl ? 'Attached' : 'Optional'}</span>
                       </div>
                     ))}
                   </div>
@@ -1732,34 +1770,36 @@ const AddResortWizard = () => {
         </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 md:px-6 z-40 bg-white/80 backdrop-blur-md">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <button
-            onClick={handleBack}
-            disabled={step === 1 || loading}
-            className="px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            Back
-          </button>
-          {step < 9 && (
+      {step < 10 && (
+        <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 md:px-6 z-40 bg-white/80 backdrop-blur-md">
+          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
             <button
-              onClick={clearCurrentStep}
-              disabled={loading}
-              className="px-4 py-3 rounded-xl border border-red-200 text-red-600 font-bold hover:bg-red-50 disabled:opacity-50 transition-all text-sm"
+              onClick={handleBack}
+              disabled={step === 1 || loading}
+              className="px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-bold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              Clear Step
+              Back
             </button>
-          )}
-          <button
-            onClick={handleNext}
-            disabled={loading || (step === 6 && roomTypes.length === 0)}
-            className="flex-1 px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-          >
-            {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            {step === 9 ? (loading ? 'Submitting...' : 'Submit Property') : 'Continue'}
-          </button>
-        </div>
-      </footer>
+            {step < 9 && (
+              <button
+                onClick={clearCurrentStep}
+                disabled={loading}
+                className="px-4 py-3 rounded-xl border border-red-200 text-red-600 font-bold hover:bg-red-50 disabled:opacity-50 transition-all text-sm"
+              >
+                Clear Step
+              </button>
+            )}
+            <button
+              onClick={handleNext}
+              disabled={loading || (step === 6 && roomTypes.length === 0)}
+              className="flex-1 px-6 py-3 rounded-xl bg-emerald-600 text-white font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+              {step === 9 ? (loading ? 'Submitting...' : 'Submit Property') : 'Continue'}
+            </button>
+          </div>
+        </footer>
+      )}
 
       <style>{`
         .hide-scrollbar::-webkit-scrollbar { display: none; }

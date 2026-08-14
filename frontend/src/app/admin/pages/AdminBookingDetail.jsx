@@ -175,12 +175,24 @@ const AdminBookingDetail = () => {
                             <div>
                                 <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Check-in</p>
                                 <p className="text-lg font-bold text-gray-900">{new Date(booking.checkInDate || booking.checkIn).toLocaleDateString()}</p>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase">After 12:00 PM</p>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase">
+                                    {booking.propertyId?.checkInTime 
+                                        ? (booking.propertyId.checkInTime.toLowerCase().includes('after') 
+                                            ? booking.propertyId.checkInTime 
+                                            : `AFTER ${booking.propertyId.checkInTime}`) 
+                                        : 'AFTER 12:00 PM'}
+                                </p>
                             </div>
                             <div>
                                 <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Check-out</p>
                                 <p className="text-lg font-bold text-gray-900">{new Date(booking.checkOutDate || booking.checkOut).toLocaleDateString()}</p>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase">Before 11:00 AM</p>
+                                <p className="text-[10px] font-bold text-gray-500 uppercase">
+                                    {booking.propertyId?.checkOutTime 
+                                        ? (booking.propertyId.checkOutTime.toLowerCase().includes('before') 
+                                            ? booking.propertyId.checkOutTime 
+                                            : `BEFORE ${booking.propertyId.checkOutTime}`) 
+                                        : 'BEFORE 11:00 AM'}
+                                </p>
                             </div>
                             <div className="col-span-2 pt-4 border-t border-gray-100">
                                 <p className="text-sm font-bold text-gray-900 mb-1 uppercase tracking-tight">Hotel: {booking.propertyId?.propertyName || booking.propertyId?.name || 'Deleted Property'}</p>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Building2, MapPin, CheckCircle, XCircle, FileText,
     ChevronLeft, Star, Bed, Calendar, ShieldCheck, AlertCircle,
-    MoreVertical, Download, Search, Ban, Wifi, Phone, Mail, Tv, Coffee, Wind, Loader2, Clock, Image as ImageIcon, Users, X, Trash2
+    MoreVertical, Download, Search, Ban, Wifi, Phone, Mail, Tv, Coffee, Wind, Loader2, Clock, Image as ImageIcon, Users, X, Trash2, Eye
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -714,7 +714,7 @@ const DocumentsTab = ({ hotel, documents, onVerify, verifying, isEditing, editDa
                                                 rel="noopener noreferrer"
                                                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-300 text-[10px] font-bold uppercase text-gray-700 hover:bg-gray-100"
                                             >
-                                                <FileText size={12} />
+                                                <Eye size={12} />
                                                 View File
                                             </a>
                                         ) : (
@@ -1102,64 +1102,76 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
     );
 };
 
-const BookingsTab = ({ bookings }) => (
-    <div className="space-y-4">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="relative w-full md:w-80">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                    type="text"
-                    placeholder="Search Guest Name..."
-                    className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-[10px] font-bold uppercase outline-none focus:ring-1 focus:ring-black"
-                />
-            </div>
-            <div className="flex items-center gap-4">
-                <div className="text-[10px] font-bold uppercase text-gray-500">
-                    Total: <span className="font-bold text-gray-900">{bookings?.length || 0} Bookings</span>
+const BookingsTab = ({ bookings }) => {
+    const [search, setSearch] = useState('');
+
+    const filteredBookings = (bookings || []).filter(b => {
+        if (!search) return true;
+        const q = search.toLowerCase();
+        const guestName = (b.userId?.name || '').toLowerCase();
+        const bookingId = (b.bookingId || b._id || '').toLowerCase();
+        return guestName.includes(q) || bookingId.includes(q);
+    });
+
+    return (
+        <div className="space-y-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+
+                <div className="flex items-center gap-4">
+                    <div className="text-[10px] font-bold uppercase text-gray-500">
+                        Total: <span className="font-bold text-gray-900">{filteredBookings.length} Bookings</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <table className="w-full text-left text-sm">
-                <thead className="bg-gray-50 border-b border-gray-100 uppercase text-[10px] font-bold tracking-wider text-gray-500">
-                    <tr>
-                        <th className="p-4 font-bold text-gray-600">Booking ID</th>
-                        <th className="p-4 font-bold text-gray-600">Guest</th>
-                        <th className="p-4 font-bold text-gray-600">Check-In</th>
-                        <th className="p-4 font-bold text-gray-600">Status</th>
-                        <th className="p-4 font-bold text-gray-600 text-right">Amount</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                    {bookings && bookings.length > 0 ? (
-                        bookings.map((b, i) => (
-                            <tr key={i} className="hover:bg-gray-50">
-                                <td className="p-4 font-mono text-xs text-gray-500">#{b.bookingId || b._id.slice(-6)}</td>
-                                <td className="p-4 font-bold text-gray-900 uppercase text-xs">{b.userId?.name || 'Guest'}</td>
-                                <td className="p-4 text-[10px] font-bold uppercase text-gray-400">{new Date(b.checkIn).toLocaleDateString()}</td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${b.status === 'confirmed' ? 'bg-green-100 text-green-700' :
-                                        b.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                                            b.status === 'completed' ? 'bg-blue-100 text-blue-700' :
-                                                'bg-amber-100 text-amber-700'
-                                        }`}>
-                                        {b.status}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-right font-bold">₹{b.totalAmount?.toLocaleString()}</td>
-                            </tr>
-                        ))
-                    ) : (
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 border-b border-gray-100 uppercase text-[10px] font-bold tracking-wider text-gray-500">
                         <tr>
-                            <td colSpan="5" className="p-8 text-center text-gray-400 font-bold uppercase text-xs">No bookings found</td>
+                            <th className="p-4 font-bold text-gray-600">Booking ID</th>
+                            <th className="p-4 font-bold text-gray-600">Guest</th>
+                            <th className="p-4 font-bold text-gray-600">Check-In</th>
+                            <th className="p-4 font-bold text-gray-600">Status</th>
+                            <th className="p-4 font-bold text-gray-600 text-right">Amount</th>
                         </tr>
-                    )}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                        {filteredBookings.length > 0 ? (
+                            filteredBookings.map((b, i) => {
+                                const checkInDate = b.checkInDate || b.checkIn;
+                                const status = b.bookingStatus || b.status || 'pending';
+                                return (
+                                    <tr key={b._id || i} className="hover:bg-gray-50">
+                                        <td className="p-4 font-mono text-xs text-gray-500">#{b.bookingId || String(b._id).slice(-6)}</td>
+                                        <td className="p-4 font-bold text-gray-900 uppercase text-xs">{b.userId?.name || 'Guest'}</td>
+                                        <td className="p-4 text-[10px] font-bold uppercase text-gray-400">
+                                            {checkInDate ? new Date(checkInDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                        </td>
+                                        <td className="p-4">
+                                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                                ['confirmed', 'checked_in'].includes(status) ? 'bg-green-100 text-green-700' :
+                                                status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                                ['completed', 'checked_out'].includes(status) ? 'bg-blue-100 text-blue-700' :
+                                                'bg-amber-100 text-amber-700'
+                                            }`}>
+                                                {status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4 text-right font-bold">₹{b.totalAmount?.toLocaleString('en-IN') || 0}</td>
+                                    </tr>
+                                );
+                            })
+                        ) : (
+                            <tr>
+                                <td colSpan="5" className="p-8 text-center text-gray-400 font-bold uppercase text-xs">No bookings found</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 // --- Main Page Component ---
 

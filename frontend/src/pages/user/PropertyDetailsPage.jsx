@@ -1070,7 +1070,7 @@ const PropertyDetailsPage = () => {
                     whileHover={{ scale: 1.01, translateY: -2 }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => {
-                      setSelectedRoom(room);
+                      setSelectedRoom(selectedRoom?._id === room._id ? null : room);
                     }}
                     className="border-2 rounded-xl p-5 cursor-pointer transition-all relative overflow-hidden flex flex-col justify-between shadow-xs"
                     style={{

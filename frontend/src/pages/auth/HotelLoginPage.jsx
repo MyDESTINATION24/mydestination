@@ -15,6 +15,7 @@ const HotelLoginPage = () => {
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);
     const [phoneTouched, setPhoneTouched] = useState(false);
+    const [canResend, setCanResend] = useState(false);
     const isPhoneValid = phone.length === 10 && /^[6-9]\d{9}$/.test(phone);
 
     useEffect(() => {
@@ -37,6 +38,7 @@ const HotelLoginPage = () => {
             await authService.sendOtp(phone, 'login', 'partner');
             setResendTimer(120);
             setCanResend(false);
+            setOtp(['', '', '', '', '', '']);
             setStep(2);
         } catch (err) {
             if (err.isBlocked || err.response?.data?.isBlocked || err.status === 403) {
@@ -119,7 +121,7 @@ const HotelLoginPage = () => {
                                                     setPhoneTouched(true);
                                                 }}
                                                 onBlur={() => setPhoneTouched(true)}
-                                                placeholder="9876543210"
+                                                placeholder="00000 00000"
                                                 className={`w-full px-5 py-4 bg-gray-50 border-2 rounded-2xl focus:bg-white outline-none transition-all font-bold text-lg ${
                                                     phoneTouched && !isPhoneValid 
                                                         ? 'border-red-500 bg-red-50/30' 
@@ -168,7 +170,7 @@ const HotelLoginPage = () => {
                                     >
                                         {loading ? <Loader2 className="animate-spin mx-auto" /> : 'Login'}
                                     </button>
-                                    <button onClick={() => setStep(1)} type="button" className="w-full text-xs text-gray-400 font-bold hover:text-[#39593f]">Change Number</button>
+                                    <button onClick={() => { setStep(1); setOtp(['', '', '', '', '', '']); setError(''); }} type="button" className="w-full text-xs text-gray-400 font-bold hover:text-[#39593f]">Change Number</button>
                                 </form>
                             </motion.div>
                         )}

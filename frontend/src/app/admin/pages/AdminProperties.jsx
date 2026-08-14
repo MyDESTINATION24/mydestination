@@ -273,12 +273,16 @@ const AdminProperties = () => {
                                                             <Building2 size={18} />
                                                         </div>
                                                         <div>
-                                                            <div className="flex items-center gap-2">
+                                                             <div className="flex items-center gap-2">
                                                                 <p className="text-sm font-bold text-gray-900 uppercase tracking-tight">{property.propertyName || 'Untitled'}</p>
-                                                                {property.avgRating > 0 && (
+                                                                {property.totalReviews > 0 && property.avgRating > 0 ? (
                                                                     <span className="flex items-center bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded text-[9px] font-black border border-yellow-100">
                                                                         <Star size={8} className="fill-yellow-500 text-yellow-500 mr-0.5" />
-                                                                        {property.avgRating?.toFixed(1)}
+                                                                        {Number(property.avgRating).toFixed(1)}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="flex items-center bg-gray-50 text-gray-500 px-1.5 py-0.5 rounded text-[9px] font-bold border border-gray-200">
+                                                                        NEW
                                                                     </span>
                                                                 )}
                                                             </div>

@@ -164,7 +164,7 @@ const PartnerPropertyDetails = () => {
           <h1 className="text-2xl font-bold leading-tight mb-1 shadow-black/10 drop-shadow-md">{property.propertyName}</h1>
           <div className="flex items-center gap-1.5 text-xs text-gray-100 font-medium opacity-90">
             <MapPin size={12} />
-            <span className="truncate">{property.address?.fullAddress}</span>
+            <span className="truncate">{property.address?.city}, {property.address?.state}</span>
           </div>
         </div>
       </div>
