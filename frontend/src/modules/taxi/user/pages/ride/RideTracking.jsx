@@ -1238,8 +1238,7 @@ const RideTracking = () => {
                 iconUrl={vehicleIcon}
                 fallbackIcon={carIcon}
                 bundledIcons={[carIcon, bikeIcon, autoIcon, deliveryIcon]}
-                heading={displayDriverHeading}
-              />
+                heading={displayDriverHeading} routePath={routePath}/>
             ) : null}
             <MarkerF
               position={activeDestination}

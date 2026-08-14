@@ -747,7 +747,7 @@ const ParcelTracking = () => {
                 options={{ strokeColor: '#0f172a', strokeOpacity: 0.9, strokeWeight: 6 }}
               />
             )}
-            <SmoothVehicleMarker position={driverPosition} iconUrl={vehicleIcon} fallbackIcon={deliveryIcon} bundledIcons={[carIcon, bikeIcon, autoIcon, deliveryIcon]} heading={displayDriverHeading} title="Delivery Captain" />
+            <SmoothVehicleMarker position={driverPosition} iconUrl={vehicleIcon} fallbackIcon={deliveryIcon} bundledIcons={[carIcon, bikeIcon, autoIcon, deliveryIcon]} heading={displayDriverHeading} title="Delivery Captain" routePath={routePath}/>
             <MarkerF position={activeDestination} />
           </GoogleMap>
         ) : (

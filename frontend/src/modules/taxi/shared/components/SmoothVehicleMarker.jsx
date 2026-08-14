@@ -27,8 +27,13 @@ const SmoothVehicleMarker = ({
   fallbackIcon,
   bundledIcons = [],
   title = 'Driver',
+  // The live route. Given this, a marker that has fallen behind (stalled socket)
+  // drives the road to catch up instead of sliding across it in a straight line.
+  routePath = null,
 }) => {
-  const { position: smoothPosition, heading: smoothHeading } = useSmoothedLatLng(position, heading);
+  const { position: smoothPosition, heading: smoothHeading } = useSmoothedLatLng(position, heading, {
+    path: routePath,
+  });
   const renderPosition = smoothPosition || position;
 
   if (!renderPosition) {

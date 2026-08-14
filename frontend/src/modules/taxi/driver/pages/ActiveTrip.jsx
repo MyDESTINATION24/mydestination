@@ -1931,8 +1931,7 @@ const ActiveTrip = () => {
                             fallbackIcon={carIcon}
                             bundledIcons={[carIcon]}
                             heading={displayDriverHeading}
-                            title="Driver"
-                        />
+                            title="Driver" routePath={routePath}/>
                         <MarkerF
                             position={activeDestination}
                             title={phase === 'to_pickup' || phase === 'otp_verification' ? 'Pickup' : 'Drop'}
