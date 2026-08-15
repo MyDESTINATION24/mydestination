@@ -7450,6 +7450,19 @@ export const getDashboardData = async () => {
       store.active = store.status === 'active';
     }
 
+    // Self-registered centres arrive approve:false / inactive, and without this
+    // there was no way to approve one -- only status was settable, so a sign-up
+    // could never be cleared for use. Approving activates in the same action,
+    // since an approved-but-inactive centre is not a state anyone wants.
+    if (payload.approve !== undefined) {
+      store.approve = Boolean(payload.approve);
+
+      if (store.approve && payload.status === undefined) {
+        store.status = 'active';
+        store.active = true;
+      }
+    }
+
     await store.save();
 
     const populatedStore = await ServiceStore.findById(store._id)

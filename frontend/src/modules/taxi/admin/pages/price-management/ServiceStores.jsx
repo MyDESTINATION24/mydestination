@@ -49,6 +49,7 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
   const { id } = useParams();
   const [view, setView] = useState(initialMode);
   const [stores, setStores] = useState([]);
+  const [approvingStoreId, setApprovingStoreId] = useState('');
   const [zones, setZones] = useState([]);
   const [serviceLocations, setServiceLocations] = useState([]);
   const [rentalVehicles, setRentalVehicles] = useState([]);
@@ -106,6 +107,33 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
       resetFormState();
     }
   }, [initialMode]);
+
+  // Clearing a self-registered centre for use. The backend activates it in the
+  // same call, so one click is enough.
+  const handleApproveStore = async (store) => {
+    const storeId = store._id || store.id;
+
+    if (!storeId || approvingStoreId) {
+      return;
+    }
+
+    setApprovingStoreId(storeId);
+
+    try {
+      const response = await adminService.updateServiceStore(storeId, { approve: true });
+
+      if (response?.data?.success || response?.success) {
+        fetchData();
+      } else {
+        alert('Failed to approve service center.');
+      }
+    } catch (error) {
+      console.error('Failed to approve service center:', error);
+      alert('Failed to approve service center.');
+    } finally {
+      setApprovingStoreId('');
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -367,6 +395,7 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
     }
 
     setSaving(true);
+
     try {
       const payload = {
         name: formData.name.trim(),
@@ -533,9 +562,25 @@ const ServiceStores = ({ mode: initialMode = 'list' }) => {
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-900">{store.name}</p>
-                                <p className="text-xs text-gray-400">
-                                  {store.status || 'active'}
-                                </p>
+                                {/* A self-registered centre arrives approve:false and must be
+                                    reviewed. Without this it looked identical to one an admin
+                                    created, so sign-ups would sit unnoticed and unapproved. */}
+                                {store.approve === false ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleApproveStore(store)}
+                                    disabled={approvingStoreId === (store._id || store.id)}
+                                    className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 transition hover:bg-amber-200 disabled:opacity-60"
+                                  >
+                                    {approvingStoreId === (store._id || store.id)
+                                      ? 'Approving…'
+                                      : 'Pending approval — click to approve'}
+                                  </button>
+                                ) : (
+                                  <p className="text-xs text-gray-400">
+                                    {store.status || 'active'}
+                                  </p>
+                                )}
                               </div>
                             </div>
                           </td>
