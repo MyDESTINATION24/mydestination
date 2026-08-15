@@ -4,6 +4,7 @@ import { env } from '../../../../config/env.js';
 import { Owner } from '../../admin/models/Owner.js';
 import { ServiceStore } from '../../admin/models/ServiceStore.js';
 import { ServiceCenterStaff } from '../../admin/models/ServiceCenterStaff.js';
+import { ServiceCenterStaffInvite } from '../../admin/models/ServiceCenterStaffInvite.js';
 import { Driver } from '../models/Driver.js';
 import { BusDriver } from '../models/BusDriver.js';
 import { DriverLoginSession } from '../models/DriverLoginSession.js';
@@ -221,7 +222,20 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
         ? await BusDriver.findOne({ phone: { $in: phoneCandidates } })
         : await Driver.findOne({ phone: { $in: phoneCandidates } });
 
-  if (!account) {
+  // A staff member has no account until they redeem their invite. If their
+  // centre has invited this number, let the OTP proceed -- the account is
+  // created on verification, so only whoever controls the number can claim it.
+  const pendingInvite =
+    !account && normalizedRole === 'service_center_staff'
+      ? await ServiceCenterStaffInvite.findOne({
+          phone: { $in: phoneCandidates },
+          redeemedAt: null,
+          revokedAt: null,
+          expiresAt: { $gt: new Date() },
+        })
+      : null;
+
+  if (!account && !pendingInvite) {
     throw new ApiError(
       404,
       `${
@@ -278,7 +292,11 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
     { phone: normalizedPhone },
     {
       phone: normalizedPhone,
-      driverId: account._id,
+      // driverId is required by the schema; for an invite there is no account
+      // yet, so the invite stands in and pendingStaffInviteId is what the
+      // verify step actually keys off.
+      driverId: account?._id || pendingInvite._id,
+      pendingStaffInviteId: account ? null : pendingInvite._id,
       accountRole: normalizedRole,
       otpHash: hashOtp(otp),
       otpExpiresAt: new Date(now + LOGIN_OTP_TTL_MS),
@@ -324,6 +342,48 @@ export const verifyDriverLoginOtp = async ({ phone, otp }) => {
 
   if (session.otpHash !== hashOtp(otp)) {
     throw new ApiError(401, 'Invalid OTP');
+  }
+
+  // The OTP has just proven this number. If it came in against an invite, the
+  // staff account is created now and bound to the centre that issued it -- the
+  // centre chooses the employer, never the person signing up.
+  if (session.pendingStaffInviteId) {
+    const invite = await ServiceCenterStaffInvite.findOne({
+      _id: session.pendingStaffInviteId,
+      redeemedAt: null,
+      revokedAt: null,
+      expiresAt: { $gt: new Date() },
+    });
+
+    if (!invite) {
+      throw new ApiError(410, 'This staff invite is no longer valid. Ask your service center to send a new one.');
+    }
+
+    // Re-checked here, not just at invite time: an account could have been
+    // created by any other route while the invite sat unredeemed.
+    const alreadyStaff = await ServiceCenterStaff.findOne({ phone: invite.phone });
+
+    if (alreadyStaff) {
+      invite.redeemedAt = new Date();
+      invite.redeemedStaffId = alreadyStaff._id;
+      await invite.save();
+    } else {
+      const createdStaff = await ServiceCenterStaff.create({
+        serviceCenterId: invite.serviceCenterId,
+        name: invite.name,
+        phone: invite.phone,
+        active: true,
+        status: 'active',
+      });
+
+      invite.redeemedAt = new Date();
+      invite.redeemedStaffId = createdStaff._id;
+      await invite.save();
+    }
+
+    session.pendingStaffInviteId = null;
+    session.driverId = invite.redeemedStaffId;
+    await session.save();
   }
 
   const account =

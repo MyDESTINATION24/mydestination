@@ -20,6 +20,14 @@ const driverLoginSessionSchema = new mongoose.Schema(
       default: 'driver',
       required: true,
     },
+    // Set when a staff member is signing in against an invite rather than an
+    // existing account. The account is created on successful OTP, so the invite
+    // can only be redeemed by someone who controls the invited number.
+    pendingStaffInviteId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaxiServiceCenterStaffInvite',
+      default: null,
+    },
     otpHash: {
       type: String,
       required: true,

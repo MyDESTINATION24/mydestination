@@ -34,6 +34,7 @@ import {
   captureServiceCenterBookingFingerprint,
   clearDriverAuthState,
   createServiceCenterStaff,
+  createServiceCenterStaffInvite,
   deleteServiceCenterStaff,
   deleteServiceCenterVehicle,
   getCurrentDriver,
@@ -851,6 +852,39 @@ const ServiceCenterDashboard = () => {
       setShowStaffForm(false);
     } catch (err) {
       setError(err?.message || `Unable to ${staffForm.id ? 'update' : 'add'} staff`);
+    } finally {
+      setSavingStaff(false);
+    }
+  };
+
+  // Invite instead of creating outright: nothing exists until the invited
+  // number signs in and passes its OTP, so the person proves the number is
+  // theirs and the centre still decides who they work for.
+  const handleInviteStaff = async () => {
+    const name = staffForm.name.trim();
+    const phone = staffForm.phone.replace(/\D/g, '').slice(-10);
+
+    if (!name) {
+      setError('Staff name is required');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      setError('Enter a valid 10 digit number');
+      return;
+    }
+
+    setSavingStaff(true);
+    setError('');
+
+    try {
+      await createServiceCenterStaffInvite({ name, phone });
+      setStaffForm(buildStaffForm());
+      setShowStaffForm(false);
+      setError('');
+      window.alert(`Invite sent to ${phone}. They can now sign in as Staff with this number.`);
+    } catch (err) {
+      setError(err?.message || 'Unable to send staff invite');
     } finally {
       setSavingStaff(false);
     }
@@ -2406,10 +2440,24 @@ const ServiceCenterDashboard = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-end gap-3">
+                <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
                   <button type="button" onClick={() => setShowStaffForm(false)} className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                     Cancel
                   </button>
+                  {/* Inviting creates nothing yet: the account appears only when
+                      that number signs in and passes its OTP, so a mistyped
+                      number cannot become a live staff login. */}
+                  {!staffForm.id ? (
+                    <button
+                      type="button"
+                      disabled={savingStaff}
+                      onClick={handleInviteStaff}
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-600 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50 disabled:opacity-60"
+                    >
+                      {savingStaff ? <Loader2 size={16} className="animate-spin" /> : <Users size={16} />}
+                      Send Invite
+                    </button>
+                  ) : null}
                   <button type="button" disabled={savingStaff} onClick={handleSaveStaff} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
                     {savingStaff ? <Loader2 size={16} className="animate-spin" /> : <Users size={16} />}
                     {staffForm.id ? 'Update Staff' : 'Save Staff'}

@@ -319,6 +319,15 @@ export const updateServiceCenterStaff = (staffId, payload) =>
 export const deleteServiceCenterStaff = (staffId) =>
   api.delete(`/drivers/service-center/staff/${staffId}`, withDriverAuth());
 
+export const getServiceCenterStaffInvites = () =>
+  api.get("/drivers/service-center/staff-invites", withDriverAuth());
+
+export const createServiceCenterStaffInvite = (payload) =>
+  api.post("/drivers/service-center/staff-invites", payload, withDriverAuth());
+
+export const revokeServiceCenterStaffInvite = (inviteId) =>
+  api.delete(`/drivers/service-center/staff-invites/${inviteId}`, withDriverAuth());
+
 export const getServiceCenterBookings = () =>
   api.get("/drivers/service-center/bookings", withDriverAuth());
 
