@@ -214,9 +214,17 @@ const UserSignup = ({ theme = 'hotel' }) => {
             const userRaw = localStorage.getItem('user');
             const user = userRaw ? JSON.parse(userRaw) : null;
             
+            // Same rule as the login page: a second identity as vendor or hotel
+            // partner must not eject someone from the customer app. Those
+            // portals have their own entry points.
+            const isVendorAuthPage = String(location.pathname || '').startsWith('/wedding/vendor');
+            const isHotelAuthPage = String(location.pathname || '').startsWith('/hotel');
+
             let defaultRedirect = isWedding ? '/wedding' : '/home';
-            if (user?.role === 'partner') {
+            if (user?.role === 'partner' && isHotelAuthPage) {
                 defaultRedirect = '/hotel/dashboard';
+            } else if (user?.role === 'vendor' && isVendorAuthPage) {
+                defaultRedirect = '/wedding/vendor/dashboard';
             }
             
             // If user was trying to access a specific service before login/signup, redirect there
