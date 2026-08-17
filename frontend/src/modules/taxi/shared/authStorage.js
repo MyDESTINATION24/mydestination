@@ -43,7 +43,7 @@ const isScopedToken = (token, allowedRoles = []) => {
 };
 
 export const getTaxiUserToken = () =>
-  isScopedToken(localStorage.getItem(TAXI_USER_TOKEN_KEY), ['user'])
+  isScopedToken(localStorage.getItem(TAXI_USER_TOKEN_KEY), ['user', 'vendor', 'partner'])
     ? localStorage.getItem(TAXI_USER_TOKEN_KEY) || ''
     : '';
 
