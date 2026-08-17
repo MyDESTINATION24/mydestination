@@ -160,11 +160,8 @@ const UserLogin = ({ theme = 'hotel' }) => {
             if (user?.role === 'partner') {
                 // Hotel partner → always hotel dashboard
                 defaultRedirect = '/hotel/dashboard';
-            } else if (user?.role === 'vendor') {
-                // Wedding vendor → always vendor dashboard
-                defaultRedirect = '/wedding/vendor/dashboard';
             } else {
-                // Normal user → depends on WHICH login page they used
+                // Normal user or vendor logging via user app → depends on WHICH login page they used
                 // isWedding = true  → /wedding/login pe the → /wedding pe bhejo
                 // isWedding = false → /login pe the       → /home pe bhejo
                 defaultRedirect = isWedding ? '/wedding' : '/home';

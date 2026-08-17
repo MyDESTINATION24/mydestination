@@ -37,7 +37,7 @@ const ArticlesPage = () => {
 
   return (
     <>
-      <main className="min-h-screen bg-slate-50 pt-28 pb-20 font-sans">
+      <main className="min-h-screen bg-slate-50 pt-20 pb-20 font-sans">
         <WebsiteHeader />
 
       {loading ? (
@@ -60,13 +60,13 @@ const ArticlesPage = () => {
           {/* Hero Section */}
           <section className="max-w-7xl mx-auto px-4 md:px-12">
             <div className="max-w-3xl">
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-800 mb-3">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-800 mb-1">
                 My DESTINATION Hub // ARTICLES
               </p>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 mb-2">
                 Insights, guides &amp; expert travel articles.
               </h1>
-              <p className="text-sm md:text-base text-slate-600 mb-6 leading-relaxed">
+              <p className="text-sm md:text-base text-slate-600 mb-4 leading-relaxed">
                 Expert articles and field notes written by our seasoned team and travel partners to help you discover new destinations and travel smarter.
               </p>
               <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-slate-500">
@@ -82,14 +82,14 @@ const ArticlesPage = () => {
           </section>
 
           {/* Articles Cards Grid */}
-          <section className="max-w-7xl mx-auto px-4 md:px-12 mt-10 md:mt-14">
+          <section className="max-w-7xl mx-auto px-4 md:px-12 mt-6 md:mt-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg md:text-xl font-bold text-slate-800 tracking-tight">
                 Latest Articles
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
               {articles.map((article, index) => (
                 <motion.article
                   key={article._id}
@@ -100,14 +100,14 @@ const ArticlesPage = () => {
                   className="group rounded-3xl border border-slate-200/80 bg-white overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
                 >
                   <div>
-                    <div className="relative h-48 overflow-hidden">
+                    <div className="relative h-40 overflow-hidden">
                       <img
                         src={article.image}
                         alt={article.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
-                    <div className="p-5">
+                    <div className="p-4">
                       <p className="text-[11px] text-emerald-800 mb-2 font-bold flex items-center gap-1.5">
                         <Calendar size={12} /> {article.date || 'June 2026'}
                       </p>
@@ -116,7 +116,7 @@ const ArticlesPage = () => {
                     </div>
                   </div>
                   
-                  <div className="px-5 pb-5 pt-1">
+                  <div className="px-4 pb-4 pt-1">
                     <div className="h-[1px] bg-slate-100 mb-3" />
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-medium text-slate-400">

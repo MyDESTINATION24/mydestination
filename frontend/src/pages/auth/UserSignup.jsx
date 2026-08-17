@@ -217,8 +217,6 @@ const UserSignup = ({ theme = 'hotel' }) => {
             let defaultRedirect = isWedding ? '/wedding' : '/home';
             if (user?.role === 'partner') {
                 defaultRedirect = '/hotel/dashboard';
-            } else if (user?.role === 'vendor') {
-                defaultRedirect = '/wedding/vendor/dashboard';
             }
             
             // If user was trying to access a specific service before login/signup, redirect there

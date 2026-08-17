@@ -538,7 +538,7 @@ const PublicRoute = ({ children }) => {
     if (user?.role === 'partner') {
       return <Navigate to="/hotel/dashboard" replace />;
     } else if (user?.role === 'vendor') {
-      return <Navigate to="/wedding/vendor/dashboard" replace />;
+      return <Navigate to="/wedding" replace />;
     }
     return <Navigate to="/home" replace />;
   }
@@ -1060,7 +1060,7 @@ function App() {
 
               {/* Vendor Main Dashboard (Protected) */}
               <Route element={<WeddingVendorProtectedRoute />}>
-                <Route path="/wedding/vendor" element={<WeddingVendorOnboardingLayout />}>
+                <Route path="/wedding/vendor">
                   <Route index element={<Navigate to="dashboard" replace />} />
                   <Route path="dashboard" element={<WeddingVendorDashboard />} />
                   <Route path="profile" element={<WeddingVendorProfileEditor />} />
