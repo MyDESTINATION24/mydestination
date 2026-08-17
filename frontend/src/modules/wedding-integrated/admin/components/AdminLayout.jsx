@@ -7,10 +7,12 @@ import { ADMIN_THEME } from '../theme/themeConfig';
 const AdminLayout = () => {
   const location = useLocation();
   const token = localStorage.getItem("admin_token");
+  const adminUserRaw = localStorage.getItem("admin_user");
+  const adminUser = adminUserRaw ? (() => { try { return JSON.parse(adminUserRaw); } catch { return null; } })() : null;
 
-  // Check role-based admin access
-  if (!token) {
-    return <Navigate to="/admin/login" replace />;
+  // Check role-based admin access — must have a valid admin_token AND an admin role
+  if (!token || !adminUser || !['admin', 'superadmin'].includes(adminUser.role)) {
+    return <Navigate to="/wedding/admin/login" replace />;
   }
 
   // Get the title from current path for the header

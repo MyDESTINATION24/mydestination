@@ -30,6 +30,13 @@ export const initAppMode = () => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('source') === 'app') {
       sessionStorage.setItem(SESSION_KEY, '1');
+
+      // The user app (Flutter WebView) should never need admin tokens.
+      // Clear any stale admin tokens to prevent the user from being
+      // redirected into admin panels due to leftover localStorage data.
+      ['adminToken', 'cmsToken', 'admin_token', 'taxiAdminToken', 'adminInfo', 'admin_user'].forEach(key => {
+        try { localStorage.removeItem(key); } catch {}
+      });
     }
   } catch (_) { /* ignore SSR/restricted environments */ }
 };
