@@ -31,6 +31,16 @@ const normalizeRole = (role = '') => {
   if (value === 'super-admin' || value === 'superadmin') {
     return 'admin';
   }
+
+  // A wedding vendor or hotel partner is still a customer of the taxi module,
+  // and their token's subject IS a User document -- the extra role is a second
+  // identity, not a different account. Without this, taxi routes gated on
+  // 'user' answered 403 for them and the app treated that as a dead session and
+  // logged them out the moment they opened the taxi module.
+  if (value === 'vendor' || value === 'partner') {
+    return 'user';
+  }
+
   return value;
 };
 
