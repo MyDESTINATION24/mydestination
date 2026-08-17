@@ -39,7 +39,7 @@ const ContactPage = () => {
           </div>
 
           <a
-            href="mailto:rajnishpanchal.fr@gmail.com"
+            href="mailto:care@mydestination.in"
             className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-5 no-underline text-inherit hover:border-surface hover:shadow-md transition-all group"
           >
             <div className="w-12 h-12 rounded-2xl bg-surface/5 flex items-center justify-center text-surface group-hover:bg-surface group-hover:text-white transition-colors">
@@ -47,12 +47,12 @@ const ContactPage = () => {
             </div>
             <div>
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Email Support</p>
-              <p className="text-sm font-bold text-gray-800 break-all">rajnishpanchal.fr@gmail.com</p>
+              <p className="text-sm font-bold text-gray-800 break-all">care@mydestination.in</p>
             </div>
           </a>
 
           <a
-            href="tel:+919111384541"
+            href="tel:+918006787878"
             className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-5 no-underline text-inherit hover:border-surface hover:shadow-md transition-all group"
           >
             <div className="w-12 h-12 rounded-2xl bg-surface/5 flex items-center justify-center text-surface group-hover:bg-surface group-hover:text-white transition-colors">
@@ -60,7 +60,7 @@ const ContactPage = () => {
             </div>
             <div>
               <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Call Us</p>
-              <p className="text-lg font-bold text-gray-800">+91-9111384541</p>
+              <p className="text-lg font-bold text-gray-800">+91-8006787878</p>
             </div>
           </a>
         </div>

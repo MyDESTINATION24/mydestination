@@ -54,14 +54,14 @@ const Footer = () => {
                         </div>
                         <div className="flex flex-col">
                             <span className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Email:</span>
-                            <a href="mailto:rajnishpanchal.fr@gmail.com" className="text-sm text-gray-300 hover:text-surface transition-colors break-all">
-                                rajnishpanchal.fr@gmail.com
+                            <a href="mailto:care@mydestination.in" className="text-sm text-gray-300 hover:text-surface transition-colors break-all">
+                                care@mydestination.in
                             </a>
                         </div>
                         <div className="flex flex-col">
                             <span className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Phone:</span>
-                            <a href="tel:+919111384541" className="text-sm text-gray-300 hover:text-surface transition-colors">
-                                +91-9111384541
+                            <a href="tel:+918006787878" className="text-sm text-gray-300 hover:text-surface transition-colors">
+                                +91-8006787878
                             </a>
                         </div>
                     </div>

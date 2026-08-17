@@ -18,7 +18,7 @@ const DriverSupport = () => {
 
     const openHelp = (type) => {
         if(type === 'call') window.open('tel:1800123456');
-        if(type === 'wa') window.open('https://wa.me/919424100424');
+        if(type === 'wa') window.open('https://wa.me/918006787878');
     };
 
     return (

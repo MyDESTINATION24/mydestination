@@ -63,14 +63,14 @@ const PartnerSupport = () => {
                 {/* Contact Options */}
                 <div className="grid grid-cols-2 gap-3 mb-8">
                     <button
-                        onClick={() => window.open('https://wa.me/919111384535', '_blank')}
+                        onClick={() => window.open('https://wa.me/918006787878', '_blank')}
                         className="bg-[#0A4720] text-white p-5 rounded-2xl shadow-lg flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
                     >
                         <MessageSquare size={24} />
                         <span className="text-sm font-bold">WhatsApp Chat</span>
                     </button>
                     <a
-                        href="tel:9111384535"
+                        href="tel:8006787878"
                         className="bg-white border border-gray-200 text-gray-900 p-5 rounded-2xl shadow-sm flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform"
                     >
                         <Phone size={24} />
@@ -99,8 +99,8 @@ const PartnerSupport = () => {
 
                 <div className="mt-8 text-center">
                     <p className="text-xs text-gray-400 mb-2">Still have questions?</p>
-                    <a href="mailto:partners@rokkooin.com" className="inline-flex items-center gap-2 text-sm font-bold text-[#0A4720] border-b border-[#0A4720]/20 pb-0.5 hover:border-[#0A4720] transition-colors">
-                        <Mail size={14} /> Email us at partners@rokkooin.com
+                    <a href="mailto:care@mydestination.in" className="inline-flex items-center gap-2 text-sm font-bold text-[#0A4720] border-b border-[#0A4720]/20 pb-0.5 hover:border-[#0A4720] transition-colors">
+                        <Mail size={14} /> Email us at care@mydestination.in
                     </a>
                 </div>
             </div>

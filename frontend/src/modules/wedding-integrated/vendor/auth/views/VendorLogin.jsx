@@ -109,7 +109,7 @@ const VendorLogin = () => {
                 <input
                   type="tel"
                   name="phone"
-                  placeholder="Mobile Number (e.g. 9876543210)"
+                  placeholder="Mobile Number (e.g. 8006787878)"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className={inputClass}

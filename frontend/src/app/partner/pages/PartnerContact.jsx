@@ -68,10 +68,10 @@ const PartnerContact = () => {
             <div>
               <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide">Email</p>
               <a
-                href="mailto:mydestinationhub@gmail.com"
+                href="mailto:care@mydestination.in"
                 className="text-xs text-gray-500 hover:text-[#0A4720] transition-colors break-all"
               >
-                mydestinationhub@gmail.com
+                care@mydestination.in
               </a>
             </div>
           </div>
@@ -82,10 +82,10 @@ const PartnerContact = () => {
             <div>
               <p className="text-[11px] font-bold text-gray-700 uppercase tracking-wide">Phone</p>
               <a
-                href="tel:+916232314147"
+                href="tel:+918006787878"
                 className="text-xs text-gray-500 hover:text-[#0A4720] transition-colors"
               >
-                6232314147
+                8006787878
               </a>
             </div>
           </div>

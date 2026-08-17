@@ -102,8 +102,8 @@ const HelpSupportPage = () => {
               </div>
               <h3 className="text-base font-bold text-slate-800 mb-0.5">Email Us</h3>
               <p className="text-[11px] text-slate-500 mb-2">For general queries and support</p>
-              <a href="mailto:support@mydestination.com" className="text-sm font-bold text-primary hover:underline">
-                support@mydestination.com
+              <a href="mailto:care@mydestination.in" className="text-sm font-bold text-primary hover:underline">
+                care@mydestination.in
               </a>
             </div>
 
@@ -114,7 +114,7 @@ const HelpSupportPage = () => {
               </div>
               <h3 className="text-base font-bold text-slate-800 mb-0.5">Call Us</h3>
               <p className="text-[11px] text-slate-500 mb-2">Mon-Fri from 9am to 6pm</p>
-              <a href="tel:+919876543210" className="text-sm font-bold text-primary hover:underline">
+              <a href="tel:+918006787878" className="text-sm font-bold text-primary hover:underline">
                 +91 98765 43210
               </a>
             </div>

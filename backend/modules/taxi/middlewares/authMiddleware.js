@@ -8,6 +8,7 @@ import { ApiError } from '../../../utils/ApiError.js';
 import { Driver } from '../driver/models/Driver.js';
 import { BusDriver } from '../driver/models/BusDriver.js';
 import User from '../../user/models/User.js';
+import Partner from '../../partner/models/Partner.js';
 import { verifyAccessToken } from '../services/tokenService.js';
 import {
   normalizeAdminPermissions,
@@ -24,6 +25,8 @@ const roleModelMap = {
   service_center: ServiceStore,
   service_center_staff: ServiceCenterStaff,
   user: User,
+  vendor: User,
+  partner: Partner,
 };
 
 const normalizeRole = (role = '') => {
@@ -100,6 +103,11 @@ export const authenticate = (allowedRoles = [], options = {}) => async (req, _re
 
     const normalizedRole = normalizeRole(payload.role);
     const normalizedAllowedRoles = allowedRoles.map(normalizeRole);
+
+    if (normalizedAllowedRoles.includes('user')) {
+      if (!normalizedAllowedRoles.includes('vendor')) normalizedAllowedRoles.push('vendor');
+      if (!normalizedAllowedRoles.includes('partner')) normalizedAllowedRoles.push('partner');
+    }
 
     if (normalizedAllowedRoles.length > 0 && !normalizedAllowedRoles.includes(normalizedRole)) {
       throw new ApiError(403, 'Insufficient permissions for this resource');

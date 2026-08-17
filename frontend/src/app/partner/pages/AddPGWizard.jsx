@@ -942,7 +942,7 @@ const AddPGWizard = () => {
                   <input
                     type="tel"
                     className="input"
-                    placeholder="9876543210"
+                    placeholder="8006787878"
                     value={propertyForm.contactNumber}
                     onChange={e => {
                       // Filter non-digits and limit to 10 digits

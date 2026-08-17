@@ -211,7 +211,7 @@ const PartnerPendingApproval = () => {
                             {checking ? 'Checking Status...' : 'Refresh Status'}
                         </button>
                         <a
-                            href="https://wa.me/919685974247?text=Hello%20Partner%20Support,%20I%20registered%20as%20a%20hotel%20partner%20and%20my%20account%20is%20pending%20approval."
+                            href="https://wa.me/918006787878?text=Hello%20Partner%20Support,%20I%20registered%20as%20a%20hotel%20partner%20and%20my%20account%20is%20pending%20approval."
                             target="_blank"
                             rel="noopener noreferrer"
                             className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-2 transition-all"
@@ -226,7 +226,7 @@ const PartnerPendingApproval = () => {
 
             {/* Footer Notice */}
             <footer className="text-center py-4 text-slate-400 text-[11px]">
-                Need immediate assistance? Contact us at <a href="mailto:support@mydestination.com" className="text-slate-600 font-bold underline">support@mydestination.com</a>
+                Need immediate assistance? Contact us at <a href="mailto:care@mydestination.in" className="text-slate-600 font-bold underline">care@mydestination.in</a>
             </footer>
         </div>
     );

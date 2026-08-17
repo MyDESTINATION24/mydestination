@@ -375,7 +375,7 @@ const ProfileEdit = () => {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, '') })}
                   className="flex-1 text-sm font-bold text-surface outline-none placeholder:text-gray-400 bg-transparent"
-                  placeholder="9876543210"
+                  placeholder="8006787878"
                 />
               </div>
             </div>

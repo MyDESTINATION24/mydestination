@@ -13,7 +13,7 @@ const PayoutMethods = () => {
     ]);
     const [showAdd, setShowAdd] = useState(false);
 
-    const openContact = () => window.open('https://wa.me/919424100424');
+    const openContact = () => window.open('https://wa.me/918006787878');
 
     return (
         <div className="min-h-screen bg-[#f8f9fb] font-sans p-6 pt-10 pb-32">

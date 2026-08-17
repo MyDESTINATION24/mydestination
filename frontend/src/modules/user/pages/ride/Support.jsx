@@ -17,7 +17,7 @@ const Support = () => {
   ];
 
   const handleCall = () => {
-    window.open('tel:+919876543210', '_self');
+    window.open('tel:+918006787878', '_self');
   };
 
   const openSupportChat = (topicTitle = '') => {

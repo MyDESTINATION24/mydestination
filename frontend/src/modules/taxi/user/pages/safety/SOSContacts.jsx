@@ -9,7 +9,7 @@ const MAX_CONTACTS = 5;
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
 const MOCK_CONTACTS = [
-  { id: '1', name: 'Rahul Verma',  phone: '9876543210' },
+  { id: '1', name: 'Rahul Verma',  phone: '8006787878' },
   { id: '2', name: 'Priya Sharma', phone: '9123456789' },
 ];
 

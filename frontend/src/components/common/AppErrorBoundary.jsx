@@ -13,7 +13,7 @@ import React from 'react';
 const RELOAD_GUARD_KEY = 'appErrorBoundaryReloadedAt';
 const RELOAD_GUARD_WINDOW_MS = 30000;
 
-const isStaleChunkError = (error) => /Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk .* failed|Importing a module script failed/i
+const isStaleChunkError = (error) => /Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk .* failed|Importing a module script failed|Unable to preload CSS/i
   .test(String(error?.message || error));
 
 // Reload at most once per window, so a genuine persistent failure shows the
