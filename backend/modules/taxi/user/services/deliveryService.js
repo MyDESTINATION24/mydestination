@@ -3,6 +3,7 @@ import { normalizePoint } from '../../../../utils/geo.js';
 import { GoodsType } from '../../admin/models/GoodsType.js';
 import { Vehicle } from '../../admin/models/Vehicle.js';
 import { startDispatchFlow } from '../../services/dispatchService.js';
+import { resolveSetPriceForRide } from '../../services/rideService.js';
 import { Delivery } from '../models/Delivery.js';
 import {
   createRideRecord,
@@ -108,13 +109,33 @@ export const createDeliveryRecord = async ({
 }) => {
   await ensureDeliveryVehicleAllowed({ vehicleTypeId, parcel });
 
+  // The fare arrives from the client and used to be stored verbatim, so a
+  // crafted request could book a parcel for zero. Hold it to the configured
+  // base price as a floor -- the client still proposes the distance-based
+  // amount, but it can no longer propose nothing.
+  const requestedFare = Number(fare || 0);
+  const pricingRule = await resolveSetPriceForRide({
+    transportType: 'delivery',
+    vehicleTypeId,
+  });
+  const minimumFare = Number(pricingRule?.base_price || 0);
+
+  if (!Number.isFinite(requestedFare) || requestedFare < minimumFare) {
+    throw new ApiError(
+      400,
+      minimumFare > 0
+        ? `Delivery fare cannot be below the minimum of ${minimumFare}`
+        : 'A valid delivery fare is required',
+    );
+  }
+
   const ride = await createRideRecord({
     userId,
     pickupCoords: normalizePoint(pickup, 'pickup'),
     dropCoords: normalizePoint(drop, 'drop'),
     pickupAddress,
     dropAddress,
-    fare: Number(fare || 0),
+    fare: requestedFare,
     vehicleTypeId,
     vehicleTypeIds,
     vehicleIconType,
