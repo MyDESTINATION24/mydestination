@@ -157,9 +157,21 @@ const UserLogin = ({ theme = 'hotel' }) => {
             const user = userRaw ? JSON.parse(userRaw) : null;
 
             let defaultRedirect;
-            if (user?.role === 'partner') {
-                // Hotel partner → always hotel dashboard
+            // Redirect by WHERE they signed in, not only by what they are. Being
+            // a vendor or a hotel partner is a second identity, not a reason to
+            // eject someone from the customer app: a vendor who signs in at
+            // /login is signing in as a customer and was being thrown to the
+            // vendor dashboard every time. Their portals have their own login
+            // pages, which still land them there.
+            const isVendorLoginPage = String(location.pathname || '').startsWith('/wedding/vendor');
+            const isHotelLoginPage = String(location.pathname || '').startsWith('/hotel');
+
+            if (user?.role === 'partner' && isHotelLoginPage) {
+                // Hotel partner arriving through the hotel login → hotel dashboard
                 defaultRedirect = '/hotel/dashboard';
+            } else if (user?.role === 'vendor' && isVendorLoginPage) {
+                // Wedding vendor arriving through the vendor login → vendor dashboard
+                defaultRedirect = '/wedding/vendor/dashboard';
             } else {
                 // Normal user or vendor logging via user app → depends on WHICH login page they used
                 // isWedding = true  → /wedding/login pe the → /wedding pe bhejo
