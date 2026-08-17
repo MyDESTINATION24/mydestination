@@ -43,24 +43,17 @@ const attachResolvedAuth = (req, payload) => {
 };
 
 const resolveOpenUserIdentity = async (req) => {
-  const explicitUserId =
-    req.headers['x-user-id'] ||
-    req.body?.userId ||
-    req.query?.userId ||
-    req.params?.userId ||
-    null;
-
-  const query = explicitUserId ? { _id: explicitUserId } : {};
-  const user = await User.findOne(query).sort({ createdAt: 1 });
-
-  if (!user) {
-    throw new ApiError(404, 'No user account is available for open user access');
-  }
-
-  attachResolvedAuth(req, {
-    sub: String(user._id),
-    role: 'user',
-  });
+  // SECURITY: this used to accept an identity straight from the caller --
+  // x-user-id, body.userId, query.userId, params.userId -- with no token at
+  // all, and fell back to the OLDEST user in the database when none was given.
+  // Any unauthenticated request could therefore act as any user, across the 60+
+  // routes using this middleware: read their bookings, book as them, end their
+  // rides. No client ever sent those fields; the app always carries a bearer
+  // token, which is handled before this function is reached.
+  //
+  // Identity may only come from a token, or from a resolver that derives it
+  // from a resource the caller already had to know (see resolveOpenUser).
+  throw new ApiError(401, 'Authorization token is required');
 };
 
 export const resolveOpenUserFromRentalBooking = async (req) => {
