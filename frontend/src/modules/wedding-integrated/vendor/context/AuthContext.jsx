@@ -32,8 +32,12 @@ export const AuthProvider = ({ children }) => {
         const { token, user: newUser } = response.data;
         localStorage.setItem("vendor_token", token);
         localStorage.setItem("vendor_user", JSON.stringify(newUser));
-        // Also set global token for apiService interceptor if needed
-        localStorage.setItem("token", token);
+        // Deliberately NOT writing the generic 'token'. Both the user app and
+        // the vendor portal were storing their credential in that one slot, so
+        // whichever signed in last clobbered the other -- which is how a
+        // regular user ended up being treated as a vendor. The request
+        // interceptor already prefers vendor_token on /wedding/vendor and falls
+        // back to it elsewhere under /wedding, so nothing needs the copy.
         setUser(newUser);
         return { success: true, user: newUser };
       }
@@ -75,7 +79,6 @@ export const AuthProvider = ({ children }) => {
         const { token, user: existingUser } = response.data;
         localStorage.setItem("vendor_token", token);
         localStorage.setItem("vendor_user", JSON.stringify(existingUser));
-        localStorage.setItem("token", token);
         setUser(existingUser);
         return { success: true, user: existingUser };
       }
