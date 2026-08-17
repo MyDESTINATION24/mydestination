@@ -8,6 +8,9 @@ import {
   cancelOwnerBusBookingSeats,
   createDriverPaymentQr,
   createServiceCenterStaffMember,
+  createServiceCenterStaffInvite,
+  listServiceCenterStaffInvites,
+  revokeServiceCenterStaffInvite,
   updateServiceCenterStaffMember,
   createDriverWithdrawalRequest,
   createServiceCenterVehicle,
@@ -330,6 +333,21 @@ driverRouter.post(
   "/service-center/staff",
   authenticate(["service_center"]),
   asyncHandler(createServiceCenterStaffMember),
+);
+driverRouter.get(
+  "/service-center/staff-invites",
+  authenticate(["service_center"]),
+  asyncHandler(listServiceCenterStaffInvites),
+);
+driverRouter.post(
+  "/service-center/staff-invites",
+  authenticate(["service_center"]),
+  asyncHandler(createServiceCenterStaffInvite),
+);
+driverRouter.delete(
+  "/service-center/staff-invites/:inviteId",
+  authenticate(["service_center"]),
+  asyncHandler(revokeServiceCenterStaffInvite),
 );
 driverRouter.patch(
   "/service-center/staff/:staffId",

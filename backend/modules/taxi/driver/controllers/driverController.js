@@ -17,6 +17,7 @@ import { BusService } from "../../admin/models/BusService.js";
 import { ServiceLocation } from "../../admin/models/ServiceLocation.js";
 import { ServiceStore } from "../../admin/models/ServiceStore.js";
 import { ServiceCenterStaff } from "../../admin/models/ServiceCenterStaff.js";
+import { ServiceCenterStaffInvite } from "../../admin/models/ServiceCenterStaffInvite.js";
 import { Vehicle } from "../../admin/models/Vehicle.js";
 import { RentalVehicleType } from "../../admin/models/RentalVehicleType.js";
 import { RentalBookingRequest } from "../../admin/models/RentalBookingRequest.js";
@@ -3073,6 +3074,117 @@ export const createServiceCenterStaffMember = async (req, res) => {
   res.json({
     success: true,
     data: serializeServiceCenterStaff(created.toObject(), 0),
+  });
+};
+
+const INVITE_TTL_DAYS = 7;
+
+const serializeStaffInvite = (invite = {}) => ({
+  id: String(invite._id || ''),
+  name: invite.name || '',
+  phone: invite.phone || '',
+  expiresAt: invite.expiresAt || null,
+  redeemedAt: invite.redeemedAt || null,
+  revokedAt: invite.revokedAt || null,
+  status: invite.redeemedAt
+    ? 'redeemed'
+    : invite.revokedAt
+      ? 'revoked'
+      : new Date(invite.expiresAt).getTime() < Date.now()
+        ? 'expired'
+        : 'pending',
+});
+
+export const listServiceCenterStaffInvites = async (req, res) => {
+  const access = await resolveAuthenticatedServiceCenterAccess(req);
+  const center = access?.center;
+
+  if (!center?._id || !access?.canManageStaff) {
+    throw new ApiError(403, "Only service center owners can manage staff");
+  }
+
+  const invites = await ServiceCenterStaffInvite.find({ serviceCenterId: center._id })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.json({
+    success: true,
+    data: invites.map(serializeStaffInvite),
+  });
+};
+
+export const createServiceCenterStaffInvite = async (req, res) => {
+  const access = await resolveAuthenticatedServiceCenterAccess(req);
+  const center = access?.center;
+
+  if (!center?._id || !access?.canManageStaff) {
+    throw new ApiError(403, "Only service center owners can manage staff");
+  }
+
+  const name = String(req.body?.name || "").trim();
+  const phone = String(req.body?.phone || "").replace(/\D/g, "").slice(-10);
+
+  if (!name) {
+    throw new ApiError(400, "Staff name is required");
+  }
+
+  if (!/^\d{10}$/.test(phone)) {
+    throw new ApiError(400, "Staff login number must be a valid 10-digit number");
+  }
+
+  const existingStaff = await ServiceCenterStaff.findOne({ phone }).lean();
+  if (existingStaff) {
+    throw new ApiError(409, "A staff account already exists with this number");
+  }
+
+  // Replace any invite still open for this number rather than colliding with
+  // the partial unique index -- re-inviting should just work.
+  await ServiceCenterStaffInvite.updateMany(
+    { phone, redeemedAt: null, revokedAt: null },
+    { $set: { revokedAt: new Date() } },
+  );
+
+  const invite = await ServiceCenterStaffInvite.create({
+    serviceCenterId: center._id,
+    name,
+    phone,
+    expiresAt: new Date(Date.now() + INVITE_TTL_DAYS * 24 * 60 * 60 * 1000),
+  });
+
+  res.json({
+    success: true,
+    data: serializeStaffInvite(invite.toObject()),
+  });
+};
+
+export const revokeServiceCenterStaffInvite = async (req, res) => {
+  const access = await resolveAuthenticatedServiceCenterAccess(req);
+  const center = access?.center;
+
+  if (!center?._id || !access?.canManageStaff) {
+    throw new ApiError(403, "Only service center owners can manage staff");
+  }
+
+  // Scoped to this centre so one centre cannot revoke another's invite.
+  const invite = await ServiceCenterStaffInvite.findOne({
+    _id: req.params?.inviteId,
+    serviceCenterId: center._id,
+  });
+
+  if (!invite) {
+    throw new ApiError(404, "Invite not found");
+  }
+
+  if (invite.redeemedAt) {
+    throw new ApiError(409, "This invite has already been used");
+  }
+
+  invite.revokedAt = new Date();
+  await invite.save();
+
+  res.json({
+    success: true,
+    data: serializeStaffInvite(invite.toObject()),
   });
 };
 

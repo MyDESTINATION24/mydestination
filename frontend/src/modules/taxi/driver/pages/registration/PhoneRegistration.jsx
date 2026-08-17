@@ -65,9 +65,12 @@ const PhoneRegistration = () => {
             { id: 'bus_driver', label: 'Bus', Icon: ShieldCheck },
             { id: 'pooling', label: 'Pooling', Icon: Sparkles },
             { id: 'service_center', label: 'Center', Icon: Building2 },
-            // Staff are created by their centre rather than self-registering,
-            // so there is no sign-up to pair this with yet.
-            //{ id: 'service_center_staff', label: 'Staff', Icon: UserRound },
+            // Staff deliberately have no sign-up: an account must be bound to a
+            // centre, and letting someone pick their own employer would let
+            // anyone attach themselves to any centre. Their centre creates them
+            // from its dashboard -- but they still need to be able to log in,
+            // which this was blocking.
+            { id: 'service_center_staff', label: 'Staff', Icon: UserRound },
         ]
         : [
             // Must mirror the roles registration actually supports. Bus and

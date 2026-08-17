@@ -118,6 +118,13 @@ export const authService = {
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+
+        // Clear any stale admin tokens to prevent cross-panel contamination.
+        // Without this, a previously logged-in admin session could cause the
+        // user app to redirect into admin panels (e.g., wedding admin).
+        ['adminToken', 'cmsToken', 'admin_token', 'taxiAdminToken', 'adminInfo', 'admin_user'].forEach(key => {
+          try { localStorage.removeItem(key); } catch {}
+        });
       }
       return response.data;
     } catch (error) {

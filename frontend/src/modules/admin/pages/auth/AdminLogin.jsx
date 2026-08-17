@@ -64,12 +64,30 @@ const PANELS = [
   },
 ];
 
-const syncAdminTokens = (token, user) => {
+const syncAdminTokens = (token, user, panelKey) => {
   if (!token) return;
-  localStorage.setItem('adminToken', token);
-  localStorage.setItem('cmsToken', token);
-  localStorage.setItem('admin_token', token);
-  localStorage.setItem('taxiAdminToken', token);
+  // Only set the token for the specific panel being logged into.
+  // This prevents cross-panel token contamination where logging into one admin
+  // panel would make all other panels (and even the user app) think you're
+  // authenticated as admin.
+  switch (panelKey) {
+    case 'hotel':
+      localStorage.setItem('adminToken', token);
+      break;
+    case 'wedding':
+      localStorage.setItem('admin_token', token);
+      break;
+    case 'taxi':
+      localStorage.setItem('taxiAdminToken', token);
+      break;
+    case 'cms':
+      localStorage.setItem('cmsToken', token);
+      break;
+    default:
+      // Fallback: set the generic adminToken
+      localStorage.setItem('adminToken', token);
+  }
+  // Shared admin user info — guards use role checks for authorization
   if (user) {
     localStorage.setItem('adminInfo', JSON.stringify(user));
     localStorage.setItem('admin_user', JSON.stringify(user));
@@ -88,7 +106,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      syncAdminTokens(token, user);
+      syncAdminTokens(token, user, 'hotel');
       if (adminStoreLogin) {
         adminStoreLogin(email, password).catch(console.error);
       }
@@ -103,7 +121,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      syncAdminTokens(token, user);
+      syncAdminTokens(token, user, 'wedding');
       return { redirectTo: '/wedding/admin/dashboard' };
     }
     case 'taxi': {
@@ -116,7 +134,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
       if (!token) throw new Error('Taxi Admin authentication failed');
 
       setTaxiAdminSession({ token, admin: user });
-      syncAdminTokens(token, user);
+      syncAdminTokens(token, user, 'taxi');
       return { redirectTo: '/taxi/admin' };
     }
     case 'cms': {
@@ -128,7 +146,7 @@ const loginByPanel = async (panelKey, email, password, adminStoreLogin) => {
 
       if (!token) throw new Error('Authentication failed: No token received');
 
-      syncAdminTokens(token, user);
+      syncAdminTokens(token, user, 'cms');
       return { redirectTo: '/cms-admin' };
     }
     default:

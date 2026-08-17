@@ -490,10 +490,14 @@ const PartnerProtectedRoute = ({ children }) => {
 
 // Wedding Vendor Protected Route
 const WeddingVendorProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const userRaw = localStorage.getItem('user');
+  // Authenticate with the VENDOR's own credential. This used to read the shared
+  // generic 'token', which vendor login also writes -- so once a regular user
+  // logged in on the same device their token satisfied this check while a
+  // leftover vendor_user supplied the identity, and a plain user was let into
+  // the vendor portal.
+  const token = localStorage.getItem('vendor_token');
   const vendorUserRaw = localStorage.getItem('vendor_user');
-  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : (userRaw ? JSON.parse(userRaw) : null);
+  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : null;
   const location = useLocation();
 
   if (!token || !user) {
@@ -595,10 +599,12 @@ const PartnerPublicRoute = ({ children }) => {
  * Sirf role='vendor' logged in ho to redirect karo.
  */
 const WeddingVendorPublicRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const userRaw = localStorage.getItem('user');
+  // Same pairing rule as the protected route: a stale vendor_user must not turn
+  // a regular user's session into a vendor one. This is what threw users who
+  // signed into the app straight out to the vendor dashboard.
+  const token = localStorage.getItem('vendor_token');
   const vendorUserRaw = localStorage.getItem('vendor_user');
-  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : (userRaw ? JSON.parse(userRaw) : null);
+  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : null;
   if (token && user?.role === 'vendor') {
     return <Navigate to="/wedding/vendor/dashboard" replace />;
   }
