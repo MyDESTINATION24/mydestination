@@ -35,12 +35,17 @@ const normalizeRole = (role = '') => {
     return 'admin';
   }
 
-  // A wedding vendor or hotel partner is still a customer of the taxi module,
-  // and their token's subject IS a User document -- the extra role is a second
-  // identity, not a different account. Without this, taxi routes gated on
-  // 'user' answered 403 for them and the app treated that as a dead session and
-  // logged them out the moment they opened the taxi module.
-  if (value === 'vendor' || value === 'partner') {
+  // A wedding vendor is still a customer of the taxi module: their token's
+  // subject IS the User document, so the vendor role is a second identity on
+  // the same account. Without this, taxi routes gated on 'user' answered 403
+  // and the app treated that as a dead session and logged them out.
+  //
+  // 'partner' is deliberately NOT mapped. A hotel partner is a Partner document
+  // with its own _id, so treating it as a user made taxi look that id up in
+  // Users, miss, and answer 'Authenticated account no longer exists' -- a
+  // message the client clears the session on. Different account, not a second
+  // identity.
+  if (value === 'vendor') {
     return 'user';
   }
 
