@@ -9,6 +9,12 @@ const userAuthSessionSchema = new mongoose.Schema(
       index: true,
       trim: true,
     },
+    // Wrong-guess counter. A 4-digit OTP is only 9000 possibilities, so without
+    // a cap it can be walked through well inside the code's lifetime.
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
     otpHash: {
       type: String,
       required: true,

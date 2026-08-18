@@ -26,6 +26,7 @@ import { PoolingVehicle } from '../../admin/models/PoolingVehicle.js';
 import { BusDriver } from '../models/BusDriver.js';
 
 const OTP_TTL_MS = 10 * 60 * 1000;
+const MAX_OTP_ATTEMPTS = 5;
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const DRIVER_NAME_REGEX = /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -554,6 +555,9 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
       role: normalizedRole,
       status: 'otp_sent',
       otpHash: hashOtp(otp),
+      // A newly issued code gets a fresh allowance -- otherwise earlier mistypes
+      // carry over and lock someone out of a code they just asked for.
+      otpAttempts: 0,
       otpExpiresAt: new Date(now + OTP_TTL_MS),
       otpVerifiedAt: null,
       expiresAt: new Date(now + SESSION_TTL_MS),
@@ -594,7 +598,20 @@ export const verifyDriverOtp = async ({ registrationId, phone, otp }) => {
     throw new ApiError(410, 'OTP has expired');
   }
 
+  if (Number(session.otpAttempts || 0) >= MAX_OTP_ATTEMPTS) {
+    await DriverRegistrationSession.deleteOne({ _id: session._id });
+    throw new ApiError(429, 'Too many incorrect attempts. Please request a new OTP.');
+  }
+
   if (session.otpHash !== hashOtp(otp)) {
+    session.otpAttempts = Number(session.otpAttempts || 0) + 1;
+    await session.save();
+
+    if (session.otpAttempts >= MAX_OTP_ATTEMPTS) {
+      await DriverRegistrationSession.deleteOne({ _id: session._id });
+      throw new ApiError(429, 'Too many incorrect attempts. Please request a new OTP.');
+    }
+
     throw new ApiError(401, 'Invalid OTP');
   }
 

@@ -12,6 +12,7 @@ import { signAccessToken } from './authService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 
 const LOGIN_OTP_TTL_MS = 10 * 60 * 1000;
+const MAX_OTP_ATTEMPTS = 5;
 
 const normalizePhone = (phone) => {
   const digits = String(phone || '').replace(/\D/g, '').trim();
@@ -301,6 +302,9 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
       pendingStaffInviteId: account ? null : pendingInvite._id,
       accountRole: normalizedRole,
       otpHash: hashOtp(otp),
+      // A newly issued code gets a fresh allowance -- otherwise earlier mistypes
+      // carry over and lock someone out of a code they just asked for.
+      otpAttempts: 0,
       otpExpiresAt: new Date(now + LOGIN_OTP_TTL_MS),
       verifiedAt: null,
       expiresAt: new Date(now + LOGIN_OTP_TTL_MS),
@@ -342,7 +346,23 @@ export const verifyDriverLoginOtp = async ({ phone, otp }) => {
     throw new ApiError(410, 'OTP has expired');
   }
 
+  // A 4-digit code is 9000 possibilities and the session lives for 10 minutes,
+  // so without a cap it can simply be walked through. Burn the session once the
+  // allowance is spent -- the caller has to request a fresh OTP.
+  if (Number(session.otpAttempts || 0) >= MAX_OTP_ATTEMPTS) {
+    await DriverLoginSession.deleteOne({ _id: session._id });
+    throw new ApiError(429, 'Too many incorrect attempts. Please request a new OTP.');
+  }
+
   if (session.otpHash !== hashOtp(otp)) {
+    session.otpAttempts = Number(session.otpAttempts || 0) + 1;
+    await session.save();
+
+    if (session.otpAttempts >= MAX_OTP_ATTEMPTS) {
+      await DriverLoginSession.deleteOne({ _id: session._id });
+      throw new ApiError(429, 'Too many incorrect attempts. Please request a new OTP.');
+    }
+
     throw new ApiError(401, 'Invalid OTP');
   }
 

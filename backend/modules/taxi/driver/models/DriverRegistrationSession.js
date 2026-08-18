@@ -28,6 +28,12 @@ const driverRegistrationSessionSchema = new mongoose.Schema(
       enum: ['otp_sent', 'otp_verified', 'personal_saved', 'vehicle_saved', 'documents_saved', 'completed'],
       default: 'otp_sent',
     },
+    // Wrong-guess counter -- see the verify path. A 4-digit OTP is only 9000
+    // possibilities, so it needs a cap to be a lock at all.
+    otpAttempts: {
+      type: Number,
+      default: 0,
+    },
     otpHash: {
       type: String,
       required: true,
