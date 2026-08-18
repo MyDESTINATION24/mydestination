@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail, MessageSquare, Send, AlertCircle, Phone, HelpCircle, Search, Clock, CheckCircle2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { weddingService } from '../../../services/weddingService';
+import { api } from '../../../services/apiService';
 
 const HelpSupportPage = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,30 @@ const HelpSupportPage = () => {
   const [loading, setLoading] = useState(false);
   const [submittedTicket, setSubmittedTicket] = useState(null);
   const [recentTickets, setRecentTickets] = useState([]);
+  // Contact details were hardcoded here (and the tel: link pointed at a
+  // different number than the one displayed), so nothing edited under
+  // CMS -> Footer ever showed up. Fallbacks are kept for a failed fetch.
+  const [contact, setContact] = useState({
+    email: 'care@mydestination.in',
+    phone: '+91 80 06 787878',
+  });
+
+  useEffect(() => {
+    let active = true;
+
+    api.get('/cms/landing-page')
+      .then((response) => {
+        if (!active) return;
+        const footer = response?.data?.data?.footer || response?.data?.footer || {};
+        setContact((current) => ({
+          email: String(footer.email || '').trim() || current.email,
+          phone: String(footer.phone || '').trim() || current.phone,
+        }));
+      })
+      .catch(() => {});
+
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem('mySupportTickets');
@@ -102,8 +127,8 @@ const HelpSupportPage = () => {
               </div>
               <h3 className="text-base font-bold text-slate-800 mb-0.5">Email Us</h3>
               <p className="text-[11px] text-slate-500 mb-2">For general queries and support</p>
-              <a href="mailto:care@mydestination.in" className="text-sm font-bold text-primary hover:underline">
-                care@mydestination.in
+              <a href={`mailto:${contact.email}`} className="text-sm font-bold text-primary hover:underline">
+                {contact.email}
               </a>
             </div>
 
@@ -114,8 +139,8 @@ const HelpSupportPage = () => {
               </div>
               <h3 className="text-base font-bold text-slate-800 mb-0.5">Call Us</h3>
               <p className="text-[11px] text-slate-500 mb-2">Mon-Fri from 9am to 6pm</p>
-              <a href="tel:+918006787878" className="text-sm font-bold text-primary hover:underline">
-                +91 98765 43210
+              <a href={`tel:${String(contact.phone || '').replace(/[^\d+]/g, '')}`} className="text-sm font-bold text-primary hover:underline">
+                {contact.phone}
               </a>
             </div>
           </motion.div>

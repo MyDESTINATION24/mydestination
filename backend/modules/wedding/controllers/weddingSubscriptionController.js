@@ -7,9 +7,14 @@ import WeddingSubscriptionTransaction from '../models/WeddingSubscriptionTransac
 // @access  Private (Admin)
 export const createPlan = async (req, res) => {
   try {
-    const { planName, price, validityMonths, validityType, numberOfLeads, features, isActive } = req.body;
+    const { planName, price, originalPrice, validityMonths, validityType, numberOfLeads, features, isActive } = req.body;
     const plan = await WeddingSubscriptionPlan.create({
-      planName, price, validityMonths, validityType, numberOfLeads, features, isActive
+      planName,
+      price,
+      // Only keep a strike-through price if it is actually higher than what is
+      // charged; otherwise it would render as a nonsensical 'discount'.
+      originalPrice: Number(originalPrice) > Number(price) ? Number(originalPrice) : null,
+      validityMonths, validityType, numberOfLeads, features, isActive
     });
     res.status(201).json({ success: true, data: plan });
   } catch (error) {

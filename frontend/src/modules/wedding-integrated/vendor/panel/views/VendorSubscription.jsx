@@ -215,9 +215,20 @@ const VendorSubscription = () => {
                     {plan.validityMonths} {plan.validityType === 'days' ? 'Days' : 'Months'}
                   </span>
                   <h2 className="text-2xl font-black text-gray-900 mb-4">{plan.planName}</h2>
-                  <div className="flex items-baseline gap-1">
-                    <IndianRupee size={24} className="text-[hsl(353,45%,35%)] font-bold"/>
-                    <span className="text-5xl font-black text-slate-800">{plan.price}</span>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <div className="flex items-baseline gap-1">
+                      <IndianRupee size={24} className="text-[hsl(353,45%,35%)] font-bold"/>
+                      <span className="text-5xl font-black text-slate-800">{plan.price}</span>
+                    </div>
+                    {/* Shown only when the admin set a genuinely higher was-price. */}
+                    {Number(plan.originalPrice) > Number(plan.price) ? (
+                      <>
+                        <span className="text-xl font-bold text-slate-400 line-through">₹{plan.originalPrice}</span>
+                        <span className="rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-black text-emerald-600">
+                          {Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100)}% OFF
+                        </span>
+                      </>
+                    ) : null}
                   </div>
                 </div>
 

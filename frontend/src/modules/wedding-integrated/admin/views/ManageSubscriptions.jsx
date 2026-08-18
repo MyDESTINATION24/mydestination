@@ -14,6 +14,7 @@ const ManageSubscriptions = () => {
   const [formData, setFormData] = useState({
     planName: '',
     price: '',
+    originalPrice: '',
     validityMonths: '',
     validityType: 'months',
     numberOfLeads: '',
@@ -89,6 +90,7 @@ const ManageSubscriptions = () => {
     setFormData({
       planName: plan.planName,
       price: plan.price,
+      originalPrice: plan.originalPrice || '',
       validityMonths: plan.validityMonths,
       validityType: plan.validityType || 'months',
       numberOfLeads: plan.numberOfLeads,
@@ -114,6 +116,7 @@ const ManageSubscriptions = () => {
     setFormData({
       planName: '',
       price: '',
+      originalPrice: '',
       validityMonths: '',
       validityType: 'months',
       numberOfLeads: '',
@@ -184,9 +187,21 @@ const ManageSubscriptions = () => {
                  </div>
               </div>
               
-              <div className="mt-6 mb-6 flex items-baseline gap-1">
-                <IndianRupee size={24} className="text-[hsl(353,45%,35%)] font-bold"/>
-                <span className="text-4xl font-black text-slate-800">{plan.price}</span>
+              <div className="mt-6 mb-6 flex items-baseline gap-2 flex-wrap">
+                <div className="flex items-baseline gap-1">
+                  <IndianRupee size={24} className="text-[hsl(353,45%,35%)] font-bold"/>
+                  <span className="text-4xl font-black text-slate-800">{plan.price}</span>
+                </div>
+                {/* Only a genuinely higher was-price is shown, so a plan can never
+                    advertise a discount it does not give. */}
+                {Number(plan.originalPrice) > Number(plan.price) ? (
+                  <>
+                    <span className="text-lg font-bold text-slate-400 line-through">₹{plan.originalPrice}</span>
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-black text-emerald-600">
+                      {Math.round(((plan.originalPrice - plan.price) / plan.originalPrice) * 100)}% OFF
+                    </span>
+                  </>
+                ) : null}
               </div>
 
               <div className="bg-[#B06A6C]/5 p-4 rounded-xl border border-[#B06A6C]/10 mb-6 flex justify-between items-center">
@@ -265,6 +280,17 @@ const ManageSubscriptions = () => {
                         className={`w-full px-5 py-3 bg-white border ${errors.price ? 'border-red-500 ring-1 ring-red-500' : 'border-[#B06A6C]/20'} rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B06A6C]/40`}
                       />
                       {errors.price && <p className="text-xs text-red-500 font-bold">{errors.price}</p>}
+                   </div>
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1"><IndianRupee size={12}/> Original Price (optional)</label>
+                      <input
+                        type="text"
+                        value={formData.originalPrice}
+                        onChange={e => handleNumberInput('originalPrice', e.target.value, 6)}
+                        placeholder="e.g. 500 — shown struck through"
+                        className="w-full px-5 py-3 bg-white border border-[#B06A6C]/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B06A6C]/40"
+                      />
+                      <p className="text-[10px] font-semibold text-slate-400">Leave empty for no discount. Must be higher than the price.</p>
                    </div>
                    <div className="space-y-2">
                       <div className="flex justify-between items-center">

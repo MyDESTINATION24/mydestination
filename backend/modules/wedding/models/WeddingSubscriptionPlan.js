@@ -7,6 +7,13 @@ const weddingSubscriptionPlanSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    // Struck-through "was" price. Optional: when it is set and higher than
+    // price, the plan is shown as a discount. Null means no strike-through.
+    originalPrice: {
+      type: Number,
+      default: null,
+      min: 0
+    },
     price: {
       type: Number,
       required: true,
