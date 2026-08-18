@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 // The app had no rate limiting at all. The OTP endpoints are the costly ones:
 // every send dispatches a real SMS, so an open endpoint is a way to burn the
@@ -14,9 +14,12 @@ const normalizePhoneKey = (value = '') => {
 // Limit per PHONE first and fall back to IP. Keying on IP alone would let one
 // attacker rotate addresses, and would also lump every user behind a shared
 // mobile-carrier NAT into a single bucket.
+// ipKeyGenerator rather than req.ip directly: a raw IPv6 address is one of
+// 2^64 in its prefix, so keying on it verbatim lets an IPv6 client sidestep the
+// limit entirely. The helper collapses the address to its subnet.
 const phoneOrIpKey = (req) => {
   const phone = normalizePhoneKey(req.body?.phone);
-  return phone ? `phone:${phone}` : `ip:${req.ip}`;
+  return phone ? `phone:${phone}` : `ip:${ipKeyGenerator(req.ip)}`;
 };
 
 const tooMany = (message) => (req, res) => {
