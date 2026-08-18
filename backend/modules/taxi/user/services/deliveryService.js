@@ -179,7 +179,11 @@ export const getDeliveryById = async ({ deliveryId, role, entityId }) => {
 };
 
 export const listDeliveriesForIdentity = async ({ role, entityId, limit }) => {
-  const rides = await listRideHistoryForIdentity({ role, entityId, limit });
+  // listRideHistoryForIdentity returns { results, pagination }, not an array.
+  // Filtering the object directly threw "rides.filter is not a function" and
+  // 500'd the parcel My-Bookings list for every user.
+  const history = await listRideHistoryForIdentity({ role, entityId, limit });
+  const rides = Array.isArray(history) ? history : (history?.results || []);
   return rides
     .filter((ride) => String(ride.serviceType || ride.type || 'ride').toLowerCase() === 'parcel')
     .map((ride) => ({
