@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { storeRefreshToken } from '../../../shared/api/refreshSession';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthLayout from '../../components/AuthLayout';
@@ -127,6 +128,7 @@ const VerifyOTP = () => {
 
       if (payload.exists) {
         persistLocalUserSession({ token: payload.token || '', user: payload.user || {} });
+        storeRefreshToken('user', payload.refreshToken);
         syncPushTokens();
         sessionStorage.removeItem(PENDING_OTP_PHONE_KEY);
         sessionStorage.removeItem(PENDING_SIGNUP_PHONE_KEY);

@@ -4,6 +4,7 @@ import { env } from '../../../../config/env.js';
 import { UserAuthSession } from '../models/UserAuthSession.js';
 import User from '../../../user/models/User.js';
 import { signAccessToken } from './authService.js';
+import { issueRefreshToken } from '../../services/refreshTokenService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 
 const OTP_TTL_MS = 10 * 60 * 1000;
@@ -75,8 +76,12 @@ const toUserPayload = (user) => ({
   currentRideId: user.currentRideId || null,
 });
 
-const createUserSession = (user) => ({
+// Issues the access token plus a long-lived refresh token, so an expired
+// access token renews silently instead of dumping the user at the login
+// screen -- which is what happened when they returned from another app.
+const createUserSession = async (user) => ({
   token: signAccessToken({ sub: String(user._id), role: 'user' }),
+  refreshToken: await issueRefreshToken({ subjectId: String(user._id), role: 'user' }),
   user: toUserPayload(user),
 });
 
@@ -204,7 +209,7 @@ export const verifyUserOtp = async ({ phone, otp }) => {
     await UserAuthSession.deleteOne({ _id: session._id });
     return {
       exists: true,
-      ...createUserSession(user),
+      ...(await createUserSession(user)),
     };
   }
 

@@ -9,6 +9,7 @@ import { Driver } from '../models/Driver.js';
 import { BusDriver } from '../models/BusDriver.js';
 import { DriverLoginSession } from '../models/DriverLoginSession.js';
 import { signAccessToken } from './authService.js';
+import { issueRefreshToken } from '../../services/refreshTokenService.js';
 import { sendOtpSms } from '../../services/smsService.js';
 
 const LOGIN_OTP_TTL_MS = 10 * 60 * 1000;
@@ -473,6 +474,10 @@ export const verifyDriverLoginOtp = async ({ phone, otp }) => {
   return {
     message: 'OTP verified successfully',
     token: signAccessToken({ sub: String(account._id), role: normalizedRole }),
+    // Paired refresh token: an expired access token renews silently rather
+    // than signing the driver out, which used to happen on returning to the
+    // app from elsewhere.
+    refreshToken: await issueRefreshToken({ subjectId: String(account._id), role: normalizedRole }),
     driver:
       normalizedRole === 'owner'
         ? publicOwnerPayload(account)

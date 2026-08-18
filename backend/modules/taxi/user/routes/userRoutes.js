@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
 import { otpSendLimiter, otpVerifyLimiter } from '../../middlewares/rateLimit.js';
+import { refreshAccessToken, revokeRefresh } from '../../services/refreshTokenController.js';
 import {
   authenticateOrResolveUser,
   resolveOpenUserFromRentalBooking,
@@ -116,6 +117,10 @@ userRouter.post('/login', asyncHandler(loginUser));
 userRouter.post('/profile-image', asyncHandler(uploadUserProfileImage));
 userRouter.post('/auth/send-otp', otpSendLimiter, asyncHandler(startUserOtpRequest));
 userRouter.post('/auth/verify-otp', otpVerifyLimiter, asyncHandler(verifyUserOtpRequest));
+// Unauthenticated by design: called when the access token has already
+// expired. Rate limited so it cannot be used to brute-force tokens.
+userRouter.post('/auth/refresh', otpVerifyLimiter, refreshAccessToken);
+userRouter.post('/auth/revoke', otpVerifyLimiter, revokeRefresh);
 userRouter.post('/otp-login', asyncHandler(verifyUserPhoneForOtpLogin));
 userRouter.post('/fcm-token', authenticateOrResolveUser(['user']), asyncHandler(saveUserFcmToken));
 userRouter.get('/me', authenticateOrResolveUser(['user']), asyncHandler(getCurrentUser));

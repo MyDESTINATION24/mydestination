@@ -2,6 +2,7 @@ import { Router } from "express";
 import { asyncHandler } from "../../../../utils/asyncHandler.js";
 import { authenticate } from "../../middlewares/authMiddleware.js";
 import { otpSendLimiter, otpVerifyLimiter } from "../../middlewares/rateLimit.js";
+import { refreshAccessToken, revokeRefresh } from "../../services/refreshTokenController.js";
 import {
   addDriverEmergencyContact,
   completeOnboarding,
@@ -92,6 +93,8 @@ export const driverRouter = Router();
 driverRouter.post("/register", asyncHandler(registerDriver));
 driverRouter.post("/login", asyncHandler(loginDriver));
 driverRouter.post("/auth/send-otp", otpSendLimiter, asyncHandler(startDriverLoginOtpRequest));
+driverRouter.post("/auth/refresh", otpVerifyLimiter, refreshAccessToken);
+driverRouter.post("/auth/revoke", otpVerifyLimiter, revokeRefresh);
 driverRouter.post(
   "/auth/verify-otp",
   asyncHandler(verifyDriverLoginOtpRequest),

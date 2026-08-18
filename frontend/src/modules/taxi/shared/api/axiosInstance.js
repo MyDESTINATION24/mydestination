@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { TAXI_API_BASE_URL } from './runtimeConfig';
-import { getTaxiAdminToken, getTaxiUserToken, getTokenPayload } from '../authStorage';
+import { getTaxiAdminToken, getTaxiUserToken, getTokenPayload } from '../authStorage';
+import { refreshSession, hasRefreshToken } from './refreshSession';
 
 const api = axios.create({
   baseURL: TAXI_API_BASE_URL,
@@ -222,14 +223,33 @@ api.interceptors.response.use(
     // Pro-Level: Many APIs return data in data.data or data.result, you can flatten it here
     return response.data;
   },
-  (error) => {
+  async (error) => {
     if (error.response) {
-      // Global error handling: e.g. deleted or inactive account logout
       if (error.response.status === 401 || error.response.status === 403) {
         const serverMessage = String(error.response.data?.message || '');
         const authHeader = error.config?.headers?.Authorization || error.config?.headers?.authorization || '';
         const token = String(authHeader).startsWith('Bearer ') ? String(authHeader).slice(7) : '';
         const tokenRole = normalizeAuthRole(getTokenPayload(token)?.role || '');
+
+        const expiredOrInvalid =
+          serverMessage === 'Authorization token expired' ||
+          serverMessage === 'Invalid authorization token';
+
+        // An expired access token is the WhatsApp-switch logout: try to refresh
+        // silently and replay the original request before ever signing out.
+        // Only for user/driver-family roles, and never for the refresh call
+        // itself (that would loop).
+        const refreshRole = tokenRole === 'user' ? 'user' : 'driver';
+        const isRefreshCall = String(error.config?.url || '').includes('/auth/refresh');
+
+        if (expiredOrInvalid && !isRefreshCall && !error.config?._authRetried && hasRefreshToken(refreshRole)) {
+          const fresh = await refreshSession(refreshRole);
+          if (fresh) {
+            const retryConfig = { ...error.config, _authRetried: true };
+            retryConfig.headers = { ...(retryConfig.headers || {}), Authorization: `Bearer ${fresh}` };
+            return api(retryConfig);
+          }
+        }
 
         const shouldClearAuth =
           serverMessage === 'Authenticated account no longer exists' ||
@@ -237,6 +257,7 @@ api.interceptors.response.use(
           serverMessage === 'Invalid authorization token' ||
           (tokenRole === 'user' && serverMessage === 'User account is not active');
 
+        // Only sign out once refresh is exhausted or impossible.
         if (shouldClearAuth) {
           clearStaleAuthState(tokenRole, token);
           dispatchStaleAuthEvent({ role: tokenRole, message: serverMessage, token });
