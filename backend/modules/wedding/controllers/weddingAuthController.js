@@ -115,7 +115,10 @@ export const sendVendorOtp = async (req, res) => {
     // Generate 6-digit OTP
     const useDefaultOtp = ['1', 'true', 'yes', 'on'].includes(String(process.env.USE_DEFAULT_OTP || '').trim().toLowerCase());
     const isDev = process.env.NODE_ENV !== 'production';
-    const otp = (useDefaultOtp || cleanPhone === '6268423925' || cleanPhone === '9999999999') 
+    // The two hardcoded numbers used to receive a fixed OTP in every
+    // environment, which is a standing way into those accounts. They are now
+    // confined to non-production; USE_DEFAULT_OTP stays as an explicit opt-in.
+    const otp = (useDefaultOtp || (isDev && (cleanPhone === '6268423925' || cleanPhone === '9999999999'))) 
       ? '123456' 
       : String(Math.floor(100000 + Math.random() * 900000));
 

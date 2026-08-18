@@ -35,7 +35,9 @@ const resolveUserOtpForPhone = (phone) => {
   const normalizedPhone = normalizeUserPhone(phone);
   const staticOtpConfig = getStaticUserOtpConfig();
 
-  if (normalizedPhone === '6268455485') {
+  // A fixed OTP for one number is a permanent way into that account, so it is
+  // confined to non-production. It used to apply in every environment.
+  if (normalizedPhone === '6268455485' && process.env.NODE_ENV !== 'production') {
     return {
       otp: '0000',
       isStatic: true,
