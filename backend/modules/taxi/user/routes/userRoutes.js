@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
+import { otpSendLimiter, otpVerifyLimiter } from '../../middlewares/rateLimit.js';
 import {
   authenticateOrResolveUser,
   resolveOpenUserFromRentalBooking,
@@ -113,8 +114,8 @@ userRouter.post('/register', asyncHandler(registerUser));
 userRouter.post('/signup', asyncHandler(signupUser));
 userRouter.post('/login', asyncHandler(loginUser));
 userRouter.post('/profile-image', asyncHandler(uploadUserProfileImage));
-userRouter.post('/auth/send-otp', asyncHandler(startUserOtpRequest));
-userRouter.post('/auth/verify-otp', asyncHandler(verifyUserOtpRequest));
+userRouter.post('/auth/send-otp', otpSendLimiter, asyncHandler(startUserOtpRequest));
+userRouter.post('/auth/verify-otp', otpVerifyLimiter, asyncHandler(verifyUserOtpRequest));
 userRouter.post('/otp-login', asyncHandler(verifyUserPhoneForOtpLogin));
 userRouter.post('/fcm-token', authenticateOrResolveUser(['user']), asyncHandler(saveUserFcmToken));
 userRouter.get('/me', authenticateOrResolveUser(['user']), asyncHandler(getCurrentUser));

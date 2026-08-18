@@ -56,6 +56,11 @@ process.on('uncaughtException', (error) => {
 
 // Express Init
 const app = express();
+
+// Behind nginx, req.ip is the proxy's address unless this is set -- every
+// client would share one rate-limit bucket and one user could lock out
+// everybody. '1' trusts exactly one hop, which is the local reverse proxy.
+app.set('trust proxy', 1);
 const server = createServer(app);
 const PORT = process.env.PORT || 5000;
 

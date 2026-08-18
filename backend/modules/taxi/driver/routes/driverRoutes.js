@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../../../../utils/asyncHandler.js";
 import { authenticate } from "../../middlewares/authMiddleware.js";
+import { otpSendLimiter, otpVerifyLimiter } from "../../middlewares/rateLimit.js";
 import {
   addDriverEmergencyContact,
   completeOnboarding,
@@ -90,7 +91,7 @@ export const driverRouter = Router();
 
 driverRouter.post("/register", asyncHandler(registerDriver));
 driverRouter.post("/login", asyncHandler(loginDriver));
-driverRouter.post("/auth/send-otp", asyncHandler(startDriverLoginOtpRequest));
+driverRouter.post("/auth/send-otp", otpSendLimiter, asyncHandler(startDriverLoginOtpRequest));
 driverRouter.post(
   "/auth/verify-otp",
   asyncHandler(verifyDriverLoginOtpRequest),
@@ -418,8 +419,8 @@ driverRouter.get(
   "/vehicle-field-templates",
   asyncHandler(getDriverVehicleFieldTemplates),
 );
-driverRouter.post("/onboarding/send-otp", asyncHandler(startOnboarding));
-driverRouter.post("/onboarding/verify-otp", asyncHandler(verifyOnboardingOtp));
+driverRouter.post("/onboarding/send-otp", otpSendLimiter, asyncHandler(startOnboarding));
+driverRouter.post("/onboarding/verify-otp", otpVerifyLimiter, asyncHandler(verifyOnboardingOtp));
 driverRouter.patch(
   "/onboarding/personal",
   asyncHandler(saveOnboardingPersonal),

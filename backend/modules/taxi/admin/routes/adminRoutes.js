@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authenticate } from '../../middlewares/authMiddleware.js';
+import { credentialLoginLimiter } from '../../middlewares/rateLimit.js';
 import {
   approveOwner,
   approveOwnerSignupFromDriver,
@@ -259,9 +260,9 @@ export const adminRouter = Router();
 
 adminRouter.get('/admin', getAdminStatus);
 adminRouter.get('/admin/status', getAdminStatus);
-adminRouter.post('/admin/login', loginAdmin);
-adminRouter.post('/admin/forgot-password', forgotPassword);
-adminRouter.post('/admin/verify-reset-otp', verifyResetOtp);
+adminRouter.post('/admin/login', credentialLoginLimiter, loginAdmin);
+adminRouter.post('/admin/forgot-password', credentialLoginLimiter, forgotPassword);
+adminRouter.post('/admin/verify-reset-otp', credentialLoginLimiter, verifyResetOtp);
 adminRouter.post('/admin/reset-password', resetPassword);
 adminRouter.get('/admin/general-settings/:category', getGeneralSettingsCategory);
 adminRouter.use('/admin', authenticate(['admin']));
