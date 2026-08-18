@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import mongoose from 'mongoose';
-import { ApiError } from '../../../../utils/ApiError.js';
+import { ApiError } from '../../../../utils/ApiError.js';
+import { assertFareMeetsFloor } from '../../services/fareFloorService.js';
 import { normalizePoint } from '../../../../utils/geo.js';
 import { resolveConfiguredGatewayCredentials } from '../../services/paymentGatewayService.js';
 import { Driver } from '../../driver/models/Driver.js';
@@ -301,10 +302,32 @@ export const createRide = async (req, res) => {
     throw new ApiError(400, 'pickup and drop are required');
   }
 
+  const pickupCoords = normalizePoint(pickup, 'pickup');
+  const dropCoords = normalizePoint(drop, 'drop');
+
+  // The fare arrives from the client. Hold it to a floor the server derives
+  // from the configured pricing and the straight-line distance between the two
+  // points -- road distance is always at least that, so an honest quote never
+  // trips it, while a crafted request can no longer book any distance for a
+  // token amount. Promo discounts are applied later against baseFare, so they
+  // are unaffected.
+  const fareCheck = await assertFareMeetsFloor({
+    fare: Number(fare || 0),
+    pickupCoords,
+    dropCoords,
+    transportType: transport_type || 'taxi',
+    vehicleTypeId,
+    serviceLocationId: service_location_id,
+  });
+
+  if (!fareCheck.ok) {
+    throw new ApiError(400, `Fare is below the minimum of ${fareCheck.minimum} for this trip`);
+  }
+
   const ride = await createRideRecord({
     userId: req.auth.sub,
-    pickupCoords: normalizePoint(pickup, 'pickup'),
-    dropCoords: normalizePoint(drop, 'drop'),
+    pickupCoords,
+    dropCoords,
     pickupAddress,
     dropAddress,
     fare: Number(fare || 0),
