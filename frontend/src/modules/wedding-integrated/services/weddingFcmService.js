@@ -65,10 +65,12 @@ const getWeddingMessaging = async () => {
 
 // ─── Auth Token Helpers ───────────────────────────────────────────────────────
 const getWeddingAuthToken = () => {
-  // Wedding users/vendors store token in localStorage as 'token' or 'vendorToken'
+  // The vendor key is 'vendor_token'; 'vendorToken' never existed, so this only
+  // ever resolved because vendor login also wrote the shared 'token'. It no
+  // longer does, so look the real key up directly.
   return (
     localStorage.getItem('token') ||
-    localStorage.getItem('vendorToken') ||
+    localStorage.getItem('vendor_token') ||
     localStorage.getItem('weddingToken') ||
     null
   );
@@ -97,8 +99,11 @@ const saveTokenToBackend = async (token, platform = 'web') => {
     return false;
   }
 
-  // Choose the endpoint based on whether they are logged in as a vendor
-  const isVendor = !!localStorage.getItem('vendorToken');
+  // Choose the endpoint based on whether they are logged in as a vendor.
+  // This checked 'vendorToken', which is not a key this app has ever written,
+  // so it was always false and every vendor's push token was saved against the
+  // customer endpoint instead of the vendor one.
+  const isVendor = !!localStorage.getItem('vendor_token');
   const endpoint = isVendor 
     ? `${WEDDING_API_BASE}/vendor/fcm-token` 
     : `${WEDDING_API_BASE}/users/fcm-token`;

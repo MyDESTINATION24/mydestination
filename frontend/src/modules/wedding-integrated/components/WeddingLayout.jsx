@@ -43,8 +43,11 @@ const WeddingLayout = () => {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    // Fall back to the vendor session: a vendor who signed in at the vendor
+    // portal has no customer token, and would otherwise show as logged out
+    // across the general wedding pages.
+    const storedUser = localStorage.getItem("user") || localStorage.getItem("vendor_user");
+    const token = localStorage.getItem("token") || localStorage.getItem("vendor_token");
     if (storedUser && token) {
       try { setUser(JSON.parse(storedUser)); } 
       catch (e) { setUser(null); }
