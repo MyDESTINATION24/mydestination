@@ -47,9 +47,13 @@ export const persistDriverAuthSession = ({ token = "", role = "driver" } = {}) =
   const normalizedRole = String(role || "driver").toLowerCase();
 
   if (token) {
+    // Session storage stays -- readLocalDriverToken falls back to it and it is
+    // scoped to this tab. The localStorage "token" write is deliberately gone:
+    // that is the CUSTOMER session's slot, and writing a driver token into it
+    // logged the user out of the taxi and hotel apps the moment a driver signed
+    // in on the same device. Driver requests resolve through driverToken.
     writeSessionValue("token", token);
     writeSessionValue("driverToken", token);
-    localStorage.setItem("token", token);
     localStorage.setItem("driverToken", token);
   }
 
