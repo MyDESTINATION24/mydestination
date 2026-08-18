@@ -15,6 +15,7 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   const adminToken = localStorage.getItem('adminToken');
   const vendorToken = localStorage.getItem('vendor_token');
+  const partnerToken = localStorage.getItem('partner_token');
   const adminWeddingToken = localStorage.getItem('admin_token');
 
   let effectiveToken;
@@ -27,6 +28,10 @@ api.interceptors.request.use((config) => {
   } else if (path.startsWith('/wedding')) {
     // For general wedding pages like /settings or /my-enquiries
     effectiveToken = token || vendorToken || adminWeddingToken || adminToken;
+  } else if (path.startsWith('/hotel')) {
+    // Partner panel: sign as the partner. Their credential lives in its own key
+    // so it neither overwrites nor is overwritten by the customer session.
+    effectiveToken = partnerToken || token;
   } else if (path.startsWith('/admin') || path.startsWith('/cms-admin')) {
     effectiveToken = localStorage.getItem('cmsToken') || adminToken || token;
   } else {
@@ -116,8 +121,20 @@ export const authService = {
       const url = verifyOnly ? '/auth/verify-otp?verifyOnly=true' : '/auth/verify-otp';
       const response = await api.post(url, payload);
       if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // A hotel partner signs in through this same endpoint, but a partner is
+        // a separate Partner record -- not the customer account. Writing it into
+        // the shared 'token'/'user' slots overwrote the customer session, which
+        // is how visiting the hotel module broke taxi and bounced people to the
+        // hotel dashboard from customer routes. Partners get their own keys.
+        const isPartnerLogin = String(response.data.user?.role || '').toLowerCase() === 'partner';
+
+        if (isPartnerLogin) {
+          localStorage.setItem('partner_token', response.data.token);
+          localStorage.setItem('partner_user', JSON.stringify(response.data.user));
+        } else {
+          localStorage.setItem('token', response.data.token);
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+        }
 
         // Clear any stale admin tokens to prevent cross-panel contamination.
         // Without this, a previously logged-in admin session could cause the

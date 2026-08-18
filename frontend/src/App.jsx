@@ -391,11 +391,6 @@ const UserProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // If partner is logged in but tries to access user routes, redirect to partner dashboard
-  if (user?.role === 'partner') {
-    console.warn(`[AUTH] Partner ${user._id} attempted to access user route: ${location.pathname}. Redirecting to /hotel/dashboard.`);
-    return <Navigate to="/hotel/dashboard" replace />;
-  }
 
   return children ? children : <Outlet />;
 };
@@ -414,9 +409,6 @@ const PublicOrProtectedRoute = ({ children }) => {
     location.pathname.startsWith('/contact') ||
     location.pathname.startsWith('/partner-landing');
 
-  if (!isPublicContentPage && token && user?.role === 'partner') {
-    return <Navigate to="/hotel/dashboard" replace />;
-  }
 
   return children ? children : <Outlet />;
 };
@@ -439,9 +431,6 @@ const UserPrivateRoute = ({ children }) => {
     return <Navigate to={loginPath} state={{ from: location }} replace />;
   }
 
-  if (user?.role === 'partner') {
-    return <Navigate to="/hotel/dashboard" replace />;
-  }
 
   return children ? children : <Outlet />;
 };
@@ -449,8 +438,10 @@ const UserPrivateRoute = ({ children }) => {
 
 // Partner Protected Route
 const PartnerProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const userRaw = localStorage.getItem('user');
+  // Partner session lives in its own keys so it cannot be confused with, or
+  // overwritten by, the customer session.
+  const token = localStorage.getItem('partner_token');
+  const userRaw = localStorage.getItem('partner_user');
   const user = userRaw ? JSON.parse(userRaw) : null;
   const location = useLocation();
 
@@ -577,8 +568,10 @@ const UserPublicRoute = ({ children, redirectTo = '/home' }) => {
  * User/vendor token? -> Partner login page dikhao.
  */
 const PartnerPublicRoute = ({ children }) => {
-  const token = localStorage.getItem('token');
-  const userRaw = localStorage.getItem('user');
+  // Partner session lives in its own keys so it cannot be confused with, or
+  // overwritten by, the customer session.
+  const token = localStorage.getItem('partner_token');
+  const userRaw = localStorage.getItem('partner_user');
   const user = userRaw ? JSON.parse(userRaw) : null;
   const location = useLocation();
 
@@ -691,8 +684,13 @@ function App() {
         console.log('[FCM] ✓ Admin web token registered.');
         return;
       }
-      const tokenAuth = localStorage.getItem('token');
-      const userStr = localStorage.getItem('user');
+      // A partner session now lives in its own keys, so look there too --
+      // otherwise a signed-in partner would register their web push token
+      // against the customer endpoint instead of the hotel one.
+      const partnerTokenAuth = localStorage.getItem('partner_token');
+      const partnerUserStr = localStorage.getItem('partner_user');
+      const tokenAuth = partnerTokenAuth || localStorage.getItem('token');
+      const userStr = partnerTokenAuth ? partnerUserStr : localStorage.getItem('user');
       if (tokenAuth && userStr) {
         const user = JSON.parse(userStr);
         if (user.role === 'partner') {

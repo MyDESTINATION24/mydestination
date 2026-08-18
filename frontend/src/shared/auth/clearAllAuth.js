@@ -29,6 +29,9 @@ const AUTH_KEYS = [
   // wedding vendor
   'vendor_token',
   'vendor_user',
+  // hotel partner -- kept apart from the customer session, so cleared here too
+  'partner_token',
+  'partner_user',
   // driver / owner
   'driverToken',
   'driverInfo',
