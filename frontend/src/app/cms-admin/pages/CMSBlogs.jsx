@@ -4,6 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import RichTextEditor from '../../../components/common/RichTextEditor';
 import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
+import { getStoredAdminToken } from '../../admin/store/adminStore';
 
 const CMSBlogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -74,9 +75,11 @@ const CMSBlogs = () => {
         data.append('image', formData.image);
       }
 
+      // These endpoints are admin-only now; without the token the CMS gets a 401.
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getStoredAdminToken()}`
         }
       };
 
@@ -110,7 +113,9 @@ const CMSBlogs = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this blog?')) return;
     try {
-      await axios.delete(`${API_BASE_URL}/blogs/${id}`);
+      await axios.delete(`${API_BASE_URL}/blogs/${id}`, {
+        headers: { Authorization: `Bearer ${getStoredAdminToken()}` }
+      });
       toast.success('Blog deleted successfully');
       fetchBlogs();
     } catch (error) {

@@ -3,6 +3,12 @@ import { Plus, Trash2, Edit2, Save, X, Image as ImageIcon, Clock, Layout, BadgeC
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../shared/api/runtimeConfig';
+import { getStoredAdminToken } from '../../app/admin/store/adminStore';
+
+// Blog writes are admin-only on the server now; without this the panel 401s.
+const adminConfig = () => ({
+  headers: { Authorization: `Bearer ${getStoredAdminToken()}` },
+});
 
 const BlogManager = () => {
   const [blogs, setBlogs] = useState([]);
@@ -69,10 +75,10 @@ const BlogManager = () => {
       }
 
       if (isEditing) {
-        await axios.put(`${API_BASE_URL}/blogs/${currentBlog._id}`, data);
+        await axios.put(`${API_BASE_URL}/blogs/${currentBlog._id}`, data, adminConfig());
         toast.success('Blog updated successfully', { id: loadingToast });
       } else {
-        await axios.post(`${API_BASE_URL}/blogs`, data);
+        await axios.post(`${API_BASE_URL}/blogs`, data, adminConfig());
         toast.success('Blog created successfully', { id: loadingToast });
       }
       resetForm();
@@ -102,7 +108,7 @@ const BlogManager = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       try {
-        await axios.delete(`${API_BASE_URL}/blogs/${id}`);
+        await axios.delete(`${API_BASE_URL}/blogs/${id}`, adminConfig());
         toast.success('Blog deleted successfully');
         fetchBlogs();
       } catch (error) {

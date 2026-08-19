@@ -17,7 +17,7 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-const getStoredAdminToken = () => {
+export const getStoredAdminToken = () => {
   return localStorage.getItem('adminToken') || localStorage.getItem('cmsToken') || localStorage.getItem('admin_token') || localStorage.getItem('taxiAdminToken');
 };
 

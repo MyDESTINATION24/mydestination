@@ -4,6 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import RichTextEditor from '../../../components/common/RichTextEditor';
 import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
+import { getStoredAdminToken } from '../../admin/store/adminStore';
 
 const CMSArticles = () => {
   const [articles, setArticles] = useState([]);
@@ -71,9 +72,11 @@ const CMSArticles = () => {
         data.append('image', formData.image);
       }
 
+      // These endpoints are admin-only now; without the token the CMS gets a 401.
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${getStoredAdminToken()}`
         }
       };
 
@@ -107,7 +110,9 @@ const CMSArticles = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this article?')) return;
     try {
-      await axios.delete(`${API_BASE_URL}/articles/${id}`);
+      await axios.delete(`${API_BASE_URL}/articles/${id}`, {
+        headers: { Authorization: `Bearer ${getStoredAdminToken()}` }
+      });
       toast.success('Article deleted successfully');
       fetchArticles();
     } catch (error) {
