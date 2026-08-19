@@ -9,6 +9,12 @@ export const submitTestimonial = async (req, res) => {
     // Basic shape checks before doing any Cloudinary work, so a junk or oversized
     // payload cannot cost an upload. A base64 data URL is ~1.37x the byte size,
     // so 4MB of characters is roughly a 3MB image -- plenty for a testimonial.
+    if (typeof name !== 'string' || name.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Your name is required' });
+    }
+    if (typeof location !== 'string' || location.trim().length < 2) {
+      return res.status(400).json({ success: false, message: 'Location is required' });
+    }
     if (typeof text !== 'string' || text.trim().length < 3) {
       return res.status(400).json({ success: false, message: 'Testimonial text is required' });
     }
@@ -37,7 +43,11 @@ export const submitTestimonial = async (req, res) => {
 
     res.status(201).json({ success: true, message: 'Testimonial submitted for review', data: testimonial });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error?.name === 'ValidationError') {
+      return res.status(400).json({ success: false, message: 'Please fill in all required fields.' });
+    }
+    console.error('submitTestimonial error:', error);
+    res.status(500).json({ success: false, message: 'Could not submit testimonial. Please try again.' });
   }
 };
 
