@@ -9,6 +9,7 @@ import { BusService } from '../../admin/models/BusService.js';
 import { BusBanner } from '../../admin/models/BusBanner.js';
 import { Driver } from '../../driver/models/Driver.js';
 import { comparePassword, hashPassword, signAccessToken } from '../services/authService.js';
+import { issueRefreshToken } from '../../services/refreshTokenService.js';
 import { env } from '../../../../config/env.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { resolveConfiguredGatewayCredentials } from '../../services/paymentGatewayService.js';
@@ -1090,8 +1091,12 @@ const buildReactivatedUserPayload = async ({ req, name, phone, email, countryCod
   },
 });
 
-const createUserSession = (user) => ({
+// The OTP path already returns a refresh token; this one (password login,
+// signup, register) did not, so those sessions had nothing to renew with and
+// were signed out the moment the access token expired.
+const createUserSession = async (user) => ({
   token: signAccessToken({ sub: String(user._id), role: 'user' }),
+  refreshToken: await issueRefreshToken({ subjectId: String(user._id), role: 'user' }),
   user: toUserPayload(user),
 });
 
@@ -1253,7 +1258,7 @@ export const registerUser = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: createUserSession(user),
+    data: await createUserSession(user),
   });
 };
 
@@ -1368,7 +1373,7 @@ export const signupUser = async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: createUserSession(user),
+    data: await createUserSession(user),
   });
 };
 
@@ -1402,7 +1407,7 @@ export const loginUser = async (req, res) => {
 
   res.json({
     success: true,
-    data: createUserSession(user),
+    data: await createUserSession(user),
   });
 };
 
@@ -1429,7 +1434,7 @@ export const verifyUserPhoneForOtpLogin = async (req, res) => {
     success: true,
     data: {
       exists: true,
-      ...createUserSession(user),
+      ...(await createUserSession(user)),
     },
   });
 };
