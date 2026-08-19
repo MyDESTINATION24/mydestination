@@ -134,7 +134,18 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Robust CORS Middleware
 app.use(cors({
   origin: function (origin, callback) {
+    // No Origin header at all: native apps, curl, server-to-server.
     if (!origin) return callback(null, true);
+
+    // An opaque origin arrives as the literal string 'null' -- this is what the
+    // Flutter WebView sends when the document has no usable origin (local or
+    // data: content, and after some redirects). It is truthy, so it used to
+    // fall through to the allow-list, get rejected, and throw -- which the
+    // error handler turned into a 500 on the CORS preflight. Every API call
+    // from the app then failed before it was sent, which looked like the
+    // session had died. Requests here carry a bearer token, not cookies, so
+    // this is the same trust level as the no-Origin case above.
+    if (origin === 'null' || origin === 'file://') return callback(null, true);
 
     const allowedOrigins = [
       'http://localhost:5173',
@@ -169,7 +180,10 @@ app.use(cors({
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      // Report it as 'not allowed' rather than throwing: an error here becomes
+      // a 500 on the preflight, which reads as the API being broken instead of
+      // the origin being refused. The browser still blocks the request.
+      callback(null, false);
     }
   },
   credentials: true,
