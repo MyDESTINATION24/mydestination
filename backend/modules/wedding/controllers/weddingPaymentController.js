@@ -241,20 +241,21 @@ export const paymentCallback = async (req, res) => {
 
     let payload, state, originalMerchantOrderId;
 
-    if (username && password) {
-      // Production: validate webhook signature
-      const callbackResponse = getClient().validateCallback(username, password, authHeader, bodyString);
-      payload = callbackResponse.payload;
-      state = payload.state;
-      originalMerchantOrderId = payload.originalMerchantOrderId;
-    } else {
-      // Dev/Sandbox: no webhook credentials — parse body directly
-      console.warn('[PhonePe Webhook] Credentials not set, parsing body directly (dev mode)');
-      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      payload = body?.payload || body;
-      state = payload?.state;
-      originalMerchantOrderId = payload?.originalMerchantOrderId || payload?.merchantOrderId;
+    // Without credentials this used to fall through to trusting the request
+    // body, so an unauthenticated POST claiming state COMPLETED could mark a
+    // booking paid, activate a vendor subscription, or credit a vendor wallet
+    // with any amount. There is no way to authenticate a callback without the
+    // webhook credentials, so refuse rather than guess: payments are still
+    // confirmed by /payment/status/:orderId, which asks PhonePe directly.
+    if (!username || !password) {
+      console.error('[PhonePe Webhook] Rejected: WH_PHONEPE_WEBHOOK_USERNAME/PASSWORD are not configured.');
+      return res.status(503).json({ success: false, message: 'Webhook not configured' });
     }
+
+    const callbackResponse = getClient().validateCallback(username, password, authHeader, bodyString);
+    payload = callbackResponse.payload;
+    state = payload.state;
+    originalMerchantOrderId = payload.originalMerchantOrderId;
 
     console.log('[PhonePe Webhook] orderId:', originalMerchantOrderId, '| state:', state);
 
