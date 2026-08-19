@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, MessageCircle, AlertTriangle, Shield, Star, ChevronLeft, Share2, Clock3, Layers, LocateFixed } from 'lucide-react';
-import { GoogleMap, MarkerF, OverlayView, OverlayViewF, PolylineF } from '@react-google-maps/api';
+import { Phone, MessageCircle, AlertTriangle, Shield, Star, ChevronLeft, Share2, Clock3, Layers, LocateFixed, TrafficCone } from 'lucide-react';
+import { GoogleMap, MarkerF, OverlayView, OverlayViewF, PolylineF, TrafficLayerF } from '@react-google-maps/api';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useLiteGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { socketService } from '../../../../shared/api/socket';
 import api from '../../../../shared/api/axiosInstance';
@@ -322,6 +322,10 @@ const RideTracking = () => {
   // there was no way to reach satellite. These drive custom controls instead
   // of re-enabling Google's, which would clash with the bottom sheet.
   const [mapTypeId, setMapTypeId] = useState('roadmap');
+
+  // Live traffic is the one layer that actually matters mid-ride -- it explains
+  // why the ETA moved without the rider having to guess.
+  const [showTraffic, setShowTraffic] = useState(false);
 
   const toggleMapType = () => {
     setMapTypeId((current) => {
@@ -1274,6 +1278,8 @@ const RideTracking = () => {
                 scale: 7,
               }}
             />
+
+            {showTraffic ? <TrafficLayerF /> : null}
           </GoogleMap>
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-slate-200">
@@ -1311,6 +1317,20 @@ const RideTracking = () => {
             }`}
           >
             <Layers size={18} strokeWidth={2.4} />
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={() => setShowTraffic((current) => !current)}
+            aria-label={showTraffic ? 'Hide live traffic' : 'Show live traffic'}
+            aria-pressed={showTraffic}
+            className={`flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_4px_14px_rgba(15,23,42,0.14)] backdrop-blur-md transition ${
+              showTraffic
+                ? 'border-slate-900 bg-slate-900 text-white'
+                : 'border-white/80 bg-white/90 text-slate-900'
+            }`}
+          >
+            <TrafficCone size={18} strokeWidth={2.4} />
           </motion.button>
 
           <motion.button

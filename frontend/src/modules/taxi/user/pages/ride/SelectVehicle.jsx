@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, X, Banknote, CreditCard, ChevronDown, Clock3, LoaderCircle, Eye, TicketPercent, CheckCircle2 } from 'lucide-react';
-import { GoogleMap, MarkerF, OverlayView, PolylineF } from '@react-google-maps/api';
+import { ArrowLeft, X, Banknote, CreditCard, ChevronDown, Clock3, LoaderCircle, Eye, TicketPercent, CheckCircle2, Layers, TrafficCone } from 'lucide-react';
+import { GoogleMap, MarkerF, OverlayView, PolylineF, TrafficLayerF } from '@react-google-maps/api';
 import api from '../../../../shared/api/axiosInstance';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { userService } from '../../services/userService';
@@ -156,6 +156,10 @@ const buildFallbackRoute = (origin, destination) => {
 
 const VehicleMapPreview = React.memo(({ center, dropPosition, stops = [], drivers, selectedVehicle, isLoaded, loadError }) => {
   const mapRef = useRef(null);
+  // Default map UI is off here (it collides with the vehicle sheet), so the
+  // rider had no way to reach satellite or see traffic while picking a ride.
+  const [mapTypeId, setMapTypeId] = useState('roadmap');
+  const [showTraffic, setShowTraffic] = useState(false);
   const [routePath, setRoutePath] = useState([]);
   const [routeError, setRouteError] = useState('');
   const [isMapInteracting, setIsMapInteracting] = useState(false);
@@ -253,6 +257,7 @@ const VehicleMapPreview = React.memo(({ center, dropPosition, stops = [], driver
         center={center}
         zoom={13}
         options={SELECT_VEHICLE_MAP_OPTIONS}
+        mapTypeId={mapTypeId}
         onLoad={(map) => {
           mapRef.current = map;
           setMapZoom(map.getZoom?.() || 13);
@@ -312,7 +317,40 @@ const VehicleMapPreview = React.memo(({ center, dropPosition, stops = [], driver
             mapZoom={mapZoom}
           />
         ))}
+        {showTraffic ? <TrafficLayerF /> : null}
       </GoogleMap>
+
+      <div className="absolute right-4 top-4 z-10 flex flex-col gap-2.5">
+        <button
+          type="button"
+          onClick={() => {
+            const next = mapTypeId === 'roadmap' ? 'hybrid' : 'roadmap';
+            setMapTypeId(next);
+            mapRef.current?.setMapTypeId?.(next);
+          }}
+          aria-label={mapTypeId === 'roadmap' ? 'Switch to satellite view' : 'Switch to map view'}
+          className={`flex h-10 w-10 items-center justify-center rounded-full border shadow-[0_4px_14px_rgba(15,23,42,0.14)] backdrop-blur-md transition ${
+            mapTypeId === 'roadmap'
+              ? 'border-white/80 bg-white/90 text-slate-900'
+              : 'border-slate-900 bg-slate-900 text-white'
+          }`}
+        >
+          <Layers size={17} strokeWidth={2.4} />
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowTraffic((current) => !current)}
+          aria-label={showTraffic ? 'Hide live traffic' : 'Show live traffic'}
+          aria-pressed={showTraffic}
+          className={`flex h-10 w-10 items-center justify-center rounded-full border shadow-[0_4px_14px_rgba(15,23,42,0.14)] backdrop-blur-md transition ${
+            showTraffic
+              ? 'border-slate-900 bg-slate-900 text-white'
+              : 'border-white/80 bg-white/90 text-slate-900'
+          }`}
+        >
+          <TrafficCone size={17} strokeWidth={2.4} />
+        </button>
+      </div>
 
       <div className="pointer-events-none absolute bottom-24 left-4 rounded-[12px] border border-white/70 bg-white/90 px-3 py-2 shadow-sm">
         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pickup</p>
