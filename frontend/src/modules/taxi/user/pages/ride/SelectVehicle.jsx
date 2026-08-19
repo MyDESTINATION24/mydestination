@@ -584,9 +584,20 @@ const isActiveRidePricingRule = (rule) => {
   return isActive && scope === 'ride';
 };
 
+// 'both'/'all' describes what a vehicle can do, not which pricing bucket it
+// falls in. The server maps it to 'taxi' before picking a rule (see
+// normalizeRideTransportType in rideService.js); this file did not, so a
+// vehicle marked 'both' matched no rule at all, fell back to the placeholder
+// vehicle estimate, and quoted far below the server's minimum -- the booking
+// was then rejected with 'Fare is below the minimum'.
+const normalizeTransportTypeForPricing = (value) => {
+  const normalized = String(value || 'taxi').trim().toLowerCase() || 'taxi';
+  return normalized === 'both' || normalized === 'all' ? 'taxi' : normalized;
+};
+
 const matchesTransportType = (rule, transportType) => {
   const normalizedRuleTransport = String(rule?.transport_type || 'taxi').trim().toLowerCase();
-  const normalizedTransportType = String(transportType || 'taxi').trim().toLowerCase() || 'taxi';
+  const normalizedTransportType = normalizeTransportTypeForPricing(transportType);
 
   return normalizedRuleTransport === normalizedTransportType
     || normalizedRuleTransport === 'both';
@@ -595,7 +606,7 @@ const matchesTransportType = (rule, transportType) => {
 const findBestPricingRule = ({ rules, vehicleTypeId, serviceLocationId, transportType }) => {
   const normalizedVehicleTypeId = normalizeId(vehicleTypeId);
   const normalizedServiceLocationId = normalizeId(serviceLocationId);
-  const normalizedTransportType = String(transportType || 'taxi').trim().toLowerCase() || 'taxi';
+  const normalizedTransportType = normalizeTransportTypeForPricing(transportType);
 
   const candidates = sortPricingRules(rules.filter((rule) => {
     const matchesVehicle = normalizeId(rule?.vehicle_type?._id || rule?.vehicle_type || rule?.type_id) === normalizedVehicleTypeId;

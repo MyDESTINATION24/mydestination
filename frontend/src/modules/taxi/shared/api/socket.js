@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 import { BACKEND_ORIGIN, TAXI_SOCKET_PATH } from './runtimeConfig';
 import { getTaxiAdminToken, getTaxiUserToken, getTokenPayload } from '../authStorage';
+import { refreshSession, hasRefreshToken } from './refreshSession';
 
 const SOCKET_ORIGIN = BACKEND_ORIGIN || undefined;
 
@@ -316,6 +317,36 @@ class SocketService {
 
       if (isAuthFailure) {
         const tokenRole = normalizeAuthRole(getTokenPayload(token)?.role || options.role || '');
+
+        // The axios layer already refreshes an expired access token before
+        // signing out; this path did not, so a socket reconnect on a stale
+        // token logged the user straight out -- the mid-booking logout. Try
+        // the same refresh and reconnect with the new token first.
+        const expired =
+          message === 'Authorization token expired' ||
+          message === 'Invalid authorization token';
+        const refreshRole = tokenRole === 'user' ? 'user' : 'driver';
+
+        if (expired && !this.authRefreshInFlight && hasRefreshToken(refreshRole)) {
+          this.authRefreshInFlight = true;
+          refreshSession(refreshRole)
+            .then((fresh) => {
+              this.authRefreshInFlight = false;
+              if (fresh) {
+                this.connect({ ...options, token: fresh });
+                return;
+              }
+              clearStaleAuthState(tokenRole, token);
+              dispatchStaleAuthEvent({ role: tokenRole, message, token });
+            })
+            .catch(() => {
+              this.authRefreshInFlight = false;
+              clearStaleAuthState(tokenRole, token);
+              dispatchStaleAuthEvent({ role: tokenRole, message, token });
+            });
+          return;
+        }
+
         clearStaleAuthState(tokenRole, token);
         dispatchStaleAuthEvent({ role: tokenRole, message, token });
       }
