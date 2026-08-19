@@ -57,41 +57,11 @@ export const loginWeddingAdmin = async (req, res) => {
   }
 };
 
-/**
- * @desc    Seed a dummy wedding admin (run once)
- * @route   POST /api/wedding/admin/seed
- * @access  Public (for initial setup only)
- */
-export const seedWeddingAdmin = async (req, res) => {
-  try {
-    const existingAdmin = await Admin.findOne({ email: 'admin@mydestination.com' });
-    if (existingAdmin) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Admin already exists',
-        credentials: { email: 'admin@mydestination.com', password: 'admin123' }
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    const admin = await Admin.create({
-      name: 'My Destination Admin',
-      email: 'admin@mydestination.com',
-      phone: '9999999999',
-      password: hashedPassword,
-      role: 'superadmin',
-      isActive: true
-    });
-
-    res.status(201).json({ 
-      success: true, 
-      message: 'Dummy admin created successfully!',
-      credentials: { email: 'admin@mydestination.com', password: 'admin123' }
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+// The POST /api/wedding/admin/seed endpoint lived here. It was
+// unauthenticated and returned the superadmin email and password in plain
+// text to any caller -- and created that account with a known password if it
+// did not exist. A one-off setup convenience has no business being a live
+// route; create admins through the admin panel instead.
 
 export const getAdminStats = async (req, res) => {
   try {

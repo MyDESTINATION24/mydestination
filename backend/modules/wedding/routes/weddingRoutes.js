@@ -79,7 +79,6 @@ import {
 } from '../controllers/weddingReviewController.js';
 import {
   loginWeddingAdmin,
-  seedWeddingAdmin,
   getAdminStats,
   getAdminCustomers,
   getAdminVendors,
@@ -210,7 +209,6 @@ router.post('/vendor/wallet/add', protect, authorizedRoles('vendor'), addMoney);
 
 // Admin Auth Routes (Public)
 router.post('/admin/login', loginWeddingAdmin);
-router.post('/admin/seed', seedWeddingAdmin);
 
 // Admin Routes (Protected)
 router.get('/admin/stats', protect, authorizedRoles('admin', 'superadmin'), getAdminStats);
