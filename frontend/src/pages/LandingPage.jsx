@@ -831,8 +831,17 @@ const LandingPage = () => {
         <div className="relative z-20 max-w-lg mx-auto px-4 py-8 md:py-0">
           <SafeHTML html={cmsData?.latestTour?.subtitle || "Last minute trip"} as="p" className="text-[15px] md:text-lg mb-3 font-serif italic text-white/90" />
           <SafeHTML html={cmsData?.latestTour?.title || "OUR LATEST TOUR"} as="h2" className="text-4xl md:text-6xl font-black tracking-widest mb-6 md:mb-10 text-white uppercase" />
-          <SafeHTML html={cmsData?.latestTour?.dateText || "Fri 15 March to Sun 17 March"} as="p" className="text-sm md:text-base mb-2 opacity-90 font-medium tracking-wider" />
-          <SafeHTML html={cmsData?.latestTour?.priceText || "$125 per person"} as="p" className="text-lg md:text-2xl font-black mb-10 md:mb-12" />
+          {/* Date and price come from the CMS. The old fallbacks advertised a
+             fabricated date and a USD price on an INR site, so when the CMS is
+             empty these simply do not render rather than inventing an offer. */}
+          {cmsData?.latestTour?.dateText ? (
+            <SafeHTML html={cmsData.latestTour.dateText} as="p" className="text-sm md:text-base mb-2 opacity-90 font-medium tracking-wider" />
+          ) : null}
+          {cmsData?.latestTour?.priceText ? (
+            <SafeHTML html={cmsData.latestTour.priceText} as="p" className="text-lg md:text-2xl font-black mb-10 md:mb-12" />
+          ) : (
+            <div className="mb-10 md:mb-12" />
+          )}
           <Link to={cmsData?.latestTour?.buttonLink || "/welcome"} className="inline-block bg-white text-[#0f172a] px-10 md:px-14 py-3 md:py-4 text-xs md:text-sm font-bold tracking-widest hover:bg-[#065f46] hover:text-white transition-all duration-300 shadow-2xl uppercase">
             {cmsData?.latestTour?.buttonText || "BOOK NOW"}
           </Link>
