@@ -153,11 +153,38 @@ export const resolveConfiguredGatewayCredentials = async (gatewayKey) => {
     throw new ApiError(400, 'Unsupported payment gateway');
   }
 
+
   const settings = await ensureThirdPartySettings();
   const gateway = normalizeGatewayConfig(gatewayKey, settings?.payment?.[gatewayKey] || {});
 
   if (gateway.enabled !== '1') {
     throw new ApiError(403, `${spec.label} gateway is disabled`);
+  }
+
+  // The environment is the source of truth for Razorpay. Credentials used to
+  // come only from the admin settings document, so the .env values were dead
+  // config and rotating a key meant editing the database. When both env vars
+  // are present they win outright; otherwise the admin settings still apply,
+  // so nothing breaks for an install that has never set them.
+  // Placed after the enabled check on purpose: turning the gateway off in
+  // admin must still stop payments, whatever the environment holds.
+  if (gatewayKey === 'razor_pay') {
+    const envKeyId = normalizeString(process.env.RAZORPAY_KEY_ID);
+    const envKeySecret = normalizeString(process.env.RAZORPAY_KEY_SECRET);
+
+    if (envKeyId && envKeySecret) {
+      if (envKeyId.toLowerCase().includes('demo') || envKeySecret.toLowerCase().includes('demo')) {
+        throw new ApiError(500, 'Razorpay keys in the environment are demo placeholders.');
+      }
+
+      return {
+        keyId: envKeyId,
+        keySecret: envKeySecret,
+        // Derived from the key itself rather than a separate flag, so the two
+        // can never disagree about which mode is actually in use.
+        environment: envKeyId.startsWith('rzp_live') ? 'live' : 'test',
+      };
+    }
   }
 
   const environment = normalizeString(gateway[spec.environmentKey]).toLowerCase();
