@@ -187,6 +187,28 @@ export const resolveConfiguredGatewayCredentials = async (gatewayKey) => {
     }
   }
 
+  // Same rule for PhonePe: the environment wins when it is configured, so
+  // there is one place to set credentials rather than admin settings and .env
+  // disagreeing. PHONEPE_ENV decides live vs test -- unlike a Razorpay key,
+  // a merchant id carries no marker to derive it from.
+  if (gatewayKey === 'phone_pay') {
+    const envMerchantId = normalizeString(process.env.PHONEPE_MERCHANT_ID);
+    const envSaltKey = normalizeString(process.env.PHONEPE_SALT_KEY);
+
+    if (envMerchantId && envSaltKey) {
+      if (envMerchantId.toLowerCase().includes('demo') || envSaltKey.toLowerCase().includes('demo')) {
+        throw new ApiError(500, 'PhonePe keys in the environment are demo placeholders.');
+      }
+
+      return {
+        merchantId: envMerchantId,
+        saltKey: envSaltKey,
+        saltIndex: normalizeString(process.env.PHONEPE_SALT_INDEX) || '1',
+        environment: normalizeString(process.env.PHONEPE_ENV).toLowerCase() === 'live' ? 'live' : 'test',
+      };
+    }
+  }
+
   const environment = normalizeString(gateway[spec.environmentKey]).toLowerCase();
   const isLive = environment === spec.liveValue;
   const validatedGateway = validateGatewayConfiguration(gatewayKey, gateway);
