@@ -39,7 +39,6 @@ import {
   signupUser,
   startUserOtpRequest,
   submitMyBusBookingReview,
-  topupUserWallet,
   transferUserWalletToDriver,
   transferUserWallet,
   updateMyActiveRentalLocation,
@@ -134,7 +133,6 @@ userRouter.delete('/notifications/:id', authenticateOrResolveUser(['user']), asy
 userRouter.delete('/notifications', authenticateOrResolveUser(['user']), asyncHandler(clearAllUserNotifications));
 userRouter.post('/sos', authenticateOrResolveUser(['user']), asyncHandler(triggerUserSosAlert));
 userRouter.get('/wallet', authenticateOrResolveUser(['user']), asyncHandler(getUserWallet));
-userRouter.post('/wallet/topup', authenticateOrResolveUser(['user']), asyncHandler(topupUserWallet));
 userRouter.post('/wallet/transfer', authenticateOrResolveUser(['user']), asyncHandler(transferUserWallet));
 userRouter.post('/wallet/transfer/driver', authenticateOrResolveUser(['user']), asyncHandler(transferUserWalletToDriver));
 userRouter.post('/wallet/razorpay/order', authenticateOrResolveUser(['user']), asyncHandler(createRazorpayWalletTopupOrder));

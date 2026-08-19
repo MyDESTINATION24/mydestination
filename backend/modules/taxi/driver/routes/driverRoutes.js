@@ -66,7 +66,6 @@ import {
   registerDriver,
   requestDriverAccountDeletion,
     startOnboarding,
-    topUpMyWallet,
     createDriverWalletTopupOrder,
     createDriverPhonePeWalletTopupOrder,
     verifyDriverWalletTopup,
@@ -205,11 +204,6 @@ driverRouter.post(
   "/incentives/claim",
   authenticate(["driver"]),
   asyncHandler(claimDriverIncentiveReward),
-);
-driverRouter.post(
-  "/wallet/top-up",
-  authenticate(["driver"]),
-  asyncHandler(topUpMyWallet),
 );
   driverRouter.post(
     "/wallet/top-up/razorpay/order",

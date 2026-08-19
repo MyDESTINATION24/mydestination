@@ -4168,34 +4168,9 @@ export const createDriverWithdrawalRequest = async (req, res) => {
   });
 };
 
-export const topUpMyWallet = async (req, res) => {
-  const amount = Number(req.body.amount);
-
-  if (!Number.isFinite(amount) || amount <= 0) {
-    throw new ApiError(400, "amount must be greater than zero");
-  }
-
-  const result = await topUpDriverWallet({
-    driverId: req.auth.sub,
-    amount,
-    metadata: {
-      source: req.body.source || "manual",
-      referenceId: req.body.referenceId || null,
-    },
-  });
-
-  const payload = {
-    wallet: result.wallet,
-    transaction: result.transaction,
-  };
-
-  emitToDriver(req.auth.sub, "driver:wallet:updated", payload);
-
-  res.json({
-    success: true,
-    data: payload,
-  });
-};
+// REMOVED: topUpMyWallet credited the driver wallet with no payment, and
+// drivers spend that balance on ride commission. Real top-ups go through
+// /wallet/top-up/razorpay/order + /verify, which check the signature.
 
 export const createDriverPaymentQr = async (req, res) => {
   const amountInPaise = normalizePaymentAmount(req.body.amount);

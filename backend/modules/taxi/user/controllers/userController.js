@@ -1648,43 +1648,10 @@ export const getUserWallet = async (req, res) => {
   });
 };
 
-export const topupUserWallet = async (req, res) => {
-  const amount = normalizeMoneyAmount(req.body?.amount);
-  const userId = req.auth?.sub;
-  const user = await User.findById(userId).select('_id').lean();
-
-  if (!user) {
-    throw new ApiError(404, 'User not found');
-  }
-
-  const tx = {
-    kind: 'credit',
-    amount,
-    title: 'Wallet Refilled',
-    provider: 'manual',
-  };
-
-  await ensureUserWallet(userId);
-
-  await UserWallet.updateOne(
-    { userId },
-    {
-      $inc: { balance: amount },
-      $push: { transactions: { $each: [tx], $slice: -50 } },
-    },
-  );
-
-  const updatedWallet = await UserWallet.findOne({ userId }).select('balance transactions').slice('transactions', -10).lean();
-  const updatedWalletWithRefund = updatedWallet
-    ? { ...updatedWallet, refundWallet: Number(updatedWallet.refundWallet || 0) }
-    : updatedWallet;
-  const transactions = Array.isArray(updatedWallet?.transactions) ? updatedWallet.transactions : [];
-
-  res.status(201).json({
-    success: true,
-    data: buildUserWalletPayload({ ...updatedWalletWithRefund, transactions }),
-  });
-};
+// REMOVED: topupUserWallet credited the wallet with no payment at all --
+// any signed-in user could mint balance and spend it on real rides. Real
+// top-ups go through /wallet/razorpay/order + /verify, which check the
+// gateway signature.
 
 export const transferUserWallet = async (req, res) => {
   const amount = normalizeMoneyAmount(req.body?.amount);
