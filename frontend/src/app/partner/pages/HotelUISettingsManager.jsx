@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getStoredAdminToken } from '../../admin/store/adminStore';
 import { 
   Palette, 
   Layout, 
@@ -164,9 +165,13 @@ const HotelUISettingsManager = ({ hotelId = 'global-default' }) => {
       document.documentElement.style.setProperty('--border-radius', rVal);
       document.documentElement.style.setProperty('--banner-radius', bVal);
       document.documentElement.style.setProperty('--icon-radius', iVal);
+      // Saving is admin-only on the server now; without the token this 401s.
       const res = await fetch(`${API_BASE}/hotel-ui/settings/global-default`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${getStoredAdminToken()}`
+        },
         body: JSON.stringify(uiConfig)
       });
       const data = await res.json();

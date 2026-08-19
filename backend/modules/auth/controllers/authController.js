@@ -947,6 +947,17 @@ export const deleteDoc = async (req, res) => {
       return res.status(400).json({ message: 'Public ID is required' });
     }
 
+    // This route is unauthenticated because a partner removes a document
+    // mid-registration, before an account exists. It used to delete ANY public
+    // id, and public ids are visible in every image URL the site serves -- so
+    // scraping the site was enough to wipe its whole media library. Confine it
+    // to the folder partner uploads actually land in.
+    const PARTNER_DOCS_PREFIX = 'rukkoin/partner-documents/';
+
+    if (!String(publicId).startsWith(PARTNER_DOCS_PREFIX)) {
+      return res.status(403).json({ message: 'Only partner documents can be removed here' });
+    }
+
     const result = await deleteFromCloudinary(publicId);
     res.json(result);
   } catch (error) {
