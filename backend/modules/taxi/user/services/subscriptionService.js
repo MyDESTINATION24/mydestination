@@ -195,15 +195,6 @@ export const purchaseUserSubscription = async ({ userId, planId, paymentSource =
     { $setOnInsert: { userId, balance: 0, refundWallet: 0, transactions: [] } },
     { upsert: true },
   );
-  const wallet = await UserWallet.findOne({ userId });
-  if (!wallet) {
-    throw new ApiError(404, 'User wallet not found');
-  }
-
-  if (Number(wallet.balance || 0) < amount) {
-    throw new ApiError(400, 'Insufficient wallet balance');
-  }
-
   const now = new Date();
   const durationDays = Math.max(0, Number(plan.duration || 0));
   const benefitType = normalizeBenefitType(plan.benefit_type);
@@ -214,15 +205,34 @@ export const purchaseUserSubscription = async ({ userId, planId, paymentSource =
     ? new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000)
     : null;
 
-  wallet.balance = roundMoney(Number(wallet.balance || 0) - amount);
-  wallet.transactions.push({
-    kind: 'debit',
-    amount,
-    title: `Subscription purchase: ${plan.name || 'Plan'}`,
-    provider: 'user_subscription_wallet',
-    providerPaymentId: `sub_${Date.now().toString(36)}_${String(plan._id).slice(-6)}`,
-  });
-  wallet.transactions = wallet.transactions.slice(-50);
+  // Debit atomically with the balance check in the same query, the way the
+  // wallet-transfer path does. A read-then-save let two concurrent purchases
+  // both pass a plain `balance < amount` read and each mint a subscription,
+  // while the last save clobbered the other's debit -- two plans for one
+  // payment.
+  const debitTransferId = `sub_${Date.now().toString(36)}_${String(plan._id).slice(-6)}`;
+  const debit = await UserWallet.updateOne(
+    { userId, balance: { $gte: amount } },
+    {
+      $inc: { balance: -amount },
+      $push: {
+        transactions: {
+          $each: [{
+            kind: 'debit',
+            amount,
+            title: `Subscription purchase: ${plan.name || 'Plan'}`,
+            provider: 'user_subscription_wallet',
+            providerPaymentId: debitTransferId,
+          }],
+          $slice: -50,
+        },
+      },
+    },
+  );
+
+  if (!debit?.modifiedCount) {
+    throw new ApiError(400, 'Insufficient wallet balance');
+  }
 
   const subscription = new UserSubscription({
     userId,
@@ -244,7 +254,21 @@ export const purchaseUserSubscription = async ({ userId, planId, paymentSource =
     expiresAt,
   });
 
-  await Promise.all([wallet.save(), subscription.save()]);
+  try {
+    await subscription.save();
+  } catch (error) {
+    // Roll the debit back if the subscription record could not be written.
+    await UserWallet.updateOne(
+      { userId },
+      {
+        $inc: { balance: amount },
+        $pull: { transactions: { providerPaymentId: debitTransferId } },
+      },
+    );
+    throw error;
+  }
+
+  const updatedWallet = await UserWallet.findOne({ userId }).select('balance refundWallet').lean();
 
   return {
     subscription: serializeUserSubscription({
@@ -253,8 +277,8 @@ export const purchaseUserSubscription = async ({ userId, planId, paymentSource =
       planId: plan,
     }),
     wallet: {
-      balance: roundMoney(wallet.balance || 0),
-      refundWallet: roundMoney(wallet.refundWallet || 0),
+      balance: roundMoney(updatedWallet?.balance || 0),
+      refundWallet: roundMoney(updatedWallet?.refundWallet || 0),
     },
   };
 };
