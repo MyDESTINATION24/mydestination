@@ -43,9 +43,22 @@ const DestinationCard = ({ destination }) => {
           <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5">
             Starting from
           </p>
-          <p className="text-base sm:text-lg font-bold text-primary">
-            {formatPrice(destination.startingPrice)}
-          </p>
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <p className="text-base sm:text-lg font-bold text-primary">
+              {formatPrice(destination.startingPrice)}
+            </p>
+            {/* Shown only when the admin set a genuinely higher was-price. */}
+            {Number(destination.originalStartingPrice) > Number(destination.startingPrice) ? (
+              <>
+                <span className="text-[11px] sm:text-sm font-semibold text-muted-foreground line-through">
+                  {formatPrice(destination.originalStartingPrice)}
+                </span>
+                <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-black text-emerald-600">
+                  {Math.round(((destination.originalStartingPrice - destination.startingPrice) / destination.originalStartingPrice) * 100)}% OFF
+                </span>
+              </>
+            ) : null}
+          </div>
         </div>
         <div className="flex items-center gap-1.5 bg-primary/5 px-2.5 py-1 rounded-full text-primary/80 text-[9px] sm:text-xs font-semibold">
           <Building2 className="w-3.5 h-3.5" />

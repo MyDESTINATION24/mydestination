@@ -40,6 +40,7 @@ const ManageDestinations = () => {
     location: '',
     category: 'Heritage',
     startingPrice: '',
+    originalStartingPrice: '',
     avgCost: '',
     bestSeason: '',
     description: '',
@@ -109,6 +110,7 @@ const ManageDestinations = () => {
       location: dest.location,
       category: dest.category,
       startingPrice: dest.startingPrice,
+      originalStartingPrice: dest.originalStartingPrice || '',
       avgCost: dest.avgCost || '',
       bestSeason: dest.bestSeason || '',
       description: dest.description || '',
@@ -125,6 +127,7 @@ const ManageDestinations = () => {
       location: '',
       category: 'Heritage',
       startingPrice: '',
+    originalStartingPrice: '',
       avgCost: '',
       bestSeason: '',
       description: '',
@@ -315,6 +318,21 @@ const ManageDestinations = () => {
                       placeholder="e.g. 1500000"
                       className="w-full px-5 py-3 bg-white border border-[#B06A6C]/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B06A6C]/20"
                     />
+                 </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                       <span className="flex items-center gap-2"><IndianRupee size={12} /> Original Price (optional)</span>
+                       {newDest.originalStartingPrice && <span className="text-[#B06A6C] font-bold">₹{(newDest.originalStartingPrice / 100000).toFixed(1)}L+</span>}
+                    </label>
+                    <input
+                      type="number"
+                      value={newDest.originalStartingPrice}
+                      onChange={e => setNewDest({...newDest, originalStartingPrice: e.target.value})}
+                      placeholder="Shown struck through — leave empty for no discount"
+                      className="w-full px-5 py-3 bg-white border border-[#B06A6C]/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B06A6C]/20"
+                    />
+                    <p className="text-[10px] font-semibold text-slate-400">Must be higher than the starting price, or it is ignored.</p>
                  </div>
 
                  <div className="space-y-2">

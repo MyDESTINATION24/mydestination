@@ -42,7 +42,7 @@ export const getDestinationById = async (req, res) => {
 
 export const addDestination = async (req, res) => {
   try {
-    const { name, location, category, startingPrice, avgCost, bestSeason, description, image } = req.body;
+    const { name, location, category, startingPrice, originalStartingPrice, avgCost, bestSeason, description, image } = req.body;
     
     let imageUrl = image;
     if (image && image.startsWith('data:image')) {
@@ -63,6 +63,10 @@ export const addDestination = async (req, res) => {
       location,
       category,
       startingPrice,
+      // Only stored when it genuinely exceeds the price charged, so a
+      // destination cannot advertise a discount it does not give.
+      originalStartingPrice:
+        Number(originalStartingPrice) > Number(startingPrice) ? Number(originalStartingPrice) : null,
       avgCost,
       bestSeason,
       description,
