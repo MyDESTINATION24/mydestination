@@ -1032,9 +1032,10 @@ const SelectVehicle = () => {
       setIsLoadingPricingRules(true);
 
       try {
-        const response = await api.get('/admin/types/set-prices', {
-          params: { scope: 'ride' },
-        });
+        // /admin/types/set-prices is admin-only: a rider token got a 403, the
+        // catch below emptied the rule list, and every fare fell back to a
+        // placeholder the server then rejected. This one riders may read.
+        const response = await api.get('/common/set-prices');
 
         if (!active) {
           return;
