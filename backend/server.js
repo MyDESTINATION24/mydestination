@@ -1,3 +1,4 @@
+import { sanitizeMongo } from './middlewares/sanitizeMongo.js';
 import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -123,6 +124,9 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+// Neutralise NoSQL operator injection ($ne, $gt, dotted paths) in the body
+// and params before any handler runs. Must sit AFTER the parsers.
+app.use(sanitizeMongo);
 
 // The uploads directory is multer's scratch space before a file is pushed to
 // Cloudinary, not a public asset store -- nothing builds a /uploads URL. Serving
