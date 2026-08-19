@@ -313,9 +313,16 @@ const resolveBusSeatPrice = (busService = {}, seat = {}) => {
   const variantPricing = busService?.variantPricing || {};
   const defaultPrice = Number(busService?.seatPrice || 0);
   const variantKey = String(seat?.variant || 'seat').trim().toLowerCase();
-  const resolvedPrice = variantPricing?.[variantKey] ?? variantPricing?.seat ?? defaultPrice;
 
-  return Number.isFinite(Number(resolvedPrice)) ? Number(resolvedPrice) : defaultPrice;
+  // A variant price of 0 means 'not configured', not 'free'. The schema
+  // defaults every variant to 0, so `??` kept that zero in preference to the
+  // real seatPrice: every seat resolved to 0, the fare check then rejected the
+  // order, and no bus could be booked at all. Take the first positive price.
+  const resolvedPrice = [variantPricing?.[variantKey], variantPricing?.seat, defaultPrice]
+    .map((value) => Number(value))
+    .find((value) => Number.isFinite(value) && value > 0);
+
+  return resolvedPrice || 0;
 };
 
 const findBusSchedule = (busService, scheduleId) =>
