@@ -321,6 +321,18 @@ export const createRide = async (req, res) => {
   });
 
   if (!fareCheck.ok) {
+    // Temporary: shows what the client actually quoted vs what the server
+    // requires, so a rejected booking can be diagnosed from the logs.
+    console.warn('[fare-floor] rejected', JSON.stringify({
+      sentFare: Number(fare || 0),
+      minimum: fareCheck.minimum,
+      vehicleTypeId: String(vehicleTypeId || ''),
+      transportType: transport_type || 'taxi',
+      serviceLocationId: String(service_location_id || ''),
+      estimatedDistanceMeters: Number(estimatedDistanceMeters || 0),
+      pickupCoords,
+      dropCoords,
+    }));
     throw new ApiError(400, `Fare is below the minimum of ${fareCheck.minimum} for this trip`);
   }
 
