@@ -69,32 +69,10 @@ const resolveOpenUserIdentity = async (req) => {
   // rides. No client ever sent those fields; the app always carries a bearer
   // token, which is handled before this function is reached.
   //
-  // Identity may only come from a token, or from a resolver that derives it
-  // from a resource the caller already had to know (see resolveOpenUser).
+  // Identity may only come from a token. A resolver that derived it from a
+  // resource id in the URL was tried and removed: an ObjectId is not a secret,
+  // and every client already sends a token anyway.
   throw new ApiError(401, 'Authorization token is required');
-};
-
-export const resolveOpenUserFromRentalBooking = async (req) => {
-  const bookingId = String(req.params?.id || '').trim();
-
-  if (!bookingId) {
-    throw new ApiError(400, 'Rental booking id is required');
-  }
-
-  const booking = await RentalBookingRequest.findById(bookingId).select('userId');
-
-  if (!booking) {
-    throw new ApiError(404, 'Rental booking not found');
-  }
-
-  if (!booking.userId) {
-    throw new ApiError(404, 'No user account is linked to this rental booking');
-  }
-
-  attachResolvedAuth(req, {
-    sub: String(booking.userId),
-    role: 'user',
-  });
 };
 
 export const authenticate = (allowedRoles = [], options = {}) => async (req, _res, next) => {

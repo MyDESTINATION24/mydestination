@@ -4,7 +4,6 @@ import { otpSendLimiter, otpVerifyLimiter } from '../../middlewares/rateLimit.js
 import { refreshAccessToken, revokeRefresh } from '../../services/refreshTokenController.js';
 import {
   authenticateOrResolveUser,
-  resolveOpenUserFromRentalBooking,
 } from '../../middlewares/authMiddleware.js';
 import {
   cancelMyBusBooking,
@@ -105,9 +104,15 @@ userRouter.post('/rental-bookings', authenticateOrResolveUser(['user']), asyncHa
 userRouter.get('/rental-bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyRentalBookings));
 userRouter.get('/rental-bookings/active', authenticateOrResolveUser(['user']), asyncHandler(getMyActiveRentalBooking));
 userRouter.post('/rental-bookings/:id/end', authenticateOrResolveUser(['user']), asyncHandler(endMyActiveRentalRide));
+// Was reachable with no token at all: the booking id in the URL was treated as
+// proof of identity, so anyone holding or guessing one could post location for
+// that booking. ObjectIds are not secrets -- the 5-byte random is per process,
+// so one leaked id makes its neighbours enumerable. Every client already sends
+// a token here (the axios interceptor attaches it for /users routes), so the
+// carve-out bought nothing.
 userRouter.post(
   '/rental-bookings/:id/location',
-  authenticateOrResolveUser(['user'], { resolveOpenUser: resolveOpenUserFromRentalBooking }),
+  authenticateOrResolveUser(['user']),
   asyncHandler(updateMyActiveRentalLocation),
 );
 userRouter.post('/register', asyncHandler(registerUser));
