@@ -26,10 +26,18 @@ const storage = multer.diskStorage({
   }
 });
 
+// The mime type is supplied by the client, so it proves nothing on its own:
+// a .html sent as image/png used to sail through and end up hosted as raw HTML.
+// Require the extension to agree with the claim.
+const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.heic', '.heif'];
+
+const hasAllowedExtension = (file, allowed) =>
+  allowed.includes(path.extname(file.originalname || '').toLowerCase());
+
 // File filter for images
 const imageFilter = (req, file, cb) => {
   // Accept only images
-  if (file.mimetype.startsWith('image/')) {
+  if (file.mimetype.startsWith('image/') && hasAllowedExtension(file, IMAGE_EXTENSIONS)) {
     cb(null, true);
   } else {
     cb(new Error('Only image files are allowed'), false);
@@ -45,7 +53,7 @@ const documentFilter = (req, file, cb) => {
     'image/webp'
   ];
 
-  if (allowedMimes.includes(file.mimetype)) {
+  if (allowedMimes.includes(file.mimetype) && hasAllowedExtension(file, IMAGE_EXTENSIONS)) {
     cb(null, true);
   } else {
     cb(new Error('Only image files are allowed'), false);
@@ -63,7 +71,9 @@ const careerFileFilter = (req, file, cb) => {
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
   ];
-  if (allowedMimes.includes(file.mimetype)) {
+  const allowedExtensions = [...IMAGE_EXTENSIONS, '.pdf', '.doc', '.docx'];
+
+  if (allowedMimes.includes(file.mimetype) && hasAllowedExtension(file, allowedExtensions)) {
     cb(null, true);
   } else {
     cb(new Error('Only image, PDF, or Word files are allowed'), false);

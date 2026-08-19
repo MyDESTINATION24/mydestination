@@ -124,8 +124,12 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// The uploads directory is multer's scratch space before a file is pushed to
+// Cloudinary, not a public asset store -- nothing builds a /uploads URL. Serving
+// it exposed every temp file that outlived its upload (KYC documents among them)
+// to anyone with the URL, and let an .html uploaded under an image mime type be
+// served as HTML from the API origin. Cloudinary URLs are what the app uses.
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Robust CORS Middleware
 app.use(cors({
