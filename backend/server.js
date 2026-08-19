@@ -4,7 +4,6 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -73,45 +72,13 @@ try {
   console.error('❌ Firebase init failed:', error.message);
 }
 
-// Socket.io Initialization (Hotel tracking)
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-      'http://localhost:5174',
-      'http://127.0.0.1:5174',
-      'http://localhost:5175',
-      'http://127.0.0.1:5175',
-      'https://rukkoo.in',
-      'https://www.rukkoo.in',
-      'https://rukkoo-project.vercel.app',
-      'https://my-destination-nu.vercel.app',
-      'https://mydestination.in',
-      'https://www.mydestination.in'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-  }
-});
-
-io.on('connection', (socket) => {
-  console.log('🔌 New Client Connected:', socket.id);
-
-  socket.on('join_tracking', (room) => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined room: ${room}`);
-  });
-
-  socket.on('update_location', (data) => {
-    const { room, location } = data;
-    socket.to(room).emit('live_location_update', location);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
-});
+// A second Socket.IO server ran here on the default /socket.io path with no
+// authentication at all. Its two handlers let any anonymous client join any
+// room by name (join_tracking) and broadcast into any room (update_location),
+// so a caller could both watch someone else's live location and inject a fake
+// one. Nothing emitted or listened to those events -- the app connects only to
+// the taxi server below, on /taxi/socket.io, which authenticates every socket
+// and checks ride participation before joining a room.
 
 // Taxi Socket Server Configuration
 configureTaxiSocketServer(server);
