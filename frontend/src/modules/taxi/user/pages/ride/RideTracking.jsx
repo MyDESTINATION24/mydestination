@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Phone, MessageCircle, AlertTriangle, Shield, Star, ChevronLeft, Share2, Clock3 } from 'lucide-react';
+import { Phone, MessageCircle, AlertTriangle, Shield, Star, ChevronLeft, Share2, Clock3, Layers, LocateFixed } from 'lucide-react';
 import { GoogleMap, MarkerF, OverlayView, OverlayViewF, PolylineF } from '@react-google-maps/api';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useLiteGoogleMapsLoader } from '../../../admin/utils/googleMaps';
 import { socketService } from '../../../../shared/api/socket';
@@ -318,6 +318,28 @@ const RideTracking = () => {
   }, []);
   const [routeError, setRouteError] = useState('');
   const [map, setMap] = useState(null);
+  // The tracking map had default UI disabled and mapTypeControl:false, so
+  // there was no way to reach satellite. These drive custom controls instead
+  // of re-enabling Google's, which would clash with the bottom sheet.
+  const [mapTypeId, setMapTypeId] = useState('roadmap');
+
+  const toggleMapType = () => {
+    setMapTypeId((current) => {
+      const next = current === 'roadmap' ? 'hybrid' : 'roadmap';
+      map?.setMapTypeId(next);
+      return next;
+    });
+  };
+
+  // Re-frame on the vehicle after the user has panned away.
+  const recenterOnVehicle = () => {
+    // The tweened position lives inside SmoothVehicleMarker now; this page
+    // only holds the raw fix, which is the right thing to centre on anyway.
+    const target = driverPosition;
+    if (!map || !target) return;
+    map.panTo(target);
+    map.setZoom(16);
+  };
   const [driverImageFallback, setDriverImageFallback] = useState('');
   const [driverImageBroken, setDriverImageBroken] = useState(false);
   const [vehicleImageFallback, setVehicleImageFallback] = useState('');
@@ -1273,6 +1295,34 @@ const RideTracking = () => {
       <div className="absolute top-8 left-16 right-4 z-10 bg-white/90 backdrop-blur-md rounded-[14px] px-3.5 py-2.5 shadow-[0_4px_14px_rgba(15,23,42,0.08)] border border-white/80">
         <p className="text-[11px] font-black text-slate-500 truncate">{pickupLabel} → {dropLabel}</p>
       </div>
+
+      {/* Map controls. Google's own are disabled on this screen because they
+          collide with the bottom sheet, so these are custom and sit clear of it. */}
+      {isLoaded ? (
+        <div className="absolute right-4 top-40 z-10 flex flex-col gap-2.5">
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={toggleMapType}
+            aria-label={mapTypeId === "roadmap" ? "Switch to satellite view" : "Switch to map view"}
+            className={`flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_4px_14px_rgba(15,23,42,0.14)] backdrop-blur-md transition ${
+              mapTypeId === "roadmap"
+                ? "border-white/80 bg-white/90 text-slate-900"
+                : "border-slate-900 bg-slate-900 text-white"
+            }`}
+          >
+            <Layers size={18} strokeWidth={2.4} />
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={recenterOnVehicle}
+            aria-label="Recenter on vehicle"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/90 text-slate-900 shadow-[0_4px_14px_rgba(15,23,42,0.14)] backdrop-blur-md"
+          >
+            <LocateFixed size={18} strokeWidth={2.4} />
+          </motion.button>
+        </div>
+      ) : null}
 
       <motion.button
         whileTap={{ scale: 0.95 }}
