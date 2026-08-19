@@ -2891,7 +2891,13 @@ export const getAdminModuleInfo = async () => {
 };
 
 export const loginAdmin = async ({ email, password }) => {
-  const admin = await Admin.findOne({ email: email?.trim().toLowerCase() }).select('+password');
+  // Reject non-strings before they reach the query: an object here threw on
+  // .trim() and leaked the internal error to the caller.
+  if (typeof email !== 'string' || typeof password !== 'string') {
+    throw new ApiError(401, 'Invalid admin credentials');
+  }
+
+  const admin = await Admin.findOne({ email: email.trim().toLowerCase() }).select('+password');
 
   if (!admin) {
     throw new ApiError(401, 'Invalid admin credentials');

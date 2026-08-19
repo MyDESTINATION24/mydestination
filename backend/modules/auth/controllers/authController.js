@@ -593,6 +593,13 @@ export const adminLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Must be strings. A JSON object here used to reach findOne as a query
+    // fragment, and only bcrypt.compare throwing on a non-string kept it from
+    // matching an arbitrary admin.
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
