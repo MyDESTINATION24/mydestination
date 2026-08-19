@@ -74,6 +74,14 @@ const adminSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    // Wrong-guess counter for the reset OTP. Six digits is 900k options, but
+    // without a cap an attacker just hammers the 10-minute window until one
+    // lands -- and a hit gives full admin access.
+    resetPasswordAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
   },
   { 
     timestamps: true,

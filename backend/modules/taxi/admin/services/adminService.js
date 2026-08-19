@@ -3091,6 +3091,8 @@ export const forgotPassword = async (email) => {
 
   admin.resetPasswordOtp = otp;
   admin.resetPasswordExpires = otpExpires;
+  // Fresh code, fresh budget -- otherwise a stale count burns it immediately.
+  admin.resetPasswordAttempts = 0;
   await admin.save();
 
   // Send real email
@@ -3130,18 +3132,42 @@ export const verifyResetOtp = async ({ email, otp }) => {
   return { success: true, message: 'OTP verified successfully' };
 };
 
+const MAX_RESET_OTP_ATTEMPTS = 5;
+
 export const resetPassword = async ({ email, otp, password }) => {
   const admin = await Admin.findOne({ 
     email: email?.trim().toLowerCase() 
-  }).select('+resetPasswordOtp +resetPasswordExpires');
+  }).select('+resetPasswordOtp +resetPasswordExpires +resetPasswordAttempts');
 
-  if (!admin || admin.resetPasswordOtp !== otp || new Date() > admin.resetPasswordExpires) {
+  const otpIsValid =
+    admin &&
+    admin.resetPasswordOtp &&
+    admin.resetPasswordOtp === otp &&
+    admin.resetPasswordExpires &&
+    new Date() <= admin.resetPasswordExpires;
+
+  if (!otpIsValid) {
+    // Burn the OTP once the guesses run out, so a six-digit code cannot be
+    // walked through inside its ten-minute window.
+    if (admin && admin.resetPasswordOtp) {
+      admin.resetPasswordAttempts = Number(admin.resetPasswordAttempts || 0) + 1;
+
+      if (admin.resetPasswordAttempts >= MAX_RESET_OTP_ATTEMPTS) {
+        admin.resetPasswordOtp = undefined;
+        admin.resetPasswordExpires = undefined;
+        admin.resetPasswordAttempts = 0;
+      }
+
+      await admin.save();
+    }
+
     throw new ApiError(400, 'Invalid or expired OTP');
   }
 
   admin.password = await hashPassword(password);
   admin.resetPasswordOtp = undefined;
   admin.resetPasswordExpires = undefined;
+  admin.resetPasswordAttempts = 0;
   await admin.save();
 
   return { success: true, message: 'Password reset successful' };

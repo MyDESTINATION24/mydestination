@@ -263,7 +263,7 @@ adminRouter.get('/admin/status', getAdminStatus);
 adminRouter.post('/admin/login', credentialLoginLimiter, loginAdmin);
 adminRouter.post('/admin/forgot-password', credentialLoginLimiter, forgotPassword);
 adminRouter.post('/admin/verify-reset-otp', credentialLoginLimiter, verifyResetOtp);
-adminRouter.post('/admin/reset-password', resetPassword);
+adminRouter.post('/admin/reset-password', credentialLoginLimiter, resetPassword);
 adminRouter.get('/admin/general-settings/:category', getGeneralSettingsCategory);
 adminRouter.use('/admin', authenticate(['admin']));
 
