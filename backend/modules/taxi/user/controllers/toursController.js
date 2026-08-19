@@ -390,7 +390,14 @@ export const verifyUserTourBookingPayment = asyncHandler(async (req, res) => {
 });
 
 export const listMyTourBookings = asyncHandler(async (req, res) => {
-  const userId = req.user?._id;
+  // req.user is never populated -- the taxi middleware sets req.auth. The
+  // undefined was stripped from the query, so this listed every customer's
+  // tour bookings, names and phone numbers included, to anyone signed in.
+  const userId = getCurrentUserId(req);
+  if (!userId) {
+    throw new ApiError(401, 'User authentication is required');
+  }
+
   const bookings = await TourBooking.find({ userId })
     .populate('tourId', 'name price priceType')
     .sort({ createdAt: -1 })
@@ -400,7 +407,13 @@ export const listMyTourBookings = asyncHandler(async (req, res) => {
 });
 
 export const getMyTourBooking = asyncHandler(async (req, res) => {
-  const userId = req.user?._id;
+  // Same req.user bug as the list above: without a real id this returned any
+  // booking whose _id you could guess.
+  const userId = getCurrentUserId(req);
+  if (!userId) {
+    throw new ApiError(401, 'User authentication is required');
+  }
+
   const booking = await TourBooking.findOne({ _id: req.params.id, userId })
     .populate('tourId', 'name price priceType')
     .lean();
