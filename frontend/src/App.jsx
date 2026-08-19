@@ -1105,6 +1105,11 @@ function App() {
               <Route path="/notifications" element={<NotificationsPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
+
+            {/* Unknown URLs rendered a blank page: there was no top-level
+                catch-all, so the hero CTA pointing at /services -- a route
+                that does not exist -- dead-ended on an empty screen. */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </Layout>
