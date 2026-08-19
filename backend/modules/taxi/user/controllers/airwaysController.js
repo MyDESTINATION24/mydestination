@@ -189,12 +189,15 @@ const resolveBookingDraft = async (payload = {}, userId = '') => {
     throw new ApiError(400, 'Please enter every passenger name before booking');
   }
 
+  // SECURITY: these four used to fall back to the client's own numbers, so a
+  // crafted request booked a 12,000-rupee helicopter seat for 1 rupee -- only
+  // Razorpay's minimum-amount rule stopped a zero. The route and airline
+  // already carry the price, so recompute from them and ignore the payload.
   const basePrice = toNumber(selectedAirway.basePrice, 0);
-  const defaultSubtotalFare = basePrice * seatCount;
-  const subtotalFare = Math.max(0, toNumber(payload?.subtotalFare, defaultSubtotalFare));
-  const serviceTaxPercent = Math.max(0, toNumber(payload?.serviceTaxPercent, selectedAirway.serviceTaxPercent || 0));
-  const serviceTaxAmount = Math.max(0, toNumber(payload?.serviceTaxAmount, (subtotalFare * serviceTaxPercent) / 100));
-  const totalFare = Math.max(0, toNumber(payload?.totalFare, subtotalFare + serviceTaxAmount));
+  const subtotalFare = Math.max(0, basePrice * seatCount);
+  const serviceTaxPercent = Math.max(0, toNumber(selectedAirway.serviceTaxPercent, 0));
+  const serviceTaxAmount = (subtotalFare * serviceTaxPercent) / 100;
+  const totalFare = subtotalFare + serviceTaxAmount;
 
   return {
     userId,
