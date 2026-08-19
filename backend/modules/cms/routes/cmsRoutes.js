@@ -33,13 +33,15 @@ router.delete('/career/applications/:id', protect, authorizedRoles('admin', 'sup
 // DYNAMIC DOCX TYPOGRAPHY CMS API ROUTES
 // ==========================================
 // 1. Upload DOCX Draft
-router.post('/docx/upload', uploadMiddleware, uploadDraft);
+// These three were unauthenticated: anyone could upload a draft to any slug,
+// publish it live at /docx/content/:slug, or roll back a version.
+router.post('/docx/upload', protect, authorizedRoles('admin', 'superadmin', 'cms_admin'), uploadMiddleware, uploadDraft);
 
 // 2. Publish Draft Live
-router.post('/docx/publish/:slug', publishContent);
+router.post('/docx/publish/:slug', protect, authorizedRoles('admin', 'superadmin', 'cms_admin'), publishContent);
 
 // 3. Rollback to legacy version
-router.post('/docx/rollback/:versionId', rollbackVersion);
+router.post('/docx/rollback/:versionId', protect, authorizedRoles('admin', 'superadmin', 'cms_admin'), rollbackVersion);
 
 // 4. Public API for React Frontend Placeholders
 router.get('/docx/content/:slug', getPublishedContent);

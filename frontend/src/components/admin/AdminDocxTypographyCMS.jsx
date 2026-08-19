@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../../shared/api/runtimeConfig';
+import { getStoredAdminToken } from '../../app/admin/store/adminStore';
 
 /**
  * Enterprise Admin DOCX Typography CMS Portal
@@ -9,6 +11,12 @@ import React, { useState, useEffect } from 'react';
  * - Draft Publishing Workflow
  * - Version History Table & One-Click Rollback
  */
+// These calls used relative /api paths, but vercel.json rewrites every path to
+// index.html, so in production they fetched the HTML shell instead of the API.
+// They also sent no token, which is why the routes were left unauthenticated.
+const docxUrl = (path) => `${API_BASE_URL}/cms/docx/${path}`;
+const adminAuthHeaders = () => ({ Authorization: `Bearer ${getStoredAdminToken()}` });
+
 const AdminDocxTypographyCMS = () => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('Hero Section Title');
@@ -21,7 +29,7 @@ const AdminDocxTypographyCMS = () => {
 
   const loadHistory = async () => {
     try {
-      const res = await fetch(`/api/cms/docx/history/${slug}`);
+      const res = await fetch(docxUrl(`history/${slug}`), { headers: adminAuthHeaders() });
       const data = await res.json();
       if (data.success) {
         setHistory(data.data || []);
@@ -51,8 +59,9 @@ const AdminDocxTypographyCMS = () => {
       setLoading(true);
       setStatusMsg('Parsing DOCX XML, stripping images & mapping typography...');
       
-      const res = await fetch('/api/cms/docx/upload', {
+      const res = await fetch(docxUrl('upload'), {
         method: 'POST',
+        headers: adminAuthHeaders(),
         body: formData,
       });
 
@@ -78,8 +87,9 @@ const AdminDocxTypographyCMS = () => {
       setLoading(true);
       setStatusMsg('Publishing version to live website...');
       
-      const res = await fetch(`/api/cms/docx/publish/${slug}`, {
+      const res = await fetch(docxUrl(`publish/${slug}`), {
         method: 'POST',
+        headers: adminAuthHeaders(),
       });
       const data = await res.json();
 
@@ -104,8 +114,9 @@ const AdminDocxTypographyCMS = () => {
       setLoading(true);
       setStatusMsg('Executing rollback...');
 
-      const res = await fetch(`/api/cms/docx/rollback/${versionId}`, {
+      const res = await fetch(docxUrl(`rollback/${versionId}`), {
         method: 'POST',
+        headers: adminAuthHeaders(),
       });
       const data = await res.json();
 
