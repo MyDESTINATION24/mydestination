@@ -1,4 +1,19 @@
 import express from 'express';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+
+// The public wedding forms (testimonial, support, vendor apply, view counter)
+// took no auth and no rate limit -- and testimonial/vendor-apply upload a
+// base64 image to Cloudinary, so an open loop is a way to run up the bill and
+// flood the moderation queue. Cap them per IP; these are low-frequency actions
+// for any real person.
+const publicFormLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 8,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(req.ip),
+  handler: (req, res) => res.status(429).json({ success: false, message: 'Too many submissions. Please try again in a few minutes.' }),
+});
 import { 
   registerVendor, 
   sendVendorOtp,
@@ -157,14 +172,14 @@ router.get('/real-weddings', getRealWeddings);
 router.get('/vendors', getPublicVendors);
 router.get('/vendors/:id', getVendorDetail);
 router.get('/testimonials', getApprovedTestimonials);
-router.post('/testimonials', submitTestimonial);
-router.post('/support', createTicket);
+router.post('/testimonials', publicFormLimiter, submitTestimonial);
+router.post('/support', publicFormLimiter, createTicket);
 router.get('/support/:ticketId', getTicketById);
 router.get('/subscriptions', optionalProtect, getAllPlans);
 
 // Public Vendor Application (No auth required)
-router.post('/vendor/apply', applyAsVendor);
-router.patch('/increment-view/:type/:id', incrementView);
+router.post('/vendor/apply', publicFormLimiter, applyAsVendor);
+router.patch('/increment-view/:type/:id', publicFormLimiter, incrementView);
 
 // Public Review Routes
 router.get('/reviews/:targetId', getPublicReviews);

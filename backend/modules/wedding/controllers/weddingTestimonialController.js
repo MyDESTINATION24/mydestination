@@ -5,9 +5,19 @@ import { uploadBase64ToCloudinary } from '../../../utils/cloudinary.js';
 export const submitTestimonial = async (req, res) => {
   try {
     const { name, location, text, rating, image } = req.body;
-    
-    let imageUrl = image;
-    if (image && image.startsWith('data:image')) {
+
+    // Basic shape checks before doing any Cloudinary work, so a junk or oversized
+    // payload cannot cost an upload. A base64 data URL is ~1.37x the byte size,
+    // so 4MB of characters is roughly a 3MB image -- plenty for a testimonial.
+    if (typeof text !== 'string' || text.trim().length < 3) {
+      return res.status(400).json({ success: false, message: 'Testimonial text is required' });
+    }
+    if (typeof image === 'string' && image.length > 4 * 1024 * 1024) {
+      return res.status(413).json({ success: false, message: 'Image is too large' });
+    }
+
+    let imageUrl = typeof image === 'string' ? image : '';
+    if (imageUrl && imageUrl.startsWith('data:image')) {
       try {
         const uploadResponse = await uploadBase64ToCloudinary(image, 'wedding/testimonials');
         imageUrl = uploadResponse.url;
