@@ -322,12 +322,22 @@ const LandingPage = () => {
     }
   ]);
 
+  // Articles are managed in the CMS and linked from the header, but the
+  // landing page never showed them -- admin-authored content nobody saw.
+  const [articles, setArticles] = useState([]);
+
   useEffect(() => {
     import('axios').then(axiosModule => {
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       axiosModule.default.get(`${API_BASE_URL}/blogs`).then(res => {
         if (res.data?.success && Array.isArray(res.data?.data) && res.data.data.length > 0) {
           setBlogs(res.data.data);
+        }
+      }).catch(() => {});
+
+      axiosModule.default.get(`${API_BASE_URL}/articles`).then(res => {
+        if (res.data?.success && Array.isArray(res.data?.data)) {
+          setArticles(res.data.data);
         }
       }).catch(() => {});
     });
@@ -1200,6 +1210,71 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Articles. Rendered only when the CMS actually has some, so an empty
+          collection leaves no hollow section on the page. */}
+      {articles.length > 0 ? (
+        <section id="articles" className="py-16 md:py-24 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">
+                Reads &amp; Deep Dives
+              </p>
+              <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
+                Travel Articles
+              </h2>
+              <p className="text-sm text-slate-600 mt-3">
+                Longer reads on destinations, culture and planning, written by our editors.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {articles.slice(0, 3).map((article) => (
+                <div
+                  key={article._id}
+                  onClick={() => navigate(`/articles/${article._id}`)}
+                  className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col h-full"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                    {article.image ? (
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                      <span className="font-semibold text-[#065f46] uppercase tracking-wider">
+                        {article.category || "Article"}
+                      </span>
+                      <span className="flex items-center gap-1"><Clock size={12} /> {article.readTime || "5 min read"}</span>
+                    </div>
+                    <SafeHTML html={article.title} as="h3" className="text-base md:text-lg font-bold text-slate-900 mb-2 line-clamp-2 leading-snug group-hover:text-[#065f46] transition-colors" />
+                    <SafeHTML html={article.excerpt} as="p" className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4 flex-grow" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#065f46] group-hover:translate-x-1 transition-transform">
+                      <span>Read Article</span>
+                      <ArrowRight size={14} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                to="/articles"
+                className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
+              >
+                <span>Explore All Articles</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* 10. Footer (Restructured) */}
       <footer className="bg-emerald-950 text-white pt-8 pb-8 px-6 md:px-8">
