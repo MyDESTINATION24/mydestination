@@ -1,4 +1,5 @@
 import api from '../../../shared/api/axiosInstance';
+import { storeRefreshToken } from '../../shared/api/refreshSession';
 import {
   clearTaxiUserSession,
   getTaxiUserToken,
@@ -59,8 +60,12 @@ export const userAuthService = {
     api.patch(`/rides/${rideId}/bids/ceiling`, { incrementSteps }, withUserAuth()),
 };
 
-export const persistLocalUserSession = ({ token = '', user = null } = {}) => {
+// The refresh token was only saved by the OTP screen, so a password login or
+// signup kept no way to renew -- those sessions were signed out the moment the
+// access token expired. Save it here instead, so every login path is covered.
+export const persistLocalUserSession = ({ token = '', user = null, refreshToken = '' } = {}) => {
   setTaxiUserSession({ token, user });
+  storeRefreshToken('user', refreshToken);
   localStorage.setItem('role', 'user');
   localStorage.setItem('userInfo', JSON.stringify(user || {}));
 };

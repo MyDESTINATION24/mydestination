@@ -163,7 +163,7 @@ const OTPVerification = () => {
                 const token = payload?.token;
                 if (token) {
                     const normalizedRole = normalizeDriverRole(role);
-                    persistDriverAuthSession({ token, role: normalizedRole });
+                    persistDriverAuthSession({ token, role: normalizedRole, refreshToken: payload?.refreshToken || '' });
                     syncPushTokens();
                 }
 

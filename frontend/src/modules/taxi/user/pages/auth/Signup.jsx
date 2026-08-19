@@ -152,7 +152,7 @@ const Signup = () => {
       });
       const payload = response?.data || {};
 
-      persistLocalUserSession({ token: payload.token || '', user: payload.user || {} });
+      persistLocalUserSession({ token: payload.token || '', user: payload.user || {}, refreshToken: payload.refreshToken || '' });
       syncPushTokens();
       sessionStorage.removeItem(PENDING_SIGNUP_PHONE_KEY);
       sessionStorage.removeItem(PENDING_SIGNUP_REFERRAL_CODE_KEY);

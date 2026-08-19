@@ -1,3 +1,4 @@
+import { storeRefreshToken } from "../../shared/api/refreshSession";
 import api from "../../../shared/api/axiosInstance";
 import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
@@ -43,7 +44,9 @@ export const clearDriverAuthState = () => {
   clearAllAuth();
 };
 
-export const persistDriverAuthSession = ({ token = "", role = "driver" } = {}) => {
+// Drivers never stored the refresh token the server issues, so a driver whose
+// access token expired had nothing to renew with and was signed straight out.
+export const persistDriverAuthSession = ({ token = "", role = "driver", refreshToken = "" } = {}) => {
   const normalizedRole = String(role || "driver").toLowerCase();
 
   if (token) {
@@ -55,6 +58,7 @@ export const persistDriverAuthSession = ({ token = "", role = "driver" } = {}) =
     writeSessionValue("token", token);
     writeSessionValue("driverToken", token);
     localStorage.setItem("driverToken", token);
+    storeRefreshToken("driver", refreshToken);
   }
 
   writeSessionValue("role", normalizedRole);
