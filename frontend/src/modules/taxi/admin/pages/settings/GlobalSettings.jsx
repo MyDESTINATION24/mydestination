@@ -95,17 +95,16 @@ const GlobalSettings = () => {
                         </div>
                      </div>
                      <div className="space-y-4">
-                        <div>
-                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block">Live Key ID</label>
-                           <input type="password" value="rzp_live_xYzA1234567890" readOnly className="w-full bg-white border border-gray-200 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-900 focus:outline-none" />
-                        </div>
-                        <div>
-                           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block">Live Key Secret</label>
-                           <input type="password" value="••••••••••••••••••••••••" readOnly className="w-full bg-white border border-gray-200 rounded-xl py-2.5 px-4 text-[13px] font-bold text-gray-900 focus:outline-none" />
-                        </div>
-                        <div className="pt-2">
-                           <button className="text-[11px] font-black text-primary hover:underline uppercase tracking-widest">Change Credentials</button>
-                        </div>
+                        {/* These inputs used to show a hardcoded "rzp_live_xYzA1234567890",
+                            which read as a configured live key when none existed. Keys now
+                            come from RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET on the server, so
+                            say that rather than render a value this screen cannot know. */}
+                        <p className="text-[12px] font-bold text-gray-500 leading-relaxed">
+                           Razorpay credentials are read from the server environment
+                           (<span className="font-mono text-gray-700">RAZORPAY_KEY_ID</span> and
+                           <span className="font-mono text-gray-700"> RAZORPAY_KEY_SECRET</span>).
+                           Update them in the API server's <span className="font-mono text-gray-700">.env</span> and restart it.
+                        </p>
                      </div>
                   </div>
 
