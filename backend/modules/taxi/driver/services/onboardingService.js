@@ -675,6 +675,10 @@ export const saveDriverPersonalDetails = async ({ registrationId, phone, fullNam
 export const saveDriverReferral = async ({ registrationId, phone, referralCode = '' }) => {
   const session = await getSession(registrationId, phone);
 
+  if (!session.otpVerifiedAt) {
+    throw new ApiError(400, 'Verify OTP before continuing');
+  }
+
   const normalizedReferralCode = normalizeReferralCode(referralCode);
 
   if (normalizedReferralCode) {
@@ -865,6 +869,13 @@ export const saveDriverVehicle = async ({
 
 export const saveDriverDocuments = async ({ registrationId, phone, documents = {} }) => {
   const session = await getSession(registrationId, phone);
+
+  // Every step but this one required a verified OTP. This one uploads straight
+  // to Cloudinary, so without the check a caller could start an onboarding just
+  // to get a registrationId and then upload whatever they liked, unverified.
+  if (!session.otpVerifiedAt) {
+    throw new ApiError(400, 'Verify OTP before continuing');
+  }
 
   const updatedDocuments = {};
   const uploadedDocumentKeys = [];
