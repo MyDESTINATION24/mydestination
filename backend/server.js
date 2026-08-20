@@ -1,4 +1,5 @@
 import { sanitizeMongo } from './middlewares/sanitizeMongo.js';
+import { noStoreForAuthed } from './middlewares/noStoreForAuthed.js';
 import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -94,6 +95,9 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Neutralise NoSQL operator injection ($ne, $gt, dotted paths) in the body
 // and params before any handler runs. Must sit AFTER the parsers.
 app.use(sanitizeMongo);
+// Per-user API responses must not be cached: a WebView serving a stale active-ride
+// body is what left riders stuck on the searching screen after a driver accepted.
+app.use(noStoreForAuthed);
 
 // The uploads directory is multer's scratch space before a file is pushed to
 // Cloudinary, not a public asset store -- nothing builds a /uploads URL. Serving
