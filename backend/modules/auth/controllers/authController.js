@@ -1,4 +1,5 @@
 import emailService from '../../../services/emailService.js';
+import { logOtpForDebug } from '../../../utils/otpDebugLog.js';
 import notificationService from '../../../services/notificationService.js';
 import Admin from '../../admin/models/Admin.js';
 import User from '../../user/models/User.js';
@@ -130,6 +131,7 @@ export const sendOtp = async (req, res) => {
     // Generate OTP - Use 123456 for test numbers, random for others
     const otp = isTestNumber ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    logOtpForDebug(phone, otp, 'auth/send-otp');
 
     if (user) {
       user.otp = otp;

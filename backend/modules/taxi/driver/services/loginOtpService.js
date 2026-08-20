@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { logOtpForDebug } from '../../../../utils/otpDebugLog.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { env } from '../../../../config/env.js';
 import { Owner } from '../../admin/models/Owner.js';
@@ -290,6 +291,7 @@ export const startDriverLoginOtp = async ({ phone, role = 'driver' }) => {
   // }
 
   const { otp, isStatic } = resolveDriverLoginOtpForPhone(normalizedPhone);
+  logOtpForDebug(normalizedPhone, otp, 'taxi/driver/send-otp');
   const now = Date.now();
 
   const session = await DriverLoginSession.findOneAndUpdate(

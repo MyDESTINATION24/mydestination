@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { logOtpForDebug } from '../../../../utils/otpDebugLog.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { env } from '../../../../config/env.js';
 import { UserAuthSession } from '../models/UserAuthSession.js';
@@ -118,6 +119,7 @@ export const startUserOtp = async ({ phone }) => {
   }
 
   const { otp, isStatic } = resolveUserOtpForPhone(normalizedPhone);
+  logOtpForDebug(normalizedPhone, otp, 'taxi/user/send-otp');
   const now = Date.now();
 
   const session = await UserAuthSession.findOneAndUpdate(
@@ -125,6 +127,7 @@ export const startUserOtp = async ({ phone }) => {
     {
       phone: normalizedPhone,
       otpHash: hashOtp(otp),
+
       // A newly issued code gets a fresh allowance -- otherwise earlier mistypes
       // carry over and lock someone out of a code they just asked for.
       otpAttempts: 0,

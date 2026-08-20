@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { logOtpForDebug } from '../../../../utils/otpDebugLog.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { env } from '../../../../config/env.js';
 import { normalizePoint, toPoint } from '../../../../utils/geo.js';
@@ -544,6 +545,7 @@ export const startDriverOnboarding = async ({ phone, role = 'driver' }) => {
   }
 
   const { otp, isStatic } = resolveDriverOnboardingOtpForPhone(normalizedPhone);
+  logOtpForDebug(normalizedPhone, otp, 'taxi/driver/onboarding-otp');
   const now = Date.now();
   const registrationId = crypto.randomUUID();
 
