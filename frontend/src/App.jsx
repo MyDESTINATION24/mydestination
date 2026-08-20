@@ -556,7 +556,20 @@ const UserPublicRoute = ({ children, redirectTo = '/home' }) => {
   const token = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const user = userRaw ? JSON.parse(userRaw) : null;
-  if (token && user?.role === 'user') {
+
+  // A wedding vendor is also a customer here -- the server maps the vendor
+  // role to user for these routes, and their token's subject IS the User
+  // document. Matching only 'user' meant a signed-in vendor was shown the
+  // login form instead of being sent home. The APK opens /login on every
+  // launch and after every WebView restart, so that read as being logged out
+  // on app switch and sent them back through OTP.
+  //
+  // 'partner' stays excluded on purpose: a partner is a separate document
+  // with its own id and its own session keys, so it must not be redirected
+  // into the customer app.
+  const actsAsCustomer = user?.role === 'user' || user?.role === 'vendor';
+
+  if (token && actsAsCustomer) {
     return <Navigate to={redirectTo} replace />;
   }
   return children;
