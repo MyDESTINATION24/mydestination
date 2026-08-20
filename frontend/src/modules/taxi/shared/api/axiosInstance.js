@@ -38,6 +38,18 @@ const normalizeAuthRole = (role) => {
   if (value === 'super-admin') {
     return 'admin';
   }
+
+  // Mirror the server (normalizeRole in taxi authMiddleware): a wedding vendor
+  // is also a taxi customer, and their token's subject IS the User document.
+  // Without this, a vendor's token was not recognised as a 'user' token, so no
+  // Authorization header was attached at all -- the API answered 'Authorization
+  // token is required' and the app read that as a dead session and demanded a
+  // fresh OTP. 'partner' stays unmapped here too: a partner is a different
+  // document with its own id.
+  if (value === 'vendor') {
+    return 'user';
+  }
+
   return value;
 };
 
