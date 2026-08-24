@@ -1440,7 +1440,7 @@ const BusServiceManager = ({
                   className={fieldClassName}
                   value={draft.driverPhone || ''}
                   onChange={(event) => updateDraft('driverPhone', event.target.value.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="8006787878"
+                  placeholder="0000000000"
                   readOnly={typeof api.getDrivers === 'function'}
                 />
               </div>

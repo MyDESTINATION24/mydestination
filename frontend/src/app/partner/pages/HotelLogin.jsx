@@ -177,7 +177,7 @@ const HotelLogin = () => {
                                                 type={method === 'phone' ? 'tel' : 'email'}
                                                 value={contact}
                                                 onChange={(e) => setContact(e.target.value)}
-                                                placeholder={method === 'phone' ? '8006787878' : 'partner@hotel.com'}
+                                                placeholder={method === 'phone' ? '0000000000' : 'partner@hotel.com'}
                                                 className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0A4720] focus:border-transparent outline-none transition-all"
                                                 required
                                             />

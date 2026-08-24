@@ -280,7 +280,7 @@ const WeddingEnquiryPage = () => {
                       const val = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
                       update("phone", val);
                     }}
-                    placeholder="e.g. 8006787878"
+                    placeholder="0000000000"
                     className={`w-full px-4 py-3 rounded-xl bg-muted border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors ${
                       form.phone && form.phone.length !== 10
                         ? "border-red-500 focus:ring-red-500/50"
