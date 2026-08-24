@@ -874,11 +874,6 @@ export const createRideRecord = async ({
     throw new ApiError(404, 'User not found');
   }
 
-  const userWallet = await UserWallet.findOne({ userId });
-  if (userWallet && userWallet.balance < 0) {
-    throw new ApiError(402, `You have an outstanding negative wallet balance of ₹${Math.abs(userWallet.balance)}. Please clear it to book your next ride.`);
-  }
-
   await clearUserActiveRideIfPresent(user);
 
   const safeFare = Number(fare);

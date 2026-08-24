@@ -130,7 +130,7 @@ const BlinkingVehicleMarker = ({ marker, iconUrl }) => (
 );
 
 const DRIVER_PLACEHOLDER = { name: 'Captain', rating: '4.9', vehicle: 'Taxi', plate: 'Assigned', phone: '', eta: 2 };
-const STAGES = { SEARCHING: 'searching', ACCEPTED: 'accepted', COMPLETING: 'completing' };
+const STAGES = { SEARCHING: 'searching', ACCEPTED: 'accepted', COMPLETING: 'completing', FAILED: 'failed' };
 const CONSUMED_SEARCH_NONCE_PREFIX = 'My Desination_consumed_search_nonce:';
 const ACTIVE_SEARCH_NONCES = new Set();
 const ACTIVE_SEARCH_NONCE_CLEANUPS = new Map();
@@ -730,10 +730,8 @@ const SearchingDriver = () => {
             setSearchStatus(error?.message || 'Could not schedule this ride.');
             return;
           }
-          setSearchStatus(error?.message || 'Could not create ride request. Redirecting...');
-          setTimeout(() => {
-             if (!disposed) navigate(userHomeRoute, { replace: true });
-          }, 3000);
+          setSearchStatus(error?.message || 'Could not create ride request.');
+          setStage(STAGES.FAILED);
         }
       }
     })();
@@ -878,6 +876,31 @@ const SearchingDriver = () => {
             className="mt-6 h-12 w-full rounded-[18px] bg-white text-sm font-black uppercase tracking-[0.16em] text-slate-900"
           >
             {scheduledStatus === 'error' ? 'Back to Home' : 'Done'}
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (stage === STAGES.FAILED) {
+    return (
+      <div className="min-h-screen max-w-lg mx-auto flex items-center justify-center bg-slate-950 px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full rounded-[32px] border border-white/10 bg-white/5 px-6 py-8 text-center shadow-2xl"
+        >
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[22px] bg-rose-600/20 text-rose-400">
+            <AlertTriangle size={26} />
+          </div>
+          <h1 className="mt-5 text-[22px] font-black text-white">Could not book your ride</h1>
+          <p className="mt-2 text-[13px] font-bold text-white/55">{searchStatus}</p>
+          <button
+            type="button"
+            onClick={() => navigate(userHomeRoute, { replace: true })}
+            className="mt-6 h-12 w-full rounded-[18px] bg-white text-sm font-black uppercase tracking-[0.16em] text-slate-900"
+          >
+            Back to Home
           </button>
         </motion.div>
       </div>
