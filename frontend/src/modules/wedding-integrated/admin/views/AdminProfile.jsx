@@ -26,11 +26,12 @@ const AdminProfile = () => {
     confirm: false
   });
 
-  // Mock initial data
+  // NOTE: this whole profile is placeholder state and handleSave below only
+  // simulates a request -- nothing here is loaded from or written to the API.
   const [profileData, setProfileData] = useState({
     name: 'Admin User',
     email: 'admin@mydestination.com',
-    phone: '+91 98765 43210',
+    phone: '+91 8006787878',
     role: 'Super Admin',
     location: 'Mumbai, India',
     bio: 'Managing the overall operations and vendor verification for Destination Wedding platform.',

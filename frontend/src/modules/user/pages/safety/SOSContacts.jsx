@@ -8,10 +8,12 @@ import { triggerUserSosAlert } from '../../../../shared/services/safetyAlertServ
 const MAX_CONTACTS = 5;
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
-const MOCK_CONTACTS = [
-  { id: '1', name: 'Rahul Verma',  phone: '8006787878' },
-  { id: '2', name: 'Priya Sharma', phone: '9123456789' },
-];
+// This screen used to start with two invented contacts, 'Rahul Verma' and
+// 'Priya Sharma'. On a safety screen that is worse than untidy: it tells
+// someone they have emergency contacts when they have none, and the call
+// button next to them dialled a stranger. Start empty -- the screen already
+// renders an 'Add emergency contacts to stay safe' state below.
+const INITIAL_CONTACTS = [];
 
 const EMERGENCY_SERVICES = [
   { id: 'police', label: 'Police', phone: '100', accent: 'bg-blue-50 border-blue-100 text-blue-600' },
@@ -21,7 +23,7 @@ const EMERGENCY_SERVICES = [
 
 const SOSContacts = () => {
   const navigate = useNavigate();
-  const [contacts, setContacts]         = useState(MOCK_CONTACTS);
+  const [contacts, setContacts]         = useState(INITIAL_CONTACTS);
   const [showAddSheet, setShowAddSheet] = useState(false);
   const [name, setName]                 = useState('');
   const [phone, setPhone]               = useState('');
