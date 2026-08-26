@@ -225,6 +225,7 @@ const AddPGWizard = () => {
               bedsPerRoom: rt.bedsPerRoom ?? 4,
               totalInventory: rt.totalInventory ?? 20,
               pricePerNight: rt.pricePerNight ?? '',
+              originalPrice: rt.originalPrice ?? '',
               extraAdultPrice: rt.extraAdultPrice ?? 0,
               extraChildPrice: rt.extraChildPrice ?? 0,
               images: rt.images || [],
@@ -534,6 +535,7 @@ const AddPGWizard = () => {
       bedsPerRoom: '',
       totalInventory: '',
       pricePerNight: '',
+      originalPrice: '',
       extraAdultPrice: '',
       extraChildPrice: '',
       images: [],
@@ -734,6 +736,7 @@ const AddPGWizard = () => {
             bedsPerRoom: Number(rt.bedsPerRoom),
             totalInventory: Number(rt.totalInventory || 0),
             pricePerNight: Number(rt.pricePerNight),
+            originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
             extraAdultPrice: Number(rt.extraAdultPrice || 0),
             extraChildPrice: Number(rt.extraChildPrice || 0),
             images: rt.images.filter(Boolean),
@@ -765,6 +768,7 @@ const AddPGWizard = () => {
           bedsPerRoom: Number(rt.bedsPerRoom),
           totalInventory: Number(rt.totalInventory || 0),
           pricePerNight: Number(rt.pricePerNight),
+          originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
           extraAdultPrice: Number(rt.extraAdultPrice || 0),
           extraChildPrice: Number(rt.extraChildPrice || 0),
           images: rt.images.filter(Boolean),
@@ -1392,12 +1396,19 @@ const AddPGWizard = () => {
                       <input className="input" placeholder="e.g. 4 Sharing Air Conditioned Dorm" value={editingRoomType.name} onChange={e => setEditingRoomType({ ...editingRoomType, name: e.target.value })} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-gray-500">Price per Night (₹)</label>
+                        <label className="text-xs font-semibold text-gray-500">Price per Night (₹) *</label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
-                          <input className="input pl-7" type="number" placeholder="0" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType({ ...editingRoomType, pricePerNight: e.target.value })} />
+                          <input className="input pl-7" type="number" placeholder="Selling price" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType({ ...editingRoomType, pricePerNight: e.target.value })} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500">Original Price / MRP (₹)</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                          <input className="input pl-7" type="number" placeholder="Struck through" value={editingRoomType.originalPrice || ''} onChange={e => setEditingRoomType({ ...editingRoomType, originalPrice: e.target.value })} />
                         </div>
                       </div>
                       <div className="space-y-1">

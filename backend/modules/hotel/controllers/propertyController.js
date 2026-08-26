@@ -88,6 +88,7 @@ export const createProperty = async (req, res) => {
       await RoomType.insertMany(
         roomTypes.map(rt => ({
           ...rt,
+          originalPrice: (rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight)) ? Number(rt.originalPrice) : null,
           propertyId: doc._id,
           isActive: true
         }))
@@ -180,7 +181,8 @@ export const updateProperty = async (req, res) => {
       'starRating',
       'contactNumber',
       'suitability',
-      'isLive'
+      'isLive',
+      'originalPrice'
     ];
 
     updatableFields.forEach(field => {
@@ -230,7 +232,7 @@ export const updateProperty = async (req, res) => {
 export const addRoomType = async (req, res) => {
   try {
     const { propertyId } = req.params;
-    const { name, inventoryType, roomCategory, maxAdults, maxChildren, bedsPerRoom, totalInventory, pricePerNight, extraAdultPrice, extraChildPrice, images, amenities } = req.body;
+    const { name, inventoryType, roomCategory, maxAdults, maxChildren, bedsPerRoom, totalInventory, pricePerNight, originalPrice, extraAdultPrice, extraChildPrice, images, amenities } = req.body;
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found' });
 
@@ -280,6 +282,7 @@ export const addRoomType = async (req, res) => {
       bedsPerRoom,
       totalInventory,
       pricePerNight,
+      originalPrice: Number(originalPrice) > Number(pricePerNight) ? Number(originalPrice) : null,
       extraAdultPrice,
       extraChildPrice,
       images: normalizedImages,
@@ -315,6 +318,7 @@ export const updateRoomType = async (req, res) => {
       'bedsPerRoom',
       'totalInventory',
       'pricePerNight',
+      'originalPrice',
       'extraAdultPrice',
       'extraChildPrice',
       'images',
@@ -327,6 +331,12 @@ export const updateRoomType = async (req, res) => {
         roomType[field] = payload[field];
       }
     });
+
+    if (payload.originalPrice !== undefined) {
+      const orig = Number(payload.originalPrice);
+      const effectivePrice = Number(payload.pricePerNight !== undefined ? payload.pricePerNight : roomType.pricePerNight);
+      roomType.originalPrice = (orig && effectivePrice && orig > effectivePrice) ? orig : null;
+    }
 
     if (Object.prototype.hasOwnProperty.call(payload, 'images')) {
       if (Array.isArray(payload.images)) {
@@ -548,17 +558,57 @@ export const getPublicProperties = async (req, res) => {
       }
     });
 
-    // 5. Calculate Starting Price (Min Price of valid rooms)
+    // 5. Calculate Starting Price (Min Price of valid rooms) & Original Price
     pipeline.push({
       $addFields: {
         startingPrice: {
           $cond: {
             if: { $gt: [{ $size: "$roomTypes" }, 0] },
             then: { $min: "$roomTypes.pricePerNight" },
-            else: null // Will filter out properties with no matching rooms later if strictly needed
+            else: null
           }
         },
+        minRoom: {
+          $arrayElemAt: [
+            {
+              $filter: {
+                input: "$roomTypes",
+                as: "rt",
+                cond: { $eq: ["$$rt.pricePerNight", { $min: "$roomTypes.pricePerNight" }] }
+              }
+            },
+            0
+          ]
+        },
         hasMatchingRooms: { $gt: [{ $size: "$roomTypes" }, 0] }
+      }
+    });
+
+    pipeline.push({
+      $addFields: {
+        originalPrice: {
+          $cond: {
+            if: {
+              $and: [
+                { $ne: ["$minRoom.originalPrice", null] },
+                { $gt: ["$minRoom.originalPrice", "$startingPrice"] }
+              ]
+            },
+            then: "$minRoom.originalPrice",
+            else: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $ne: ["$originalPrice", null] },
+                    { $gt: ["$originalPrice", "$startingPrice"] }
+                  ]
+                },
+                then: "$originalPrice",
+                else: null
+              }
+            }
+          }
+        }
       }
     });
 

@@ -108,7 +108,10 @@ const propertySchema = new mongoose.Schema({
 
   // RATINGS
   avgRating: { type: Number, default: 0 },
-  totalReviews: { type: Number, default: 0 }
+  totalReviews: { type: Number, default: 0 },
+
+  // PRICING / DISCOUNT
+  originalPrice: { type: Number, default: null }
 
 }, { timestamps: true });
 

@@ -197,7 +197,7 @@ const PropertyDetailsPage = () => {
             baseAdults: rt.baseAdults ?? 2,
             baseChildren: rt.baseChildren ?? 0,
             images: rt.images || [],
-            pricing: { basePrice: rt.pricePerNight, extraAdultPrice: rt.extraAdultPrice, extraChildPrice: rt.extraChildPrice },
+            pricing: { basePrice: rt.pricePerNight, originalPrice: rt.originalPrice, extraAdultPrice: rt.extraAdultPrice, extraChildPrice: rt.extraChildPrice },
             inventoryType: rt.inventoryType || (['Hostel', 'PG'].includes(p.propertyType) ? 'bed' : 'room'),
             totalInventory: rt.totalInventory,
             bedsPerRoom: rt.bedsPerRoom
@@ -1093,12 +1093,22 @@ const PropertyDetailsPage = () => {
                           <h4 className="font-bold text-lg text-slate-900 mb-1">{room.type}</h4>
                           <p className="text-xs text-slate-600 line-clamp-2">{room.description || `Comfortable ${room.type}`}</p>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end">
+                          {room.pricing?.originalPrice && Number(room.pricing.originalPrice) > Number(getRoomPrice(room)) && (
+                            <div className="flex items-center gap-1 mb-0.5">
+                              <span className="text-xs text-slate-400 line-through font-bold">
+                                ₹{Number(room.pricing.originalPrice).toLocaleString('en-IN')}
+                              </span>
+                              <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">
+                                {Math.round(((room.pricing.originalPrice - getRoomPrice(room)) / room.pricing.originalPrice) * 100)}% OFF
+                              </span>
+                            </div>
+                          )}
                           <span 
-                            className="block font-extrabold text-xl"
+                            className="block font-extrabold text-xl leading-tight"
                             style={{ color: priceTextColor }}
                           >
-                            ₹{getRoomPrice(room) || 'N/A'}
+                            ₹{getRoomPrice(room) ? getRoomPrice(room).toLocaleString('en-IN') : 'N/A'}
                           </span>
                           <span className="text-[10px] text-slate-500 font-semibold">per night</span>
                         </div>

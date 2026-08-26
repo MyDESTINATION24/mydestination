@@ -7,3 +7,6 @@
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
+backend/check_prices.js
+backend/test_api_prices.js
+backend/ssh_deploy.js

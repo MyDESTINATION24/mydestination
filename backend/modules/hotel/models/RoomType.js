@@ -39,6 +39,7 @@ const roomTypeSchema = new mongoose.Schema({
 
   // PRICING (PER NIGHT – SINGLE SOURCE OF TRUTH)
   pricePerNight: { type: Number, required: true },
+  originalPrice: { type: Number, default: null },
   extraAdultPrice: { type: Number, default: 0 },
   extraChildPrice: { type: Number, default: 0 },
 

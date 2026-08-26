@@ -762,6 +762,7 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
             maxChildren: 0,
             totalInventory: 1,
             pricePerNight: 0,
+            originalPrice: 0,
             extraAdultPrice: 0,
             extraChildPrice: 0,
             bedsPerRoom: 1,
@@ -823,6 +824,7 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
                 {displayRooms.length > 0 ? (
                     displayRooms.map((room, i) => {
                         const isExpanded = expandedRoomId === room._id;
+                        const hasDiscount = Number(room.originalPrice) > Number(room.pricePerNight);
                         return (
                             <div key={room._id || i} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                 <div
@@ -874,20 +876,29 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="text-right">
+                                        <div className="text-right flex flex-col items-end">
                                             <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Price / Night</p>
                                             {isEditing ? (
-                                                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                                                    <span className="font-bold">₹</span>
-                                                    <input
-                                                        type="number"
-                                                        value={room.pricePerNight || 0}
-                                                        onChange={(e) => handleRoomChange(room._id, 'pricePerNight', Number(e.target.value))}
-                                                        className="w-20 bg-gray-50 border rounded px-2 py-1 text-sm font-bold outline-none"
-                                                    />
+                                                <div className="flex flex-col gap-1 items-end" onClick={(e) => e.stopPropagation()}>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-xs text-gray-400 font-bold">Base ₹</span>
+                                                        <input
+                                                            type="number"
+                                                            value={room.pricePerNight || 0}
+                                                            onChange={(e) => handleRoomChange(room._id, 'pricePerNight', Number(e.target.value))}
+                                                            className="w-20 bg-gray-50 border rounded px-2 py-1 text-sm font-bold outline-none"
+                                                        />
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <p className="text-xl font-bold text-gray-900">₹{room.pricePerNight}</p>
+                                                <div className="flex flex-col items-end">
+                                                    {hasDiscount && (
+                                                        <span className="text-xs text-gray-400 line-through font-bold">
+                                                            ₹{Number(room.originalPrice).toLocaleString('en-IN')}
+                                                        </span>
+                                                    )}
+                                                    <p className="text-xl font-bold text-gray-900">₹{room.pricePerNight?.toLocaleString('en-IN')}</p>
+                                                </div>
                                             )}
                                         </div>
                                         {isEditing && (
@@ -925,17 +936,36 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
                                                         <h5 className="text-[10px] font-bold uppercase text-gray-500 mb-3 block">Pricing Details</h5>
                                                         <div className="bg-white p-4 rounded-xl border border-gray-200 space-y-3">
                                                             <div className="flex justify-between items-center text-xs">
-                                                                <span className="text-gray-500 font-bold uppercase text-[10px]">Base Price</span>
+                                                                <span className="text-gray-500 font-bold uppercase text-[10px]">Base / Offer Price</span>
                                                                 {isEditing ? (
-                                                                    <input type="number" value={room.pricePerNight} onChange={(e) => handleRoomChange(room._id, 'pricePerNight', Number(e.target.value))} className="w-20 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
+                                                                    <input type="number" value={room.pricePerNight} onChange={(e) => handleRoomChange(room._id, 'pricePerNight', Number(e.target.value))} className="w-24 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
                                                                 ) : (
                                                                     <span className="font-bold text-gray-900">₹{room.pricePerNight}</span>
                                                                 )}
                                                             </div>
                                                             <div className="flex justify-between items-center text-xs">
+                                                                <div>
+                                                                    <span className="text-gray-500 font-bold uppercase text-[10px] block">Original / Cut Price</span>
+                                                                    <span className="text-[9px] text-gray-400">Shown struck-through</span>
+                                                                </div>
+                                                                {isEditing ? (
+                                                                    <input 
+                                                                        type="number" 
+                                                                        placeholder="Optional" 
+                                                                        value={room.originalPrice || ''} 
+                                                                        onChange={(e) => handleRoomChange(room._id, 'originalPrice', Number(e.target.value) || null)} 
+                                                                        className="w-24 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right text-xs" 
+                                                                    />
+                                                                ) : (
+                                                                    <span className="font-bold text-gray-400 line-through">
+                                                                        {room.originalPrice && Number(room.originalPrice) > Number(room.pricePerNight) ? `₹${room.originalPrice}` : 'None'}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex justify-between items-center text-xs">
                                                                 <span className="text-gray-500 font-bold uppercase text-[10px]">Extra Adult</span>
                                                                 {isEditing ? (
-                                                                    <input type="number" value={room.extraAdultPrice} onChange={(e) => handleRoomChange(room._id, 'extraAdultPrice', Number(e.target.value))} className="w-20 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
+                                                                    <input type="number" value={room.extraAdultPrice} onChange={(e) => handleRoomChange(room._id, 'extraAdultPrice', Number(e.target.value))} className="w-24 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
                                                                 ) : (
                                                                     <span className="font-bold text-gray-900">₹{room.extraAdultPrice}</span>
                                                                 )}
@@ -943,7 +973,7 @@ const RoomsTab = ({ rooms, isEditing, editData, onChange }) => {
                                                             <div className="flex justify-between items-center text-xs">
                                                                 <span className="text-gray-500 font-bold uppercase text-[10px]">Extra Child</span>
                                                                 {isEditing ? (
-                                                                    <input type="number" value={room.extraChildPrice} onChange={(e) => handleRoomChange(room._id, 'extraChildPrice', Number(e.target.value))} className="w-20 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
+                                                                    <input type="number" value={room.extraChildPrice} onChange={(e) => handleRoomChange(room._id, 'extraChildPrice', Number(e.target.value))} className="w-24 bg-gray-50 border rounded px-1 py-0.5 font-bold text-right" />
                                                                 ) : (
                                                                     <span className="font-bold text-gray-900">₹{room.extraChildPrice}</span>
                                                                 )}

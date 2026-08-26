@@ -38,31 +38,30 @@ const DestinationCard = ({ destination }) => {
         </div>
       </div>
 
-      <div className="p-2.5 sm:p-4 flex items-center justify-between bg-white/50">
+      <div className="p-2.5 sm:p-4 flex items-center justify-between bg-white/70">
         <div>
-          <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-semibold mb-0.5">
+          <p className="text-[8px] sm:text-[9px] text-muted-foreground uppercase tracking-widest font-bold mb-0.5">
             Starting from
           </p>
           <div className="flex items-baseline gap-1.5 flex-wrap">
-            <p className="text-base sm:text-lg font-bold text-primary">
+            <p className="text-base sm:text-lg font-black text-[#EAA221]">
               {formatPrice(destination.startingPrice)}
             </p>
-            {/* Shown only when the admin set a genuinely higher was-price. */}
-            {Number(destination.originalStartingPrice) > Number(destination.startingPrice) ? (
+            {Number(destination.originalStartingPrice) > Number(destination.startingPrice) && (
               <>
-                <span className="text-[11px] sm:text-sm font-semibold text-muted-foreground line-through">
+                <span className="text-[10px] sm:text-xs font-bold text-gray-400 line-through">
                   {formatPrice(destination.originalStartingPrice)}
                 </span>
-                <span className="rounded-full bg-emerald-50 px-1.5 py-0.5 text-[9px] font-black text-emerald-600">
+                <span className="rounded bg-emerald-100/80 px-1 py-0.5 text-[8px] font-black text-emerald-800 leading-none">
                   {Math.round(((destination.originalStartingPrice - destination.startingPrice) / destination.originalStartingPrice) * 100)}% OFF
                 </span>
               </>
-            ) : null}
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-1.5 bg-primary/5 px-2.5 py-1 rounded-full text-primary/80 text-[9px] sm:text-xs font-semibold">
-          <Building2 className="w-3.5 h-3.5" />
-          {destination.venueCount} Venues
+        <div className="flex items-center gap-1 bg-[#EAA221]/15 text-[#9A6700] border border-[#EAA221]/30 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8px] sm:text-xs font-bold shrink-0">
+          <Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#EAA221]" />
+          {destination.venueCount || destination.venues?.length || 0} Venues
         </div>
       </div>
     </Link>

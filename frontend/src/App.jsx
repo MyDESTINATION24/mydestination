@@ -57,6 +57,7 @@ const ArticleDetail = React.lazy(() => import('./pages/user/ArticleDetail'));
 const AmenitiesPage = React.lazy(() => import('./pages/user/AmenitiesPage'));
 const ReviewsPage = React.lazy(() => import('./pages/user/ReviewsPage'));
 const OffersPage = React.lazy(() => import('./pages/user/OffersPage'));
+const ProfilePage = React.lazy(() => import('./pages/user/ProfilePage'));
 const ProfileEdit = React.lazy(() => import('./pages/user/ProfileEdit'));
 const BookingCheckoutPage = React.lazy(() => import('./pages/user/BookingCheckoutPage'));
 const CareersPage = React.lazy(() => import('./pages/user/CareersPage'));
@@ -997,6 +998,7 @@ function App() {
               <Route path="/partner-landing" element={<PartnerLandingPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/blogs" element={<BlogsPage />} />
               <Route path="/blogs/:id" element={<BlogDetail />} />
               <Route path="/articles" element={<ArticlesPage />} />

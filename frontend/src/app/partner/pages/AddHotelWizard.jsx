@@ -341,6 +341,7 @@ const AddHotelWizard = () => {
       maxChildren: '',
       totalInventory: '',
       pricePerNight: '',
+      originalPrice: '',
       extraAdultPrice: '',
       extraChildPrice: '',
       images: [],
@@ -596,6 +597,7 @@ const AddHotelWizard = () => {
               maxChildren: rt.maxChildren ?? '',
               totalInventory: rt.totalInventory ?? '',
               pricePerNight: rt.pricePerNight ?? '',
+              originalPrice: rt.originalPrice ?? '',
               extraAdultPrice: rt.extraAdultPrice ?? '',
               extraChildPrice: rt.extraChildPrice ?? '',
               images: rt.images || ['', '', '', ''],
@@ -718,6 +720,7 @@ const AddHotelWizard = () => {
             maxChildren: Number(rt.maxChildren || 0),
             totalInventory: Number(rt.totalInventory || 0),
             pricePerNight: Number(rt.pricePerNight),
+            originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
             extraAdultPrice: Number(rt.extraAdultPrice || 0),
             extraChildPrice: Number(rt.extraChildPrice || 0),
             images: rt.images.filter(Boolean),
@@ -748,6 +751,7 @@ const AddHotelWizard = () => {
           maxChildren: Number(rt.maxChildren || 0),
           totalInventory: Number(rt.totalInventory || 0),
           pricePerNight: Number(rt.pricePerNight),
+          originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
           extraAdultPrice: Number(rt.extraAdultPrice || 0),
           extraChildPrice: Number(rt.extraChildPrice || 0),
           images: rt.images.filter(Boolean),
@@ -1376,10 +1380,14 @@ const AddHotelWizard = () => {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-gray-500">Price / Night (₹)</label>
-                        <input className="input w-full" type="number" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType(prev => ({ ...prev, pricePerNight: e.target.value }))} />
+                        <label className="text-xs font-semibold text-gray-500">Price / Night (₹) *</label>
+                        <input className="input w-full" type="number" placeholder="Selling price" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType(prev => ({ ...prev, pricePerNight: e.target.value }))} />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500">Original Price / MRP (₹)</label>
+                        <input className="input w-full" type="number" placeholder="Struck through" value={editingRoomType.originalPrice || ''} onChange={e => setEditingRoomType(prev => ({ ...prev, originalPrice: e.target.value }))} />
                       </div>
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-500">Total Rooms</label>

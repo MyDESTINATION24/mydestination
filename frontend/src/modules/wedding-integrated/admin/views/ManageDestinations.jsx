@@ -215,10 +215,22 @@ const ManageDestinations = () => {
                  </div>
 
                  <div className="mt-4 pt-4 border-t border-[hsl(353,45%,35%)]/10 flex justify-between items-center">
-                    <div>
-                       <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Starting Price</p>
-                       <p className="text-sm font-black text-slate-800">₹{(dest.startingPrice / 100000).toFixed(1)}L+</p>
-                    </div>
+                     <div>
+                        <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Starting Price</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                           <p className="text-sm font-black text-slate-800">₹{(dest.startingPrice / 100000).toFixed(1)}L+</p>
+                           {dest.originalStartingPrice && Number(dest.originalStartingPrice) > Number(dest.startingPrice) && (
+                              <>
+                                 <span className="text-xs text-gray-400 line-through font-bold">
+                                    ₹{(dest.originalStartingPrice / 100000).toFixed(1)}L
+                                 </span>
+                                 <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">
+                                    {Math.round(((dest.originalStartingPrice - dest.startingPrice) / dest.originalStartingPrice) * 100)}% OFF
+                                 </span>
+                              </>
+                           )}
+                        </div>
+                     </div>
                     <span className="text-[10px] font-black text-[#B06A6C] uppercase tracking-widest flex items-center gap-1 bg-[#B06A6C]/5 px-3 py-1 rounded-full">
                        LIVE DATA
                     </span>

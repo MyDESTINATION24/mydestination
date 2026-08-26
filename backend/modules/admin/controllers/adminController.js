@@ -944,7 +944,7 @@ export const getHotelDetails = async (req, res) => {
     const property = await Property.findById(id).populate('partnerId', 'name email phone');
     if (!property) return res.status(404).json({ success: false, message: 'Property not found' });
 
-    const roomTypes = await RoomType.find({ propertyId: id, isActive: true });
+    const roomTypes = await RoomType.find({ propertyId: id });
     const documents = await PropertyDocument.findOne({ propertyId: id });
     const bookings = await Booking.find({ propertyId: id })
       .populate('userId', 'name email phone')
@@ -1476,7 +1476,7 @@ export const adminUpdateProperty = async (req, res) => {
       'starRating', 'activities', 'shortDescription', 'partnerId', 'address',
       'location', 'nearbyPlaces', 'coverImage', 'propertyImages',
       'checkInTime', 'checkOutTime', 'cancellationPolicy',
-      'status', 'isLive', 'avgRating', 'totalReviews'
+      'status', 'isLive', 'avgRating', 'totalReviews', 'originalPrice'
     ];
 
     updatableFields.forEach(field => {
@@ -1502,6 +1502,7 @@ export const adminUpdateProperty = async (req, res) => {
 
       // Update existing rooms or create new ones
       for (const roomData of updateData.rooms) {
+        const origPrice = Number(roomData.originalPrice) > Number(roomData.pricePerNight) ? Number(roomData.originalPrice) : null;
         if (roomData._id && mongoose.Types.ObjectId.isValid(roomData._id)) {
           await RoomType.findByIdAndUpdate(roomData._id, {
             name: roomData.name,
@@ -1511,10 +1512,10 @@ export const adminUpdateProperty = async (req, res) => {
             maxChildren: roomData.maxChildren,
             totalInventory: roomData.totalInventory,
             pricePerNight: roomData.pricePerNight,
+            originalPrice: origPrice,
             extraAdultPrice: roomData.extraAdultPrice,
             extraChildPrice: roomData.extraChildPrice,
             bedsPerRoom: roomData.bedsPerRoom,
-            // amenities: roomData.amenities, // Make read-only as requested
             images: roomData.images,
             isActive: roomData.isActive
           });
@@ -1523,6 +1524,7 @@ export const adminUpdateProperty = async (req, res) => {
           const { amenities: _, ...restOfRoomData } = roomData;
           const newRoom = new RoomType({
             ...restOfRoomData,
+            originalPrice: origPrice,
             propertyId: id,
             _id: undefined // Let mongoose generate id
           });

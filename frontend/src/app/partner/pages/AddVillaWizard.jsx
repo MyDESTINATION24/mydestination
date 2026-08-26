@@ -213,6 +213,7 @@ const AddVillaWizard = () => {
               maxChildren: rt.maxChildren ?? 3,
               totalInventory: rt.totalInventory ?? 1,
               pricePerNight: rt.pricePerNight ?? '',
+              originalPrice: rt.originalPrice ?? '',
               extraAdultPrice: rt.extraAdultPrice ?? 0,
               extraChildPrice: rt.extraChildPrice ?? 0,
               images: rt.images || ['', '', '', ''],
@@ -558,6 +559,7 @@ const AddVillaWizard = () => {
       maxChildren: '',
       totalInventory: '1',
       pricePerNight: '',
+      originalPrice: '',
       extraAdultPrice: '',
       extraChildPrice: '',
       images: [],
@@ -751,6 +753,7 @@ const AddVillaWizard = () => {
             maxChildren: Number(rt.maxChildren || 0),
             totalInventory: Number(rt.totalInventory || 1),
             pricePerNight: Number(rt.pricePerNight),
+            originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
             extraAdultPrice: Number(rt.extraAdultPrice || 0),
             extraChildPrice: Number(rt.extraChildPrice || 0),
             images: rt.images.filter(Boolean),
@@ -779,6 +782,7 @@ const AddVillaWizard = () => {
           maxChildren: Number(rt.maxChildren || 0),
           totalInventory: Number(rt.totalInventory || 1),
           pricePerNight: Number(rt.pricePerNight),
+          originalPrice: rt.originalPrice && Number(rt.originalPrice) > Number(rt.pricePerNight) ? Number(rt.originalPrice) : null,
           extraAdultPrice: Number(rt.extraAdultPrice || 0),
           extraChildPrice: Number(rt.extraChildPrice || 0),
           images: rt.images.filter(Boolean),
@@ -1399,10 +1403,17 @@ const AddVillaWizard = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-gray-500">Price per Night (₹)</label>
+                        <label className="text-xs font-semibold text-gray-500">Price per Night (₹) *</label>
                         <div className="relative">
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
-                          <input className="input pl-7" type="number" placeholder="0" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType({ ...editingRoomType, pricePerNight: e.target.value })} />
+                          <input className="input pl-7" type="number" placeholder="Selling price" value={editingRoomType.pricePerNight} onChange={e => setEditingRoomType({ ...editingRoomType, pricePerNight: e.target.value })} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-gray-500">Original Price / MRP (₹)</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                          <input className="input pl-7" type="number" placeholder="Struck through" value={editingRoomType.originalPrice || ''} onChange={e => setEditingRoomType({ ...editingRoomType, originalPrice: e.target.value })} />
                         </div>
                       </div>
                       {/* Total Units Hidden for Villa - Always 1 */}

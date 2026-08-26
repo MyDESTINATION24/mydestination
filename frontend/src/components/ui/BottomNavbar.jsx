@@ -13,7 +13,7 @@ const BottomNavbar = () => {
         { name: 'Hotels', icon: Building2, route: '/hotels' },
         { name: 'Taxi', icon: Car, route: '/taxi' },
         { name: 'Wedding', icon: Heart, route: '/wedding' },
-        { name: 'Profile', icon: User, route: '/profile/edit' },
+        { name: 'Profile', icon: User, route: '/profile' },
     ];
 
     const hotelNavItems = [
@@ -21,7 +21,7 @@ const BottomNavbar = () => {
         { name: 'Home', icon: Home, route: '/hotels' },
         { name: 'Bookings', icon: Briefcase, route: '/bookings' },
         { name: 'Near By', icon: Navigation, route: '/search' },
-        { name: 'Profile', icon: User, route: '/profile/edit' },
+        { name: 'Profile', icon: User, route: '/profile' },
     ];
 
     const navItems = isSuperApp ? superAppNavItems : hotelNavItems;

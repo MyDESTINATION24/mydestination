@@ -94,6 +94,13 @@ export const updateDestination = async (req, res) => {
       }
     }
 
+    if (updates.originalStartingPrice !== undefined) {
+      const orig = Number(updates.originalStartingPrice);
+      const existing = await WeddingDestination.findById(id);
+      const start = Number(updates.startingPrice !== undefined ? updates.startingPrice : existing?.startingPrice);
+      updates.originalStartingPrice = (orig && start && orig > start) ? orig : null;
+    }
+
     const updated = await WeddingDestination.findByIdAndUpdate(id, updates, { new: true });
     res.status(200).json(updated);
   } catch (error) {
