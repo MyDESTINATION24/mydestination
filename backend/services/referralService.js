@@ -1,5 +1,5 @@
 import ReferralCode from '../modules/referral/models/ReferralCode.js';
-import { generateUniqueReferralCode } from './referralRegistry.js';
+import { generateUniqueReferralCode, resolveReferralCode, registerReferralCode } from './referralRegistry.js';
 import ReferralProgram from '../modules/referral/models/ReferralProgram.js';
 import ReferralTracking from '../modules/referral/models/ReferralTracking.js';
 import Wallet from '../modules/user/models/Wallet.js';
@@ -80,9 +80,25 @@ class ReferralService {
             console.log(`[REFERRAL_DEBUG] Processing signup for user: ${newUser._id}, Code: ${referralCodeString}`);
             if (!referralCodeString) return null;
 
-            const code = await ReferralCode.findOne({ code: referralCodeString.toUpperCase(), isActive: true });
-            if (!code) {
+            const resolved = await resolveReferralCode(referralCodeString);
+            if (!resolved) {
                 console.warn(`[REFERRAL_DEBUG] Invalid referral code used: ${referralCodeString}`);
+                return null;
+            }
+
+            // Codes minted by the taxi/driver flows have no registry row until
+            // they are first redeemed; create it now so usage counting and
+            // tracking work the same regardless of where the code came from.
+            const code = resolved.referralCodeId
+                ? await ReferralCode.findById(resolved.referralCodeId)
+                : await registerReferralCode({
+                    code: resolved.code,
+                    ownerId: resolved.ownerId,
+                    ownerType: resolved.ownerType,
+                });
+
+            if (!code) {
+                console.warn(`[REFERRAL_DEBUG] Could not resolve a registry row for: ${referralCodeString}`);
                 return null;
             }
             console.log(`[REFERRAL_DEBUG] Found valid code: ${code.code}, Owner: ${code.ownerId}`);
