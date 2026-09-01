@@ -1,4 +1,5 @@
 import ReferralCode from '../modules/referral/models/ReferralCode.js';
+import { generateReferralCode } from '../utils/publicIds.js';
 import ReferralProgram from '../modules/referral/models/ReferralProgram.js';
 import ReferralTracking from '../modules/referral/models/ReferralTracking.js';
 import Wallet from '../modules/user/models/Wallet.js';
@@ -34,7 +35,7 @@ class ReferralService {
 
     /**
      * Generates a unique referral code for a user/partner
-     * format: NAME + Random Numbers (e.g., JOHN402)
+     * format: AB12CD34 (alternating letter and digit pairs)
      */
     async generateCodeForUser(user) {
         try {
@@ -53,15 +54,12 @@ class ReferralService {
             // Find active program
             const program = await this.getOrCreateActiveProgram('user');
 
-            // Sanitized name prefix (first 4 chars of name or 'USER')
-            const prefix = (user.name || 'USER').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 4);
             let uniqueCode;
             let isUnique = false;
 
             // Try 10 times to generate unique code
             for (let i = 0; i < 10; i++) {
-                const randomNum = Math.floor(1000 + Math.random() * 9000); // 4 digit random
-                const candidate = `${prefix}${randomNum}`;
+                const candidate = generateReferralCode();
                 const check = await ReferralCode.findOne({ code: candidate });
                 if (!check) {
                     uniqueCode = candidate;
@@ -71,8 +69,9 @@ class ReferralService {
             }
 
             if (!isUnique) {
-                // Fallback to timestamp if name collision is high
-                uniqueCode = `${prefix}${Date.now().toString().slice(-6)}`;
+                // 1.36e9 possible codes, so ten straight collisions means something
+                // is wrong rather than unlucky -- surface it instead of guessing.
+                throw new Error('Could not generate a unique referral code after 10 attempts');
             }
 
             const newCode = await ReferralCode.create({

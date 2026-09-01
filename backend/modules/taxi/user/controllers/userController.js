@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import { ApiError } from '../../../../utils/ApiError.js';
 import User from '../../../user/models/User.js';
+import { generateReferralCode } from '../../../../utils/publicIds.js';
 import { UserWallet } from '../models/UserWallet.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
 import { Notification } from '../../admin/promotions/models/Notification.js';
@@ -1100,10 +1101,16 @@ const createUserSession = async (user) => ({
   user: toUserPayload(user),
 });
 
-const generateUserReferralCode = (user) => {
-  const idPart = String(user?._id || '').slice(-6).toUpperCase();
-  const phonePart = String(user?.phone || '').slice(-4);
-  return `USR${phonePart}${idPart}`.replace(/\W/g, '');
+// Codes are read aloud and typed by hand, so they use the short AB12CD34 shape.
+// Deriving them from the phone number (as the old USR<phone><id> form did) both
+// leaked digits of it and made the code guessable from the owner's number.
+const generateUserReferralCode = async () => {
+  for (let i = 0; i < 10; i += 1) {
+    const candidate = generateReferralCode();
+    const taken = await User.exists({ referralCode: candidate });
+    if (!taken) return candidate;
+  }
+  throw new Error('Could not generate a unique user referral code after 10 attempts');
 };
 
 const getUserReferralProgramSettings = async () => {
@@ -1247,7 +1254,7 @@ export const registerUser = async (req, res) => {
     : await User.create(userPayload);
 
   if (!String(user.referralCode || '').trim()) {
-    user.referralCode = generateUserReferralCode(user);
+    user.referralCode = await generateUserReferralCode();
     await user.save();
   }
 
@@ -1360,7 +1367,7 @@ export const signupUser = async (req, res) => {
     : await User.create(userPayload);
 
   if (!String(user.referralCode || '').trim()) {
-    user.referralCode = generateUserReferralCode(user);
+    user.referralCode = await generateUserReferralCode();
     await user.save();
   }
 
@@ -1473,7 +1480,7 @@ export const getCurrentUser = async (req, res) => {
   }
 
   if (!String(user.referralCode || '').trim()) {
-    user.referralCode = generateUserReferralCode(user);
+    user.referralCode = await generateUserReferralCode();
     await user.save();
   }
 

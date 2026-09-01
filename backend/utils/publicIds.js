@@ -26,6 +26,11 @@ export const generateBookingId = () =>
 export const generateUserId = () =>
   `${PREFIX}${pick(DIGITS, 2)}${pick(LETTERS, 2)}${pick(DIGITS, 2)}${pick(LETTERS, 2)}`;
 
+// Referral codes share the booking ID's letter/digit rhythm but carry no
+// prefix, since users read them aloud and type them by hand: AB12CD34.
+export const generateReferralCode = () =>
+  `${pick(LETTERS, 2)}${pick(DIGITS, 2)}${pick(LETTERS, 2)}${pick(DIGITS, 2)}`;
+
 // Accepts stored values with or without the prefix and normalises them for display.
 export const formatPublicId = (value) => {
   if (!value) return '';
