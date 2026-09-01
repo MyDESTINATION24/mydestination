@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { bookingService } from '../../../services/apiService';
 import PartnerHeader from '../components/PartnerHeader';
+import { formatBookingId } from '../../../utils/publicIds';
 
 // --- Card Component ---
 const BookingCard = ({ booking }) => {
@@ -50,7 +51,7 @@ const BookingCard = ({ booking }) => {
     const guestCount = (booking.guests?.adults || 1) + (booking.guests?.children || 0);
     const roomsCount = 1;
     const hotelName = booking.propertyId?.propertyName || booking.propertyId?.name || 'Hotel Property';
-    const bookingId = booking.bookingId || booking._id?.slice(-8).toUpperCase(); // Show bookingId if available
+    const bookingId = formatBookingId(booking); // Public booking reference (#BP-XXXXXXXX)
 
     return (
         <div

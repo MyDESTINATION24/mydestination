@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import { formatBookingId } from '../../../utils/publicIds';
 
 const AdminBookingDetail = () => {
     const { id } = useParams();
@@ -67,7 +68,7 @@ const AdminBookingDetail = () => {
         setModalConfig({
             isOpen: true,
             title: 'Cancel Booking?',
-            message: `Are you sure you want to cancel booking #${booking.bookingId}? This will trigger any applicable refund processes.`,
+            message: `Are you sure you want to cancel booking ${formatBookingId(booking)}? This will trigger any applicable refund processes.`,
             type: 'danger',
             confirmText: 'Yes, Cancel Booking',
             extraContent: (
@@ -131,14 +132,14 @@ const AdminBookingDetail = () => {
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase text-gray-500 mb-2">
                 <Link to="/admin/bookings" className="hover:text-black transition-colors">Bookings</Link>
                 <span>/</span>
-                <span className="text-black">#{booking.bookingId || booking._id.slice(-6)}</span>
+                <span className="text-black">{formatBookingId(booking)}</span>
             </div>
 
             {/* Header Card */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-3 mb-1">
-                        <h1 className="text-2xl font-bold text-gray-900 uppercase">Booking #{booking.bookingId || booking._id.slice(-6)}</h1>
+                        <h1 className="text-2xl font-bold text-gray-900 uppercase">Booking {formatBookingId(booking)}</h1>
                         <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full border uppercase ${getStatusColor(booking.bookingStatus || booking.status)} flex items-center gap-1`}>
                             {(booking.bookingStatus || booking.status) === 'confirmed' ? <CheckCircle size={10} /> : <XCircle size={10} />}
                             {booking.bookingStatus || booking.status}

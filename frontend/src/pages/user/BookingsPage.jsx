@@ -7,6 +7,7 @@ import {
     CheckCircle, XCircle, AlertCircle, Ticket
 } from 'lucide-react';
 import { bookingService } from '../../services/apiService';
+import { formatBookingId } from '../../utils/publicIds';
 
 const BookingsPage = () => {
     const navigate = useNavigate();
@@ -194,7 +195,7 @@ const BookingsPage = () => {
                                                         booking.paymentStatus
                                                     )}
                                                     <span className="text-[9px] text-gray-400 font-medium tracking-wide">
-                                                        #{booking.bookingId || booking._id?.slice(-6)}
+                                                        {formatBookingId(booking)}
                                                     </span>
                                                 </div>
 

@@ -1,6 +1,15 @@
 import mongoose from 'mongoose';
+import { generateUserId } from '../../../utils/publicIds.js';
 
 const userSchema = new mongoose.Schema({
+  // Public-facing user identifier shown in the app / support flows (e.g. BP-12AB34CD)
+  publicId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    uppercase: true,
+    trim: true
+  },
   name: {
     type: String,
     required: true,
@@ -167,6 +176,13 @@ const userSchema = new mongoose.Schema({
     isDefault: { type: Boolean, default: false }
   }]
 }, { timestamps: true });
+
+// Assign a public ID on creation, and lazily backfill it for users created
+// before this field existed (any save() on such a doc fills it in).
+userSchema.pre('validate', function assignPublicId(next) {
+  if (!this.publicId) this.publicId = generateUserId();
+  next();
+});
 
 // Compound indexes to allow same phone/email for different roles
 userSchema.index({ phone: 1, role: 1 }, { unique: true });

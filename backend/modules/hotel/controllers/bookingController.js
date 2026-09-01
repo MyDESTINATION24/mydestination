@@ -1,4 +1,5 @@
 import Property from '../models/Property.js';
+import { generateBookingId } from '../../../utils/publicIds.js';
 import RoomType from '../models/RoomType.js';
 import Booking from '../models/Booking.js';
 import PDFDocument from 'pdfkit';
@@ -17,7 +18,6 @@ import notificationService from '../../../services/notificationService.js';
 import referralService from '../../../services/referralService.js';
 import User from '../../user/models/User.js';
 import whatsappService from '../../../utils/whatsappService.js';
-import crypto from 'crypto';
 
 // Initialize Razorpay instance for refunds
 let razorpayInstance;
@@ -283,7 +283,7 @@ export const createBooking = async (req, res) => {
     // Verification: TotalAmount - Tax - Commission = ((Gross - Discount) + Tax) - Tax - Commission = Gross - Discount - Commission.
     const partnerPayout = Math.floor(totalAmount - taxes - adminCommission);
 
-    const bookingId = crypto.randomBytes(5).toString('hex').toUpperCase();
+    const bookingId = generateBookingId();
 
     // Determine User Model based on mongoose document model name
     const userModel = req.user.constructor.modelName;

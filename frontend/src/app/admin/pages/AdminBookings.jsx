@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import { formatBookingId } from '../../../utils/publicIds';
 
 const BookingStatusBadge = ({ status }) => {
     const styles = {
@@ -141,7 +142,7 @@ const AdminBookings = () => {
             setModalConfig({
                 isOpen: true,
                 title: 'Cancel Booking?',
-                message: `Are you sure you want to cancel booking #${booking.bookingId}? This will notify both the guest and the partner.`,
+                message: `Are you sure you want to cancel booking ${formatBookingId(booking)}? This will notify both the guest and the partner.`,
                 type: 'danger',
                 confirmText: 'Cancel Booking',
                 onConfirm: () => handleUpdateStatus(booking._id, 'cancelled')
@@ -274,7 +275,7 @@ const AdminBookings = () => {
                                             >
                                                 <td className="p-4">
                                                     <Link to={`/admin/bookings/${booking._id}`} className="font-mono text-xs font-bold text-gray-900 hover:underline uppercase tracking-tight">
-                                                        #{booking.bookingId || booking._id.slice(-6)}
+                                                        {formatBookingId(booking)}
                                                     </Link>
                                                     <p className="text-[10px] text-gray-400 mt-0.5 font-bold">
                                                         {new Date(booking.createdAt).toLocaleDateString()}

@@ -100,6 +100,7 @@ const UserSignup = ({ theme = 'hotel' }) => {
 
     const fieldErrors = getFieldErrors();
     const isFormValid = Object.keys(fieldErrors).length === 0;
+    const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [resendTimer, setResendTimer] = useState(120);

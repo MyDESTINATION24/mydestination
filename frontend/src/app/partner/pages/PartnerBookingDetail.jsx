@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { bookingService } from '../../../services/apiService';
 import toast from 'react-hot-toast';
+import { formatBookingId } from '../../../utils/publicIds';
 
 const PartnerBookingDetail = () => {
   const { id } = useParams();
@@ -125,7 +126,7 @@ const PartnerBookingDetail = () => {
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Booking ID</span>
-            <p className="text-sm font-black text-gray-900 break-all">#{booking.bookingId || booking._id}</p>
+            <p className="text-sm font-black text-gray-900 break-all">{formatBookingId(booking)}</p>
           </div>
           <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${booking.bookingStatus === 'confirmed' ? 'bg-green-50 text-green-700 border-green-100' :
             booking.bookingStatus === 'cancelled' ? 'bg-red-50 text-red-700 border-red-100' :

@@ -12,8 +12,12 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      // Backfill the public ID for accounts created before the field existed
+      if (!user.publicId) await user.save();
+
       res.json({
         _id: user._id,
+        publicId: user.publicId,
         name: user.name,
         email: user.email,
         phone: user.phone,

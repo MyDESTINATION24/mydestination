@@ -10,6 +10,7 @@ import {
 import { authService, bookingService } from '../../services/apiService';
 import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
+import { formatUserId } from '../../utils/publicIds';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
@@ -257,6 +258,11 @@ const ProfilePage = () => {
                   ? (user?.phone || user?.email || 'Manage your account details')
                   : 'Sign in to access your orders, saved addresses & profile details.'}
               </p>
+              {isLoggedIn && formatUserId(user) && (
+                <p className="text-[10px] font-mono font-bold text-gray-400 mt-1 tracking-wide">
+                  User ID: {formatUserId(user)}
+                </p>
+              )}
             </div>
           </div>
 

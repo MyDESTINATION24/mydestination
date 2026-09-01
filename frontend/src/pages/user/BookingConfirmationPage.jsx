@@ -7,6 +7,7 @@ import {
 import confetti from 'canvas-confetti';
 import toast from 'react-hot-toast';
 import { bookingService } from '../../services/apiService';
+import { formatBookingId } from '../../utils/publicIds';
 
 const BookingConfirmationPage = () => {
     const { id } = useParams();
@@ -191,7 +192,7 @@ const BookingConfirmationPage = () => {
                             </div>
                             <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">Booking Cancelled!</h1>
                             <p className="text-gray-500 max-w-md mx-auto">
-                                Your reservation ID is <span className="font-mono font-bold text-gray-800">#{booking.bookingId || booking._id?.slice(-8).toUpperCase()}</span>.
+                                Your reservation ID is <span className="font-mono font-bold text-gray-800">{formatBookingId(booking)}</span>.
                                 {booking.cancellationReason && (
                                     <span className="block mt-2 text-sm text-gray-600">
                                         Reason: <span className="font-medium">{booking.cancellationReason}</span>
@@ -210,7 +211,7 @@ const BookingConfirmationPage = () => {
                             </div>
                             <h1 className="text-2xl md:text-3xl font-black text-gray-900 mb-2">Booking Confirmed!</h1>
                             <p className="text-gray-500 max-w-md mx-auto">
-                                Your reservation ID is <span className="font-mono font-bold text-gray-800">#{booking.bookingId || booking._id?.slice(-8).toUpperCase()}</span>.
+                                Your reservation ID is <span className="font-mono font-bold text-gray-800">{formatBookingId(booking)}</span>.
                                 We've sent a confirmation email to <span className="font-medium text-gray-800">{user.email}</span>.
                             </p>
                         </>

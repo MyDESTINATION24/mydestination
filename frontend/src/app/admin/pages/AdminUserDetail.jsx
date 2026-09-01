@@ -10,6 +10,7 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import adminService from '../../../services/adminService';
 import walletService from '../../../services/walletService';
 import toast from 'react-hot-toast';
+import { formatBookingId } from '../../../utils/publicIds';
 
 const UserBookingsTab = ({ bookings }) => (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -27,7 +28,7 @@ const UserBookingsTab = ({ bookings }) => (
                 {bookings && bookings.length > 0 ? (
                     bookings.map((booking, i) => (
                         <tr key={i} className="hover:bg-gray-50">
-                            <td className="p-4 font-mono text-xs text-gray-500">#{booking.bookingId || booking._id.slice(-6)}</td>
+                            <td className="p-4 font-mono text-xs text-gray-500">{formatBookingId(booking)}</td>
                             <td className="p-4 font-bold text-gray-900">{booking.propertyId?.propertyName || booking.propertyId?.name || 'Deleted Hotel'}</td>
                             <td className="p-4 text-[10px] items-center font-bold text-gray-400 uppercase">{new Date(booking.createdAt).toLocaleDateString()}</td>
                             <td className="p-4">
