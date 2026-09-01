@@ -8,7 +8,7 @@ import notificationService from './notificationService.js';
 import mongoose from 'mongoose';
 
 /**
- * Advanced Cron Service for RukkooIn
+ * Advanced Cron Service for My DESTINATION
  * Handles: Check-in reminders, Review requests, Payment expiry warnings, and Monthly reports
  */
 class CronService {

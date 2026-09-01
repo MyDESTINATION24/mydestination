@@ -1344,7 +1344,7 @@ export const downloadReceipt = async (req, res) => {
     const titleStart = 50;
 
     // --- HEADER ---
-    doc.fontSize(20).font('Helvetica-Bold').fillColor(primaryColor).text('Rukkoo.in', 50, 40);
+    doc.fontSize(20).font('Helvetica-Bold').fillColor(primaryColor).text('My DESTINATION', 50, 40);
     doc.fontSize(10).font('Helvetica').fillColor(secondaryColor).text('Booking Receipt', 50, 65);
 
     // Draw Line

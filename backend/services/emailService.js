@@ -241,7 +241,7 @@ class EmailService {
       <p>Thank you for being a part of our community.</p>
     `;
 
-    const html = this.generateHtmlTemplate(subject, body, 'Farewell from RukkooIn');
+    const html = this.generateHtmlTemplate(subject, body, 'Farewell from My DESTINATION');
     return this.sendEmail({ to: user.email, subject, html, text: subject });
   }
 
@@ -495,7 +495,7 @@ class EmailService {
       </div>
     `;
 
-    const html = this.generateHtmlTemplate('Welcome to RukkooIn Partners', body, 'You are now live!');
+    const html = this.generateHtmlTemplate('Welcome to My DESTINATION Partners', body, 'You are now live!');
     return this.sendEmail({ to: partner.email, subject, html, text: subject });
   }
 
@@ -566,7 +566,7 @@ class EmailService {
       <p>We thank you for the time you spent as our partner.</p>
     `;
 
-    const html = this.generateHtmlTemplate('Account Deletion Confirmation', body, 'Farewell from RukkooIn');
+    const html = this.generateHtmlTemplate('Account Deletion Confirmation', body, 'Farewell from My DESTINATION');
     return this.sendEmail({ to: partner.email, subject, html, text: subject });
   }
 
