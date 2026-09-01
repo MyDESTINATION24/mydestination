@@ -179,9 +179,10 @@ const userSchema = new mongoose.Schema({
 
 // Assign a public ID on creation, and lazily backfill it for users created
 // before this field existed (any save() on such a doc fills it in).
-userSchema.pre('validate', function assignPublicId(next) {
+// Declared with no `next` parameter so mongoose runs it synchronously; taking
+// `next` here made kareem invoke it without a callback, throwing on every save.
+userSchema.pre('validate', function assignPublicId() {
   if (!this.publicId) this.publicId = generateUserId();
-  next();
 });
 
 // Compound indexes to allow same phone/email for different roles
