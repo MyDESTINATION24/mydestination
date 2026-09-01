@@ -5,7 +5,7 @@ import { env } from '../../../../config/env.js';
 import { normalizePoint, toPoint } from '../../../../utils/geo.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { Driver } from '../models/Driver.js';
-import { generateReferralCode } from '../../../../utils/publicIds.js';
+import { generateUniqueReferralCode, registerReferralCode } from '../../../../services/referralRegistry.js';
 import { DriverRegistrationSession } from '../models/DriverRegistrationSession.js';
 import { Owner } from '../../admin/models/Owner.js';
 import { ServiceLocation } from '../../admin/models/ServiceLocation.js';
@@ -111,14 +111,7 @@ const getPrimaryRegisterFor = (serviceCategories = [], fallback = 'taxi') => {
 const normalizeReferralCode = (value = '') => String(value || '').trim().toUpperCase();
 // See the user-side generator: short AB12CD34 shape, and not derived from the
 // phone number, which the old DRV<phone><id> form exposed.
-const generateDriverReferralCode = async () => {
-  for (let i = 0; i < 10; i += 1) {
-    const candidate = generateReferralCode();
-    const taken = await Driver.exists({ referralCode: candidate });
-    if (!taken) return candidate;
-  }
-  throw new Error('Could not generate a unique driver referral code after 10 attempts');
-};
+const generateDriverReferralCode = () => generateUniqueReferralCode();
 
 const getDriverReferralProgramSettings = async () => {
   const setting = await AdminBusinessSetting.findOne({ scope: 'default' }).lean();
@@ -1299,6 +1292,7 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
   if (!String(driver.referralCode || '').trim()) {
     driver.referralCode = await generateDriverReferralCode();
     await driver.save();
+    await registerReferralCode({ code: driver.referralCode, ownerId: driver._id, ownerType: 'TaxiDriver' });
   }
 
   if (referrer?._id) {

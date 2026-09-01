@@ -444,8 +444,8 @@ export const verifyOtp = async (req, res) => {
       // REFERRAL: Process Signup Referral
       if (referralCode) {
         console.log(`[REFERRAL_DEBUG] User signup with code: ${referralCode}`);
-        const ReferralCodeModel = (await import('../../referral/models/ReferralCode.js')).default;
-        const validCode = await ReferralCodeModel.findOne({ code: referralCode.toUpperCase(), isActive: true });
+        const { resolveReferralCode } = await import('../../../services/referralRegistry.js');
+        const validCode = await resolveReferralCode(referralCode);
         if (!validCode) {
           return res.status(400).json({ message: 'Invalid referral code provided' });
         }
@@ -1096,8 +1096,10 @@ export const validateReferralCode = async (req, res) => {
       return res.status(400).json({ valid: false, message: 'Referral code is required' });
     }
 
-    const ReferralCodeModel = (await import('../../referral/models/ReferralCode.js')).default;
-    const code = await ReferralCodeModel.findOne({ code: referralCode.trim().toUpperCase(), isActive: true });
+    // Resolves against the hotel registry, taxi users and drivers alike, so a
+    // code is accepted wherever it was issued.
+    const { resolveReferralCode } = await import('../../../services/referralRegistry.js');
+    const code = await resolveReferralCode(referralCode);
 
     if (!code) {
       return res.status(404).json({ valid: false, message: 'Invalid referral code' });

@@ -5,7 +5,7 @@ import { env } from "../../../../config/env.js";
 import { ApiError } from "../../../../utils/ApiError.js";
 import { normalizePoint, toPoint } from "../../../../utils/geo.js";
 import { Driver } from "../models/Driver.js";
-import { generateReferralCode } from "../../../../utils/publicIds.js";
+import { generateUniqueReferralCode, registerReferralCode } from "../../../../services/referralRegistry.js";
 import { BusDriver } from "../models/BusDriver.js";
 import { DriverLoginSession } from "../models/DriverLoginSession.js";
 import { WalletTransaction } from "../models/WalletTransaction.js";
@@ -85,14 +85,7 @@ import {
 
 // See the user-side generator: short AB12CD34 shape, and not derived from the
 // phone number, which the old DRV<phone><id> form exposed.
-const generateDriverReferralCode = async () => {
-  for (let i = 0; i < 10; i += 1) {
-    const candidate = generateReferralCode();
-    const taken = await Driver.exists({ referralCode: candidate });
-    if (!taken) return candidate;
-  }
-  throw new Error("Could not generate a unique driver referral code after 10 attempts");
-};
+const generateDriverReferralCode = () => generateUniqueReferralCode();
 
 const MAX_EMERGENCY_CONTACTS = 5;
 const EMERGENCY_CONTACT_NAME_REGEX = /^[A-Za-z]+(?:[ .'-][A-Za-z]+)*$/;
@@ -2192,6 +2185,7 @@ export const getCurrentDriver = async (req, res) => {
   if (!String(driver.referralCode || "").trim()) {
     driver.referralCode = await generateDriverReferralCode();
     await driver.save();
+    await registerReferralCode({ code: driver.referralCode, ownerId: driver._id, ownerType: 'TaxiDriver' });
   }
 
   await clearDriverActiveRideIfStale(driver);

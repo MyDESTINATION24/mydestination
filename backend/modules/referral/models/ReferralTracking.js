@@ -9,7 +9,7 @@ const referralTrackingSchema = new mongoose.Schema({
     referrerModel: {
         type: String,
         required: true,
-        enum: ['User', 'Partner', 'Admin']
+        enum: ['User', 'Partner', 'Admin', 'TaxiDriver']
     },
     referredUserId: {
         type: mongoose.Schema.Types.ObjectId,

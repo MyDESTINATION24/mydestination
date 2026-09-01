@@ -17,7 +17,8 @@ const referralCodeSchema = new mongoose.Schema({
     ownerType: {
         type: String,
         required: true,
-        enum: ['User', 'Partner', 'Admin']
+        // 'TaxiDriver' is the registered model name for drivers (see Driver.js).
+        enum: ['User', 'Partner', 'Admin', 'TaxiDriver']
     },
     referralProgramId: {
         type: mongoose.Schema.Types.ObjectId,

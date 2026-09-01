@@ -1,5 +1,5 @@
 import ReferralCode from '../modules/referral/models/ReferralCode.js';
-import { generateReferralCode } from '../utils/publicIds.js';
+import { generateUniqueReferralCode } from './referralRegistry.js';
 import ReferralProgram from '../modules/referral/models/ReferralProgram.js';
 import ReferralTracking from '../modules/referral/models/ReferralTracking.js';
 import Wallet from '../modules/user/models/Wallet.js';
@@ -54,25 +54,8 @@ class ReferralService {
             // Find active program
             const program = await this.getOrCreateActiveProgram('user');
 
-            let uniqueCode;
-            let isUnique = false;
-
-            // Try 10 times to generate unique code
-            for (let i = 0; i < 10; i++) {
-                const candidate = generateReferralCode();
-                const check = await ReferralCode.findOne({ code: candidate });
-                if (!check) {
-                    uniqueCode = candidate;
-                    isUnique = true;
-                    break;
-                }
-            }
-
-            if (!isUnique) {
-                // 1.36e9 possible codes, so ten straight collisions means something
-                // is wrong rather than unlucky -- surface it instead of guessing.
-                throw new Error('Could not generate a unique referral code after 10 attempts');
-            }
+            // Unique across the taxi and driver stores too, not just this collection.
+            const uniqueCode = await generateUniqueReferralCode();
 
             const newCode = await ReferralCode.create({
                 code: uniqueCode,
