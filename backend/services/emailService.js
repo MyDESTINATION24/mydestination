@@ -4,7 +4,7 @@ class EmailService {
   constructor() {
     this.transporter = null;
     this.brandColor = '#0F766E'; // Teal-700 based on standard UI
-    this.companyName = 'Rukkoo.in';
+    this.companyName = 'My DESTINATION';
     this.logoUrl = 'https://res.cloudinary.com/dqowbjoxb/image/upload/v1738411000/rukkooin-logo-placeholder.png'; // Placeholder or Text fallback
   }
 
@@ -16,7 +16,9 @@ class EmailService {
         secure: process.env.SMTP_SECURE === 'true',
         auth: {
           user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD,
+          // Google shows app passwords as four space-separated groups; SMTP AUTH
+          // rejects them unless the spaces are stripped first.
+          pass: (process.env.SMTP_PASSWORD || '').replace(/\s+/g, ''),
         },
       });
     }
