@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import { ApiError } from '../../../../utils/ApiError.js';
 import User from '../../../user/models/User.js';
-import { generateUniqueReferralCode, registerReferralCode } from '../../../../services/referralRegistry.js';
+import { generateUniqueReferralCode, registerReferralCode, resolveReferralCode } from '../../../../services/referralRegistry.js';
 import { UserWallet } from '../models/UserWallet.js';
 import { AdminBusinessSetting } from '../../admin/models/AdminBusinessSetting.js';
 import { Notification } from '../../admin/promotions/models/Notification.js';
@@ -1118,16 +1118,6 @@ const getUserReferralProgramSettings = async () => {
   };
 };
 
-const findUserByReferralCode = async (referralCode) => {
-  const normalizedCode = normalizeReferralCode(referralCode);
-
-  if (!normalizedCode) {
-    return null;
-  }
-
-  return User.findOne({ referralCode: normalizedCode });
-};
-
 const creditUserWalletByReference = async ({ userId, amount, title, referenceKey }) => {
   const normalizedAmount = Math.max(0, Number(amount || 0) || 0);
   const normalizedReferenceKey = toCleanString(referenceKey);
@@ -1221,11 +1211,20 @@ export const registerUser = async (req, res) => {
 
   const existingUser = await User.findOne({ phone });
 
-  const referrer = referralCode ? await findUserByReferralCode(referralCode) : null;
+  // Accept any code the platform knows about -- another user's, a driver's or
+  // a house code -- rather than only codes owned by taxi users.
+  const resolvedReferral = referralCode ? await resolveReferralCode(referralCode) : null;
 
-  if (referralCode && !referrer) {
+  if (referralCode && !resolvedReferral) {
     throw new ApiError(400, 'Invalid referral code');
   }
+
+  // The rewards below credit a User document, so they only apply when the code
+  // belongs to one. Other valid codes are accepted without a user bonus.
+  const referrer =
+    resolvedReferral?.ownerType === 'User'
+      ? await User.findById(resolvedReferral.ownerId)
+      : null;
 
   if (existingUser && !canRestoreUserForSignup(existingUser)) {
     throw new ApiError(409, 'Phone number is already registered');
@@ -1335,11 +1334,20 @@ export const signupUser = async (req, res) => {
 
   const existingUser = await User.findOne({ phone });
 
-  const referrer = referralCode ? await findUserByReferralCode(referralCode) : null;
+  // Accept any code the platform knows about -- another user's, a driver's or
+  // a house code -- rather than only codes owned by taxi users.
+  const resolvedReferral = referralCode ? await resolveReferralCode(referralCode) : null;
 
-  if (referralCode && !referrer) {
+  if (referralCode && !resolvedReferral) {
     throw new ApiError(400, 'Invalid referral code');
   }
+
+  // The rewards below credit a User document, so they only apply when the code
+  // belongs to one. Other valid codes are accepted without a user bonus.
+  const referrer =
+    resolvedReferral?.ownerType === 'User'
+      ? await User.findById(resolvedReferral.ownerId)
+      : null;
 
   if (existingUser && !canRestoreUserForSignup(existingUser)) {
     throw new ApiError(409, 'Phone number is already registered');

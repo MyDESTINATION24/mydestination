@@ -5,7 +5,7 @@ import { env } from '../../../../config/env.js';
 import { normalizePoint, toPoint } from '../../../../utils/geo.js';
 import { uploadDataUrlToCloudinary } from '../../../../utils/cloudinaryUpload.js';
 import { Driver } from '../models/Driver.js';
-import { generateUniqueReferralCode, registerReferralCode } from '../../../../services/referralRegistry.js';
+import { generateUniqueReferralCode, registerReferralCode, resolveReferralCode } from '../../../../services/referralRegistry.js';
 import { DriverRegistrationSession } from '../models/DriverRegistrationSession.js';
 import { Owner } from '../../admin/models/Owner.js';
 import { ServiceLocation } from '../../admin/models/ServiceLocation.js';
@@ -123,16 +123,6 @@ const getDriverReferralProgramSettings = async () => {
     amount: Math.max(0, Number(driverReferral.amount || 0) || 0),
     rideCount: Math.max(0, Number(driverReferral.ride_count || 0) || 0),
   };
-};
-
-const findDriverByReferralCode = async (referralCode) => {
-  const normalizedCode = normalizeReferralCode(referralCode);
-
-  if (!normalizedCode) {
-    return null;
-  }
-
-  return Driver.findOne({ referralCode: normalizedCode });
 };
 
 const creditDriverWalletByReference = async ({ driverId, amount, title, referenceKey, metadata = {} }) => {
@@ -681,8 +671,11 @@ export const saveDriverReferral = async ({ registrationId, phone, referralCode =
   const normalizedReferralCode = normalizeReferralCode(referralCode);
 
   if (normalizedReferralCode) {
-    const referrer = await findDriverByReferralCode(normalizedReferralCode);
-    if (!referrer?._id) {
+    // Accept any code the platform knows about, not just another driver's.
+    // Restricting this to drivers meant a brand-new fleet -- where no driver
+    // code exists yet -- rejected every code and aborted onboarding.
+    const resolved = await resolveReferralCode(normalizedReferralCode);
+    if (!resolved) {
       throw new ApiError(400, 'Invalid referral code');
     }
   }
@@ -1187,13 +1180,21 @@ export const completeDriverOnboarding = async ({ registrationId, phone, document
   }
 
   const normalizedReferralCode = normalizeReferralCode(session.referralCode);
-  const referrer = normalizedReferralCode
-    ? await findDriverByReferralCode(normalizedReferralCode)
+  const resolvedReferral = normalizedReferralCode
+    ? await resolveReferralCode(normalizedReferralCode)
     : null;
 
-  if (normalizedReferralCode && !referrer?._id) {
+  if (normalizedReferralCode && !resolvedReferral) {
     throw new ApiError(400, 'Invalid referral code');
   }
+
+  // The driver-to-driver reward below credits a Driver document, so it only
+  // applies when the code actually belongs to another driver. A user or house
+  // code is still accepted -- it just does not pay a driver bonus.
+  const referrer =
+    resolvedReferral?.ownerType === 'TaxiDriver'
+      ? await Driver.findById(resolvedReferral.ownerId)
+      : null;
 
   const driver = await Driver.create({
     name: session.personal.fullName,
