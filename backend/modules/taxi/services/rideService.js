@@ -1681,6 +1681,19 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
       throw new ApiError(404, 'Assigned ride not found');
     }
 
+    // A driver retrying the same transition -- double tap, flaky network, app
+    // resend -- must not be told the ride failed. Every other status already
+    // tolerates this by listing itself in allowedCurrent, but completion
+    // cannot: re-running the branch below would settle the wallet, consume a
+    // subscription ride, re-count today's earnings and pay both referral
+    // rewards a second time. So answer with the ride as it already stands,
+    // before any of those side effects.
+    if (ride.liveStatus === nextStatus && nextStatus === RIDE_LIVE_STATUS.COMPLETED) {
+      // Nothing was written; release the transaction rather than commit it.
+      await session.abortTransaction();
+      return (await populateRideRealtime(ride._id)) || ride;
+    }
+
     if (!config.allowedCurrent.includes(ride.liveStatus)) {
       throw new ApiError(409, `Ride cannot move from ${ride.liveStatus} to ${nextStatus}`);
     }
@@ -1763,7 +1776,12 @@ export const updateRideLifecycle = async ({ rideId, driverId, nextStatus, paymen
 
     return populatedRide;
   } catch (error) {
-    await session.abortTransaction();
+    // Only abort if the transaction is still open. Anything thrown after the
+    // commit -- populateRideRealtime, for instance -- would otherwise abort an
+    // already-settled transaction and surface that instead of the real error.
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+    }
     throw error;
   } finally {
     session.endSession();
