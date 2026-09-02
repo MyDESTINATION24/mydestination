@@ -173,6 +173,29 @@ export const verifyPayment = async (req, res) => {
       booking = await Booking.findById(bookingId);
       if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
+      // Bind the verified payment to THIS booking. A valid signature only
+      // proves that some payment succeeded -- it says nothing about which
+      // booking it was for, and bookingId arrives from the client. Without
+      // this check, one genuine payment could be replayed against any other
+      // booking id to mark it paid and confirmed.
+      if (phonepe_txn_id) {
+        // merchantOrderId is minted as BK_<bookingId>_<timestamp> at checkout.
+        if (!String(phonepe_txn_id).startsWith(`BK_${bookingId}_`)) {
+          return res.status(400).json({ message: 'Payment does not belong to this booking' });
+        }
+      } else {
+        const paidOrder = await razorpay.orders.fetch(razorpay_order_id);
+        if (String(paidOrder?.notes?.bookingId || '') !== String(bookingId)) {
+          return res.status(400).json({ message: 'Payment does not belong to this booking' });
+        }
+      }
+
+      // Already settled: re-running would overwrite paymentId and re-trigger
+      // the payout side effects below.
+      if (booking.paymentStatus === 'paid') {
+        return res.status(200).json({ message: 'Payment already verified', booking });
+      }
+
       if (booking.paymentMethod !== 'prepaid') {
         booking.paymentStatus = 'paid';
         booking.paymentMethod = paymentMethodToUpdate; // Only overwrite if not prepaid
