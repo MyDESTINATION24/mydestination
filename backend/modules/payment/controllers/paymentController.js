@@ -51,6 +51,11 @@ export const createPaymentOrder = async (req, res) => {
     const { bookingId } = req.body;
     const booking = await Booking.findById(bookingId);
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
+    // 'protect' only proves someone is logged in, not that this booking is
+    // theirs. Without this, any authenticated account could act on any booking.
+    if (String(booking.userId) !== String(req.user?._id)) {
+      return res.status(403).json({ message: 'Not authorized for this booking' });
+    }
     if (booking.paymentStatus === 'paid') return res.status(400).json({ message: 'Booking already paid' });
 
     let amountInPaise = Math.round(booking.totalAmount * 100);
@@ -172,6 +177,9 @@ export const verifyPayment = async (req, res) => {
       // --- LEGACY FLOW (Pre-Existing Booking) ---
       booking = await Booking.findById(bookingId);
       if (!booking) return res.status(404).json({ message: 'Booking not found' });
+      if (String(booking.userId) !== String(req.user?._id)) {
+        return res.status(403).json({ message: 'Not authorized for this booking' });
+      }
 
       // Bind the verified payment to THIS booking. A valid signature only
       // proves that some payment succeeded -- it says nothing about which
