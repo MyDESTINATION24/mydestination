@@ -18,12 +18,12 @@ const RULES = {
   phone: {
     required: false,
     pattern: /^[+\d\s\-()]{7,25}$/,
-    patternMsg: 'Enter a valid phone number (e.g. +91 80 06 787878)',
+    patternMsg: 'Enter a valid phone number (e.g. +91 00000 00000)',
   },
   whatsapp: {
     required: false,
     pattern: /^[+\d\s\-()]{7,25}$/,
-    patternMsg: 'Enter a valid WhatsApp number (e.g. +91 80 06 787878)',
+    patternMsg: 'Enter a valid WhatsApp number (e.g. +91 00000 00000)',
   },
   email: {
     required: false,
@@ -234,7 +234,7 @@ const CMSFooter = () => {
                 value={footerData.phone || ''}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 onBlur={() => handleBlur('phone')}
-                placeholder="+91 80 06 787878"
+                placeholder="+91 00000 00000"
                 className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
               <FieldMessage error={touched.phone && errors.phone} />
@@ -253,7 +253,7 @@ const CMSFooter = () => {
                 value={footerData.whatsapp || ''}
                 onChange={(e) => handleChange('whatsapp', e.target.value)}
                 onBlur={() => handleBlur('whatsapp')}
-                placeholder="+91 80 06 787878"
+                placeholder="+91 00000 00000"
                 className="w-full border border-gray-200 p-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
               <FieldMessage error={touched.whatsapp && errors.whatsapp} />

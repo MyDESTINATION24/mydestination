@@ -112,7 +112,7 @@ const StepReferral = () => {
                                     <input
                                         value={referral}
                                         onChange={(e) => setReferral(e.target.value.toUpperCase())}
-                                        placeholder="ZETO-BONUS-9080"
+                                        placeholder="8-CHARACTER CODE"
                                         className="w-full border-none bg-transparent p-0 text-lg font-black text-slate-900 focus:outline-none focus:ring-0 placeholder:text-slate-200 tracking-wider uppercase"
                                     />
                                 </div>
