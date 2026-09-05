@@ -200,7 +200,10 @@ export const getAllUsers = async (req, res) => {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } },
-        { phone: { $regex: search, $options: 'i' } }
+        { phone: { $regex: search, $options: 'i' } },
+        // Admins see the BP- code in the table, so it has to be searchable.
+        // Matched with and without the prefix, since people paste either.
+        { publicId: { $regex: search.replace(/^#/, ''), $options: 'i' } }
       ];
     }
 
@@ -213,6 +216,13 @@ export const getAllUsers = async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
+
+    // Accounts created before publicId existed have none until they next save.
+    // Fill them in as they are listed so the admin table never shows a blank
+    // ID; the pre-validate hook on the model assigns the code.
+    await Promise.all(
+      users.filter((user) => !user.publicId).map((user) => user.save())
+    );
 
     res.status(200).json({ success: true, users, total, page, limit });
   } catch (error) {
@@ -891,6 +901,7 @@ export const getUserDetails = async (req, res) => {
     const { id } = req.params;
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (!user.publicId) await user.save();
 
     const bookings = await Booking.find({ userId: id })
       .populate('propertyId', 'propertyName name address')

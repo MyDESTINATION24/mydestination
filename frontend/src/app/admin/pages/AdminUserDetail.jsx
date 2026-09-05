@@ -11,6 +11,7 @@ import adminService from '../../../services/adminService';
 import walletService from '../../../services/walletService';
 import toast from 'react-hot-toast';
 import { formatBookingId } from '../../../utils/publicIds';
+import { formatUserId } from '../../../utils/publicIds';
 
 const UserBookingsTab = ({ bookings }) => (
     <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -347,7 +348,7 @@ const AdminUserDetail = () => {
                     </div>
                     <div className="text-center md:text-left">
                         <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">User ID: #{user._id.slice(-6)}</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight font-mono">User ID: {formatUserId(user)}</p>
                         {user.isBlocked && <span className="text-xs font-bold text-red-600 mt-1 block uppercase">ACCOUNT BLOCKED</span>}
                     </div>
                 </div>

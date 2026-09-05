@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import ConfirmationModal from '../components/ConfirmationModal';
 import adminService from '../../../services/adminService';
 import toast from 'react-hot-toast';
+import { formatUserId } from '../../../utils/publicIds';
 
 const UserStatusBadge = ({ status }) => {
     const isBlocked = status === 'BLOCKED';
@@ -266,7 +267,7 @@ const AdminUsers = () => {
                                                         </div>
                                                         <div>
                                                             <p className="text-sm font-bold text-gray-900 uppercase tracking-tight">{user.name}</p>
-                                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight">ID: {user._id.slice(-6)}</p>
+                                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tight font-mono">{formatUserId(user)}</p>
                                                         </div>
                                                     </Link>
                                                 </td>
