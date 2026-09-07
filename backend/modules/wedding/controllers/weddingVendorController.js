@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import WeddingVendor from '../models/WeddingVendor.js';
+import WeddingDestination from '../models/WeddingDestination.js';
 import WeddingVenue from '../models/WeddingVenue.js';
 import WeddingEnquiry from '../models/WeddingEnquiry.js';
 import WeddingReview from '../models/WeddingReview.js';
@@ -442,7 +443,15 @@ export const getPublicVendors = async (req, res) => {
     }
 
     if (destinationId && destinationId !== 'undefined') {
-      filter.destination = destinationId;
+      if (mongoose.Types.ObjectId.isValid(destinationId)) {
+        filter.destination = destinationId;
+      } else {
+        const dest = await WeddingDestination.findOne({
+          $or: [{ slug: destinationId }, { name: destinationId }],
+        }).select('_id').lean();
+        // An unknown slug must match nothing rather than every vendor.
+        filter.destination = dest ? dest._id : null;
+      }
     }
 
     if (city && city !== 'undefined') {
