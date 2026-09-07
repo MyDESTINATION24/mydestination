@@ -11,13 +11,7 @@ const SavedDestinationsPage = () => {
   useEffect(() => {
     // Load saved favorites, and filter the destinations accordingly
     const favs = getFavourites();
-    if (favs.length > 0) {
-      setSavedDestinations(destinations.filter((d) => favs.includes(d.id)));
-    } else {
-      // Just for demonstration purpouses if they don't have any saved
-      // so the UI looks premium immediately.
-      setSavedDestinations([destinations[0], destinations[2]]);
-    }
+    setSavedDestinations(destinations.filter((d) => favs.includes(d.id)));
   }, []);
 
   return (
