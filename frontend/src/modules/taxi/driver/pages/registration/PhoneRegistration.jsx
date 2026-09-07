@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getStoredReferralCode } from '../../../../../utils/referral';
 import { Phone, ChevronRight, ShieldCheck, Briefcase, UserRound, Sparkles, Building2, CheckCircle2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +26,7 @@ const PhoneRegistration = () => {
         searchParams.get('referral') ||
         searchParams.get('code') ||
         storedSession.referralCode ||
+        getStoredReferralCode() ||
         '',
     ).trim().toUpperCase();
     const [phone, setPhone] = useState(() => String(location.state?.phone || storedSession.phone || '').replace(/\D/g, '').slice(-10));

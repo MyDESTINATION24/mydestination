@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { buildReferralLink } from '../../utils/referral';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -190,7 +191,7 @@ const ProfilePage = () => {
 
   const handleShareReferral = async () => {
     const code = user?.referralCode || 'MYDEST100';
-    const referLink = `${window.location.origin}/r/${code}`;
+    const referLink = buildReferralLink(code);
     const text = `Use my referral code ${code} to sign up on MyDestination and get ₹100 cashback! ${referLink}`;
 
     if (navigator.share) {
