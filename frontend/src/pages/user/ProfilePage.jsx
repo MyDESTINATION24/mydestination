@@ -561,7 +561,7 @@ const ProfilePage = () => {
               <div>
                 <p className="text-sm font-bold text-gray-900">Refer & Earn</p>
                 <p className="text-xs text-gray-400 font-medium">
-                  Code: • Share & earn ₹100
+                  Code: {user?.referralCode || '—'} • Share & earn ₹100
                 </p>
               </div>
             </div>
@@ -596,7 +596,7 @@ const ProfilePage = () => {
               </div>
               <div>
                 <p className="text-sm font-bold text-gray-900">Share App</p>
-                <p className="text-xs text-gray-400 font-medium">Share Quickdrop food delivery app with friends</p>
+                <p className="text-xs text-gray-400 font-medium">Share My DESTINATION app with friends</p>
               </div>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
@@ -633,7 +633,7 @@ const ProfilePage = () => {
               </div>
               <div>
                 <p className="text-sm font-bold text-gray-900">About Us</p>
-                <p className="text-xs text-gray-400 font-medium">Version 1.2.0 • Quickdrop Food & Drink</p>
+                <p className="text-xs text-gray-400 font-medium">Version 1.0.0 • My DESTINATION</p>
               </div>
             </div>
             <ChevronRight size={18} className="text-gray-400" />
@@ -1011,7 +1011,7 @@ const ProfilePage = () => {
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-1">Rate App</h3>
               <p className="text-xs text-gray-500 mb-5">
-                How has your experience been with Quickdrop / MyDestination?
+                How has your experience been with My DESTINATION?
               </p>
               <div className="flex justify-center gap-2 mb-6">
                 {[1, 2, 3, 4, 5].map((star) => (

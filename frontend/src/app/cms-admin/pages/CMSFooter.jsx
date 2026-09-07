@@ -63,7 +63,7 @@ const CMSFooter = () => {
   const [footerData, setFooterData] = useState({
     companyName: 'My DESTINATION',
     companyDescription: 'Your ultimate companion for unforgettable journeys. We provide premium travel services, personalized itineraries, and the best deals for your next adventure.',
-    address: '1 My Address, My Street, New York City, NY, USA',
+    address: 'Flat No. 68, Chotti Gwal Toli, Sarwate Bus Stand, Indore, Madhya Pradesh - 452001',
     phone: '',
     whatsapp: '',
     email: '',

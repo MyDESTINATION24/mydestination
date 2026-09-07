@@ -126,7 +126,7 @@ const LandingPageConfigSchema = new mongoose.Schema({
   footer: {
     companyName: { type: String, default: "My DESTINATION" },
     companyDescription: { type: String, default: "Your ultimate companion for unforgettable journeys." },
-    address: { type: String, default: "1 My Address, My Street, New York City, NY, USA" },
+    address: { type: String, default: "Flat No. 68, Chotti Gwal Toli, Sarwate Bus Stand, Indore, Madhya Pradesh - 452001" },
     phone: { type: String, default: "+91 80 06 787878" },
     whatsapp: { type: String, default: "+91 80 06 787878" },
     email: { type: String, default: "care@mydestination.in" },

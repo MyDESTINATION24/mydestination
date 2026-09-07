@@ -1,12 +1,16 @@
 import LandingPageConfig from '../models/LandingPageConfig.js';
 
+const STALE_ADDRESSES = ['1 My Address, My Street, New York City, NY, USA', '1 Street, New York, NY, USA'];
+
 // Get the public configuration
 export const getLandingPageConfig = async (req, res) => {
   try {
     let config = await LandingPageConfig.findOne();
     if (!config) {
-      // If none exists, create a default one
       config = await LandingPageConfig.create({});
+    } else if (STALE_ADDRESSES.includes(config.footer?.address)) {
+      config.footer.address = 'Flat No. 68, Chotti Gwal Toli, Sarwate Bus Stand, Indore, Madhya Pradesh - 452001';
+      await config.save();
     }
     res.status(200).json({ success: true, data: config });
   } catch (error) {
