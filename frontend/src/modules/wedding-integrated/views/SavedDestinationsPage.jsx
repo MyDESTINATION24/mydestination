@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ArrowLeft, ArrowRight } from "lucide-react";
-import { destinations, getFavourites } from "../data/weddingData";
+import { getFavourites } from "../data/weddingData";
+import { weddingService } from "../../../services/weddingService";
 import DestinationCard from "../components/DestinationCard";
 import ScrollReveal from "../components/ScrollReveal";
 
@@ -9,9 +10,20 @@ const SavedDestinationsPage = () => {
   const [savedDestinations, setSavedDestinations] = useState([]);
 
   useEffect(() => {
-    // Load saved favorites, and filter the destinations accordingly
-    const favs = getFavourites();
-    setSavedDestinations(destinations.filter((d) => favs.includes(d.id)));
+    let active = true;
+    const favs = getFavourites().map(String);
+
+    if (favs.length === 0) { setSavedDestinations([]); return undefined; }
+
+    weddingService.getDestinations()
+      .then((all) => {
+        if (!active) return;
+        const list = Array.isArray(all) ? all : (all?.data || []);
+        setSavedDestinations(list.filter((d) => favs.includes(String(d._id || d.id))));
+      })
+      .catch(() => { if (active) setSavedDestinations([]); });
+
+    return () => { active = false; };
   }, []);
 
   return (
@@ -46,7 +58,7 @@ const SavedDestinationsPage = () => {
         {savedDestinations.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 max-w-7xl mx-auto">
             {savedDestinations.map((destination, i) => (
-              <ScrollReveal key={destination.id} delay={i * 100}>
+              <ScrollReveal key={destination._id || destination.id} delay={i * 100}>
                 <DestinationCard destination={destination} />
               </ScrollReveal>
             ))}

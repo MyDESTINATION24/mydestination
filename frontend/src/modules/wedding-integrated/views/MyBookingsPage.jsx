@@ -110,7 +110,7 @@ const MyBookingsPage = () => {
 
 
             return (
-              <ScrollReveal key={booking.id} delay={i * 100}>
+              <ScrollReveal key={booking._id} delay={i * 100}>
                 <div className="group relative bg-white rounded-[2rem] border border-slate-100 shadow-sm transition-all duration-500 overflow-hidden flex flex-col md:flex-row h-auto md:h-[220px]">
                   
                   {/* Image Column */}
@@ -177,7 +177,7 @@ const MyBookingsPage = () => {
 
                     <div className="mt-6 md:mt-0 flex items-center justify-end">
                       <button 
-                        onClick={() => navigate(`/wedding/my-enquiries`)}
+                        onClick={() => navigate(`/wedding/bookings/${booking._id}`)}
                         className="flex items-center gap-1 text-[11px] font-black text-primary hover:gap-2 transition-all uppercase tracking-widest"
                       >
                         View Details

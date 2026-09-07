@@ -17,7 +17,6 @@ import {
 import ScrollReveal from "../components/ScrollReveal";
 import toast from 'react-hot-toast';
 import { formatPrice } from "../data/weddingData";
-import { getAllDestinations, getVendorVenues } from "../services/storage";
 import PlanWeddingModal from "../components/PlanWeddingModal";
 import { weddingService } from "../../../services/weddingService";
 

@@ -6,7 +6,6 @@ import useVendorForm from "../../hooks/useVendorForm";
 import { useAuth } from "../../context/AuthContext";
 import { getCategories } from "../../data/categoryApi";
 import { weddingService } from "../../../../../services/weddingService";
-import { getAdminVendors } from "../../../services/storage";
 import toast from "react-hot-toast";
 import {
   Select,
@@ -34,19 +33,7 @@ const Step1BasicInfo = () => {
       try {
         const res = await getCategories();
         if (res.success) {
-          let cats = [...res.categories];
-          try {
-            const adminVendors = getAdminVendors() || [];
-            const adminCats = [...new Set(adminVendors.map(v => v.category).filter(Boolean))];
-            
-            adminCats.forEach(ac => {
-               if(!cats.find(c => c.name.toLowerCase() === ac.toLowerCase())) {
-                   cats.push({ id: `custom-cat-${Date.now()}-${Math.random()}`, name: ac });
-               }
-            });
-          } catch(e) {}
-          
-          setAvailableCategories(cats);
+          setAvailableCategories([...res.categories]);
         }
       } catch (error) {
         console.error("Failed to load categories", error);
