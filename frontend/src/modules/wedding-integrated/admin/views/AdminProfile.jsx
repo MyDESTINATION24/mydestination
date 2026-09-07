@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   User, 
   Mail, 
@@ -15,6 +15,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { adminStyles } from '../theme/themeConfig';
+import { api } from '../../../../services/apiService';
+import toast from 'react-hot-toast';
 
 const AdminProfile = () => {
   const [activeTab, setActiveTab] = useState('personal');
@@ -26,17 +28,29 @@ const AdminProfile = () => {
     confirm: false
   });
 
-  // NOTE: this whole profile is placeholder state and handleSave below only
-  // simulates a request -- nothing here is loaded from or written to the API.
   const [profileData, setProfileData] = useState({
-    name: 'Admin User',
-    email: 'admin@mydestination.com',
-    phone: '+91 8006787878',
-    role: 'Super Admin',
-    location: 'Mumbai, India',
-    bio: 'Managing the overall operations and vendor verification for Destination Wedding platform.',
-    avatar: null
+    name: '', email: '', phone: '', role: '', location: '', bio: '', avatar: null
   });
+
+  useEffect(() => {
+    let active = true;
+    api.get('/auth/me')
+      .then((res) => {
+        const u = res?.data?.user;
+        if (!active || !u) return;
+        setProfileData((c) => ({
+          ...c,
+          name: u.name || '',
+          email: u.email || '',
+          phone: u.phone || '',
+          role: u.role || '',
+          location: u.address || '',
+          avatar: u.profileImage || null,
+        }));
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,13 +58,7 @@ const AdminProfile = () => {
   };
 
   const handleSave = () => {
-    setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSaving(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    }, 1500);
+    toast.error('Editing the admin profile is not available yet.');
   };
 
   const TabButton = ({ id, label, icon: Icon }) => (

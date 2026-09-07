@@ -1,12 +1,12 @@
 export const createDefaultBusinessSettings = () => ({
   scope: 'default',
   general: {
-    app_name: 'Appzeto',
-    contact_phone_1: '0000000000',
-    contact_phone_2: '0000000000',
-    contact_booking_number: '9999999999',
-    footer_1: '2024 © Appzeto.',
-    footer_2: 'Design & Develop by Appzeto',
+    app_name: 'My DESTINATION',
+    contact_phone_1: '',
+    contact_phone_2: '',
+    contact_booking_number: '',
+    footer_1: '© My DESTINATION',
+    footer_2: '',
     default_lat: '22.7196',
     default_lng: '75.8577',
     logo: '',

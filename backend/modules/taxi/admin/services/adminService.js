@@ -2500,23 +2500,6 @@ const syncDefaultAdminRecord = async () => {
   );
 };
 
-const LEGACY_OWNER_SERVICE_LOCATION = {
-  legacy_id: '53027f5a-dad1-47fa-8417-b958dd520821',
-  company_key: null,
-  name: 'India',
-  service_location_name: 'India',
-  translation_dataset: '{"en":{"locale":"en","name":"India"}}',
-  currency_name: 'Indian rupee',
-  currency_code: 'INR',
-  currency_symbol: '₹',
-  currency_pointer: 'ltr',
-  timezone: 'Asia/Kolkata',
-  country: 102,
-  active: true,
-  status: 'active',
-  createdAt: new Date('2026-02-02T11:57:30.000Z'),
-  updatedAt: new Date('2026-02-02T11:57:30.000Z'),
-};
 
 const LEGACY_OWNER_ROLE = {
   id: 3,
@@ -2530,225 +2513,17 @@ const LEGACY_OWNER_ROLE = {
   updated_at: '2026-02-07T15:55:24.000000Z',
 };
 
-const buildLegacyOwnerSeeds = (serviceLocationId) => [
-  {
-    legacy_id: '08e4823f-33df-480b-8419-91e8f49aa204',
-    user_id: 55,
-    transport_type: 'taxi',
-    service_location_id: serviceLocationId,
-    legacy_service_location_id: LEGACY_OWNER_SERVICE_LOCATION.legacy_id,
-    company_name: 'Taxi',
-    owner_name: null,
-    name: 'Demo owner',
-    surname: null,
-    email: 'owner@gmail.com',
-    password: '$2y$10$5P1q/uu.og/yMK1y5fHstuHPW1u7rD5x0CoGGvDoSW6Okjv1v/B0m',
-    mobile: '7470311227',
-    phone: null,
-    address: null,
-    postal_code: null,
-    city: null,
-    expiry_date: null,
-    no_of_vehicles: 0,
-    tax_number: null,
-    bank_name: null,
-    ifsc: null,
-    account_no: null,
-    iban: null,
-    bic: null,
-    active: true,
-    approve: true,
-    status: 'approved',
-    createdAt: new Date('2026-03-20T07:42:58.000Z'),
-    updatedAt: new Date('2026-04-09T07:47:17.000Z'),
-    area_snapshot: LEGACY_OWNER_SERVICE_LOCATION,
-    user_snapshot: {
-      id: 55,
-      name: 'Demo owner',
-      company_key: null,
-      username: null,
-      map_type: null,
-      email: 'owner@gmail.com',
-      mobile: '7470311227',
-      ride_otp: null,
-      gender: null,
-      profile_picture: 'https://zyder.co.in/assets/images/Male_default_image.png',
-      stripe_customer_id: null,
-      is_deleted_at: null,
-      country: 102,
-      timezone: null,
-      active: 1,
-      email_confirmed: 0,
-      mobile_confirmed: 0,
-      fcm_token: null,
-      apn_token: null,
-      refferal_code: null,
-      referred_by: null,
-      rating: 0,
-      lang: null,
-      zone_id: null,
-      current_lat: null,
-      current_lng: null,
-      rating_total: 0,
-      no_of_ratings: 0,
-      login_by: null,
-      last_known_ip: null,
-      last_login_at: null,
-      social_provider: null,
-      is_bid_app: 0,
-      social_nickname: null,
-      social_id: null,
-      social_token: null,
-      social_token_secret: null,
-      social_refresh_token: null,
-      social_expires_in: null,
-      social_avatar: null,
-      social_avatar_original: null,
-      created_at: '2026-03-20T07:42:58.000000Z',
-      updated_at: '2026-04-09T07:47:17.000000Z',
-      authorization_code: null,
-      deleted_at: null,
-      service_location_id: null,
-      country_name: 'India',
-      mobile_number: '+917470311227',
-      role_name: 'owner',
-      converted_deleted_at: null,
-      country_detail: {
-        id: 102,
-        name: 'India',
-        dial_code: '+91',
-        dial_min_length: 7,
-        dial_max_length: 14,
-        code: 'IN',
-        currency_name: 'Indian rupee',
-        currency_code: 'INR',
-        currency_symbol: '₹',
-        flag: 'https://zyder.co.in/image/country/flags/IN.png',
-        active: 1,
-        created_at: null,
-        updated_at: null,
-      },
-      roles: [{ ...LEGACY_OWNER_ROLE, pivot: { user_id: 55, role_id: 3 } }],
-    },
-  },
-  {
-    legacy_id: '941bb56f-2775-4685-818e-8326b44ead94',
-    user_id: 39,
-    transport_type: 'Both',
-    service_location_id: serviceLocationId,
-    legacy_service_location_id: LEGACY_OWNER_SERVICE_LOCATION.legacy_id,
-    company_name: 'itc',
-    owner_name: 'princess',
-    name: 'princess',
-    surname: null,
-    email: 'indra@gmail.com',
-    password: null,
-    mobile: '8072694803',
-    phone: null,
-    address: 'hgxbnmkchcufjbjbivjnvjv',
-    postal_code: '908899',
-    city: 'd6hf hmm kb',
-    expiry_date: null,
-    no_of_vehicles: 0,
-    tax_number: '578999bcv8988',
-    bank_name: null,
-    ifsc: null,
-    account_no: null,
-    iban: null,
-    bic: null,
-    active: true,
-    approve: true,
-    status: 'approved',
-    createdAt: new Date('2026-02-28T12:34:16.000Z'),
-    updatedAt: new Date('2026-02-28T13:36:28.000Z'),
-    area_snapshot: LEGACY_OWNER_SERVICE_LOCATION,
-    user_snapshot: {
-      id: 39,
-      name: 'princess',
-      company_key: null,
-      username: null,
-      map_type: null,
-      email: 'indra@gmail.com',
-      mobile: '8072694803',
-      ride_otp: null,
-      gender: 'female',
-      profile_picture: 'https://zyder.co.in/assets/images/Female_default_image.png',
-      stripe_customer_id: null,
-      is_deleted_at: null,
-      country: 102,
-      timezone: 'Asia/Kolkata',
-      active: 1,
-      email_confirmed: 0,
-      mobile_confirmed: 1,
-      fcm_token: 'dqw_CwtrSXa0l9p5oMxCLl:APA91bH1ZbjCzaE-crPxlDOfbU8LBDXg1gerLnzsrWB5Ky6hy9gRvT7LPZb2OSdK9AHh1w2RBSyj-fnuNIofm9FF6GfkdcfusbSMy2lmmjBQ2omVAXlgJQE',
-      apn_token: null,
-      refferal_code: 'v7CmOw',
-      referred_by: null,
-      rating: 0,
-      lang: 'en',
-      zone_id: '8d426929-591a-4bb7-bc60-256abb196363',
-      current_lat: 11.9190793,
-      current_lng: 79.8034286,
-      rating_total: 0,
-      no_of_ratings: 0,
-      login_by: 'android',
-      last_known_ip: null,
-      last_login_at: null,
-      social_provider: null,
-      is_bid_app: 0,
-      social_nickname: null,
-      social_id: null,
-      social_token: null,
-      social_token_secret: null,
-      social_refresh_token: null,
-      social_expires_in: null,
-      social_avatar: null,
-      social_avatar_original: null,
-      created_at: '2026-02-28T12:34:16.000000Z',
-      updated_at: '2026-02-28T13:10:44.000000Z',
-      authorization_code: null,
-      deleted_at: null,
-      service_location_id: LEGACY_OWNER_SERVICE_LOCATION.legacy_id,
-      country_name: 'India',
-      mobile_number: '+918072694803',
-      role_name: 'owner',
-      converted_deleted_at: null,
-      country_detail: {
-        id: 102,
-        name: 'India',
-        dial_code: '+91',
-        dial_min_length: 7,
-        dial_max_length: 14,
-        code: 'IN',
-        currency_name: 'Indian rupee',
-        currency_code: 'INR',
-        currency_symbol: '₹',
-        flag: 'https://zyder.co.in/image/country/flags/IN.png',
-        active: 1,
-        created_at: null,
-        updated_at: null,
-      },
-      roles: [{ ...LEGACY_OWNER_ROLE, pivot: { user_id: 39, role_id: 3 } }],
-    },
-  },
-];
 
+// Seeds platform configuration only. People -- users, drivers, fleet owners --
+// are never seeded: they used to be, which silently repopulated the admin panel
+// with demo accounts (and a fixed password) any time those collections were
+// empty, including straight after an intentional data wipe.
 const seedInitialData = async () => {
   const defaults = createDefaultAdminState();
-
-  // Seed Users
-  if (await User.countDocuments() === 0) {
-    await User.insertMany(defaults.users.map(u => ({ ...u, phone: u.mobile, password: 'password123' })));
-  }
 
   // Seed Service Locations
   if (await ServiceLocation.countDocuments() === 0) {
     await ServiceLocation.insertMany(defaults.serviceLocations);
-  }
-
-  // Seed Drivers
-  if (await Driver.countDocuments() === 0) {
-    await Driver.insertMany(defaults.drivers.map(d => ({ ...d, phone: d.mobile })));
   }
 
   // Seed Languages
@@ -2793,7 +2568,6 @@ const seedInitialData = async () => {
     await OnboardingScreen.insertMany(defaults.onboardingScreens);
   }
 
-  await ensureFleetOwnersSeeded();
 };
 
 export const ensureServiceLocationsSeeded = async () => {
@@ -2803,58 +2577,6 @@ export const ensureServiceLocationsSeeded = async () => {
   }
 };
 
-export const ensureFleetOwnersSeeded = async () => {
-  const now = new Date();
-
-  const serviceLocation = await ServiceLocation.findOneAndUpdate(
-    {
-      $or: [
-        { legacy_id: LEGACY_OWNER_SERVICE_LOCATION.legacy_id },
-        { name: LEGACY_OWNER_SERVICE_LOCATION.name },
-      ],
-    },
-    {
-      $set: {
-        ...LEGACY_OWNER_SERVICE_LOCATION,
-        updatedAt: LEGACY_OWNER_SERVICE_LOCATION.updatedAt || now,
-      },
-      $setOnInsert: {
-        createdAt: LEGACY_OWNER_SERVICE_LOCATION.createdAt || now,
-      },
-    },
-    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
-  );
-
-  const ownerSeeds = buildLegacyOwnerSeeds(serviceLocation._id);
-
-  for (const seed of ownerSeeds) {
-    const existingOwner = await Owner.findOne({
-      $or: [
-        { legacy_id: seed.legacy_id },
-        { email: seed.email },
-        { mobile: seed.mobile },
-      ],
-    }).lean();
-
-    if (existingOwner) {
-      await Owner.updateOne(
-        { _id: existingOwner._id },
-        {
-          $set: {
-            ...seed,
-            updatedAt: seed.updatedAt || now,
-          },
-          $setOnInsert: {
-            createdAt: seed.createdAt || now,
-          },
-        },
-      );
-      continue;
-    }
-
-    await Owner.create(seed);
-  }
-};
 
 export const ensureAdminState = async () => {
   await syncDefaultAdminRecord();
@@ -6354,7 +6076,6 @@ export const deleteSetPrice = async (id, currentAdmin = null) => {
 };
 
 export const listOwners = async (queryArgs = {}, currentAdmin = null) => {
-  await ensureFleetOwnersSeeded();
   if (currentAdmin) {
     assertAdminPermission(currentAdmin, 'owners.view', 'owners');
   }
@@ -6378,7 +6099,6 @@ export const listOwners = async (queryArgs = {}, currentAdmin = null) => {
 };
 
 export const approveOwnerSignupFromDriver = async (driverId) => {
-  await ensureFleetOwnersSeeded();
 
   const id = String(driverId || '').trim();
   if (!id) {
@@ -6492,8 +6212,7 @@ export const approveOwnerSignupFromDriver = async (driverId) => {
 };
 
 export const getOwnerById = async (id, currentAdmin = null) => {
-    await ensureFleetOwnersSeeded();
-
+  
     const ownerId = String(id || '').trim();
     if (!ownerId) throw new ApiError(400, 'Owner id is required');
 
@@ -6670,7 +6389,6 @@ export const approveOwner = async (id, payload) =>
   updateOwner(id, { approve: normalizeBoolean(payload.approve), active: true });
 
 export const listFleetVehicles = async () => {
-  await ensureFleetOwnersSeeded();
 
   const items = await FleetVehicle.find()
     .populate('owner_id', 'company_name owner_name name email mobile')
@@ -6683,7 +6401,6 @@ export const listFleetVehicles = async () => {
 };
 
 export const createFleetVehicle = async (payload = {}) => {
-  await ensureFleetOwnersSeeded();
 
   const ownerId = payload.owner_id || payload.ownerId;
   const serviceLocationId = payload.service_location_id || payload.serviceLocationId;
@@ -6733,7 +6450,6 @@ export const createFleetVehicle = async (payload = {}) => {
 };
 
 export const updateFleetVehicle = async (id, payload = {}) => {
-  await ensureFleetOwnersSeeded();
 
   const item = await FleetVehicle.findById(id);
   if (!item) throw new ApiError(404, 'Fleet vehicle not found');
