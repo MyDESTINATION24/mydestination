@@ -18,20 +18,7 @@ const getDates = () => {
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const ROUTES = {
-  '2026-04-05': [
-    { id:'T1', from:'Indore (Vijay Nagar)', to:'Bhopal (MP Nagar)', departure:'07:30 AM', duration:'3h 15m', price:249, seats:5, vehicle:'Toyota Innova', driver:'Rahul Patel', rating:'4.9' },
-    { id:'T2', from:'Indore (Rajwada)', to:'Ujjain (Mahakal)', departure:'09:00 AM', duration:'1h 10m', price:119, seats:3, vehicle:'Maruti Ertiga', driver:'Kishan Sharma', rating:'4.7' },
-    { id:'T3', from:'Indore (Palasia)', to:'Dewas', departure:'11:30 AM', duration:'45m', price:79, seats:6, vehicle:'Swift Dzire', driver:'Amit Verma', rating:'4.8' },
-  ],
-  '2026-04-06': [
-    { id:'T4', from:'Indore (Vijay Nagar)', to:'Bhopal (MP Nagar)', departure:'08:00 AM', duration:'3h 15m', price:249, seats:4, vehicle:'Toyota Innova', driver:'Sunil Patel', rating:'4.6' },
-    { id:'T5', from:'Indore (Rajwada)', to:'Omkareshwar', departure:'06:00 AM', duration:'2h 30m', price:199, seats:2, vehicle:'Maruti Ertiga', driver:'Ravi Sharma', rating:'4.9' },
-  ],
-  '2026-04-07': [
-    { id:'T6', from:'Indore (Palasia)', to:'Ujjain (Mahakal)', departure:'07:00 AM', duration:'1h 10m', price:119, seats:7, vehicle:'Swift Dzire', driver:'Deepak Joshi', rating:'4.8' },
-  ],
-};
+const ROUTES = {};
 
 const fmtKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 

@@ -1050,15 +1050,7 @@ const LandingPage = () => {
             {/* Middle Column: Features List */}
             <div className="w-full flex flex-col justify-center bg-white relative py-4 lg:py-0 h-full">
               <div className="space-y-6 lg:space-y-8 my-auto">
-                {(cmsData?.aboutUs?.milestones?.length > 0
-                  ? cmsData.aboutUs.milestones
-                  : [
-                    { title: "Our never ending footsteps", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                    { title: "Our total trips till now", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                    { title: "Our most incredible moments to share", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." },
-                    { title: "Our travel book released on 1991 year", description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis." }
-                  ]
-                ).map((item, idx) => (
+                {(cmsData?.aboutUs?.milestones || []).map((item, idx) => (
                   <div key={idx} className="relative flex items-start lg:pl-6">
 
                     {/* Desktop map pin box - overlapping image boundary exactly */}
@@ -1123,7 +1115,7 @@ const LandingPage = () => {
               <div className="h-[1px] w-12 bg-white/50"></div>
               <SafeHTML html={cmsData?.staff?.sectionTitle || "OUR STAFF"} as="h2" className="text-4xl md:text-6xl font-black font-serif tracking-wide" />
             </div>
-            <SafeHTML html={cmsData?.staff?.description || "Lorem ipsum dolor sit amet consectetur adipiscing elit. Nullam eget dolor sit amet sed diam nonummy nibh. Nibh venenatis cras sed felis eget velit aliquet sagittis."} as="p" className="text-xs md:text-sm opacity-80 leading-relaxed max-w-2xl mx-auto font-medium" />
+            <SafeHTML html={cmsData?.staff?.description || ""} as="p" className="text-xs md:text-sm opacity-80 leading-relaxed max-w-2xl mx-auto font-medium" />
             <button onClick={() => setIsJoinModalOpen(true)} className="bg-white text-slate-900 px-8 py-3 rounded-sm text-xs font-bold tracking-widest uppercase hover:bg-gray-100 transition shadow-lg mt-4">
               {cmsData?.staff?.buttonText || "JOIN NOW"}
             </button>
@@ -1133,12 +1125,7 @@ const LandingPage = () => {
         {/* Staff Grid */}
         <div className="max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20 pb-10 md:pb-20">
           <div className="flex flex-nowrap md:grid md:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden -mx-4 md:mx-0 px-6 md:px-0">
-            {(cmsData?.staff?.items?.length > 0 ? cmsData.staff.items : [
-              { name: "Elly Spitch", role: "CUSTOMER CARE", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400", description: "Expert in providing personalized travel solutions and ensuring customer satisfaction." },
-              { name: "Hannah Zafron", role: "SPECIALIST", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=400", description: "Specialized in customized itineraries tailored to your unique travel preferences." },
-              { name: "Janne Dcosta", role: "FOUNDER", img: "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=400", description: "Visionary leader dedicated to making premium travel accessible worldwide." },
-              { name: "Adam Johnson", role: "PRESIDENT", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400", description: "Driving the company's mission to provide unparalleled hospitality experiences." }
-            ]).map((staff, i) => (
+            {(cmsData?.staff?.items || []).map((staff, i) => (
               <div key={i} className="bg-white p-2 shadow-xl text-center group flex flex-col h-full flex-shrink-0 w-[250px] md:w-auto snap-center md:snap-align-none">
                 <div className="aspect-[4/3] overflow-hidden mb-2 md:mb-3">
                   <img src={staff.image || staff.img} alt={staff.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />

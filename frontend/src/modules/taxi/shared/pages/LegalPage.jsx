@@ -6,11 +6,11 @@ const getLegalContent = () => ({
   terms: {
     title: 'Terms & Conditions',
     icon: <ScrollText size={24} />,
-    intro: `Effective Date: 29 April 2026\n\nWelcome to My Desination (“Company”, “we”, “our”, “us”). These Terms & Conditions govern your access to and use of the My Desination website, mobile application, and services including taxi booking, bike rental, parcel delivery, and related transportation solutions.\n\nBy using our platform, you agree to be bound by these Terms.`,
+    intro: `Effective Date: 29 April 2026\n\nWelcome to My DESTINATION (“Company”, “we”, “our”, “us”). These Terms & Conditions govern your access to and use of the My DESTINATION website, mobile application, and services including taxi booking, bike rental, parcel delivery, and related transportation solutions.\n\nBy using our platform, you agree to be bound by these Terms.`,
     sections: [
       {
-        title: '1. About My Desination',
-        content: `My Desination is a digital mobility platform that connects users with transport partners for:\n\n• Taxi booking\n• Bike rental\n• Parcel delivery\n• Scheduled transportation services\n• Future mobility services introduced by the platform`
+        title: '1. About My DESTINATION',
+        content: `My DESTINATION is a digital mobility platform that connects users with transport partners for:\n\n• Taxi booking\n• Bike rental\n• Parcel delivery\n• Scheduled transportation services\n• Future mobility services introduced by the platform`
       },
       {
         title: '2. Eligibility',
@@ -18,19 +18,19 @@ const getLegalContent = () => ({
       },
       {
         title: '3. User Account',
-        content: `Users may register through:\n\n• Mobile number with OTP verification\n• Email address\n• Social login (if available)\n\nYou are responsible for:\n\n• Maintaining account confidentiality\n• Activities under your account\n• Accurate personal information\n\nMy Desination may suspend accounts containing false, misleading, or suspicious information.`
+        content: `Users may register through:\n\n• Mobile number with OTP verification\n• Email address\n• Social login (if available)\n\nYou are responsible for:\n\n• Maintaining account confidentiality\n• Activities under your account\n• Accurate personal information\n\nMy DESTINATION may suspend accounts containing false, misleading, or suspicious information.`
       },
       {
         title: '4. Services',
-        content: `4.1 Taxi Booking\nUsers can book:\n• Local city rides\n• One-way rides\n• Round trips\n• Airport transfers\n• Hourly packages\n• Corporate rides (if available)\n\nImportant Note:\nEstimated fare may vary depending on: Traffic, Route changes, Waiting time, Tolls, Government taxes.\n\n4.2 Bike Rental\nUsers may rent two-wheelers through the platform.\nRequirements:\n• Valid driving license\n• Security deposit (if applicable)\n• Timely return of vehicle\n• Compliance with traffic laws\nUser will be responsible for: Challans/fines during rental period, Damage caused during rental use, Fuel charges (if policy applicable).\n\n4.3 Parcel Delivery\nUsers may send eligible parcels.\nAllowed Items: Documents, Clothing, Electronics (non-fragile, at own risk), Daily-use goods.\nRestricted / Prohibited Items: Weapons, Explosives, Narcotics, Illegal substances, Dangerous chemicals, Cash / valuables without declaration, Live animals.\n\nMy Desination reserves the right to inspect or reject parcels.`
+        content: `4.1 Taxi Booking\nUsers can book:\n• Local city rides\n• One-way rides\n• Round trips\n• Airport transfers\n• Hourly packages\n• Corporate rides (if available)\n\nImportant Note:\nEstimated fare may vary depending on: Traffic, Route changes, Waiting time, Tolls, Government taxes.\n\n4.2 Bike Rental\nUsers may rent two-wheelers through the platform.\nRequirements:\n• Valid driving license\n• Security deposit (if applicable)\n• Timely return of vehicle\n• Compliance with traffic laws\nUser will be responsible for: Challans/fines during rental period, Damage caused during rental use, Fuel charges (if policy applicable).\n\n4.3 Parcel Delivery\nUsers may send eligible parcels.\nAllowed Items: Documents, Clothing, Electronics (non-fragile, at own risk), Daily-use goods.\nRestricted / Prohibited Items: Weapons, Explosives, Narcotics, Illegal substances, Dangerous chemicals, Cash / valuables without declaration, Live animals.\n\nMy DESTINATION reserves the right to inspect or reject parcels.`
       },
       {
         title: '5. Booking Confirmation',
-        content: `A booking is considered confirmed only after:\n\n• Driver/partner acceptance OR\n• Successful system confirmation\n\nMy Desination cannot guarantee immediate availability at all times.`
+        content: `A booking is considered confirmed only after:\n\n• Driver/partner acceptance OR\n• Successful system confirmation\n\nMy DESTINATION cannot guarantee immediate availability at all times.`
       },
       {
         title: '6. Payments',
-        content: `Accepted payment methods may include:\n\n• UPI\n• Debit/Credit Cards\n• Net Banking\n• Wallets\n• Cash (where enabled)\n\nUsers authorize My Desination to collect applicable charges including: Base fare, Distance charges, Waiting charges, Toll/Parking, Taxes, Convenience fee, Late fee (bike rental).`
+        content: `Accepted payment methods may include:\n\n• UPI\n• Debit/Credit Cards\n• Net Banking\n• Wallets\n• Cash (where enabled)\n\nUsers authorize My DESTINATION to collect applicable charges including: Base fare, Distance charges, Waiting charges, Toll/Parking, Taxes, Convenience fee, Late fee (bike rental).`
       },
       {
         title: '7. Cancellation Policy',
@@ -46,7 +46,7 @@ const getLegalContent = () => ({
       },
       {
         title: '10. Driver / Partner Conduct',
-        content: `My Desination expects all partners to maintain professionalism and safety standards.\n\nUsers may report:\n\n• Misbehavior\n• Unsafe driving\n• Overcharging\n• Delay issues\n• Fraud attempts`
+        content: `My DESTINATION expects all partners to maintain professionalism and safety standards.\n\nUsers may report:\n\n• Misbehavior\n• Unsafe driving\n• Overcharging\n• Delay issues\n• Fraud attempts`
       },
       {
         title: '11. Delays & Service Interruptions',
@@ -54,7 +54,7 @@ const getLegalContent = () => ({
       },
       {
         title: '12. Limitation of Liability',
-        content: `My Desination operates as a technology platform facilitating service access.\n\nTo the maximum extent permitted by law, My Desination shall not be liable for:\n\n• Indirect damages\n• Missed appointments\n• Personal items left in vehicle\n• Third-party incidents\n• User negligence\n\nAny direct liability, where applicable, shall be limited to the booking amount paid.`
+        content: `My DESTINATION operates as a technology platform facilitating service access.\n\nTo the maximum extent permitted by law, My DESTINATION shall not be liable for:\n\n• Indirect damages\n• Missed appointments\n• Personal items left in vehicle\n• Third-party incidents\n• User negligence\n\nAny direct liability, where applicable, shall be limited to the booking amount paid.`
       },
       {
         title: '13. Safety Guidelines',
@@ -62,7 +62,7 @@ const getLegalContent = () => ({
       },
       {
         title: '14. Intellectual Property',
-        content: `All trademarks, logos, software, design, content, and branding of My Desination remain exclusive property of the Company.\n\nUnauthorized copying or use is prohibited.`
+        content: `All trademarks, logos, software, design, content, and branding of My DESTINATION remain exclusive property of the Company.\n\nUnauthorized copying or use is prohibited.`
       },
       {
         title: '15. Suspension / Termination',
@@ -74,14 +74,14 @@ const getLegalContent = () => ({
       },
       {
         title: '17. Contact Information',
-        content: `Support Email: support@My Desination.com\nWebsite: www.My Desination.com`
+        content: `Support Email: care@mydestination.in\nWebsite: www.mydestination.in`
       }
     ],
   },
   privacy: {
     title: 'Privacy Policy',
     icon: <ShieldCheck size={24} />,
-    intro: `Effective Date: 29 April 2026\n\nMy Desination respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your information.`,
+    intro: `Effective Date: 29 April 2026\n\nMy DESTINATION respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your information.`,
     sections: [
       {
         title: '1. Information We Collect',
@@ -93,7 +93,7 @@ const getLegalContent = () => ({
       },
       {
         title: '3. Payment Information',
-        content: `Payments are processed through secure third-party payment gateways.\n\nMy Desination does not store complete debit/credit card details.`
+        content: `Payments are processed through secure third-party payment gateways.\n\nMy DESTINATION does not store complete debit/credit card details.`
       },
       {
         title: '4. Sharing of Information',
@@ -117,7 +117,7 @@ const getLegalContent = () => ({
       },
       {
         title: '9. Children’s Privacy',
-        content: `My Desination services are not intended for users below 18 years of age.`
+        content: `My DESTINATION services are not intended for users below 18 years of age.`
       },
       {
         title: '10. Third-Party Links',
@@ -129,14 +129,14 @@ const getLegalContent = () => ({
       },
       {
         title: '12. Contact Us',
-        content: `Privacy Email: privacy@My Desination.com\nSupport Email: support@My Desination.com`
+        content: `Privacy Email: care@mydestination.in\nSupport Email: care@mydestination.in`
       }
     ],
   },
   refund: {
     title: 'Refund Policy',
     icon: <Scale size={24} />,
-    intro: `Effective Date: 29 April 2026\n\nThis policy explains how refunds are processed at My Desination.`,
+    intro: `Effective Date: 29 April 2026\n\nThis policy explains how refunds are processed at My DESTINATION.`,
     sections: [
       {
         title: 'Refund Eligibility',

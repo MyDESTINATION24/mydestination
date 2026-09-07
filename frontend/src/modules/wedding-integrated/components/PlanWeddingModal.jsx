@@ -43,7 +43,7 @@ const PlanWeddingModal = ({ isOpen, onClose, initialLocation = "", targetId, tar
       setLoading(true);
       const payload = {
         name: formData.fullName,
-        email: formData.email || `${formData.phone}@placeholder.com`, // Email is required in model
+        email: formData.email || undefined,
         phone: formData.phone,
         weddingDate: formData.eventMonth ? new Date(2026, months.indexOf(formData.eventMonth), 1) : null,
         message: formData.description,

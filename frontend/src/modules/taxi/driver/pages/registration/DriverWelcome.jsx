@@ -5,21 +5,6 @@ import { ChevronRight, ShieldCheck, Wallet, Clock, Star, TrendingUp, Sparkles, U
 import DriverHero from '@/assets/driver_welcome_hero.png';
 import { useSettings } from '@/shared/context/SettingsContext';
 
-const partnerAvatars = [
-    {
-        name: 'Arjun',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-    },
-    {
-        name: 'Priya',
-        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-    },
-    {
-        name: 'Rohit',
-        image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80',
-    },
-];
-
 const DriverWelcome = () => {
     const navigate = useNavigate();
     const { settings } = useSettings();
@@ -87,17 +72,7 @@ const DriverWelcome = () => {
                             <h3 className="text-lg font-black tracking-tight text-slate-900">
                                 Partner Benefits
                             </h3>
-                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest opacity-60">Why thousands choose {appName}</p>
-                        </div>
-                        <div className="flex -space-x-2">
-                            {partnerAvatars.map((partner) => (
-                                <div key={partner.name} className="w-9 h-9 rounded-full border-2 border-white bg-slate-100 overflow-hidden shadow-sm">
-                                     <img src={partner.image} alt={partner.name} className="w-full h-full object-cover" />
-                                </div>
-                            ))}
-                            <div className="w-9 h-9 rounded-full border-2 border-white bg-slate-900 text-[10px] flex items-center justify-center text-white font-black shadow-lg">
-                                +15k
-                            </div>
+                            <p className="text-[12px] font-black text-slate-400 uppercase tracking-widest opacity-60">Why partners choose {appName}</p>
                         </div>
                     </div>
                     

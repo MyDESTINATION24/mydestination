@@ -71,7 +71,7 @@ function LandingPage() {
         <div className="new-top-bar">
           <div className="new-logo-container">
              <a href={withPrefix('/')} className="new-logo">
-               <span style={{color: '#333'}}>My Desination</span>
+               <span style={{color: '#333'}}>My DESTINATION</span>
              </a>
           </div>
           <div className="new-top-contacts">
@@ -81,7 +81,7 @@ function LandingPage() {
              </div>
              <div className="top-contact-item">
                <Mail size={16} />
-               <span>supportMy Desination@gmail.com</span>
+               <span>supportMy DESTINATION@gmail.com</span>
              </div>
           </div>
         </div>
@@ -91,7 +91,7 @@ function LandingPage() {
           <div className="new-nav-bg-slant"></div>
           <div className="new-nav-container">
             <a href={withPrefix('/')} className="mobile-only-logo">
-               <span>My Desination</span>
+               <span>My DESTINATION</span>
             </a>
             <nav className={`new-nav-links ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
               <a href="#home" className={`new-nav-link ${activeTab === 'home' ? 'active' : ''}`} onClick={handleRedirect('#home', 'home')}>Home</a>
@@ -102,7 +102,7 @@ function LandingPage() {
               <Link to={withPrefix('/contact')} className={`new-nav-link ${activeTab === 'contact' ? 'active' : ''}`} onClick={() => { setActiveTab('contact'); setIsMobileMenuOpen(false); }}>Contact</Link>
             </nav>
             <div className="new-nav-actions">
-              <button className="new-book-btn hidden-mobile" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My Desination.user', '_blank')}>Book a Taxi</button>
+              <button className="new-book-btn hidden-mobile" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My DESTINATION.user', '_blank')}>Book a Taxi</button>
               <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                 ☰
               </button>
@@ -115,8 +115,8 @@ function LandingPage() {
           <div className="new-hero-left">
             <span className="new-hero-subtitle">Travel securely with us!</span>
             <h1 className="new-hero-title">Book your taxi from<br/>anywhere today!</h1>
-            <p className="new-hero-desc">Everything your taxi business needs is already here!<br/>My Desination made for taxi service companies!</p>
-            <button className="new-hero-action-btn" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My Desination.user', '_blank')}>Book Your Ride</button>
+            <p className="new-hero-desc">Everything your taxi business needs is already here!<br/>My DESTINATION made for taxi service companies!</p>
+            <button className="new-hero-action-btn" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My DESTINATION.user', '_blank')}>Book Your Ride</button>
           </div>
           
           <div className="new-hero-graphic">
@@ -230,7 +230,7 @@ function LandingPage() {
               <h3 className="newsletter-title">Subscribe Our Newsletter.</h3>
               <form className="newsletter-form">
                 <input type="email" placeholder="Email" />
-                <button type="button" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My Desination.user', '_blank')}>Book Now →</button>
+                <button type="button" onClick={() => window.open('https://play.google.com/store/apps/details?id=com.My DESTINATION.user', '_blank')}>Book Now →</button>
               </form>
             </div>
           </div>
@@ -239,7 +239,7 @@ function LandingPage() {
         <div className="footer-main-content">
           <div className="footer-col-1">
             <a href={withPrefix('/')} className="footer-logo">
-               <span style={{color: '#FFB300', fontSize: '2.5rem', fontWeight: 800}}>My Desination</span><span style={{color: '#fff', fontSize: '2.5rem', fontWeight: 800}}>24</span>
+               <span style={{color: '#FFB300', fontSize: '2.5rem', fontWeight: 800}}>My DESTINATION</span><span style={{color: '#fff', fontSize: '2.5rem', fontWeight: 800}}>24</span>
             </a>
             <p>We provide the best taxi and ride services in the region. Reliable, fast, and secure rides at your fingertips.</p>
             <p>Our fleet consists of well-maintained vehicles driven by professional drivers to ensure a comfortable journey.</p>
@@ -249,7 +249,7 @@ function LandingPage() {
               <a href="#" className="social-icon">in</a>
               <a href="#" className="social-icon">y</a>
             </div>
-            <div className="footer-website">www.My Desination.com</div>
+            <div className="footer-website">www.mydestination.in</div>
           </div>
           <div className="footer-col-2">
             <h3>Quick Links</h3>
@@ -281,7 +281,7 @@ function LandingPage() {
             <Link to={withPrefix('/terms')}>Terms & Conditions</Link>
           </div>
           <div className="footer-copyright">
-            Copyright 2026 © All Right Reserved Design by My Desination
+            Copyright 2026 © All Right Reserved Design by My DESTINATION
           </div>
         </div>
       </footer>

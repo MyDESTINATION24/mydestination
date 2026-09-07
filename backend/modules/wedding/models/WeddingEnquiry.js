@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const weddingEnquirySchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, trim: true },
   phone: { type: String, required: true },
   weddingDate: { type: String }, // Storing as string to match frontend input type="date"
   guestCount: { type: String },

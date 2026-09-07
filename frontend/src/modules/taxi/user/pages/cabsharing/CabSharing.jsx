@@ -68,48 +68,7 @@ const SeatMap = ({ seats, onToggle }) => {
 };
 
 // --- Available Trips Data ---
-const TRIPS = [
-  {
-    id: 'T001',
-    from: 'Indore (Vijay Nagar)',
-    to: 'Bhopal (MP Nagar)',
-    departure: '07:30 AM',
-    duration: '3h 15m',
-    pricePerSeat: 249,
-    vehicle: 'Toyota Innova · MP09 AB 4521',
-    driver: { name: 'Rahul Patel', rating: '4.9' },
-    seats: [
-      { id: 1, label: 'A1', status: 'booked' },
-      { id: 2, label: 'A2', status: 'available' },
-      { id: 3, label: 'B1', status: 'available' },
-      { id: 4, label: 'B2', status: 'booked' },
-      { id: 5, label: 'C1', status: 'available' },
-      { id: 6, label: 'C2', status: 'available' },
-      { id: 7, label: 'D1', status: 'available' },
-      { id: 8, label: 'D2', status: 'booked' },
-    ],
-  },
-  {
-    id: 'T002',
-    from: 'Indore (Rajwada)',
-    to: 'Ujjain (Mahakal)',
-    departure: '09:00 AM',
-    duration: '1h 10m',
-    pricePerSeat: 119,
-    vehicle: 'Maruti Ertiga · MP09 CD 7890',
-    driver: { name: 'Kishan Sharma', rating: '4.7' },
-    seats: [
-      { id: 1, label: 'A1', status: 'available' },
-      { id: 2, label: 'A2', status: 'available' },
-      { id: 3, label: 'B1', status: 'booked' },
-      { id: 4, label: 'B2', status: 'available' },
-      { id: 5, label: 'C1', status: 'available' },
-      { id: 6, label: 'C2', status: 'booked' },
-      { id: 7, label: 'D1', status: 'booked' },
-      { id: 8, label: 'D2', status: 'available' },
-    ],
-  },
-];
+const TRIPS = [];
 
 // --- Main Component ---
 const CabSharing = () => {
@@ -174,6 +133,13 @@ const CabSharing = () => {
       {/* Trip List */}
       <div className="px-5 pt-5 space-y-4">
         <h2 className="text-[16px] font-black text-gray-700 uppercase tracking-widest">Available Today</h2>
+
+        {TRIPS.length === 0 && (
+          <div className="py-16 text-center bg-white rounded-[28px] border border-dashed border-gray-200">
+            <p className="text-[15px] font-black text-gray-700 mb-1">No shared trips available</p>
+            <p className="text-[13px] font-medium text-gray-400">Check back soon for rides on your route.</p>
+          </div>
+        )}
 
         {TRIPS.map((trip, idx) => {
           const seats = tripSeats[trip.id];

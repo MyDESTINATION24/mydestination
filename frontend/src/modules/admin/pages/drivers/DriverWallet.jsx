@@ -24,19 +24,13 @@ const DriverWallet = () => {
   const [searchTerm, setSearchTerm] = useState('');
   
   const [walletStats] = useState({
-    totalBalance: '₹42,15,000',
-    pendingPayouts: '₹8,42,000',
-    processedToday: '₹12,45,000',
-    failedTransactions: 12
+    totalBalance: '₹0',
+    pendingPayouts: '₹0',
+    processedToday: '₹0',
+    failedTransactions: 0
   });
 
-  const [ledger] = useState([
-    { id: 'TXN-101', driver: 'Rahul S.', type: 'Credit', category: 'Ride Earning', amount: '+₹420', date: 'Mar 31, 2024', status: 'Success' },
-    { id: 'TXN-102', driver: 'Vijay P.', type: 'Debit', category: 'Admin Comm.', amount: '-₹42', date: 'Mar 31, 2024', status: 'Success' },
-    { id: 'TXN-103', driver: 'Anil D.', type: 'Credit', category: 'Referral Bonus', amount: '+₹1,000', date: 'Mar 30, 2024', status: 'Success' },
-    { id: 'TXN-104', driver: 'Suresh K.', type: 'Debit', category: 'Subscription Fee', amount: '-₹999', date: 'Mar 30, 2024', status: 'Success' },
-    { id: 'TXN-105', driver: 'Rajesh M.', type: 'Credit', category: 'Cash Trip Audit', amount: '+₹150', date: 'Mar 29, 2024', status: 'Failed' },
-  ]);
+  const [ledger] = useState([]);
 
   return (
     <div className="space-y-10 p-1 animate-in fade-in duration-700 font-sans text-gray-950">

@@ -88,7 +88,7 @@ const HelicopterFeaturedSection = () => {
     <div>
       <div className="px-5 mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-[19px] font-black text-gray-900 tracking-tight">My Desination Airways</h2>
+          <h2 className="text-[19px] font-black text-gray-900 tracking-tight">My DESTINATION Airways</h2>
           <p className="mt-1 text-[11px] font-black uppercase tracking-[0.18em] text-gray-400">
             Sacred Journeys & Elite Sky Charters
           </p>

@@ -7,20 +7,20 @@ const LinksPage = () => {
   const links = [
     {
       id: 'user',
-      title: 'My Desination - User app',
+      title: 'My DESTINATION - User app',
       subtitle: 'Book rides, send parcels, and more.',
       description: 'Get where you need to go with ease. Request a ride or send packages across the city in minutes.',
-      url: 'https://play.google.com/store/apps/details?id=com.My Desination.user',
+      url: 'https://play.google.com/store/apps/details?id=com.My DESTINATION.user',
       type: 'Customer App',
       icon: <Zap className="link-icon" />,
       color: '#FFB300'
     },
     {
       id: 'driver',
-      title: 'My Desination Driver',
-      subtitle: 'Drive and earn with My Desination.',
+      title: 'My DESTINATION Driver',
+      subtitle: 'Drive and earn with My DESTINATION.',
       description: 'Join our fleet of professional drivers. Flexible hours, great earnings, and a supportive community.',
-      url: 'https://play.google.com/store/apps/details?id=com.My Desination.driver',
+      url: 'https://play.google.com/store/apps/details?id=com.My DESTINATION.driver',
       type: 'Partner App',
       icon: <Shield className="link-icon" />,
       color: '#2563EB'
@@ -31,20 +31,20 @@ const LinksPage = () => {
       <nav className="links-nav">
         <div className="nav-container">
           <a href="/" className="nav-logo">
-            <span className="logo-My Desination">My Desination</span><span className="logo-24">24</span>
+            <span className="logo-My DESTINATION">My DESTINATION</span><span className="logo-24">24</span>
           </a>
           <a href="/" className="back-home">Back to Home</a>
         </div>
       </nav>
 
       <div className="links-banner">
-        <img src={bannerImg} alt="My Desination Banner" className="banner-image" />
+        <img src={bannerImg} alt="My DESTINATION Banner" className="banner-image" />
         <div className="banner-gradient"></div>
       </div>
 
       <div className="links-content-wrapper">
         <header className="links-header">
-          <h1 className="links-title">Download <span className="highlight">My Desination</span></h1>
+          <h1 className="links-title">Download <span className="highlight">My DESTINATION</span></h1>
           <p className="links-tagline">Choose the app that's right for you and start your journey today.</p>
         </header>
 
@@ -86,9 +86,9 @@ const LinksPage = () => {
         </div>
 
         <footer className="links-footer">
-          <p>© 2026 My Desination. All rights reserved.</p>
+          <p>© 2026 My DESTINATION. All rights reserved.</p>
           <div className="footer-links">
-            <a href="https://My Desination.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
+            <a href="https://My DESTINATION.com" target="_blank" rel="noopener noreferrer">Visit Website</a>
             <span className="dot"></span>
             <a href="/support">Support</a>
           </div>
