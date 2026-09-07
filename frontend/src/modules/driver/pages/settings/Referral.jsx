@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { buildReferralLink } from '../../../../utils/referral';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, Copy, Gift, Loader2, Share2 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -139,9 +140,7 @@ const DriverReferral = () => {
     normalizedDriverReferral,
     DRIVER_REFERRAL_TRANSLATION_FIELDS,
   );
-  const referralShareLink = referralCode
-    ? `${window.location.origin}/taxi/driver/reg-phone?ref=${encodeURIComponent(referralCode)}`
-    : '';
+  const referralShareLink = buildReferralLink(referralCode);
 
   const handleCopy = async () => {
     if (!referralCode) {

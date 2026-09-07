@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { buildReferralLink } from '../../../utils/referral';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle2, Copy, Gift, Loader2, Share2 } from 'lucide-react';
@@ -161,7 +162,7 @@ const Referral = () => {
     if (!referralCode) {
       return;
     }
-    const signupLink = `${window.location.origin}/taxi/user/signup?ref=${encodeURIComponent(referralCode)}`;
+    const signupLink = buildReferralLink(referralCode);
     const shareText = `${bannerText}\nUse my referral code ${referralCode} to sign up.\n${signupLink}`;
 
     try {

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { resolveIncomingReferralCode } from '../../../../../utils/referral';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import AuthLayout from '../../components/AuthLayout';
@@ -22,7 +23,7 @@ const syncPushTokens = () => {
 const Signup = () => {
   const location = useLocation();
   const { settings } = useSettings();
-  const referralCodeFromQuery = new URLSearchParams(location.search).get('ref') || '';
+  const referralCodeFromQuery = resolveIncomingReferralCode(location.search);
   const preservedPhone = typeof window !== 'undefined' ? sessionStorage.getItem(PENDING_SIGNUP_PHONE_KEY) || '' : '';
   const preservedReferralCode = typeof window !== 'undefined'
     ? sessionStorage.getItem(PENDING_SIGNUP_REFERRAL_CODE_KEY) || ''
