@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Search, ChevronRight, Loader2, Inbox } from "lucide-react";
-import { vendorCategories, citiesData } from "../data/vendorListingData";
 import { weddingVendorService } from "../../../services/apiService";
 import { weddingService } from "../../../services/weddingService";
 import VendorCard from "../components/VendorCard";
@@ -102,7 +101,7 @@ const ListingView = ({ category: categoryFromProps, cityFromUrl }) => {
         };
       });
     }
-    return citiesData;
+    return [];
   }, [destinations]);
 
   return (

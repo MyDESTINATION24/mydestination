@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ChevronRight, Star, Shield, Clock, TrendingUp } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { weddingDestinationService } from "../../../services/apiService";
 
 const VendorHubPage = () => {
@@ -21,13 +21,6 @@ const VendorHubPage = () => {
     };
     fetchCategories();
   }, []);
-
-  const trustPoints = [
-    { icon: Shield, title: "Verified Vendors", desc: "Every vendor is personally verified by our team before listing." },
-    { icon: Star, title: "5000+ Reviews", desc: "Real reviews from real couples who have used these vendors." },
-    { icon: Clock, title: "Quick Response", desc: "Most vendors respond within 24 hours of your enquiry." },
-    { icon: TrendingUp, title: "Best Prices", desc: "Competitive pricing with no hidden charges, guaranteed." },
-  ];
 
   if (loading) {
     return (
@@ -85,6 +78,14 @@ const VendorHubPage = () => {
                   >
                     {subText}
                   </p>
+                  {Number(cat.count) > 0 && (
+                    <p
+                      className="text-[11px] font-bold uppercase tracking-widest opacity-60 mt-1.5"
+                      style={{ color: textColor }}
+                    >
+                      {cat.count} {cat.count === 1 ? "vendor" : "vendors"}
+                    </p>
+                  )}
                 </div>
 
                 {/* Large circular image intersecting the card */}

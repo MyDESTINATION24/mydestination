@@ -4,6 +4,7 @@ import WeddingVenue from '../models/WeddingVenue.js';
 import WeddingEnquiry from '../models/WeddingEnquiry.js';
 import WeddingReview from '../models/WeddingReview.js';
 import WeddingPlatformSettings from '../models/WeddingPlatformSettings.js';
+import { VENDOR_USER_FIELDS, VENDOR_PUBLIC_STATUSES, buildCategoryRegex, isVendorVisible } from '../services/vendorVisibility.js';
 
 /**
  * @desc    Get vendor dashboard stats
@@ -434,17 +435,10 @@ export const getPublicVendors = async (req, res) => {
 
     // In production, we only show active vendors. 
     // In dev, we might want to see pending ones too if the user is testing.
-    const filter = { status: { $in: ['active', 'pending'] } }; 
-    
+    const filter = { status: { $in: VENDOR_PUBLIC_STATUSES } };
+
     if (category && category !== 'undefined') {
-      // Create a forgiving regex
-      let searchTerm = category;
-      if (category === 'Photographers' || category === 'Photography') {
-        searchTerm = 'Photograph';
-      } else if (category === 'Planning & Decor') {
-        searchTerm = 'Planning|Decor';
-      }
-      filter.category = { $regex: searchTerm, $options: 'i' };
+      filter.category = buildCategoryRegex(category);
     }
 
     if (destinationId && destinationId !== 'undefined') {
@@ -463,15 +457,11 @@ export const getPublicVendors = async (req, res) => {
 
     const vendors = await WeddingVendor.find(filter)
       .populate('destination', 'name location')
-      .populate('user', 'hasActiveSubscription leadsRemaining')
+      .populate('user', VENDOR_USER_FIELDS)
       .sort({ rating: -1, createdAt: -1 });
 
     // Filter out vendors who do not have an active subscription, ran out of leads, or whose subscription expired
-    const activeVendors = vendors.filter(v => {
-      if (!v.user || !v.user.hasActiveSubscription || v.user.leadsRemaining <= 0) return false;
-      if (v.user.subscriptionExpiryDate && new Date(v.user.subscriptionExpiryDate) < new Date()) return false;
-      return true;
-    });
+    const activeVendors = vendors.filter(isVendorVisible);
 
     console.log(`✅ Found ${activeVendors.length} active vendors (filtered from ${vendors.length})`);
     res.status(200).json(activeVendors);

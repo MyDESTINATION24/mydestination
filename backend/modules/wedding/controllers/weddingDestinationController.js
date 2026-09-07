@@ -1,6 +1,8 @@
 import WeddingDestination from '../models/WeddingDestination.js';
 import WeddingCategory from '../models/WeddingCategory.js';
 import { uploadToCloudinary, uploadBase64ToCloudinary } from '../../../utils/cloudinary.js';
+import WeddingVendor from '../models/WeddingVendor.js';
+import { VENDOR_USER_FIELDS, VENDOR_PUBLIC_STATUSES, matchesCategory, isVendorVisible } from '../services/vendorVisibility.js';
 
 export const getDestinations = async (req, res) => {
   try {
@@ -121,8 +123,23 @@ export const deleteDestination = async (req, res) => {
 // Category Controllers
 export const getCategories = async (req, res) => {
   try {
-    const items = await WeddingCategory.find({ status: 'active' });
-    res.status(200).json({ success: true, categories: items });
+    const [items, vendors] = await Promise.all([
+      WeddingCategory.find({ status: 'active' }).lean(),
+      WeddingVendor.find({ status: { $in: VENDOR_PUBLIC_STATUSES } })
+        .select('category user')
+        .populate('user', VENDOR_USER_FIELDS)
+        .lean(),
+    ]);
+
+    // Counted from the same visible set the listing page renders, so a
+    // category never advertises vendors that its listing would filter out.
+    const visible = vendors.filter(isVendorVisible);
+    const categories = items.map((cat) => ({
+      ...cat,
+      count: visible.filter((v) => matchesCategory(v.category, cat.name)).length,
+    }));
+
+    res.status(200).json({ success: true, categories });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
