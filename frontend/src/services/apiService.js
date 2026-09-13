@@ -52,6 +52,28 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Callers throw `error.response?.data || error.message`. When a request
+    // never reaches the API there is no response, so that throws a bare string
+    // whose `.message` is undefined -- every caller then fell back to its own
+    // generic text, and a connectivity failure surfaced as "Failed to send
+    // OTP", pointing at SMS instead of the network. Give those errors a
+    // response-shaped body so the real cause reaches the UI.
+    if (!error.response) {
+      const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      const timedOut = error.code === 'ECONNABORTED' || /timeout/i.test(error.message || '');
+      error.response = {
+        status: 0,
+        data: {
+          isNetworkError: true,
+          message: offline
+            ? 'You appear to be offline. Check your internet connection and try again.'
+            : timedOut
+              ? 'The server took too long to respond. Please try again.'
+              : 'Could not reach the server. Check your connection, or try a different network.',
+        },
+      };
+    }
+
     const status = error.response ? error.response.status : null;
     const isBlocked = error.response?.data?.isBlocked;
 

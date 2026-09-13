@@ -488,7 +488,7 @@ const AddPGWizard = () => {
       else if (err?.response?.data?.message) msg = err.response.data.message;
       else if (err?.message) msg = err.message;
 
-      if (msg === 'Network Error' || (err?.response && err.response.status === 413)) {
+      if (msg === 'Network Error' || err?.response?.data?.isNetworkError || (err?.response && err.response.status === 413)) {
         msg = 'Upload failed: File size may be too large (Max 10MB).';
       }
       setError(msg);

@@ -122,7 +122,7 @@ const ImageUploader = ({ label, value, onChange, placeholder = "Upload Image", o
       }
 
       // Provide specific feedback for common errors
-      if (msg.includes('Network Error') || err?.response?.status === 413) {
+      if (msg.includes('Network Error') || err?.response?.data?.isNetworkError || err?.response?.status === 413) {
         msg = 'Upload failed: File may be too large or connection unstable.';
       }
 
