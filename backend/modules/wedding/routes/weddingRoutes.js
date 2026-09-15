@@ -112,7 +112,7 @@ import {
   purchaseSubscription
 } from '../controllers/weddingSubscriptionController.js';
 import { getSettings, updateSettings } from '../controllers/weddingPlatformSettingsController.js';
-import { getWallet, addMoney } from '../controllers/vendorWalletController.js';
+import { getWallet } from '../controllers/vendorWalletController.js';
 import { protect, authorizedRoles, optionalProtect } from '../../../middlewares/authMiddleware.js';
 
 import {
@@ -221,7 +221,6 @@ router.post('/vendor/subscriptions/purchase', protect, authorizedRoles('vendor')
 
 // Vendor Wallet Routes (Protected)
 router.get('/vendor/wallet', protect, authorizedRoles('vendor'), getWallet);
-router.post('/vendor/wallet/add', protect, authorizedRoles('vendor'), addMoney);
 
 // Admin Auth Routes (Public)
 router.post('/admin/login', loginWeddingAdmin);

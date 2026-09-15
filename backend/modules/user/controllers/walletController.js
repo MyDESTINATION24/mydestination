@@ -834,6 +834,25 @@ export const verifyAddMoneyPayment = async (req, res) => {
        return res.status(400).json({ message: 'Payment verification failed', details: response });
     }
 
+    // Credit what PhonePe confirms, never what the caller claims. The request
+    // body's `amount` used to be credited directly, so completing a 10-rupee
+    // top-up and then posting a larger amount to this endpoint minted the
+    // difference. PhonePe reports paise.
+    const verifiedAmount = Number(response.amount) > 0 ? Number(response.amount) / 100 : null;
+    if (!verifiedAmount) {
+      activeTopups.delete(phonepe_txn_id);
+      return res.status(400).json({ message: 'Could not read the paid amount from the gateway' });
+    }
+
+    // WALLET_{userId}_{timestamp}: the order has to belong to the caller, or
+    // any signed-in user could settle someone else's payment into their wallet.
+    const callerIsAdmin = ['admin', 'superadmin'].includes(String(req.user.role || '').toLowerCase());
+    const orderOwnerId = String(phonepe_txn_id).split('_')[1];
+    if (!callerIsAdmin && orderOwnerId && orderOwnerId !== String(req.user._id)) {
+      activeTopups.delete(phonepe_txn_id);
+      return res.status(403).json({ message: 'This payment belongs to a different account' });
+    }
+
     const paymentDetail = response.paymentDetails && response.paymentDetails[0];
     const phonepeTxnId = paymentDetail?.transactionId;
     
@@ -900,7 +919,7 @@ export const verifyAddMoneyPayment = async (req, res) => {
 
     // Credit wallet
     await wallet.credit(
-      Number(amount),
+      verifiedAmount,
       `Wallet Top-up`,
       razorpay_payment_id,
       'topup',
@@ -913,8 +932,8 @@ export const verifyAddMoneyPayment = async (req, res) => {
 
     notificationService.sendToUser(notificationTargetId, {
       title: 'Wallet Topped Up! 💰',
-      body: `₹${amount} has been added to your wallet successfully.`
-    }, { type: 'wallet_topup', amount }, notificationRole).catch(e => console.error('Topup push failed:', e));
+      body: `₹${verifiedAmount} has been added to your wallet successfully.`
+    }, { type: 'wallet_topup', amount: verifiedAmount }, notificationRole).catch(e => console.error('Topup push failed:', e));
 
     activeTopups.delete(phonepe_txn_id);
     res.json({

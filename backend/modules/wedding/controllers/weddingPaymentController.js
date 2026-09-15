@@ -290,9 +290,9 @@ export const paymentCallback = async (req, res) => {
         const amountRupees = amountPaise / 100;
 
         if (amountRupees > 0) {
-          let wallet = await VendorWallet.findOne({ vendor: vendorId });
+          let wallet = await VendorWallet.findOne({ vendorUser: vendorId });
           if (!wallet) {
-            wallet = await VendorWallet.create({ vendor: vendorId, balance: 0, transactions: [] });
+            wallet = await VendorWallet.create({ vendorUser: vendorId, balance: 0, transactions: [] });
           }
           wallet.balance = (wallet.balance || 0) + amountRupees;
           wallet.transactions = wallet.transactions || [];
@@ -415,9 +415,9 @@ export const verifyPaymentStatus = async (req, res) => {
         const amountRupees = amountPaise / 100;
 
         if (amountRupees > 0) {
-          let wallet = await VendorWallet.findOne({ vendor: vendorId });
+          let wallet = await VendorWallet.findOne({ vendorUser: vendorId });
           if (!wallet) {
-            wallet = await VendorWallet.create({ vendor: vendorId, balance: 0, transactions: [] });
+            wallet = await VendorWallet.create({ vendorUser: vendorId, balance: 0, transactions: [] });
           }
           wallet.balance = (wallet.balance || 0) + amountRupees;
           wallet.transactions = wallet.transactions || [];
