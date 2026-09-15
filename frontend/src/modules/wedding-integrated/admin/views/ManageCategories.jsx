@@ -52,6 +52,28 @@ const ManageCategories = () => {
     }
   };
 
+  // The category cover shows on the vendor hub, but the form never exposed it,
+  // so every category rendered the generic fallback image. The API already
+  // accepts a data URL here and pushes it to Cloudinary on save.
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please choose an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => setFormData(prev => ({ ...prev, image: String(reader.result || '') }));
+    reader.onerror = () => toast.error('Could not read that image');
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.slug) {
@@ -70,7 +92,7 @@ const ManageCategories = () => {
       
       setShowAddForm(false);
       setEditingCat(null);
-      setFormData({ name: '', slug: '', description: '', icon: '', type: 'primary', parentCategory: '' });
+      setFormData({ name: '', slug: '', description: '', icon: '', image: '', type: 'primary', parentCategory: '' });
       fetchCategories();
     } catch (error) {
       toast.error(error.message || 'Failed to save category');
@@ -95,6 +117,7 @@ const ManageCategories = () => {
       slug: cat.slug,
       description: cat.description || '',
       icon: cat.icon || '',
+      image: cat.image || '',
       type: cat.type || 'primary',
       parentCategory: cat.parentCategory || ''
     });
@@ -114,7 +137,7 @@ const ManageCategories = () => {
         <button 
           onClick={() => {
             setEditingCat(null);
-            setFormData({ name: '', slug: '', description: '', icon: '', type: 'primary', parentCategory: '' });
+            setFormData({ name: '', slug: '', description: '', icon: '', image: '', type: 'primary', parentCategory: '' });
             setShowAddForm(!showAddForm);
           }}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-200 shadow-sm hover:shadow-md active:scale-95"
@@ -223,6 +246,42 @@ const ManageCategories = () => {
                   onFocus={e => { e.target.style.border = '1.5px solid hsl(353,45%,60%)'; e.target.style.background = '#fff'; }}
                   onBlur={e => { e.target.style.border = '1.5px solid #e5e7eb'; e.target.style.background = '#f9fafb'; }}
                 />
+              </div>
+
+              {/* Cover Image — full width */}
+              <div className="flex flex-col gap-1.5 md:col-span-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Cover Image</label>
+                <div className="flex items-center gap-4">
+                  {formData.image ? (
+                    <img
+                      src={formData.image}
+                      alt=""
+                      className="w-20 h-20 rounded-xl object-cover border border-gray-200 shrink-0"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-xl bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center text-[10px] font-bold uppercase tracking-wider text-gray-400 shrink-0">
+                      No image
+                    </div>
+                  )}
+                  <div className="flex-1 flex flex-col gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wider file:bg-[hsl(353,45%,35%)] file:text-white hover:file:bg-[hsl(353,45%,28%)] file:cursor-pointer"
+                    />
+                    {formData.image && (
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                        className="self-start text-xs font-bold text-rose-600 hover:underline"
+                      >
+                        Remove image
+                      </button>
+                    )}
+                    <p className="text-[11px] text-gray-400">Shown on the vendor categories page. Max 5MB.</p>
+                  </div>
+                </div>
               </div>
 
               {/* Description — full width */}
