@@ -256,6 +256,15 @@ export const weddingService = {
     }
   },
 
+  deleteVendor: async (id) => {
+    try {
+      const response = await api.delete(`/wedding/admin/vendors/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   addDestination: async (data) => {
     try {
       const response = await api.post('/wedding/admin/destinations', data);

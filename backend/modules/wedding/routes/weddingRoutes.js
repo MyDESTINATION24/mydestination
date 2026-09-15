@@ -99,6 +99,7 @@ import {
   getAdminVendors,
   getAdminVendorById,
   updateVendorStatus,
+  deleteVendor,
   getAdminFinancials,
   updateCustomerBlockStatus,
   deleteCustomer
@@ -248,6 +249,7 @@ router.patch('/admin/venues/:id/status', protect, authorizedRoles('admin', 'supe
 router.get('/admin/vendors', protect, authorizedRoles('admin', 'superadmin'), getAdminVendors);
 router.get('/admin/vendors/:id', protect, authorizedRoles('admin', 'superadmin'), getAdminVendorById);
 router.patch('/admin/vendors/:id/status', protect, authorizedRoles('admin', 'superadmin'), updateVendorStatus);
+router.delete('/admin/vendors/:id', protect, authorizedRoles('admin', 'superadmin'), deleteVendor);
 router.get('/admin/financials', protect, authorizedRoles('admin', 'superadmin'), getAdminFinancials);
 
 // Admin Platform Settings Routes

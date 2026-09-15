@@ -2,6 +2,7 @@ import WeddingVenue from '../models/WeddingVenue.js';
 import WeddingVendor from '../models/WeddingVendor.js';
 import WeddingEnquiry from '../models/WeddingEnquiry.js';
 import WeddingSubscriptionTransaction from '../models/WeddingSubscriptionTransaction.js';
+import VendorWallet from '../models/VendorWallet.js';
 import User from '../../user/models/User.js';
 import Admin from '../../admin/models/Admin.js';
 import bcrypt from 'bcryptjs';
@@ -137,6 +138,38 @@ export const deleteCustomer = async (req, res) => {
   }
 };
 
+
+/**
+ * @desc    Delete a vendor and the records they own
+ * @route   DELETE /api/wedding/admin/vendors/:id
+ * @access  Admin
+ *
+ * A vendor is a User with role 'vendor' plus a WeddingVendor profile, their
+ * venues and a wallet. Enquiries are left alone: they are the customer's
+ * record, not the vendor's, and the enquiry lookup already tolerates a target
+ * that no longer resolves.
+ */
+export const deleteVendor = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const vendor = await User.findOne({ _id: id, role: 'vendor' });
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
+
+    await Promise.all([
+      WeddingVendor.deleteOne({ user: id }),
+      WeddingVenue.deleteMany({ vendor: id }),
+      VendorWallet.deleteOne({ vendorUser: id }),
+    ]);
+    await User.deleteOne({ _id: id });
+
+    res.status(200).json({ success: true, message: 'Vendor deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 export const getAdminVendors = async (req, res) => {
   try {

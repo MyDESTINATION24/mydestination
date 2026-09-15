@@ -10,6 +10,7 @@ import {
   Filter,
   Download,
   Eye,
+  Trash2,
   X,
   CheckCircle2,
   MapPin,
@@ -78,6 +79,20 @@ const ManageVendors = () => {
       vendorId: id,
       status: status,
     });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      setLoading(true);
+      await weddingService.deleteVendor(id);
+      toast.success('Vendor deleted successfully');
+      if (selectedVendor?._id === id) setSelectedVendor(null);
+      fetchData();
+    } catch (error) {
+      toast.error(error?.message || 'Failed to delete vendor');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAction = async (id, status) => {
@@ -304,6 +319,13 @@ const ManageVendors = () => {
                           >
                             <Eye size={22} />
                           </button>
+                          <button
+                            onClick={() => triggerActionConfirm(vendor._id, 'Delete')}
+                            className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                            title="Delete Vendor"
+                          >
+                            <Trash2 size={20} />
+                          </button>
                           {isPendingView && (
                             <>
                               <button
@@ -516,6 +538,7 @@ const ManageVendors = () => {
       <ConfirmationModal
         confirmModal={confirmModal}
         setConfirmModal={setConfirmModal}
+        handleDelete={handleDelete}
         handleAction={handleAction}
       />
     </>
@@ -523,7 +546,7 @@ const ManageVendors = () => {
 };
 
 // Render Confirmation Modal helper inside ManageVendors
-const ConfirmationModal = ({ confirmModal, setConfirmModal, handleAction }) => {
+const ConfirmationModal = ({ confirmModal, setConfirmModal, handleAction, handleDelete }) => {
   if (!confirmModal.isOpen) return null;
   
   return createPortal(
@@ -534,10 +557,14 @@ const ConfirmationModal = ({ confirmModal, setConfirmModal, handleAction }) => {
       />
       <div className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl p-6 overflow-hidden animate-in zoom-in-95 duration-200 z-[100001] border border-[#F3E9E2]">
         <h3 className="text-xl font-serif text-[hsl(353,45%,35%)] font-bold mb-2">
-          {confirmModal.status === 'Approved' ? 'Approve Vendor?' : 'Reject Vendor?'}
+          {confirmModal.status === 'Delete'
+            ? 'Delete Vendor?'
+            : confirmModal.status === 'Approved' ? 'Approve Vendor?' : 'Reject Vendor?'}
         </h3>
         <p className="text-gray-500 text-sm mb-6">
-          Are you sure you want to {confirmModal.status === 'Approved' ? 'approve' : 'reject'} this vendor application? This action will update their access instantly.
+          {confirmModal.status === 'Delete'
+            ? 'This permanently removes the vendor, their profile, venues and wallet. It cannot be undone.'
+            : `Are you sure you want to ${confirmModal.status === 'Approved' ? 'approve' : 'reject'} this vendor application? This action will update their access instantly.`}
         </p>
         <div className="flex gap-3 justify-end">
           <button
@@ -548,7 +575,11 @@ const ConfirmationModal = ({ confirmModal, setConfirmModal, handleAction }) => {
           </button>
           <button
             onClick={() => {
-              handleAction(confirmModal.vendorId, confirmModal.status);
+              if (confirmModal.status === 'Delete') {
+                handleDelete(confirmModal.vendorId);
+              } else {
+                handleAction(confirmModal.vendorId, confirmModal.status);
+              }
               setConfirmModal({ isOpen: false, vendorId: null, status: '' });
             }}
             className={`px-5 py-2.5 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 ${
@@ -557,7 +588,7 @@ const ConfirmationModal = ({ confirmModal, setConfirmModal, handleAction }) => {
                 : 'bg-rose-600 hover:bg-rose-700 shadow-rose-200'
             }`}
           >
-            Yes, Proceed
+            {confirmModal.status === 'Delete' ? 'Yes, Delete' : 'Yes, Proceed'}
           </button>
         </div>
       </div>
