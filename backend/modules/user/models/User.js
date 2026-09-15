@@ -97,6 +97,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     select: false
   },
+  // Wrong guesses against the current code; the code is discarded once this
+  // reaches the cap, so a 6-digit OTP cannot be walked through.
+  otpAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
   profileImage: {
     type: String,
     default: null

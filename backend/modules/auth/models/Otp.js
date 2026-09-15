@@ -18,6 +18,11 @@ const otpSchema = new mongoose.Schema({
   tempData: {
     type: Object, // Store temp registration data
     default: null
+  },
+  // Wrong guesses against this code; the record is deleted once it hits the cap.
+  attempts: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

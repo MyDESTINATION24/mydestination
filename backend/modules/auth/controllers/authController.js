@@ -316,7 +316,7 @@ export const verifyOtp = async (req, res) => {
     let Model = role === 'partner' ? Partner : User;
 
     // 1. Find User (if any)
-    let user = await Model.findOne({ phone }).select('+otp +otpExpires');
+    let user = await Model.findOne({ phone }).select('+otp +otpExpires +otpAttempts');
 
     // 2. Find registration-flow OTP Record (if any)
     const otpRecord = await Otp.findOne({ phone });
@@ -329,6 +329,7 @@ export const verifyOtp = async (req, res) => {
       verified = true;
       user.otp = undefined;
       user.otpExpires = undefined;
+      user.otpAttempts = 0;
 
       // If found but deleted, this is a direct login-based re-activation
       if (user.isDeleted) {
@@ -358,7 +359,34 @@ export const verifyOtp = async (req, res) => {
     }
 
     if (!verified) {
-      return res.status(400).json({ message: 'Invalid OTP or OTP has expired. Please request OTP again.' });
+      const MAX_OTP_ATTEMPTS = 5;
+      let attemptsLeft = null;
+
+      if (user && user.otp) {
+        user.otpAttempts = Number(user.otpAttempts || 0) + 1;
+        if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
+          user.otp = undefined;
+          user.otpExpires = undefined;
+          user.otpAttempts = 0;
+        } else {
+          attemptsLeft = MAX_OTP_ATTEMPTS - user.otpAttempts;
+        }
+        await user.save();
+      } else if (otpRecord) {
+        const attempts = Number(otpRecord.attempts || 0) + 1;
+        if (attempts >= MAX_OTP_ATTEMPTS) {
+          await Otp.deleteOne({ phone });
+        } else {
+          attemptsLeft = MAX_OTP_ATTEMPTS - attempts;
+          await Otp.updateOne({ phone }, { $set: { attempts } });
+        }
+      }
+
+      return res.status(400).json({
+        message: attemptsLeft === null
+          ? 'Invalid OTP or OTP has expired. Please request OTP again.'
+          : `Invalid OTP. ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} left before you need a new code.`,
+      });
     }
 
     if (user) {
