@@ -1,0 +1,24 @@
+name: Security scan
+
+# An obfuscated remote loader has been appended to frontend/vite.config.js
+# repeatedly, hidden behind trailing whitespace so it is invisible in an editor.
+# It executes during `vite build`. This job fails the push that carries it.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  injected-code:
+    name: Check for injected code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scan tracked source for hidden payloads
+        run: node frontend/scripts/check-injected-code.mjs
