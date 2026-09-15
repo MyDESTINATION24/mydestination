@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, MapPin, X, Plus, Minus, Check, Map as MapIcon, LoaderCircle, Navigation, AlertTriangle, ChevronRight } from 'lucide-react';
@@ -7,27 +7,7 @@ import { useAppGoogleMapsLoader, INDIA_CENTER, HAS_VALID_GOOGLE_MAPS_KEY } from 
 import api from '../../../../shared/api/axiosInstance';
 import { getSavedLocation, getSavedLocationCoords, saveLocation } from '../../services/locationStore';
 
-const LOCATION_COORDS = {
-  'Pipaliyahana, Indore': [75.9048, 22.7039],
-  'Vijay Nagar': [75.8937, 22.7533],
-  'Vijay Nagar Square': [75.8947, 22.7518],
-  'Vijayawada': [80.6480, 16.5062],
-  'Vijay Nagar Police Station': [75.8934, 22.7506],
-  'Rajwada': [75.8553, 22.7187],
-  'Bhawarkua': [75.8586, 22.6926],
-  'MG Road': [75.8721, 22.7196],
-  'Palasia Square': [75.8863, 22.7242],
-  'LIG Colony': [75.8904, 22.7322],
-  'Scheme No 54': [75.8978, 22.7567],
-  'Bhangadh': [75.8438, 22.7552],
-  'AB Road': [75.8878, 22.7423],
-  'Geeta Bhawan': [75.8834, 22.7208],
-  'Sapna Sangeeta': [75.8587, 22.6984],
-  'Mahalaxmi Nagar': [75.9114, 22.7676],
-};
 
-const getCoords = (title, fallback = [75.8577, 22.7196]) => LOCATION_COORDS[title] || fallback;
-const DEFAULT_COORDS = [75.8577, 22.7196];
 const sanitizeLocationInput = (value) => String(value || '').replace(/^\s+/g, '').replace(/\s{2,}/g, ' ');
 
 const unwrapResults = (response) => {
@@ -143,9 +123,9 @@ const SelectLocation = () => {
   const savedLocation = getSavedLocation();
   const savedPickupLabel = String(savedLocation?.address || '').trim();
   const savedPickupCoords = getSavedLocationCoords();
-  const [pickup, setPickup] = useState(() => routeState.pickup || savedPickupLabel || 'Pipaliyahana, Indore');
+  const [pickup, setPickup] = useState(() => routeState.pickup || savedPickupLabel || '');
   const [drop, setDrop] = useState(() => routeState.drop || '');
-  const [pickupCoords, setPickupCoords] = useState(() => routeState.pickupCoords || savedPickupCoords || getCoords(routeState.pickup || savedPickupLabel || 'Pipaliyahana, Indore'));
+  const [pickupCoords, setPickupCoords] = useState(() => routeState.pickupCoords || savedPickupCoords || null);
   const [dropCoords, setDropCoords] = useState(() => routeState.dropCoords || null);
   const [stops, setStops] = useState(() => routeState.stops || []);          // array of stop strings
   const [activeInput, setActiveInput] = useState('drop'); // 'pickup' | 'drop' | stopIdx
@@ -155,6 +135,7 @@ const SelectLocation = () => {
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const [locationStatus, setLocationStatus] = useState('idle');
   const [zonePaths, setZonePaths] = useState([]);
   const [remoteResults, setRemoteResults] = useState([]);
   const [isSearchingLocations, setIsSearchingLocations] = useState(false);
@@ -175,6 +156,48 @@ const SelectLocation = () => {
       : '';
 
   const zoneBounds = useMemo(() => getBoundsFromPaths(zonePaths), [zonePaths]);
+
+  // The pickup used to default to a fixed Indore address and GPS was only read
+  // when the rider tapped the locate button, so anyone opening the screen
+  // outside Indore saw -- and could book from -- the wrong city. Detect the
+  // real position on open instead, and say so plainly when the browser refuses.
+  const detectPickupLocation = useCallback(() => {
+    if (!navigator.geolocation) { setLocationStatus('unsupported'); return; }
+    setLocationStatus('locating');
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setPickupCoords([longitude, latitude]);
+        setLocationStatus('granted');
+
+        const apply = (label) => {
+          setPickup(label);
+          saveLocation({ address: label, lat: latitude, lon: longitude });
+        };
+
+        if (window.google?.maps?.Geocoder) {
+          new window.google.maps.Geocoder().geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => apply(
+              status === 'OK' && results?.[0]?.formatted_address
+                ? results[0].formatted_address
+                : `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`,
+            ),
+          );
+        } else {
+          apply(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+        }
+      },
+      (error) => setLocationStatus(Number(error?.code) === 1 ? 'denied' : 'error'),
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
+    );
+  }, []);
+
+  useEffect(() => {
+    if (routeState.pickup || savedPickupLabel) return;
+    detectPickupLocation();
+  }, [isLoaded, detectPickupLocation]);
 
   useEffect(() => {
     let active = true;
@@ -267,14 +290,9 @@ const SelectLocation = () => {
     return geocoderRef.current;
   };
 
-  const resolveCoords = async (label, fallback = DEFAULT_COORDS) => {
+  const resolveCoords = async (label, fallback = null) => {
     if (!label || !String(label).trim()) {
       return fallback;
-    }
-
-    const knownCoords = LOCATION_COORDS[label];
-    if (knownCoords) {
-      return knownCoords;
     }
 
     if (!window.google?.maps?.Geocoder) {
@@ -348,7 +366,7 @@ const SelectLocation = () => {
                 resolve({
                   title: result?.title || '',
                   address: result?.address || result?.title || '',
-                  coords: DEFAULT_COORDS,
+                  coords: null,
                 });
               });
               return;
@@ -357,7 +375,7 @@ const SelectLocation = () => {
             resolve({
               title: result?.title || '',
               address: result?.address || result?.title || '',
-              coords: DEFAULT_COORDS,
+              coords: null,
             });
           },
         );
@@ -530,8 +548,9 @@ const SelectLocation = () => {
           mapInstanceRef.current.setZoom(17);
         }
       },
-      () => {
+      (error) => {
         setIsLocating(false);
+        setLocationStatus(Number(error?.code) === 1 ? 'denied' : 'error');
       },
       { enableHighAccuracy: true }
     );
@@ -539,9 +558,14 @@ const SelectLocation = () => {
 
   const handleConfirmNavigate = async (optionalDrop, optionalDropCoords = null) => {
     const finalDrop = optionalDrop || drop;
-    const finalPickup = pickup || 'Pipaliyahana, Indore';
+    const finalPickup = pickup;
     
     if (!finalDrop || finalDrop.trim().length === 0) return;
+    if (!finalPickup || finalPickup.trim().length === 0) {
+      setActiveInput('pickup');
+      setLocationStatus((current) => (current === 'granted' ? 'missing' : current));
+      return;
+    }
 
     const resolvedPickupCoords = pickupCoords || await resolveCoords(finalPickup);
     const resolvedDropCoords = optionalDropCoords || dropCoords || await resolveCoords(finalDrop);
@@ -630,7 +654,10 @@ const SelectLocation = () => {
           }
         });
       },
-      () => setIsLocating(false),
+      (error) => {
+        setIsLocating(false);
+        setLocationStatus(Number(error?.code) === 1 ? 'denied' : 'error');
+      },
       { enableHighAccuracy: true }
     );
   };
@@ -881,6 +908,33 @@ const SelectLocation = () => {
                 )}
               </div>
             </div>
+
+            {(locationStatus === 'denied' || locationStatus === 'error' || locationStatus === 'unsupported' || locationStatus === 'missing') && (
+              <div className="ml-8 mt-2 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2">
+                <AlertTriangle size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-[12px] leading-snug text-amber-900">
+                  {locationStatus === 'denied' && (
+                    <>Location is blocked. Allow it in your browser's site settings, then tap Retry — or type your pickup above.</>
+                  )}
+                  {locationStatus === 'error' && <>Could not detect your location. Tap Retry, or type your pickup above.</>}
+                  {locationStatus === 'unsupported' && <>This device cannot share its location. Please type your pickup above.</>}
+                  {locationStatus === 'missing' && <>Please set a pickup location before continuing.</>}
+                  {locationStatus !== 'unsupported' && locationStatus !== 'missing' && (
+                    <button
+                      type="button"
+                      onClick={detectPickupLocation}
+                      className="ml-1 font-bold underline underline-offset-2"
+                    >
+                      Retry
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {locationStatus === 'locating' && (
+              <div className="ml-8 mt-2 text-[12px] font-medium text-slate-500">Detecting your location...</div>
+            )}
 
             {/* Dotted connector */}
             <div className="ml-[9px] h-2 w-[1.5px] border-l-[1.5px] border-dotted border-slate-300/70" />
