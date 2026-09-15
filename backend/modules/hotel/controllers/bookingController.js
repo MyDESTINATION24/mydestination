@@ -629,10 +629,15 @@ export const cancelBooking = async (req, res) => {
     const booking = await Booking.findById(req.params.id).populate('propertyId');
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
 
-    // Allow user to cancel or admin/partner
-    if (booking.userId.toString() !== req.user._id.toString()) {
-      // Add logic for partner/admin override if needed
-      // return res.status(403).json({ message: 'Not authorized' });
+    // Allow the guest who booked, the partner whose property it is, or an admin.
+    const requesterId = req.user._id.toString();
+    const requesterRole = String(req.user.role || '').toLowerCase();
+    const isOwner = booking.userId?.toString() === requesterId;
+    const isPartner = booking.propertyId?.partnerId?.toString() === requesterId;
+    const isAdmin = requesterRole === 'admin' || requesterRole === 'superadmin';
+
+    if (!isOwner && !isPartner && !isAdmin) {
+      return res.status(403).json({ message: 'Not authorized to cancel this booking' });
     }
 
     if (booking.bookingStatus === 'cancelled') {

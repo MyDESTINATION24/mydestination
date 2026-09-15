@@ -298,10 +298,22 @@ export const requestWithdrawal = async (req, res) => {
       }
     });
 
-    // Deduct amount from wallet immediately (Lock funds)
-    wallet.balance -= amount;
-    wallet.totalWithdrawals += amount; // We count it, if rejected we'll reverse
-    await wallet.save();
+    // Deduct under a balance condition rather than re-saving the copy read
+    // above: two requests fired together both passed that check and both
+    // subtracted, taking the wallet negative.
+    const locked = await Wallet.findOneAndUpdate(
+      { _id: wallet._id, balance: { $gte: amount } },
+      { $inc: { balance: -amount, totalWithdrawals: amount } },
+      { new: true },
+    );
+
+    if (!locked) {
+      await Withdrawal.deleteOne({ _id: withdrawal._id });
+      return res.status(400).json({ message: 'Insufficient balance' });
+    }
+
+    wallet.balance = locked.balance;
+    wallet.totalWithdrawals = locked.totalWithdrawals;
 
     // Create Debit Transaction
     const transaction = await Transaction.create({
