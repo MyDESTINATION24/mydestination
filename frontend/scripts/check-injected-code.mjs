@@ -86,6 +86,27 @@ for (const file of listTrackedFiles()) {
   }
 }
 
+// The push that restored the payload in 75d3619 also deleted the CI workflow
+// that would have caught it, so its absence is treated as a finding. Only
+// checked when git can answer: outside a checkout we cannot tell "deleted"
+// from "not part of this build context", and guessing would fail honest builds.
+const WORKFLOW_PATH = '.github/workflows/security-scan.yml';
+try {
+  const tracked = execSync(`git ls-files --error-unmatch ${WORKFLOW_PATH}`, {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+    cwd: execSync('git rev-parse --show-toplevel', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim(),
+  }).trim();
+  if (!tracked) throw new Error('missing');
+} catch (error) {
+  if (!/not a git repository|rev-parse/i.test(String(error?.message || ''))) {
+    findings.push(`${WORKFLOW_PATH} — the security workflow is missing; it was deleted once already to get a payload past CI`);
+  }
+}
+
 if (findings.length > 0) {
   console.error('\nPossible injected code found:\n');
   for (const finding of findings) console.error(`  ✗ ${finding}`);

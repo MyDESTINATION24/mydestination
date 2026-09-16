@@ -3,6 +3,9 @@ name: Security scan
 # An obfuscated remote loader has been appended to frontend/vite.config.js
 # repeatedly, hidden behind trailing whitespace so it is invisible in an editor.
 # It executes during `vite build`. This job fails the push that carries it.
+#
+# This workflow was itself deleted in 75d3619 by the same push that restored the
+# payload, so treat its absence as a signal in its own right.
 on:
   push:
     branches: ['**']
