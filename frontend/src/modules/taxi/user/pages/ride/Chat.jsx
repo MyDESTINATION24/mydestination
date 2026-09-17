@@ -5,6 +5,7 @@ import { ArrowLeft, Send, Phone, Smile, Loader2 } from 'lucide-react';
 import SupportChatPanel from '../../../shared/components/SupportChatPanel';
 import { socketService } from '../../../../shared/api/socket';
 import { getCurrentRide } from '../../services/currentRideService';
+import { getTaxiUserToken } from '../../../shared/authStorage';
 
 const RIDE_EVENTS = {
   joined: 'ride:joined',
@@ -69,7 +70,9 @@ const Chat = () => {
   const hasLiveToken = Boolean(
     chatRole === 'driver'
       ? localStorage.getItem('driverToken')
-      : localStorage.getItem('userToken'),
+      // Customer logins store their token via setTaxiUserSession; nothing
+      // writes 'userToken' any more, so reading it left chat spinning forever.
+      : getTaxiUserToken(),
   );
 
   const [messages, setMessages] = useState(() => (

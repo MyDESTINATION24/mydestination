@@ -90,4 +90,35 @@ export const clearAllAuth = () => {
   resetPushRegistration();
 };
 
+const removeKeys = (localKeys, sessionKeys = localKeys) => {
+  localKeys.forEach((key) => {
+    try { localStorage.removeItem(key); } catch {}
+  });
+  sessionKeys.forEach((key) => {
+    try { sessionStorage.removeItem(key); } catch {}
+  });
+};
+
+// Scoped clears for AUTOMATIC sign-outs (a missing or rejected token noticed in
+// the background). Those used to call clearAllAuth too, so a driver session
+// expiring -- or a customer merely opening a driver link -- also logged the
+// same device out of the customer, partner and vendor apps, and a stale
+// customer token wiped a driver mid-registration. Explicit logout buttons
+// still clear everything.
+const DRIVER_KEYS = ['driverToken', 'driverInfo', 'driverRole', 'driverRegistrationSession'];
+// The driver flow mirrors its token and role into these sessionStorage slots.
+const DRIVER_SESSION_MIRRORS = ['token', 'role'];
+const CUSTOMER_KEYS = ['token', 'user', 'userToken', 'userInfo', 'role', 'chatRole', 'taxiUserToken', 'taxiUserInfo'];
+
+export const clearDriverAuth = () => {
+  removeKeys(DRIVER_KEYS, [...DRIVER_KEYS, ...DRIVER_SESSION_MIRRORS]);
+  resetPushRegistration();
+};
+
+export const clearCustomerAuth = () => {
+  // Leave sessionStorage 'token'/'role' alone: those belong to the driver.
+  removeKeys(CUSTOMER_KEYS, CUSTOMER_KEYS.filter((key) => !DRIVER_SESSION_MIRRORS.includes(key)));
+  resetPushRegistration();
+};
+
 export default clearAllAuth;

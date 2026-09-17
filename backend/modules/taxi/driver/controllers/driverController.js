@@ -4811,8 +4811,54 @@ export const getDriverApprovalStatus = async (req, res) => {
   }
 
   const payload = verifyAccessToken(token);
+  const tokenRole = String(payload.role || "").toLowerCase();
 
-  if (!["driver", "owner"].includes(String(payload.role || "").toLowerCase())) {
+  // Bus drivers, pooling drivers and service centres also log in while
+  // pending and wait on the registration-status screen, but this endpoint only
+  // answered drivers and owners -- every poll got 403, so they stayed on that
+  // screen after an admin approved them. Answer them from their own model.
+  const otherPortalModels = {
+    pooling: Driver,
+    bus_driver: BusDriver,
+    service_center: ServiceStore,
+    service_center_staff: ServiceCenterStaff,
+  };
+
+  if (otherPortalModels[tokenRole]) {
+    const account = await otherPortalModels[tokenRole].findById(payload.sub || payload.id);
+
+    if (!account) {
+      throw new ApiError(404, "Account not found");
+    }
+
+    const isServiceCenter = tokenRole === "service_center" || tokenRole === "service_center_staff";
+    const approved = isServiceCenter
+      ? account.active !== false && String(account.status || "").toLowerCase() !== "inactive" && account.approve !== false
+      : account.approve === true && account.active !== false && !["pending", "blocked"].includes(String(account.status || "").toLowerCase());
+
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
+    res.json({
+      success: true,
+      data: {
+        id: account._id,
+        name: account.name || account.owner_name || "",
+        phone: account.phone || account.mobile || "",
+        approve: approved,
+        status: account.status,
+        role: tokenRole,
+        documents: account.documents || {},
+        onboarding: { ...(account.onboarding?.toObject?.() || account.onboarding || {}), role: tokenRole },
+        isOnline: Boolean(account.isOnline),
+        isOnRide: Boolean(account.isOnRide),
+      },
+    });
+    return;
+  }
+
+  if (!["driver", "owner"].includes(tokenRole)) {
     throw new ApiError(403, "Insufficient permissions for this resource");
   }
 

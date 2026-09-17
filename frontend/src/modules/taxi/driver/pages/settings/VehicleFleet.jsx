@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Bike, Camera, Car, CheckCircle2, Edit3, ImagePlus, LoaderCircle, Save, Truck, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
+    getAuthenticatedDriverRole,
     getCurrentDriver,
     getDriverVehicleTypes,
     updateDriverVehicle,
@@ -163,7 +164,7 @@ const buildVisibleVehicleTypes = (allTypes, driver) => {
 
 const VehicleFleet = () => {
     const navigate = useNavigate();
-    const [isOwner] = useState(() => String(localStorage.getItem('role') || 'driver').toLowerCase() === 'owner');
+    const [isOwner] = useState(() => getAuthenticatedDriverRole() === 'owner');
     const [driver, setDriver] = useState(null);
     const [vehicleTypes, setVehicleTypes] = useState([]);
     const [formData, setFormData] = useState(buildForm(null));

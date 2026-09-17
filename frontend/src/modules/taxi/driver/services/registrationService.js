@@ -1,6 +1,6 @@
 import { storeRefreshToken } from "../../shared/api/refreshSession";
 import api from "../../../shared/api/axiosInstance";
-import { clearAllAuth } from "@/shared/auth/clearAllAuth";
+import { clearAllAuth, clearDriverAuth } from "@/shared/auth/clearAllAuth";
 
 const STORAGE_KEY = "driverRegistrationSession";
 const readSessionValue = (key) => {
@@ -42,6 +42,12 @@ export const clearDriverRegistrationSession = () => {
 
 export const clearDriverAuthState = () => {
   clearAllAuth();
+};
+
+// For background redirects (no or rejected driver token): clears only the
+// driver session so other apps on this device stay signed in.
+export const clearDriverSessionOnly = () => {
+  clearDriverAuth();
 };
 
 // Drivers never stored the refresh token the server issues, so a driver whose

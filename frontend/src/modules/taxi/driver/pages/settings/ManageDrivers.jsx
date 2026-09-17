@@ -13,12 +13,12 @@ import {
   Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getOwnerFleetDrivers } from "../../services/registrationService";
+import { getAuthenticatedDriverRole, getOwnerFleetDrivers } from "../../services/registrationService";
 import DriverBottomNav from "../../../shared/components/DriverBottomNav";
 
 const ManageDrivers = () => {
   const navigate = useNavigate();
-  const routePrefix = String(localStorage.getItem("role") || "driver").toLowerCase() === "owner"
+  const routePrefix = getAuthenticatedDriverRole() === "owner"
     ? "/taxi/owner"
     : "/taxi/driver";
   const [drivers, setDrivers] = useState([]);

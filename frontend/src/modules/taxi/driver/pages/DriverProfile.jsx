@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
-import { clearDriverAuthState, getCurrentDriver, updateDriverProfile } from '../services/registrationService';
+import { clearDriverAuthState, getAuthenticatedDriverRole, getCurrentDriver, updateDriverProfile } from '../services/registrationService';
 
 const unwrapDriver = (response) => response?.data?.data || response?.data || response || null;
 const ROUTE_BOOKING_STORAGE_KEY = 'driver_route_booking_preferences';
@@ -79,7 +79,7 @@ const DriverProfile = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [routeBookingBusy, setRouteBookingBusy] = useState(false);
-    const role = localStorage.getItem('role') || 'driver';
+    const role = getAuthenticatedDriverRole();
     const isOwner = role === 'owner';
     const routePrefix = isOwner ? '/taxi/owner' : '/taxi/driver';
 

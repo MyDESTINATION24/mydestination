@@ -12,7 +12,7 @@ import {
   clearDriverRegistrationSession,
   getDriverApprovalStatus,
   getDriverDocumentTemplates,
-  clearDriverAuthState,
+  clearDriverSessionOnly,
   getLocalDriverToken,
   getStoredDriverRole,
   persistDriverAuthSession,
@@ -40,7 +40,7 @@ const isDriverApproved = (driver) => {
 };
 
 const redirectToDriverLogin = (navigate) => {
-  clearDriverAuthState();
+  clearDriverSessionOnly();
   navigate("/taxi/driver/login", { replace: true });
 };
 
@@ -133,12 +133,21 @@ const RegistrationStatus = () => {
 
         if (isApproved) {
           clearDriverRegistrationSession();
-          const normalizedRole =
-            String(getStoredDriverRole() || location.state?.role || "driver").toLowerCase();
-          
-          const isOwner = normalizedRole === "owner";
-          const path = isOwner ? "/taxi/owner/home" : "/taxi/driver/home";
-          
+          const normalizedRole = String(
+            driverData?.role || getStoredDriverRole() || location.state?.role || "driver",
+          ).toLowerCase();
+
+          // Bus, pooling and service-centre accounts each have their own home;
+          // sending everyone to the cab driver home bounced them straight back.
+          const homeByRole = {
+            owner: "/taxi/owner/home",
+            bus_driver: "/taxi/driver/bus-home",
+            pooling: "/taxi/driver/pooling-home",
+            service_center: "/taxi/driver/service-center",
+            service_center_staff: "/taxi/driver/service-center",
+          };
+          const path = homeByRole[normalizedRole] || "/taxi/driver/home";
+
           navigate(path, { replace: true });
           requestInFlightRef.current = false;
           return;

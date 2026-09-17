@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-    clearDriverAuthState,
+    clearDriverSessionOnly,
     getAuthenticatedDriverRole,
     getCurrentDriver,
     getLocalDriverToken,
@@ -72,7 +72,7 @@ const softEntryRoutes = new Set([
 ]);
 
 const redirectToDriverLogin = (navigate, pathname = '', role = '') => {
-    clearDriverAuthState();
+    clearDriverSessionOnly();
     navigate(`${getPortalPrefix(pathname, role)}/login`, { replace: true });
 };
 

@@ -9,7 +9,8 @@ import { socketService } from './shared/api/socket';
 import { SettingsProvider } from './shared/context/SettingsContext';
 import AppAutoUpdater from './shared/components/AppAutoUpdater';
 import { addRealtimeNotification } from './user/utils/realtimeNotificationStore';
-import { clearLocalUserSession, getLocalUserToken } from './user/services/authService';
+import { getLocalUserToken } from './user/services/authService';
+import { clearCustomerAuth } from '@/shared/auth/clearAllAuth';
 import { clearCurrentRide } from './user/services/currentRideService';
 import RentalLocationTracker from './user/components/RentalLocationTracker';
 import userBusService from './user/services/busService';
@@ -443,9 +444,11 @@ const ScrollToTop = () => {
   return null;
 };
 
+// Runs on account deletion or a stale customer token, not on a logout tap, so
+// it clears only the customer session and leaves a driver on this device alone.
 const clearUserSession = () => {
   clearCurrentRide();
-  clearLocalUserSession();
+  clearCustomerAuth();
 };
 
 const BusThemeLayout = () => {

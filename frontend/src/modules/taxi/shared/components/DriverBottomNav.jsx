@@ -12,11 +12,15 @@ import {
   Users,
 } from "lucide-react";
 import { useSettings } from "../../../shared/context/SettingsContext";
+import { getAuthenticatedDriverRole } from "../../driver/services/registrationService";
 
 const DriverBottomNav = () => {
   const location = useLocation();
   const { settings } = useSettings();
-  const role = String(localStorage.getItem("role") || "driver").toLowerCase();
+  // Read the role from the driver session itself. The generic "role" key is
+  // also written and cleared by the customer app, which flipped owners into
+  // driver navigation whenever a customer signed in on the same device.
+  const role = getAuthenticatedDriverRole();
   const isOwner = role === "owner";
   const routePrefix = isOwner ? "/taxi/owner" : "/taxi/driver";
   const busEnabled = String(settings.transportRide?.enable_bus_service || "0") === "1";
