@@ -6,7 +6,7 @@ import {
   getPaymentDetails,
   processRefund
 } from '../controllers/paymentController.js';
-import { protect } from '../../../middlewares/authMiddleware.js';
+import { protect, authorizedRoles } from '../../../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -23,7 +23,9 @@ router.post('/webhook', handleWebhook);
 router.get('/:paymentId', protect, getPaymentDetails);
 
 // Process refund
-router.post('/refund/:bookingId', protect, processRefund);
+// Admin only: any logged-in user could cancel and refund any booking, and the
+// partner/admin payouts were never reversed. Customers cancel via /bookings.
+router.post('/refund/:bookingId', protect, authorizedRoles('admin', 'superadmin'), processRefund);
 
 export default router;
 

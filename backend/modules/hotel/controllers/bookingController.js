@@ -150,6 +150,12 @@ export const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Missing required booking details' });
     }
 
+    // An unrecognised method used to fall through to paymentStatus 'paid'.
+    const ALLOWED_PAYMENT_METHODS = ['pay_at_hotel', 'wallet', 'online', 'razorpay', 'prepaid', 'phonepe'];
+    if (!ALLOWED_PAYMENT_METHODS.includes(paymentMethod)) {
+      return res.status(400).json({ message: 'Invalid payment method' });
+    }
+
     // Fetch Property and RoomType
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found' });
@@ -316,17 +322,31 @@ export const createBooking = async (req, res) => {
       couponCode: appliedCoupon,
       totalAmount,
       prepaidDiscount: prepaidDiscountAmount,
-      amountPaid: paymentMethod === 'wallet' ? totalAmount : (paymentMethod === 'prepaid' ? advanceAmount : 0),
+      amountPaid: paymentMethod === 'prepaid' ? advanceAmount : 0, // wallet adds its debit below
       remainingAmount: (['pay_at_hotel', 'razorpay', 'online'].includes(paymentMethod)) ? totalAmount : (paymentMethod === 'prepaid' ? remainingAmount : 0),
       paymentMethod,
       bookingStatus: 'confirmed', // Default confirmed for pay_at_hotel/wallet, pending for razorpay
-      paymentStatus: paymentMethod === 'pay_at_hotel' ? 'pending' : 'paid'
+      // Nothing is paid until a wallet debit or a verified gateway payment says so.
+      paymentStatus: 'pending'
     });
 
+    // How much to take from the wallet is decided here, not by the client. It
+    // used to trust walletDeduction, so { paymentMethod: 'wallet',
+    // walletDeduction: 1 } debited Rs 1, marked the booking paid and credited
+    // the partner the full amount.
+    const walletPayableTarget = paymentMethod === 'prepaid' ? advanceAmount : totalAmount;
+    let walletDebitAmount = 0;
+    if (paymentMethod === 'wallet') {
+      walletDebitAmount = totalAmount;
+    } else if (useWallet && ['online', 'razorpay', 'prepaid', 'phonepe'].includes(paymentMethod)) {
+      const requested = Number(walletDeduction);
+      walletDebitAmount = Number.isFinite(requested) && requested > 0 ? Math.min(requested, walletPayableTarget) : 0;
+    }
+
     // Handle Wallet Payment (Partial or Full)
-    if (paymentMethod === 'wallet' || (useWallet && walletDeduction > 0)) {
+    if (walletDebitAmount > 0) {
       const wallet = await Wallet.findOne({ partnerId: req.user._id, role: 'user' });
-      const deductionAmount = walletDeduction || totalAmount;
+      const deductionAmount = walletDebitAmount;
 
       if (!wallet || wallet.balance < deductionAmount) {
         return res.status(400).json({ message: 'Insufficient wallet balance' });
@@ -338,7 +358,7 @@ export const createBooking = async (req, res) => {
       booking.amountPaid = (booking.amountPaid || 0) + deductionAmount;
       booking.remainingAmount = Math.max(0, booking.remainingAmount - deductionAmount);
 
-      if (paymentMethod === 'wallet' || (['online', 'razorpay', 'prepaid'].includes(paymentMethod) && (totalAmount - (walletDeduction || 0) <= 0))) {
+      if (paymentMethod === 'wallet' || (['online', 'razorpay', 'prepaid', 'phonepe'].includes(paymentMethod) && (walletPayableTarget - walletDebitAmount <= 0))) {
         booking.paymentStatus = 'paid'; // If prepaid is fully paid by wallet, there is still remaining amount for hotel.
         if (paymentMethod === 'prepaid') {
            booking.paymentStatus = 'partial';
@@ -403,18 +423,17 @@ export const createBooking = async (req, res) => {
     let phonepeOrder = null;
     let phonepeUrl = null;
     if (['razorpay', 'online', 'prepaid', 'phonepe'].includes(paymentMethod)) {
-      if (paymentDetails && paymentDetails.paymentId) {
-        // Already paid (Legacy check)
-        booking.paymentStatus = paymentMethod === 'prepaid' ? 'partial' : 'paid';
-        booking.paymentId = paymentDetails.paymentId;
-      } else {
+      // A client-supplied paymentDetails.paymentId used to mark the booking paid
+      // with no gateway check (and cancelling then refunded it to the wallet).
+      // Payment is only ever confirmed by the PhonePe verification flow.
+      {
         // Initiate New Payment
         booking.bookingStatus = 'pending'; // Pending until payment
         booking.paymentStatus = 'pending';
 
         // Calculate amount to pay via Gateway
         let payableViaGateway = paymentMethod === 'prepaid' ? advanceAmount : totalAmount;
-        const amountToPay = payableViaGateway - (useWallet ? (walletDeduction || 0) : 0);
+        const amountToPay = payableViaGateway - walletDebitAmount;
 
         if (amountToPay > 0) {
           try {

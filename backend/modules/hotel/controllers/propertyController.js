@@ -235,6 +235,11 @@ export const addRoomType = async (req, res) => {
     const { name, inventoryType, roomCategory, maxAdults, maxChildren, bedsPerRoom, totalInventory, pricePerNight, originalPrice, extraAdultPrice, extraChildPrice, images, amenities } = req.body;
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found' });
+    // Same owner check as updateRoomType: without it any partner could add room types
+    // on a competitor's property.
+    if (String(property.partnerId) !== String(req.user._id) && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Not allowed' });
+    }
 
     if (!pricePerNight) return res.status(400).json({ message: 'pricePerNight required' });
 
@@ -402,6 +407,11 @@ export const upsertDocuments = async (req, res) => {
     const { propertyId } = req.params;
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found' });
+    // Same owner check as updateRoomType: without it any partner could replace the documents and take the listing offline
+    // on a competitor's property.
+    if (String(property.partnerId) !== String(req.user._id) && req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+      return res.status(403).json({ message: 'Not allowed' });
+    }
     const required = PROPERTY_DOCUMENTS[property.propertyType] || [];
     const payloadDocs = Array.isArray(req.body.documents) ? req.body.documents : [];
     const doc = await PropertyDocument.findOneAndUpdate(
@@ -669,7 +679,13 @@ export const getPropertyDetails = async (req, res) => {
     const property = await Property.findById(id);
     if (!property) return res.status(404).json({ message: 'Property not found' });
     const roomTypes = await RoomType.find({ propertyId: id, isActive: true });
-    const documents = await PropertyDocument.findOne({ propertyId: id });
+    // This route is public. Ownership and KYC documents (licences, GST, ID
+    // proofs) go only to the owning partner or an admin.
+    const canSeeDocuments = req.user && (
+      String(property.partnerId) === String(req.user._id) ||
+      ['admin', 'superadmin'].includes(req.user.role)
+    );
+    const documents = canSeeDocuments ? await PropertyDocument.findOne({ propertyId: id }) : null;
     res.json({ property, roomTypes, documents });
   } catch (e) {
     res.status(500).json({ message: e.message });

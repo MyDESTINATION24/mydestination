@@ -200,8 +200,18 @@ export const verifyPayment = async (req, res) => {
 
       // Already settled: re-running would overwrite paymentId and re-trigger
       // the payout side effects below.
-      if (booking.paymentStatus === 'paid') {
+      if (['paid', 'partial'].includes(booking.paymentStatus)) {
         return res.status(200).json({ message: 'Payment already verified', booking });
+      }
+      // Claim the booking atomically: two verify calls in flight both passed the
+      // check above and each credited the partner and admin payouts below.
+      const claimed = await Booking.findOneAndUpdate(
+        { _id: booking._id, paymentStatus: { $nin: ['paid', 'partial'] } },
+        { $set: { paymentStatus: booking.paymentMethod !== 'prepaid' ? 'paid' : 'partial' } },
+        { new: false }
+      );
+      if (!claimed) {
+        return res.status(200).json({ message: 'Payment already verified', booking: await Booking.findById(booking._id) });
       }
 
       if (booking.paymentMethod !== 'prepaid') {
