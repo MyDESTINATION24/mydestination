@@ -27,6 +27,12 @@ export const initiateBookingPayment = async (req, res) => {
     if (!enquiry) {
       return res.status(404).json({ success: false, message: 'Enquiry not found' });
     }
+    if (enquiry.user && String(enquiry.user) !== String(req.user._id || req.user.id) && !['admin', 'superadmin'].includes(req.user.role)) {
+      return res.status(403).json({ success: false, message: 'Not your enquiry' });
+    }
+    if (enquiry.paymentStatus === 'Paid') {
+      return res.status(400).json({ success: false, message: 'Already paid' });
+    }
 
     // Always fetch LIVE platform fee from admin settings
     const settings = await WeddingPlatformSettings.findOne();
@@ -63,21 +69,34 @@ export const initiateBookingPayment = async (req, res) => {
 // --- VENDOR SUBSCRIPTION PAYMENT ---
 export const initiateSubscriptionPayment = async (req, res) => {
   try {
-    const { planId, amount: reqAmount, validityMonths, validityType } = req.body;
+    const { planId } = req.body;
     const vendorId = req.user.id || req.user._id;
 
-    if (!planId || !reqAmount) {
-      return res.status(400).json({ success: false, message: 'Plan ID and amount are required' });
+    if (!planId) {
+      return res.status(400).json({ success: false, message: 'Plan ID is required' });
+    }
+
+    // Price and validity used to come from the request body, so a vendor could
+    // pay Rs 1 for a hundred-year plan. Take them from the plan itself.
+    const plan = await WeddingSubscriptionPlan.findById(planId).catch(() => null);
+    if (!plan || plan.isActive === false) {
+      return res.status(404).json({ success: false, message: 'Plan not found' });
+    }
+    const reqAmount = Number(plan.price);
+    const validityMonths = plan.validityMonths;
+    const validityType = plan.validityType || 'months';
+    if (!(reqAmount > 0)) {
+      return res.status(400).json({ success: false, message: 'This plan cannot be purchased online' });
     }
 
     const merchantOrderId = `SUBSCRIPTION_${vendorId}_${randomUUID().substring(0, 8)}`;
-    const amount = reqAmount * 100; // in paise
+    const amount = Math.round(reqAmount * 100); // in paise
     const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/wedding/vendor/payment/status`;
 
     // Create a Pending transaction record
     const transaction = await WeddingSubscriptionTransaction.create({
       vendor: vendorId,
-      plan: planId,
+      plan: plan._id,
       amount: reqAmount,
       paymentId: merchantOrderId,
       status: 'Pending',
@@ -99,7 +118,6 @@ export const initiateSubscriptionPayment = async (req, res) => {
       orderId: merchantOrderId
     });
   } catch (error) {
-    import('fs').then(fs => fs.writeFileSync('debug_error.log', error.stack || error.toString()));
     console.error('Subscription Payment Error:', error);
     res.status(500).json({ success: false, message: error.message || 'Payment initiation failed' });
   }
@@ -140,8 +158,14 @@ export const initiateWalletTopup = async (req, res) => {
 
 // --- HELPER: COMPLETE BOOKING ---
 const completeBookingPayment = async (enquiryId, orderId, paidAmount) => {
-  const enquiry = await WeddingEnquiry.findById(enquiryId);
-  if (!enquiry || enquiry.paymentStatus === 'Paid') return;
+  // Claim the enquiry atomically so the webhook and repeated status checks
+  // cannot each deduct the vendor's commission.
+  const enquiry = await WeddingEnquiry.findOneAndUpdate(
+    { _id: enquiryId, paymentStatus: { $ne: 'Paid' } },
+    { paymentStatus: 'Paid', transactionId: orderId },
+    { new: false }
+  );
+  if (!enquiry) return;
 
   let vendorUserId = null;
   if (enquiry.targetType === 'Venue' || enquiry.targetType === 'venue') {
@@ -230,6 +254,55 @@ const completeBookingPayment = async (enquiryId, orderId, paidAmount) => {
   ).catch(() => {});
 };
 
+// --- HELPERS: apply a completed PhonePe order exactly once ---
+//
+// The webhook and /payment/status/:orderId both apply completed orders, and
+// the status endpoint can be called any number of times. Wallet top-ups were
+// credited on every call and subscriptions could activate twice (doubling the
+// rolled-over leads). Each order is now claimed atomically before it is
+// applied, so repeats are no-ops.
+const creditVendorWalletOnce = async (vendorId, orderId, amountRupees) => {
+  if (!(amountRupees > 0)) return false;
+  await VendorWallet.updateOne(
+    { vendorUser: vendorId },
+    { $setOnInsert: { vendorUser: vendorId, balance: 0, transactions: [] } },
+    { upsert: true }
+  );
+  const result = await VendorWallet.updateOne(
+    { vendorUser: vendorId, 'transactions.reference': { $ne: orderId } },
+    {
+      $inc: { balance: amountRupees },
+      $push: {
+        transactions: {
+          type: 'credit',
+          amount: amountRupees,
+          description: 'Wallet Top-up via PhonePe',
+          reference: orderId,
+          date: new Date()
+        }
+      }
+    }
+  );
+  return result.modifiedCount === 1;
+};
+
+const applySubscriptionOnce = async (orderId, paidRupees) => {
+  const pending = await WeddingSubscriptionTransaction.findOne({ paymentId: orderId });
+  if (!pending || pending.status === 'Paid') return false;
+  if (Number(paidRupees) + 0.001 < Number(pending.amount)) {
+    console.error('[Wedding Payment] Subscription underpaid:', orderId, paidRupees, '<', pending.amount);
+    return false;
+  }
+  const claimed = await WeddingSubscriptionTransaction.findOneAndUpdate(
+    { paymentId: orderId, status: { $ne: 'Paid' } },
+    { status: 'Paid' },
+    { new: true }
+  );
+  if (!claimed) return false;
+  await activateVendorSubscription(claimed.vendor, claimed.plan, claimed.validityMonths, claimed.validityType);
+  return true;
+};
+
 // --- WEBHOOK CALLBACK ---
 export const paymentCallback = async (req, res) => {
   try {
@@ -267,43 +340,11 @@ export const paymentCallback = async (req, res) => {
         await completeBookingPayment(enquiryId, originalMerchantOrderId, paidAmount);
 
       } else if (originalMerchantOrderId?.startsWith('SUBSCRIPTION_')) {
-        const vendorId = originalMerchantOrderId.split('_')[1];
-        const transaction = await WeddingSubscriptionTransaction.findOneAndUpdate(
-          { paymentId: originalMerchantOrderId },
-          { status: 'Paid' },
-          { new: true }
-        );
-
-        // ✅ Activate subscription in User model
-        if (transaction) {
-          await activateVendorSubscription(
-            vendorId,
-            transaction.plan,
-            transaction.validityMonths,
-            transaction.validityType
-          );
-        }
+        await applySubscriptionOnce(originalMerchantOrderId, (payload?.amount || 0) / 100);
 
       } else if (originalMerchantOrderId?.startsWith('WALLET_')) {
         const vendorId = originalMerchantOrderId.split('_')[1];
-        const amountPaise = payload?.amount || 0;
-        const amountRupees = amountPaise / 100;
-
-        if (amountRupees > 0) {
-          let wallet = await VendorWallet.findOne({ vendorUser: vendorId });
-          if (!wallet) {
-            wallet = await VendorWallet.create({ vendorUser: vendorId, balance: 0, transactions: [] });
-          }
-          wallet.balance = (wallet.balance || 0) + amountRupees;
-          wallet.transactions = wallet.transactions || [];
-          wallet.transactions.push({
-            type: 'credit',
-            amount: amountRupees,
-            description: 'Wallet Top-up via PhonePe',
-            date: new Date()
-          });
-          await wallet.save();
-        }
+        await creditVendorWalletOnce(vendorId, originalMerchantOrderId, (payload?.amount || 0) / 100);
       }
     } else if (state === 'FAILED') {
       if (originalMerchantOrderId?.startsWith('SUBSCRIPTION_')) {
@@ -378,26 +419,8 @@ export const verifyPaymentStatus = async (req, res) => {
     if (response.state === 'COMPLETED') {
       if (orderId.startsWith('SUBSCRIPTION_')) {
         // Format: SUBSCRIPTION_{vendorId}_{uuid}
-        const parts = orderId.split('_');
-        const vendorId = parts[1];
-
-        // Find the pending transaction
-        const transaction = await WeddingSubscriptionTransaction.findOne({ paymentId: orderId });
-        
-        if (transaction && transaction.status !== 'Paid') {
-          // Mark transaction as paid
-          transaction.status = 'Paid';
-          await transaction.save();
-
-          // ✅ CRITICAL: Activate vendor subscription in User model
-          await activateVendorSubscription(
-            vendorId,
-            transaction.plan,
-            transaction.validityMonths,
-            transaction.validityType
-          );
-        } else if (!transaction) {
-          // Transaction record missing — still activate subscription if payment succeeded
+        const applied = await applySubscriptionOnce(orderId, (response.amount || 0) / 100);
+        if (!applied && !(await WeddingSubscriptionTransaction.exists({ paymentId: orderId }))) {
           console.warn('Subscription transaction record not found for:', orderId);
         }
 
@@ -411,24 +434,7 @@ export const verifyPaymentStatus = async (req, res) => {
       } else if (orderId.startsWith('WALLET_')) {
         // Format: WALLET_{vendorId}_{uuid}
         const vendorId = orderId.split('_')[1];
-        const amountPaise = response.amount || 0;
-        const amountRupees = amountPaise / 100;
-
-        if (amountRupees > 0) {
-          let wallet = await VendorWallet.findOne({ vendorUser: vendorId });
-          if (!wallet) {
-            wallet = await VendorWallet.create({ vendorUser: vendorId, balance: 0, transactions: [] });
-          }
-          wallet.balance = (wallet.balance || 0) + amountRupees;
-          wallet.transactions = wallet.transactions || [];
-          wallet.transactions.push({
-            type: 'credit',
-            amount: amountRupees,
-            description: 'Wallet Top-up via PhonePe',
-            date: new Date()
-          });
-          await wallet.save();
-        }
+        await creditVendorWalletOnce(vendorId, orderId, (response.amount || 0) / 100);
       }
     } else if (response.state === 'FAILED') {
       if (orderId.startsWith('SUBSCRIPTION_')) {

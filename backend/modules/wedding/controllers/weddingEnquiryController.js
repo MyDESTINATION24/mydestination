@@ -316,95 +316,35 @@ export const markVendorPaymentReceived = async (req, res) => {
   }
 };
 
+  // Saves the customer's declared booking amount ahead of the PhonePe platform-fee
+  // payment. It used to mark the enquiry Booked and Paid and deduct the vendor's
+  // commission right here, for any logged-in caller and any enquiry, with no
+  // payment at all -- the customer page calls it BEFORE redirecting to PhonePe.
+  // Marking paid and deducting commission now happen only in
+  // completeBookingPayment, after PhonePe confirms the order.
   export const confirmBooking = async (req, res) => {
     try {
       const { id } = req.params;
-      const { bookingAmount } = req.body;
+      const bookingAmount = Number(req.body?.bookingAmount);
       const enquiry = await WeddingEnquiry.findById(id);
 
     if (!enquiry) return res.status(404).json({ success: false, message: 'Enquiry not found' });
-    if (enquiry.status === 'Booked') return res.status(400).json({ success: false, message: 'Already booked' });
-
-    let vendorUserId = null;
-    if (enquiry.targetType === 'Venue' || enquiry.targetType === 'venue') {
-      const venue = await WeddingVenue.findById(enquiry.targetId);
-      if (venue) vendorUserId = venue.vendor;
-    } else {
-      const vendor = await WeddingVendor.findById(enquiry.targetId);
-      if (vendor) vendorUserId = vendor.user;
+    const callerId = String(req.user?._id || req.user?.id || '');
+    const isAdmin = ['admin', 'superadmin'].includes(req.user?.role);
+    if (!isAdmin && (!enquiry.user || String(enquiry.user) !== callerId)) {
+      return res.status(403).json({ success: false, message: 'Not your enquiry' });
+    }
+    if (enquiry.status === 'Booked' || enquiry.paymentStatus === 'Paid') {
+      return res.status(400).json({ success: false, message: 'Already booked' });
+    }
+    if (!Number.isFinite(bookingAmount) || bookingAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Enter a valid booking amount' });
     }
 
-    if (!vendorUserId) return res.status(400).json({ success: false, message: 'Vendor not found' });
-
-    // Fetch settings to get dynamic fees
-    const settings = await WeddingPlatformSettings.findOne() || { 
-      vendorCommission: 499, platformFee: 499,
-      platformFeeType: 'fixed', vendorCommissionType: 'fixed'
-    };
-    
-    const parsedBookingAmount = Number(bookingAmount) || 0;
-    
-    let calculatedPlatformFee = settings.platformFee;
-    if (settings.platformFeeType === 'percentage') {
-      calculatedPlatformFee = Math.round(parsedBookingAmount * (settings.platformFee / 100));
-    }
-
-    let calculatedVendorCommission = settings.vendorCommission;
-    if (settings.vendorCommissionType === 'percentage') {
-      calculatedVendorCommission = Math.round(parsedBookingAmount * (settings.vendorCommission / 100));
-    }
-
-    // Vendor Wallet Deduction Logic
-    let wallet = await VendorWallet.findOne({ vendorUser: vendorUserId });
-    if (!wallet) {
-      wallet = await VendorWallet.create({
-        vendorUser: vendorUserId,
-        balance: 0,
-        transactions: []
-      });
-    }
-
-    // Deduct from wallet balance (allowing negative balance)
-    wallet.balance -= Number(calculatedVendorCommission);
-    wallet.transactions.push({
-      type: 'debit',
-      amount: Number(calculatedVendorCommission),
-      description: `Commission for Booking Enquiry ID: ${enquiry._id}`,
-      date: new Date()
-    });
-    
-    await wallet.save();
-
-    // Record the financial transaction details for the Admin Dashboard
-    enquiry.status = 'Booked';
-    enquiry.paymentStatus = 'Paid';
-    enquiry.commissionAmount = calculatedVendorCommission;
-    enquiry.platformFee = calculatedPlatformFee;
-    enquiry.actualAmount = calculatedPlatformFee; 
-    enquiry.bookingAmount = parsedBookingAmount;
-    
+    enquiry.bookingAmount = Math.round(bookingAmount);
     await enquiry.save();
 
-    // Push Notifications: Booking confirm hone ke baad vendor aur admin ko batao
-    sendWeddingNotification(
-      vendorUserId,
-      'vendor',
-      {
-        title: '🎉 Booking Confirmed!',
-        body: `${enquiry.name} ki booking confirm ho gayi! Commission: ₹${calculatedVendorCommission}`
-      },
-      { type: 'booking_confirmed', url: '/wedding/vendor/leads', enquiryId: String(enquiry._id) }
-    ).catch(() => {});
-
-    sendWeddingNotificationToAdmins(
-      {
-        title: '💰 Booking & Payment Complete',
-        body: `${enquiry.name} ki booking confirmed. Platform fee: ₹${calculatedPlatformFee}, Commission: ₹${calculatedVendorCommission}`
-      },
-      { type: 'booking_confirmed', url: '/wedding/admin/enquiries', enquiryId: String(enquiry._id) }
-    ).catch(() => {});
-
-    res.status(200).json({ success: true, message: 'Booking confirmed and commission deducted!', enquiry });
+    res.status(200).json({ success: true, message: 'Booking amount saved. Complete the payment to confirm.', enquiry });
 
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

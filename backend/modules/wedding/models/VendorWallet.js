@@ -7,6 +7,8 @@ const vendorWalletSchema = new mongoose.Schema({
     type: { type: String, enum: ['credit', 'debit'] },
     amount: { type: Number },
     description: { type: String },
+    // Gateway order id on credits, so a completed order is applied once.
+    reference: { type: String },
     date: { type: Date, default: Date.now }
   }]
 }, { timestamps: true });

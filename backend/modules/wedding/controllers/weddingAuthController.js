@@ -1,6 +1,7 @@
 import User from '../../user/models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import smsService from '../../../utils/smsService.js';
 
 const generateToken = (id, role) => {
@@ -30,7 +31,17 @@ export const registerVendor = async (req, res) => {
     });
 
     if (user) {
-      // Upgrade existing account to vendor role
+      // This endpoint is public, and it used to "upgrade" whichever account
+      // owned the email or phone and return a token for it -- anyone could sign
+      // in as any customer or vendor knowing only their phone number. Only a
+      // caller already signed in as that same account may upgrade it.
+      const callerId = String(req.user?._id || req.user?.id || '');
+      if (!callerId || callerId !== String(user._id)) {
+        return res.status(409).json({
+          success: false,
+          message: 'An account with this email or phone already exists. Please log in instead.'
+        });
+      }
       user.name = name || user.name;
       user.email = normalizedEmail;
       user.phone = phone;
@@ -39,7 +50,7 @@ export const registerVendor = async (req, res) => {
       user.partnerApprovalStatus = 'pending';
       await user.save();
     } else {
-      const rawPassword = password || Math.random().toString(36).slice(-10);
+      const rawPassword = password || crypto.randomBytes(18).toString('base64url');
       const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
       user = await User.create({
@@ -236,6 +247,16 @@ export const loginVendor = async (req, res) => {
     const isMatched = await bcrypt.compare(password, user.password);
     if (!isMatched) {
       return res.status(401).json({ success: false, message: 'Invalid vendor credentials' });
+    }
+
+    // Vendors created by the public application form were given the password
+    // "<phone>_vendor", which anyone who knows their email and phone can type.
+    // Refuse it and send them to OTP login instead.
+    if (user.phone && password === `${String(user.phone).trim()}_vendor`) {
+      return res.status(403).json({
+        success: false,
+        message: 'For your security, please log in with OTP and then set a new password.'
+      });
     }
 
     const token = generateToken(user._id, user.role);

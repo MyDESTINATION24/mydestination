@@ -139,8 +139,11 @@ export const updateVenue = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Security: Remove status from update data to prevent self-approval
-    delete updateData.status;
+    // Security: Remove status from update data to prevent self-approval.
+    // Ownership and counters are not the vendor's to set either: vendor would
+    // hand the venue to another account, the rest fake its popularity.
+    ['status', 'vendor', '_id', 'rating', 'reviewCount', 'views', 'shortlistCount', 'createdAt', 'updatedAt']
+      .forEach((field) => delete updateData[field]);
 
     const venue = await WeddingVenue.findOneAndUpdate(
       { _id: id, vendor: req.user._id },

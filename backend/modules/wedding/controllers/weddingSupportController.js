@@ -30,9 +30,19 @@ export const resolveAllTickets = async (req, res) => {
 
 export const createTicket = async (req, res) => {
   try {
-    const count = await WeddingSupportTicket.countDocuments();
-    const ticketId = `TK-${450 + count + 1}`;
-    const newTicket = await WeddingSupportTicket.create({ ...req.body, ticketId });
+    // Ticket ids were sequential (TK-451, TK-452...) and GET /support/:ticketId
+    // is public, so anyone could read every ticket; the body was also spread
+    // in whole, letting a caller forge status, adminReply or userId.
+    const { randomBytes } = await import('crypto');
+    const ticketId = `TK-${randomBytes(5).toString('hex').toUpperCase()}`;
+    const priority = [2, 3].includes(Number(req.body?.priority)) ? Number(req.body.priority) : 2;
+    const newTicket = await WeddingSupportTicket.create({
+      ticketId,
+      user: String(req.body?.user || '').slice(0, 200),
+      subject: String(req.body?.subject || '').slice(0, 2000),
+      priority,
+      userId: req.user?._id || null,
+    });
     res.status(201).json({ success: true, data: newTicket });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

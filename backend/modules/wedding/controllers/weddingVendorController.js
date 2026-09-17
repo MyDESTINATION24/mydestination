@@ -328,6 +328,15 @@ export const applyAsVendor = async (req, res) => {
     }
     
     if (existingUser) {
+      // Public route: without this check anyone could submit a vendor's email
+      // or phone and overwrite their name, pricing, services and KYC images.
+      const callerId = String(req.user?._id || req.user?.id || '');
+      if (!callerId || callerId !== String(existingUser._id)) {
+        return res.status(409).json({
+          success: false,
+          message: 'An account with this email or phone already exists. Please log in to update your application.'
+        });
+      }
       // Update existing user's vendor application
       user = existingUser;
       const newApprovalStatus = existingUser.partnerApprovalStatus === 'approved' 
@@ -353,7 +362,10 @@ export const applyAsVendor = async (req, res) => {
       });
     } else {
       // Create new user account with a default password (vendor will set it after approval)
-      const defaultPassword = await bcrypt.hash(basicInfo.phone + '_vendor', 10);
+      // Random, not "<phone>_vendor": vendors sign in with OTP and set a
+      // password later, and a guessable default let anyone log in as them.
+      const { randomBytes } = await import('crypto');
+      const defaultPassword = await bcrypt.hash(randomBytes(18).toString('base64url'), 10);
       user = await User.create({
         name: basicInfo.name,
         email: normalizedEmail,

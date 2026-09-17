@@ -174,12 +174,12 @@ router.get('/vendors', getPublicVendors);
 router.get('/vendors/:id', getVendorDetail);
 router.get('/testimonials', getApprovedTestimonials);
 router.post('/testimonials', publicFormLimiter, submitTestimonial);
-router.post('/support', publicFormLimiter, createTicket);
+router.post('/support', publicFormLimiter, optionalProtect, createTicket);
 router.get('/support/:ticketId', getTicketById);
 router.get('/subscriptions', optionalProtect, getAllPlans);
 
 // Public Vendor Application (No auth required)
-router.post('/vendor/apply', publicFormLimiter, applyAsVendor);
+router.post('/vendor/apply', publicFormLimiter, optionalProtect, applyAsVendor);
 router.patch('/increment-view/:type/:id', publicFormLimiter, incrementView);
 
 // Public Review Routes
@@ -189,14 +189,16 @@ router.get('/my-enquiries', protect, getMyEnquiries);
 router.post('/enquiries/:id/pay-and-book', protect, confirmBooking);
 
 // Auth Routes (Vendor)
-router.post('/vendor/register', registerVendor);
+router.post('/vendor/register', optionalProtect, registerVendor);
 router.post('/vendor/send-otp', sendVendorOtp);
 router.post('/vendor/login', loginVendor);
 
 // Vendor Profile Routes (Protected)
 router.get('/vendor/dashboard/stats', protect, authorizedRoles('vendor'), getVendorDashboardStats);
 router.get('/vendor/profile', protect, authorizedRoles('vendor'), getVendorProfile);
-router.post('/vendor/profile', protect, authorizedRoles('user', 'vendor'), updateVendorProfile);
+// Vendors only: letting 'user' in let any customer make themselves a vendor
+// (with the free trial) without applying or being approved.
+router.post('/vendor/profile', protect, authorizedRoles('vendor'), updateVendorProfile);
 router.patch('/vendor/password', protect, authorizedRoles('vendor'), updatePassword);
 router.get('/vendor/me', protect, authorizedRoles('vendor'), getMe);
 
@@ -217,7 +219,8 @@ router.get('/vendor/reviews', protect, authorizedRoles('vendor'), getVendorRevie
 router.patch('/vendor/reviews/:id/reply', protect, authorizedRoles('vendor'), replyToReview);
 
 // Vendor Subscription Routes (Protected)
-router.post('/vendor/subscriptions/purchase', protect, authorizedRoles('vendor'), purchaseSubscription);
+// /vendor/subscriptions/purchase removed: it activated plans without any
+// payment. Plans are bought through /payment/subscription (PhonePe).
 
 // Vendor Wallet Routes (Protected)
 router.get('/vendor/wallet', protect, authorizedRoles('vendor'), getWallet);
