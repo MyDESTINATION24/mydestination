@@ -34,7 +34,9 @@ const VendorSidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const isVenueManager = user?.category === "Venue Manager";
   const navItems = allNavItems.filter((item) => !item.venueOnly || isVenueManager);
-  const [vendorName, setVendorName] = useState("Zoya Khan");
+  // Every vendor used to see a placeholder name and a stock photo of a stranger
+  // here. Show the signed-in vendor instead.
+  const [vendorName, setVendorName] = useState(user?.name || "Vendor");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
@@ -47,9 +49,10 @@ const VendorSidebar = ({ isOpen, onClose }) => {
       if (e.detail && e.detail.name) setVendorName(e.detail.name);
     };
 
+    if (user?.name) setVendorName(user.name);
     window.addEventListener('vendorProfileUpdate', handleUpdate);
     return () => window.removeEventListener('vendorProfileUpdate', handleUpdate);
-  }, []);
+  }, [user?.name]);
 
   return (
     <>
@@ -120,12 +123,8 @@ const VendorSidebar = ({ isOpen, onClose }) => {
           <div className="mt-6 pt-6 border-t border-[#DED0C5] shrink-0">
             <div className="flex flex-col gap-5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-xl rotate-3 shrink-0">
-                  <img 
-                    src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150&auto=format&fit=crop" 
-                    alt="Owner" 
-                    className="w-full h-full object-cover"
-                  />
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-white shadow-xl rotate-3 shrink-0 bg-gradient-to-br from-[#B06A6C] to-[#9E5A5C] flex items-center justify-center">
+                  <span className="text-white font-black text-lg">{String(vendorName || "V").trim().charAt(0).toUpperCase()}</span>
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">

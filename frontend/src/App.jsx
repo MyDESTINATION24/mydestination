@@ -15,7 +15,7 @@ import ScrollToTop from './components/ui/ScrollToTop';
 
 // Hooks & Services
 import { useLenis } from './app/shared/hooks/useLenis';
-import { legalService, userService, hotelService } from './services/apiService';
+import api, { legalService, userService, hotelService } from './services/apiService';
 import adminService from './services/adminService';
 import { requestNotificationPermission, onMessageListener } from './utils/firebase';
 import logo from './assets/rokologin-removebg-preview.png';
@@ -482,6 +482,10 @@ const PartnerProtectedRoute = ({ children }) => {
   return children ? children : <Outlet />;
 };
 
+const readStoredJson = (key) => {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+};
+
 // Wedding Vendor Protected Route
 const WeddingVendorProtectedRoute = ({ children }) => {
   // Authenticate with the VENDOR's own credential. This used to read the shared
@@ -490,9 +494,33 @@ const WeddingVendorProtectedRoute = ({ children }) => {
   // leftover vendor_user supplied the identity, and a plain user was let into
   // the vendor portal.
   const token = localStorage.getItem('vendor_token');
-  const vendorUserRaw = localStorage.getItem('vendor_user');
-  const user = vendorUserRaw ? JSON.parse(vendorUserRaw) : null;
   const location = useLocation();
+  const [, setSessionVersion] = React.useState(0);
+
+  // The checks below run on the vendor_user cached at login, so an approval,
+  // rejection or admin-granted subscription never reached the vendor until
+  // they logged out -- they sat on the subscription or pending page with the
+  // server already saying otherwise. Re-read it on each navigation and
+  // re-render when it changed.
+  React.useEffect(() => {
+    if (!localStorage.getItem('vendor_token')) return undefined;
+    let cancelled = false;
+    api.get('/wedding/vendor/me')
+      .then((res) => {
+        const fresh = res.data?.success ? res.data.user : null;
+        if (cancelled || !fresh) return;
+        const previous = readStoredJson('vendor_user') || {};
+        const merged = { ...previous, ...fresh };
+        if (JSON.stringify(merged) !== JSON.stringify(previous)) {
+          localStorage.setItem('vendor_user', JSON.stringify(merged));
+          setSessionVersion((v) => v + 1);
+        }
+      })
+      .catch(() => { /* keep the cached session; the interceptor handles 401 */ });
+    return () => { cancelled = true; };
+  }, [location.pathname]);
+
+  const user = readStoredJson('vendor_user');
 
   if (!token || !user) {
     return <Navigate to="/wedding/vendor/login" state={{ from: location }} replace />;

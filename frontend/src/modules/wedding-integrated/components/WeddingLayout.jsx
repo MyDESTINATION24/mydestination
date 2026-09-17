@@ -46,8 +46,11 @@ const WeddingLayout = () => {
     // Fall back to the vendor session: a vendor who signed in at the vendor
     // portal has no customer token, and would otherwise show as logged out
     // across the general wedding pages.
-    const storedUser = localStorage.getItem("user") || localStorage.getItem("vendor_user");
-    const token = localStorage.getItem("token") || localStorage.getItem("vendor_token");
+    // Take each session as a pair, so a leftover profile from one is never
+    // shown with the other's token.
+    const hasCustomer = localStorage.getItem("user") && localStorage.getItem("token");
+    const storedUser = hasCustomer ? localStorage.getItem("user") : localStorage.getItem("vendor_user");
+    const token = hasCustomer ? localStorage.getItem("token") : localStorage.getItem("vendor_token");
     if (storedUser && token) {
       try { setUser(JSON.parse(storedUser)); } 
       catch (e) { setUser(null); }
