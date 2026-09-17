@@ -21,6 +21,7 @@ import { Facebook, Twitter, Instagram, Menu, X, Phone, Mail, MessageCircle } fro
 import toast from 'react-hot-toast';
 import { api } from '../services/apiService';
 import SafeHTML from '../components/common/SafeHTML';
+import { useContentSections, sectionPath, sectionItemPath } from '../services/contentSections';
 
 const DestinationCard = ({ dest, fadeUp }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -289,38 +290,17 @@ const LandingPage = () => {
     navigate(targetPath);
   };
 
-  const [blogs, setBlogs] = useState([
-    {
-      _id: 'default-1',
-      title: 'Escape the City: 7 Hidden Hill Stations Near You',
-      category: 'Travel Guides',
-      readTime: '6 min read',
-      badge: 'TRENDING',
-      image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
-      excerpt: 'Weekend escapes that are closer than you think — curated hill stations, handpicked stays, and routes that actually work.',
-      date: 'March 2026'
-    },
-    {
-      _id: 'default-2',
-      title: 'Couple-Friendly Stays: What To Check Before You Book',
-      category: 'Stay Tips',
-      readTime: '4 min read',
-      badge: "EDITOR'S PICK",
-      image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80',
-      excerpt: 'From ID policies to neighbourhood vibes — a simple checklist to make sure your next couple stay is calm, safe and drama-free.',
-      date: 'March 2026'
-    },
-    {
-      _id: 'default-3',
-      title: 'How To Get Real Discounts (Beyond Flash Sales)',
-      category: 'Smart Booking',
-      readTime: '5 min read',
-      badge: 'SAVE MORE',
-      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1200&q=80',
-      excerpt: 'Learn how wallet credits, off-peak dates and flexible policies can actually beat random promo codes.',
-      date: 'February 2026'
-    }
-  ]);
+  // Blogs come only from the CMS. Placeholder posts used to render here when the
+  // API returned nothing, linking to /blogs/default-1 and similar dead pages.
+  const [blogs, setBlogs] = useState([]);
+  // Headings, navbar labels and extra sections, all managed in CMS Admin ->
+  // Homepage Sections.
+  const contentSections = useContentSections();
+  const blogsSection = contentSections.find((section) => section.kind === 'blogs');
+  const articlesSection = contentSections.find((section) => section.kind === 'articles');
+  const customHomeSections = contentSections.filter(
+    (section) => section.kind === 'custom' && section.showOnHome && Array.isArray(section.items) && section.items.length > 0
+  );
 
   // Articles are managed in the CMS and linked from the header, but the
   // landing page never showed them -- admin-authored content nobody saw.
@@ -1146,22 +1126,23 @@ const LandingPage = () => {
       </section>
 
       {/* 9.5. Blogs & Stories Section */}
+      {blogsSection?.showOnHome && blogs.length > 0 ? (
       <section id="blogs" className="py-16 md:py-24 bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">
-              Stories &amp; Insights
+              {blogsSection.subtitle}
             </p>
             <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
-              Latest Blogs &amp; Travel Hacks
+              {blogsSection.title}
             </h2>
             <p className="text-sm text-slate-600 mt-3">
-              Handpicked travel guides, stay tips, and smart booking hacks from our team.
+              {blogsSection.description}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {blogs.slice(0, 3).map((blog) => (
+            {blogs.slice(0, blogsSection.homeLimit || 3).map((blog) => (
               <div 
                 key={blog._id} 
                 onClick={() => navigate(`/blogs/${blog._id}`)}
@@ -1197,35 +1178,36 @@ const LandingPage = () => {
 
           <div className="text-center mt-10">
             <Link 
-              to="/blogs" 
+              to={sectionPath(blogsSection)}
               className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
             >
-              <span>Explore All Blogs</span>
+              <span>{blogsSection.buttonText || `Explore All ${blogsSection.navLabel}`}</span>
               <ArrowRight size={14} />
             </Link>
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* Articles. Rendered only when the CMS actually has some, so an empty
           collection leaves no hollow section on the page. */}
-      {articles.length > 0 ? (
+      {articlesSection?.showOnHome && articles.length > 0 ? (
         <section id="articles" className="py-16 md:py-24 bg-white border-t border-slate-200">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">
-                Reads &amp; Deep Dives
+                {articlesSection.subtitle}
               </p>
               <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
-                Travel Articles
+                {articlesSection.title}
               </h2>
               <p className="text-sm text-slate-600 mt-3">
-                Longer reads on destinations, culture and planning, written by our editors.
+                {articlesSection.description}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {articles.slice(0, 3).map((article) => (
+              {articles.slice(0, articlesSection.homeLimit || 3).map((article) => (
                 <div
                   key={article._id}
                   onClick={() => navigate(`/articles/${article._id}`)}
@@ -1261,16 +1243,78 @@ const LandingPage = () => {
 
             <div className="text-center mt-10">
               <Link
-                to="/articles"
+                to={sectionPath(articlesSection)}
                 className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
               >
-                <span>Explore All Articles</span>
+                <span>{articlesSection.buttonText || `Explore All ${articlesSection.navLabel}`}</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
           </div>
         </section>
       ) : null}
+
+      {/* Sections added in CMS Admin -> Homepage Sections, same card layout. */}
+      {customHomeSections.map((section, sectionIndex) => (
+        <section
+          key={section._id}
+          id={`section-${section.slug}`}
+          className={`py-16 md:py-24 border-t border-slate-200 ${sectionIndex % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}
+        >
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              {section.subtitle ? (
+                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">{section.subtitle}</p>
+              ) : null}
+              <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
+                {section.title || section.navLabel}
+              </h2>
+              {section.description ? (
+                <p className="text-sm text-slate-600 mt-3">{section.description}</p>
+              ) : null}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              {section.items.map((item) => (
+                <div
+                  key={item._id}
+                  onClick={() => navigate(sectionItemPath(section, item._id))}
+                  className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col h-full"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img src={item.image} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {item.badge ? (
+                      <span className="absolute top-3 left-3 bg-[#065f46] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">{item.badge}</span>
+                    ) : null}
+                  </div>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+                      <span className="font-semibold text-[#065f46] uppercase tracking-wider">{item.category || section.navLabel}</span>
+                      {item.readTime ? <span className="flex items-center gap-1"><Clock size={12} /> {item.readTime}</span> : null}
+                    </div>
+                    <SafeHTML html={item.title} as="h3" className="text-base md:text-lg font-bold text-slate-900 mb-2 line-clamp-2 leading-snug group-hover:text-[#065f46] transition-colors" />
+                    <SafeHTML html={item.excerpt} as="p" className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4 flex-grow" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#065f46] group-hover:translate-x-1 transition-transform">
+                      <span>Read More</span>
+                      <ArrowRight size={14} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
+              <Link
+                to={sectionPath(section)}
+                className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
+              >
+                <span>{section.buttonText || `Explore All ${section.navLabel}`}</span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      ))}
 
       {/* 10. Footer (Restructured) */}
       <footer className="bg-emerald-950 text-white pt-8 pb-8 px-6 md:px-8">

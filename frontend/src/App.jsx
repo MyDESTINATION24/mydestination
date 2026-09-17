@@ -54,6 +54,8 @@ const ContactPage = React.lazy(() => import('./pages/user/ContactPage'));
 const BlogsPage = React.lazy(() => import('./pages/user/BlogsPage'));
 const ArticlesPage = React.lazy(() => import('./pages/user/ArticlesPage'));
 const ArticleDetail = React.lazy(() => import('./pages/user/ArticleDetail'));
+const SectionPage = React.lazy(() => import('./pages/user/SectionPage'));
+const SectionItemDetail = React.lazy(() => import('./pages/user/SectionItemDetail'));
 const AmenitiesPage = React.lazy(() => import('./pages/user/AmenitiesPage'));
 const ReviewsPage = React.lazy(() => import('./pages/user/ReviewsPage'));
 const OffersPage = React.lazy(() => import('./pages/user/OffersPage'));
@@ -83,6 +85,7 @@ const CMSEssentialAccessories = React.lazy(() => import('./app/cms-admin/pages/C
 const CMSAboutUs = React.lazy(() => import('./app/cms-admin/pages/CMSAboutUs'));
 const CMSBlogs = React.lazy(() => import('./app/cms-admin/pages/CMSBlogs'));
 const CMSArticles = React.lazy(() => import('./app/cms-admin/pages/CMSArticles'));
+const CMSSections = React.lazy(() => import('./app/cms-admin/pages/CMSSections'));
 
 // Lazy Imports - Admin Pages
 const AdminLogin = React.lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
@@ -292,7 +295,7 @@ const Layout = ({ children }) => {
   }, []);
 
   // 1. GLOBAL HIDE: Auth pages, Admin, and Property Wizard
-  const globalHideRoutes = ['/login', '/signup', '/register', '/admin', '/cms-admin', '/hotel/join', '/welcome', '/articles', '/blogs'];
+  const globalHideRoutes = ['/login', '/signup', '/register', '/admin', '/cms-admin', '/hotel/join', '/welcome', '/articles', '/blogs', '/sections'];
   
   // Only hide for Vendor/Admin routes inside Wedding and Taxi
   const isWeddingHiddenRoute = location.pathname.startsWith('/wedding/admin') || location.pathname.startsWith('/wedding/vendor');
@@ -305,6 +308,7 @@ const Layout = ({ children }) => {
                            location.pathname.startsWith('/careers') || 
                            location.pathname.startsWith('/blogs') || 
                            location.pathname.startsWith('/articles') || 
+                           location.pathname.startsWith('/sections') || 
                            location.pathname.startsWith('/legal') || 
                            location.pathname.startsWith('/terms') || 
                            location.pathname.startsWith('/privacy');
@@ -406,6 +410,7 @@ const PublicOrProtectedRoute = ({ children }) => {
   const isPublicContentPage = 
     location.pathname.startsWith('/blogs') ||
     location.pathname.startsWith('/articles') ||
+    location.pathname.startsWith('/sections') ||
     location.pathname.startsWith('/about') ||
     location.pathname.startsWith('/contact') ||
     location.pathname.startsWith('/partner-landing');
@@ -970,6 +975,7 @@ function App() {
               <Route path="applications" element={<CMSCareerApplications />} />
               <Route path="blogs" element={<CMSBlogs />} />
               <Route path="articles" element={<CMSArticles />} />
+              <Route path="sections" element={<CMSSections />} />
             </Route>
 
             {/* Admin Auth Routes */}
@@ -1033,6 +1039,8 @@ function App() {
               <Route path="/blogs/:id" element={<BlogDetail />} />
               <Route path="/articles" element={<ArticlesPage />} />
               <Route path="/articles/:id" element={<ArticleDetail />} />
+              <Route path="/sections/:slug" element={<SectionPage />} />
+              <Route path="/sections/:slug/:id" element={<SectionItemDetail />} />
               <Route path="/manage-blogs" element={<BlogManager />} />
               <Route path="/serviced" element={<div className="pt-20 text-center text-surface font-bold">Serviced Page</div>} />
             </Route>

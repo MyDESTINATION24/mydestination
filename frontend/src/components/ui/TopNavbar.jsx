@@ -5,6 +5,7 @@ import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';
 import { toast } from 'react-hot-toast';
+import { useContentSections, sectionPath } from '../../services/contentSections';
 
 const taxiLogo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
 
@@ -15,6 +16,7 @@ const TopNavbar = () => {
     const userName = user.name || 'User';
 
     const location = useLocation();
+    const navSections = useContentSections().filter((section) => section.showInNav);
     
     // Check if we are on the Super App Dashboard
     const isSuperApp = location.pathname === '/' || location.pathname === '/home';
@@ -26,6 +28,7 @@ const TopNavbar = () => {
                              location.pathname.startsWith('/careers') || 
                              location.pathname.startsWith('/blogs') || 
                              location.pathname.startsWith('/articles') || 
+                             location.pathname.startsWith('/sections') || 
                              location.pathname.startsWith('/legal') || 
                              location.pathname.startsWith('/terms') || 
                              location.pathname.startsWith('/privacy');
@@ -84,12 +87,11 @@ const TopNavbar = () => {
                 >
                     Home
                 </Link>
-                <Link to="/articles" className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}>
-                    Articles
-                </Link>
-                <Link to="/blogs" className={`text-gray-600 font-bold text-sm ${hoverClass} transition`}>
-                    Blogs
-                </Link>
+                {navSections.map((section) => (
+                    <Link key={section._id} to={sectionPath(section)} className={`text-gray-600 font-bold text-sm ${hoverClass} transition whitespace-nowrap`}>
+                        {section.navLabel}
+                    </Link>
+                ))}
                 
                 {/* Default / Hotel Specific Links */}
                 {showDefaultLinks && (

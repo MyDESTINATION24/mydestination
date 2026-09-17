@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronRight } from 'lucide-react';
 import logo from '../../assets/rokologin-removebg-preview.png';
+import { useContentSections, sectionPath } from '../../services/contentSections';
 
 const WebsiteHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Articles, Blogs and any section added in the CMS, in the admin's order.
+  const navSections = useContentSections().filter((section) => section.showInNav);
 
   const handleScrollTo = (e, id) => {
     e.preventDefault();
@@ -42,7 +45,7 @@ const WebsiteHeader = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
             <a onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group cursor-pointer">
               HOME
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
@@ -59,14 +62,12 @@ const WebsiteHeader = () => {
               OUR STAFF
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
             </a>
-            <Link to="/articles" className="relative pb-1 transition-colors hover:text-[#065f46] group">
-              ARTICLES
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
-            </Link>
-            <Link to="/blogs" className="relative pb-1 transition-colors hover:text-[#065f46] group">
-              BLOGS
-              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
-            </Link>
+            {navSections.map((section) => (
+              <Link key={section._id} to={sectionPath(section)} className="relative pb-1 transition-colors hover:text-[#065f46] group whitespace-nowrap">
+                {section.navLabel}
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            ))}
 
             {/* Auth Buttons */}
             <div className="flex items-center gap-6 ml-4 border-l pl-8 border-slate-200">
@@ -106,14 +107,12 @@ const WebsiteHeader = () => {
                 <span>OUR STAFF</span>
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
-              <Link to="/articles" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors">
-                <span>ARTICLES</span>
-                <ChevronRight size={16} className="text-gray-400" />
-              </Link>
-              <a onClick={(e) => handleScrollTo(e, 'blogs')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
-                <span>BLOGS</span>
-                <ChevronRight size={16} className="text-gray-400" />
-              </a>
+              {navSections.map((section) => (
+                <Link key={section._id} to={sectionPath(section)} onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors">
+                  <span>{section.navLabel}</span>
+                  <ChevronRight size={16} className="text-gray-400" />
+                </Link>
+              ))}
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 font-bold text-[#065f46] transition-colors">
                 <span>LOGIN</span>
                 <ChevronRight size={16} className="text-[#065f46]" />
