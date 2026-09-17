@@ -40,7 +40,7 @@ const PartnerProfile = () => {
 
     // Initial state from localStorage to prevent flicker
     const getInitialProfile = () => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
         const addr = user.address || {};
         const addrStr = [addr.street, addr.city, addr.state].filter(Boolean).join(', ');
 
@@ -59,7 +59,7 @@ const PartnerProfile = () => {
 
     const [profile, setProfile] = useState(getInitialProfile());
     const [approvalStatus, setApprovalStatus] = useState(() => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
         return user.partnerApprovalStatus || 'pending';
     });
     const [memberSince, setMemberSince] = useState('');
@@ -99,13 +99,13 @@ const PartnerProfile = () => {
                 setPartnerId(data._id || '');
 
                 // Sync with localStorage to ensure next visit is instant
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
                 const updatedUser = {
                     ...user,
                     ...data,
                     id: data._id // Ensure ID consistency
                 };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+                localStorage.setItem('partner_user', JSON.stringify(updatedUser));
 
             } catch (error) {
                 console.error('Failed to load partner profile:', error);
@@ -156,9 +156,9 @@ const PartnerProfile = () => {
                 });
 
                 // Sync with localStorage
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
                 const updatedUser = { ...user, ...updated };
-                localStorage.setItem('user', JSON.stringify(updatedUser));
+                localStorage.setItem('partner_user', JSON.stringify(updatedUser));
 
                 setIsEditing(false);
             } catch {
@@ -233,9 +233,9 @@ const PartnerProfile = () => {
             }));
 
             // Sync with localStorage
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
             const updatedUser = { ...user, profileImage: newUrl, profileImagePublicId: newPublicId };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            localStorage.setItem('partner_user', JSON.stringify(updatedUser));
         }
     };
 

@@ -16,7 +16,7 @@ import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDr
 const PartnerSidebar = ({ isOpen, onClose }) => {
     const navigate = useNavigate();
     const { formData } = usePartnerStore();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem('partner_user') || '{}');
 
     // Disable body scroll when sidebar is open
     useEffect(() => {

@@ -27,7 +27,7 @@ const usePartnerDashboard = () => {
         setLoading(true);
 
         // Get User Info
-        const userData = JSON.parse(localStorage.getItem('user'));
+        const userData = JSON.parse(localStorage.getItem('partner_user'));
         setUser(userData);
 
         // Fetch Data in Parallel safely

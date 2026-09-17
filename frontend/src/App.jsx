@@ -473,7 +473,9 @@ const PartnerProtectedRoute = ({ children }) => {
       '/hotel/join-homestay'
     ];
     if (!allowedPending.some(p => location.pathname.startsWith(p))) {
-      return <Navigate to="/hotel/pending-approval" replace />;
+      // Carry the requested page so an approval found on the next status check
+      // lands the partner where they tapped, not back on the dashboard.
+      return <Navigate to="/hotel/pending-approval" state={{ from: location }} replace />;
     }
   }
 

@@ -161,7 +161,7 @@ const PartnerReviews = () => {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const u = JSON.parse(localStorage.getItem('user'));
+        const u = JSON.parse(localStorage.getItem('partner_user'));
         setUser(u);
         fetchReviews();
     }, []);

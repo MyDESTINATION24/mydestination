@@ -13,7 +13,7 @@ const PartnerHeader = ({ title, subtitle, showMenu = true }) => {
     const [walletBalance, setWalletBalance] = useState(0);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('partner_token');
         if (!token) return;
 
         const fetchWallet = async () => {

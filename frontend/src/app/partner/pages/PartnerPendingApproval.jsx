@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Clock, RefreshCw, LogOut, CheckCircle, AlertTriangle, MessageSquare, Edit3 } from 'lucide-react';
 import { authService } from '../../../services/apiService';
 import usePartnerStore from '../store/partnerStore';
@@ -8,6 +8,7 @@ import logo from '../../../assets/rokologin-removebg-preview.png';
 
 const PartnerPendingApproval = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [user, setUser] = useState(null);
     const [checking, setChecking] = useState(false);
     const { updateFormData, setStep } = usePartnerStore();
@@ -18,11 +19,18 @@ const PartnerPendingApproval = () => {
             const res = await authService.getMe();
             if (res.success && res.user) {
                 setUser(res.user);
-                localStorage.setItem('user', JSON.stringify(res.user));
+                // The route guard reads partner_user. This used to write the
+                // customer 'user' key instead, so a partner approved after they
+                // signed in kept a cached "pending" status forever: every tap
+                // off the dashboard bounced here, found them approved, and sent
+                // them back -- the dashboard looked like nothing worked.
+                localStorage.setItem('partner_user', JSON.stringify(res.user));
 
                 if (res.user.partnerApprovalStatus === 'approved') {
-                    toast.success('Congratulations! Your partner account is approved.');
-                    navigate('/hotel/dashboard');
+                    const from = location.state?.from?.pathname;
+                    const target = from && from !== '/hotel/pending-approval' ? from : '/hotel/dashboard';
+                    if (!from) toast.success('Congratulations! Your partner account is approved.');
+                    navigate(target, { replace: true });
                     return;
                 }
 
@@ -43,7 +51,7 @@ const PartnerPendingApproval = () => {
     };
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const storedUser = JSON.parse(localStorage.getItem('partner_user') || '{}');
         setUser(storedUser);
         loadProfile(false);
     }, []);
@@ -69,8 +77,8 @@ const PartnerPendingApproval = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('partner_token');
+        localStorage.removeItem('partner_user');
         navigate('/hotel/login');
     };
 
