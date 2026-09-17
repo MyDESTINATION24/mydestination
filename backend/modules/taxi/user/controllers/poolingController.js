@@ -6,6 +6,7 @@ import { PoolingSeatReservation } from '../../admin/models/PoolingSeatReservatio
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
 import { ApiError } from '../../../../utils/ApiError.js';
 import { resolveConfiguredGatewayCredentials } from '../../services/paymentGatewayService.js';
+import { claimProcessedPayment, isProcessedByOwner } from '../../common/models/ProcessedPayment.js';
 
 const ok = (res, data, message) => res.status(200).json({ success: true, data, message });
 const created = (res, data, message) => res.status(201).json({ success: true, data, message });
@@ -331,7 +332,7 @@ export const verifyPoolingBookingPayment = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'routeId, vehicleId, scheduleId and selectedSeats are required');
   }
 
-  const { keySecret } = await resolveRazorpayCredentials();
+  const { keyId, keySecret } = await resolveRazorpayCredentials();
   const expectedSignature = crypto
     .createHmac('sha256', keySecret)
     .update(`${orderId}|${paymentId}`)
@@ -384,6 +385,23 @@ export const verifyPoolingBookingPayment = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Pooling fare is not configured');
   }
 
+  // The signature only proves some payment happened. Require the order to be
+  // this user's order for this route and for exactly the fare of the seats
+  // being booked, or a one-seat order could confirm a whole row.
+  const order = await razorpayRequest({
+    method: 'GET',
+    path: `/orders/${encodeURIComponent(orderId)}`,
+    keyId,
+    keySecret,
+  });
+  if (
+    Number(order?.amount) !== Math.round(totalFare * 100) ||
+    String(order?.notes?.userId || '') !== userId ||
+    String(order?.notes?.routeId || '') !== routeId
+  ) {
+    throw new ApiError(400, 'Payment does not match this pooling booking');
+  }
+
   const vehicleSeatIds = new Set(getVehicleSeatIds(vehicle));
   const invalidSeatId = selectedSeats.find((seatId) => !vehicleSeatIds.has(seatId));
   if (invalidSeatId) {
@@ -401,6 +419,24 @@ export const verifyPoolingBookingPayment = asyncHandler(async (req, res) => {
     throw new ApiError(409, `Seat ${conflictingSeatId} was already booked by another user`);
   }
 
+  // Global one-time use of the payment id (the lookup above is per user).
+  const claim = await claimProcessedPayment({
+    provider: 'razorpay',
+    paymentId,
+    purpose: 'pooling_booking',
+    ownerId: userId,
+    amount: totalFare,
+    reference: routeId,
+  });
+  if (!claim.claimed) {
+    throw new ApiError(
+      409,
+      isProcessedByOwner(claim.record, { ownerId: userId, purpose: 'pooling_booking' })
+        ? 'This payment is already being processed. Please check your bookings shortly.'
+        : 'This payment was already processed',
+    );
+  }
+
   const duplicateUpcomingBooking = await PoolingBooking.findOne({
     user: userId,
     route: routeId,
@@ -413,35 +449,43 @@ export const verifyPoolingBookingPayment = asyncHandler(async (req, res) => {
     .populate('vehicle', 'name vehicleNumber');
 
   if (duplicateUpcomingBooking) {
+    // Not consumed by this booking; free it so it can't be lost.
+    await claim.release();
     return ok(res, serializePoolingBooking(duplicateUpcomingBooking), 'Pooling booking already confirmed');
   }
 
-  const booking = await PoolingBooking.create({
-    bookingId: createPoolingBookingCode(),
-    user: userId,
-    route: routeId,
-    vehicle: vehicleId,
-    scheduleId,
-    pickupStopId: String(pickupStop.id || pickupStopId),
-    dropStopId: String(dropStop.id || dropStopId),
-    seatsBooked: selectedSeats.length,
-    selectedSeats,
-    fare: totalFare,
-    currency: 'INR',
-    paymentStatus: 'paid',
-    bookingStatus: 'confirmed',
-    travelDate: new Date(`${travelDate}T00:00:00.000Z`),
-    pickupLabel: pickupStop.name || pickupStop.address || route.originLabel || '',
-    dropLabel: dropStop.name || dropStop.address || route.destinationLabel || '',
-    payment: {
-      provider: 'razorpay',
-      orderId,
-      paymentId,
-      signature,
-      status: 'paid',
-      paidAt: new Date(),
-    },
-  });
+  let booking;
+  try {
+    booking = await PoolingBooking.create({
+      bookingId: createPoolingBookingCode(),
+      user: userId,
+      route: routeId,
+      vehicle: vehicleId,
+      scheduleId,
+      pickupStopId: String(pickupStop.id || pickupStopId),
+      dropStopId: String(dropStop.id || dropStopId),
+      seatsBooked: selectedSeats.length,
+      selectedSeats,
+      fare: totalFare,
+      currency: 'INR',
+      paymentStatus: 'paid',
+      bookingStatus: 'confirmed',
+      travelDate: new Date(`${travelDate}T00:00:00.000Z`),
+      pickupLabel: pickupStop.name || pickupStop.address || route.originLabel || '',
+      dropLabel: dropStop.name || dropStop.address || route.destinationLabel || '',
+      payment: {
+        provider: 'razorpay',
+        orderId,
+        paymentId,
+        signature,
+        status: 'paid',
+        paidAt: new Date(),
+      },
+    });
+  } catch (error) {
+    await claim.release();
+    throw error;
+  }
 
   try {
     await PoolingSeatReservation.insertMany(
@@ -457,6 +501,8 @@ export const verifyPoolingBookingPayment = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     await PoolingBooking.deleteOne({ _id: booking._id });
+    // Booking rolled back, so the payment is unused again; allow a retry.
+    await claim.release();
     if (error?.code === 11000) {
       throw new ApiError(409, 'One or more selected seats were just booked by another user');
     }

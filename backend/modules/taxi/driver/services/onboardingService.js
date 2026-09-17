@@ -408,10 +408,17 @@ const publicDriverPayload = (driver) => {
   };
 };
 
+// The registrationId (a random UUID handed only to whoever requested the OTP)
+// is the proof of ownership for every onboarding step. Falling back to a
+// lookup by phone let anyone continue -- or complete, collecting the token --
+// someone else's verified registration knowing only their number. Every
+// client step already sends registrationId, so the phone fallback is gone.
 const getSession = async (registrationId, phone = '') => {
-  const query = registrationId
-    ? { registrationId: String(registrationId) }
-    : { phone: normalizePhone(phone) };
+  if (!registrationId) {
+    throw new ApiError(400, 'registrationId is required');
+  }
+
+  const query = { registrationId: String(registrationId) };
 
   const session = await DriverRegistrationSession.findOne(query).select('+otpHash +personal.passwordHash');
 

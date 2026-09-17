@@ -647,7 +647,6 @@ export const cancelRideByAdmin = async (rideId) => {
 
 export const cancelRideByUser = async ({ rideId, userId }) => {
   const dispatchState = getDispatchState(rideId);
-  stopDispatchFlow(rideId);
   const session = await mongoose.startSession();
   let ride = null;
   let cancellationSettlement = null;
@@ -661,6 +660,11 @@ export const cancelRideByUser = async ({ rideId, userId }) => {
       await session.abortTransaction();
       return null;
     }
+
+    // Stop dispatch only once the ride is proven to be this user's: this ran
+    // before the ownership lookup, so any user could halt dispatch for
+    // someone else's ride just by sending its id.
+    stopDispatchFlow(rideId);
 
     if (ride.status === RIDE_STATUS.COMPLETED || ride.liveStatus === RIDE_LIVE_STATUS.COMPLETED) {
       throw new Error('Completed rides cannot be cancelled');

@@ -55,3 +55,14 @@ export const credentialLoginLimiter = rateLimit({
   legacyHeaders: false,
   handler: tooMany('Too many login attempts. Please wait a few minutes and try again.'),
 });
+
+// Unauthenticated uploads (signup profile photo, taken before the account
+// exists). Each one lands on Cloudinary billed to this account, so cap per IP.
+export const publicUploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => `ip:${ipKeyGenerator(req.ip)}`,
+  handler: tooMany('Too many uploads. Please wait a few minutes and try again.'),
+});

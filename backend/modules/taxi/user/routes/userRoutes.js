@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
-import { otpSendLimiter, otpVerifyLimiter } from '../../middlewares/rateLimit.js';
+import { ApiError } from '../../../../utils/ApiError.js';
+import { otpSendLimiter, otpVerifyLimiter, publicUploadLimiter } from '../../middlewares/rateLimit.js';
 import { refreshAccessToken, revokeRefresh } from '../../services/refreshTokenController.js';
 import {
   authenticateOrResolveUser,
@@ -118,7 +119,22 @@ userRouter.post(
 userRouter.post('/register', asyncHandler(registerUser));
 userRouter.post('/signup', asyncHandler(signupUser));
 userRouter.post('/login', asyncHandler(loginUser));
-userRouter.post('/profile-image', asyncHandler(uploadUserProfileImage));
+// Stays public: Signup uploads the photo before the account (and token) exists.
+// Rate limited and restricted to image data URLs so it is not free hosting.
+userRouter.post(
+  '/profile-image',
+  publicUploadLimiter,
+  (req, _res, next) => {
+    const dataUrl = String(req.body?.dataUrl || '');
+    // Size cap (12MB) is enforced in the controller; SVG is refused because it
+    // can carry script.
+    if (dataUrl && (!/^data:image\/[a-z0-9.+-]+;base64,/i.test(dataUrl) || /^data:image\/svg/i.test(dataUrl))) {
+      return next(new ApiError(400, 'Only image uploads are allowed'));
+    }
+    return next();
+  },
+  asyncHandler(uploadUserProfileImage),
+);
 userRouter.post('/auth/send-otp', otpSendLimiter, asyncHandler(startUserOtpRequest));
 userRouter.post('/auth/verify-otp', otpVerifyLimiter, asyncHandler(verifyUserOtpRequest));
 // Unauthenticated by design: called when the access token has already

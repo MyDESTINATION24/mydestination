@@ -29,6 +29,15 @@ import { RentalQuoteRequest } from '../../admin/models/RentalQuoteRequest.js';
 import { RentalVehicleType } from '../../admin/models/RentalVehicleType.js';
 import { ServiceStore } from '../../admin/models/ServiceStore.js';
 import { SetPrice } from '../../admin/models/SetPrice.js';
+import {
+  assertPhonePeSessionOwner,
+  claimProcessedPayment,
+  findProcessedPayment,
+  isProcessedByOwner,
+  LEGACY_SESSION_MAX_AGE_MS,
+  ProcessedPayment,
+  recordInitiatedPayment,
+} from '../../common/models/ProcessedPayment.js';
 import { applyDriverWalletAdjustment } from '../../driver/services/walletService.js';
 import { emitToDriver } from '../../services/dispatchService.js';
 import { sendPushNotificationToEntities } from '../../services/pushNotificationService.js';
@@ -1440,11 +1449,14 @@ export const verifyUserPhoneForOtpLogin = async (req, res) => {
 
   ensureUserCanLogin(user);
 
+  // This endpoint used to hand out a full session (access + refresh token) for
+  // any phone number with no OTP at all -- account takeover by phone number.
+  // It now only reports whether the account exists; the session is issued by
+  // POST /users/auth/verify-otp after the OTP has actually been checked.
   res.json({
     success: true,
     data: {
       exists: true,
-      ...(await createUserSession(user)),
     },
   });
 };
@@ -1899,10 +1911,37 @@ export const createRazorpayWalletTopupOrder = async (req, res) => {
   });
 };
 
+// The advance is whatever the admin configured on the vehicle -- the same
+// figure RentalDeposit.jsx shows. Never trust the amount the client posts.
+const RENTAL_ADVANCE_PURPOSE = 'rental_advance_payment';
+
+const resolveRentalAdvanceAmount = async (vehicleTypeId) => {
+  const id = toCleanString(vehicleTypeId);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ApiError(400, 'Valid rental vehicle is required');
+  }
+
+  const vehicle = await RentalVehicleType.findById(id).select('name advancePayment active status').lean();
+  if (!vehicle || vehicle.active === false || vehicle.status !== 'active') {
+    throw new ApiError(404, 'Rental vehicle not found');
+  }
+
+  const amount = vehicle.advancePayment?.enabled
+    ? Math.round(Math.max(0, Number(vehicle.advancePayment?.amount || 0)) * 100) / 100
+    : 0;
+
+  return { vehicle, amount };
+};
+
+const buildRentalWalletPaymentId = (userId, bookingReference) => `rental_advance:${userId}:${bookingReference}`;
+
 export const createRentalAdvancePaymentOrder = async (req, res) => {
-  const amount = normalizeMoneyAmount(req.body?.amount);
   const vehicleId = String(req.body?.vehicleId || '').trim();
-  const vehicleName = String(req.body?.vehicleName || 'Rental booking').trim();
+  const { vehicle, amount } = await resolveRentalAdvanceAmount(vehicleId);
+  if (amount <= 0) {
+    throw new ApiError(400, 'No advance payment is required for this vehicle');
+  }
+  const vehicleName = String(vehicle.name || req.body?.vehicleName || 'Rental booking').trim();
   const pickup = String(req.body?.pickup || '').trim();
   const returnTime = String(req.body?.returnTime || '').trim();
   const { keyId, keySecret } = await resolveRazorpayCredentials();
@@ -1911,6 +1950,9 @@ export const createRentalAdvancePaymentOrder = async (req, res) => {
   const userId = String(req.auth?.sub || '');
   const compactUserId = userId.replace(/[^a-zA-Z0-9]/g, '').slice(-8) || 'guest';
   const receipt = `rentadv_${compactUserId}_${Date.now().toString(36)}`;
+  // Minted here and written into the order notes so the payment is bound to
+  // exactly one booking request (see createRentalBookingRequest).
+  const bookingReference = `RNT-${Date.now().toString(36).slice(-6).toUpperCase()}`;
 
   const order = await razorpayRequest({
     method: 'POST',
@@ -1925,7 +1967,8 @@ export const createRentalAdvancePaymentOrder = async (req, res) => {
         vehicleName,
         pickup,
         returnTime,
-        purpose: 'rental_advance_payment',
+        bookingReference,
+        purpose: RENTAL_ADVANCE_PURPOSE,
       },
     },
     keyId,
@@ -1939,7 +1982,7 @@ export const createRentalAdvancePaymentOrder = async (req, res) => {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency || 'INR',
-      bookingReference: `RNT-${Date.now().toString(36).slice(-6).toUpperCase()}`,
+      bookingReference,
     },
   });
 };
@@ -1955,6 +1998,14 @@ export const createPhonePeWalletTopupOrder = async (req, res) => {
   const redirectUrl = `${frontendBaseUrl}/taxi/user/wallet?phonepe_txn=${encodeURIComponent(merchantTransactionId)}`;
   const callbackUrl = `${backendBaseUrl}/api/v1/common/payment-gateway/phonepe/callback`;
   const user = userId ? await User.findById(userId).select('phone').lean() : null;
+  // Remember who opened this session so verify can refuse anyone else.
+  await recordInitiatedPayment({
+    provider: 'phonepe',
+    paymentId: merchantTransactionId,
+    purpose: 'user_wallet_topup',
+    ownerId: userId,
+    amount,
+  });
   const payload = await phonePeRequest({
     method: 'POST',
     path: '/pg/v1/pay',
@@ -1996,45 +2047,73 @@ export const createPhonePeWalletTopupOrder = async (req, res) => {
 };
 
 export const payRentalAdvanceWithWallet = async (req, res) => {
-  const amount = normalizeMoneyAmount(req.body?.amount);
   const bookingReference =
     toCleanString(req.body?.bookingReference) || `RNT-${Date.now().toString(36).slice(-6).toUpperCase()}`;
   const userId = req.auth?.sub;
 
-  await ensureUserWallet(userId);
-
-  const wallet = await UserWallet.findOne({ userId });
-  if (!wallet) {
-    throw new ApiError(404, 'User wallet not found');
+  // Charge the vehicle's configured advance, not the posted amount; fall back
+  // to the posted amount only for old clients that omit vehicleId, and that
+  // payment can then never mark a booking paid for more than it covered.
+  const requestedVehicleId = toCleanString(req.body?.vehicleId);
+  const amount = requestedVehicleId
+    ? (await resolveRentalAdvanceAmount(requestedVehicleId)).amount
+    : normalizeMoneyAmount(req.body?.amount);
+  if (!(amount > 0)) {
+    throw new ApiError(400, 'No advance payment is required for this vehicle');
   }
 
+  await ensureUserWallet(userId);
+
   const referenceKey = `rental_advance_${bookingReference}`;
-  const existingTransaction = Array.isArray(wallet.transactions)
-    ? wallet.transactions.find(
-        (item) => item?.kind === 'debit' && String(item.referenceKey || '') === referenceKey,
-      )
+  const claim = await claimProcessedPayment({
+    provider: 'wallet',
+    paymentId: buildRentalWalletPaymentId(userId, bookingReference),
+    purpose: RENTAL_ADVANCE_PURPOSE,
+    ownerId: userId,
+    amount,
+    reference: bookingReference,
+  });
+
+  const legacyDebited = claim.claimed
+    ? await UserWallet.exists({ userId, 'transactions.referenceKey': referenceKey })
     : null;
 
-  if (!existingTransaction) {
-    if (Number(wallet.balance || 0) < amount) {
+  let wallet = null;
+  if (claim.claimed && !legacyDebited) {
+    // Atomic conditional debit: the old read-check-save let two concurrent
+    // requests both pass the balance check and overdraw the wallet.
+    try {
+      wallet = await UserWallet.findOneAndUpdate(
+        { userId, balance: { $gte: amount } },
+        {
+          $inc: { balance: -amount },
+          $push: {
+            transactions: {
+              $each: [{
+                kind: 'debit',
+                amount,
+                title: 'Rental Advance Payment',
+                provider: 'wallet',
+                providerPaymentId: bookingReference,
+                referenceKey,
+              }],
+              $slice: -50,
+            },
+          },
+        },
+        { returnDocument: 'after' },
+      ).lean();
+    } catch (error) {
+      await claim.release();
+      throw error;
+    }
+
+    if (!wallet) {
+      await claim.release();
       throw new ApiError(400, 'Insufficient wallet balance');
     }
-
-    wallet.balance = Math.round((Number(wallet.balance || 0) - amount) * 100) / 100;
-    wallet.transactions.push({
-      kind: 'debit',
-      amount,
-      title: 'Rental Advance Payment',
-      provider: 'wallet',
-      providerPaymentId: bookingReference,
-      referenceKey,
-    });
-
-    if (wallet.transactions.length > 50) {
-      wallet.transactions = wallet.transactions.slice(-50);
-    }
-
-    await wallet.save();
+  } else {
+    wallet = await UserWallet.findOne({ userId }).select('balance').lean();
   }
 
   res.status(201).json({
@@ -2090,16 +2169,43 @@ export const verifyRazorpayWalletTopup = async (req, res) => {
   const amount = Math.round(amountPaise) / 100;
   const userId = req.auth?.sub;
 
+  // A signed order id + payment id is not proof the caller paid: any user's
+  // (or a rental/tour) order would verify here and top up this wallet.
+  // Wallet top-up orders carry notes.userId, so bind the order to the caller.
+  if (String(order?.notes?.userId || '') !== String(userId || '') || !String(order?.receipt || '').startsWith('uwal_')) {
+    throw new ApiError(403, 'This payment does not belong to your wallet');
+  }
+
   await ensureUserWallet(userId);
 
-  const alreadyCredited = await UserWallet.findOne({
-    userId,
-    'transactions.providerPaymentId': paymentId,
-  })
-    .select('_id')
-    .lean();
+  // Global claim before crediting: the old per-wallet lookup only saw the last
+  // 50 sliced transactions, so an old payment id could be replayed.
+  const claim = await claimProcessedPayment({
+    provider: 'razorpay',
+    paymentId,
+    purpose: 'user_wallet_topup',
+    ownerId: userId,
+    amount,
+    reference: orderId,
+  });
 
-  if (!alreadyCredited) {
+  if (!claim.claimed && !isProcessedByOwner(claim.record, { ownerId: userId, purpose: 'user_wallet_topup' })) {
+    throw new ApiError(409, 'This payment was already processed');
+  }
+
+  // Payments credited before the global ledger existed have no claim row:
+  // keep the old per-wallet check, and refuse stale orders whose credit may
+  // have been sliced out of that history.
+  const legacyCredited = claim.claimed
+    ? await UserWallet.exists({ userId, 'transactions.providerPaymentId': paymentId })
+    : null;
+  const orderAgeMs = Date.now() - Number(order?.created_at || 0) * 1000;
+  if (claim.claimed && !legacyCredited && orderAgeMs > LEGACY_SESSION_MAX_AGE_MS) {
+    await claim.release();
+    throw new ApiError(409, 'This payment session has expired');
+  }
+
+  if (claim.claimed && !legacyCredited) {
     const tx = {
       kind: 'credit',
       amount,
@@ -2109,13 +2215,18 @@ export const verifyRazorpayWalletTopup = async (req, res) => {
       providerPaymentId: paymentId,
     };
 
-    await UserWallet.updateOne(
-      { userId },
-      {
-        $inc: { balance: amount },
-        $push: { transactions: { $each: [tx], $slice: -50 } },
-      },
-    );
+    try {
+      await UserWallet.updateOne(
+        { userId },
+        {
+          $inc: { balance: amount },
+          $push: { transactions: { $each: [tx], $slice: -50 } },
+        },
+      );
+    } catch (error) {
+      await claim.release();
+      throw error;
+    }
   }
 
   const wallet = await UserWallet.findOne({ userId }).select('balance refundWallet transactions').slice('transactions', -10).lean();
@@ -2154,19 +2265,43 @@ export const verifyPhonePeWalletTopup = async (req, res) => {
   const userId = req.auth?.sub;
 
   if (paymentState === 'COMPLETED') {
+    // The transaction id travels in the redirect URL, so anyone holding it
+    // could otherwise credit someone else's payment to their own wallet.
+    await assertPhonePeSessionOwner({
+      merchantTransactionId,
+      prefix: 'UWAL',
+      ownerId: userId,
+      purpose: 'user_wallet_topup',
+    });
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new ApiError(400, 'Invalid payment amount');
+    }
+
     await ensureUserWallet(userId);
 
-    const alreadyCredited = await UserWallet.findOne({
-      userId,
-      $or: [
-        { 'transactions.providerPaymentId': paymentId },
-        { 'transactions.providerOrderId': merchantTransactionId },
-      ],
-    })
-      .select('_id')
-      .lean();
+    // Keyed on the merchantTransactionId we minted, globally unique, so the
+    // same PhonePe session can never be credited twice.
+    const claim = await claimProcessedPayment({
+      provider: 'phonepe',
+      paymentId: merchantTransactionId,
+      purpose: 'user_wallet_topup',
+      ownerId: userId,
+      amount,
+      reference: paymentId,
+    });
 
-    if (!alreadyCredited) {
+    if (!claim.claimed && !isProcessedByOwner(claim.record, { ownerId: userId, purpose: 'user_wallet_topup' })) {
+      throw new ApiError(409, 'This payment was already processed');
+    }
+
+    // Sessions credited before the global ledger existed have no claim row;
+    // the old per-wallet history still stops those from paying out twice.
+    const legacyCredited = claim.claimed
+      ? await UserWallet.exists({ userId, 'transactions.providerOrderId': merchantTransactionId })
+      : null;
+
+    if (claim.claimed && !legacyCredited) {
       const tx = {
         kind: 'credit',
         amount,
@@ -2176,13 +2311,18 @@ export const verifyPhonePeWalletTopup = async (req, res) => {
         providerPaymentId: paymentId,
       };
 
-      await UserWallet.updateOne(
-        { userId },
-        {
-          $inc: { balance: amount },
-          $push: { transactions: { $each: [tx], $slice: -50 } },
-        },
-      );
+      try {
+        await UserWallet.updateOne(
+          { userId },
+          {
+            $inc: { balance: amount },
+            $push: { transactions: { $each: [tx], $slice: -50 } },
+          },
+        );
+      } catch (error) {
+        await claim.release();
+        throw error;
+      }
     }
 
     const wallet = await UserWallet.findOne({ userId })
@@ -2260,6 +2400,29 @@ export const verifyRentalAdvancePayment = async (req, res) => {
   const amountPaise = Number(order?.amount);
   if (!Number.isFinite(amountPaise) || amountPaise <= 0) {
     throw new ApiError(400, 'Invalid order amount');
+  }
+
+  // Bind the payment to the caller and to the rental advance order that was
+  // created for them; otherwise any signed order (a wallet top-up, another
+  // user's rental) could be presented as this booking's advance.
+  const userId = String(req.auth?.sub || '');
+  if (String(order?.notes?.userId || '') !== userId || String(order?.notes?.purpose || '') !== RENTAL_ADVANCE_PURPOSE) {
+    throw new ApiError(403, 'This payment does not belong to your rental booking');
+  }
+
+  // Recorded globally so createRentalBookingRequest can trust it, and so the
+  // payment can only ever back the one bookingReference in its notes.
+  const claim = await claimProcessedPayment({
+    provider: 'razorpay',
+    paymentId,
+    purpose: RENTAL_ADVANCE_PURPOSE,
+    ownerId: userId,
+    amount: Math.round(amountPaise) / 100,
+    reference: String(order?.notes?.bookingReference || ''),
+  });
+
+  if (!claim.claimed && !isProcessedByOwner(claim.record, { ownerId: userId, purpose: RENTAL_ADVANCE_PURPOSE })) {
+    throw new ApiError(409, 'This payment was already processed');
   }
 
   res.status(201).json({
@@ -2941,7 +3104,9 @@ export const cancelMyBusBooking = async (req, res) => {
     booking,
     busService,
     seatIds: seatsToCancel.map((item) => item.seatId),
-    travelDateOverride: req.body?.travelDate || req.body?.date,
+    // Always the booked date: a client-sent travelDate in the future used to
+    // move departure out of the no-refund window and unlock a full refund.
+    travelDateOverride: booking.travelDate,
   });
   if (!cancellationQuote.allowed) {
     throw new ApiError(409, cancellationQuote.reason || 'This booking can no longer be cancelled');
@@ -3100,12 +3265,10 @@ export const createRentalBookingRequest = async (req, res) => {
   const payload = req.body || {};
   const vehicleTypeId = String(payload.vehicleTypeId || payload.vehicleId || '').trim();
   const bookingReference = toCleanString(payload.bookingReference) || `RNT-${Date.now().toString(36).slice(-6).toUpperCase()}`;
-  const paymentStatus = toCleanString(payload.paymentStatus).toLowerCase() || 'pending';
+  const requestedPaymentStatus = toCleanString(payload.paymentStatus).toLowerCase() || 'pending';
+  let paymentStatus = requestedPaymentStatus;
   const paymentMethod = toCleanString(payload.paymentMethod).toLowerCase();
   const paymentMethodLabel = toCleanString(payload.paymentMethodLabel);
-  const advancePaymentLabel = toCleanString(payload.advancePaymentLabel) || 'Advance booking payment';
-  const totalCost = Math.max(0, Number(payload.totalCost || 0));
-  const payableNow = Math.max(0, Number(payload.payableNow || payload.deposit || 0));
   const kycCompleted = Boolean(payload.kycCompleted);
 
   if (!mongoose.Types.ObjectId.isValid(vehicleTypeId)) {
@@ -3149,9 +3312,80 @@ export const createRentalBookingRequest = async (req, res) => {
     Math.round((((returnDateTime.getTime() - pickupDateTime.getTime()) / 3600000) + Number.EPSILON) * 100) / 100,
   );
 
-  const selectedPackage = payload.selectedPackage || {};
-  const serviceLocation = payload.serviceLocation || {};
+  // SECURITY: price, advance and package figures used to be copied from the
+  // body, so a client could book at any price. Recompute them from the
+  // vehicle's admin-configured package with the same formula RentalSchedule.jsx
+  // shows: package price + started overrun hours * extra-hour rate.
+  const requestedPackage = payload.selectedPackage || {};
+  const requestedPackageId = toCleanString(requestedPackage.id || requestedPackage.packageId || '');
+  const vehiclePackages = (Array.isArray(vehicle.pricing) ? vehicle.pricing : []).filter((item) => item?.active !== false);
+  const matchedPackage = vehiclePackages.find((item) => String(item.id) === requestedPackageId);
+  if (vehiclePackages.length > 0 && !matchedPackage) {
+    throw new ApiError(400, 'Selected rental package is not available');
+  }
+  const selectedPackage = matchedPackage
+    ? {
+        id: matchedPackage.id,
+        label: matchedPackage.label,
+        durationHours: Math.max(0, Number(matchedPackage.durationHours || 0)),
+        price: Math.max(0, Number(matchedPackage.price || 0)),
+        extraHourPrice: Math.max(0, Number(matchedPackage.extraHourPrice || 0)),
+      }
+    : {};
+  const overrunHours = Math.max(0, requestedHours - Math.max(1, Number(selectedPackage.durationHours || 0)));
+  const totalCost = matchedPackage
+    ? Math.round((selectedPackage.price + Math.ceil(overrunHours) * selectedPackage.extraHourPrice) * 100) / 100
+    : 0;
+  const payableNow = vehicle.advancePayment?.enabled
+    ? Math.round(Math.max(0, Number(vehicle.advancePayment?.amount || 0)) * 100) / 100
+    : 0;
+  const advancePaymentLabel = toCleanString(vehicle.advancePayment?.label) || 'Advance booking payment';
+
+  // 'paid' is only accepted when a server-verified payment backs it: the
+  // wallet debit or Razorpay verify for this exact bookingReference, for at
+  // least the advance due. Anything else is stored as pending for admin.
   const paymentPayload = payload.payment || {};
+  let verifiedPayment = null;
+  if (paymentStatus === 'not_required' && payableNow > 0) {
+    paymentStatus = 'pending';
+  }
+  if (paymentStatus === 'paid' && payableNow <= 0) {
+    paymentStatus = 'not_required';
+  }
+  if (paymentStatus === 'paid') {
+    const userIdString = String(user._id);
+    const isWallet = paymentMethod === 'wallet' || toCleanString(paymentPayload.provider).toLowerCase() === 'wallet';
+    const record = isWallet
+      ? await findProcessedPayment({ provider: 'wallet', paymentId: buildRentalWalletPaymentId(userIdString, bookingReference) })
+      : await findProcessedPayment({
+          provider: 'razorpay',
+          paymentId: toCleanString(paymentPayload.paymentId || paymentPayload.razorpay_payment_id),
+        });
+
+    let boundRecord = isProcessedByOwner(record, { ownerId: userIdString, purpose: RENTAL_ADVANCE_PURPOSE }) ? record : null;
+    if (boundRecord && !boundRecord.reference) {
+      // Orders created before bookingReference went into the notes: bind the
+      // payment to the first booking that presents it, atomically.
+      boundRecord = await ProcessedPayment.findOneAndUpdate(
+        { _id: boundRecord._id, reference: '' },
+        { $set: { reference: bookingReference } },
+        { returnDocument: 'after' },
+      ).lean();
+    }
+
+    if (
+      boundRecord &&
+      boundRecord.reference === bookingReference &&
+      payableNow > 0 &&
+      Number(boundRecord.amount || 0) + 0.001 >= payableNow
+    ) {
+      verifiedPayment = boundRecord;
+    } else {
+      paymentStatus = 'pending';
+    }
+  }
+
+  const serviceLocation = payload.serviceLocation || {};
   const kycDocumentsPayload = payload.kycDocuments || {};
   const normalizedDrivingLicenseUrl = toCleanString(
     kycDocumentsPayload.drivingLicense?.imageUrl ||
@@ -3213,8 +3447,9 @@ export const createRentalBookingRequest = async (req, res) => {
     paymentMethodLabel,
     payment: {
       provider: toCleanString(paymentPayload.provider),
-      status: toCleanString(paymentPayload.status) || paymentStatus,
-      amount: Math.max(0, Number(paymentPayload.amount || payableNow || 0)),
+      // Status and amount mirror what the server verified, not the body.
+      status: paymentStatus,
+      amount: verifiedPayment ? Number(verifiedPayment.amount || 0) : 0,
       currency: toCleanString(paymentPayload.currency) || 'INR',
       orderId: toCleanString(paymentPayload.orderId || paymentPayload.razorpay_order_id),
       paymentId: toCleanString(paymentPayload.paymentId || paymentPayload.razorpay_payment_id),

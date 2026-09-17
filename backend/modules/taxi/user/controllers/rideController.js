@@ -34,6 +34,7 @@ import {
 import { getTipSettings } from '../../services/appSettingsService.js';
 import { Ride } from '../models/Ride.js';
 import { UserWallet } from '../models/UserWallet.js';
+import { claimProcessedPayment } from '../../common/models/ProcessedPayment.js';
 
 const EARTH_RADIUS_METERS = 6371000;
 const AVERAGE_CITY_SPEED_KMPH = 24;
@@ -566,6 +567,16 @@ export const verifyRazorpayRideCompletion = async (req, res) => {
     throw new ApiError(400, 'Verified payment amount does not match the payable ride total');
   }
 
+  // The order must have been created for this ride by this rider; an equal
+  // amount alone let one ride's payment settle another ride.
+  if (
+    String(order?.notes?.rideId || '') !== rideId ||
+    String(order?.notes?.userId || '') !== String(req.auth.sub) ||
+    String(order?.notes?.source || '') !== 'ride_completion'
+  ) {
+    throw new ApiError(403, 'This payment does not belong to this ride');
+  }
+
   const existingWalletCredit = await WalletTransaction.findOne({
     driverId: ride.driverId,
     'metadata.providerPaymentId': paymentId,
@@ -578,6 +589,21 @@ export const verifyRazorpayRideCompletion = async (req, res) => {
     String(ride.driverPaymentCollection?.providerPaymentId || '') !== paymentId &&
     String(ride.feedback?.tipPaymentId || '') !== paymentId
   ) {
+    throw new ApiError(409, 'This ride completion payment was already processed');
+  }
+
+  // Global, race-safe claim: the ledger lookup above is only scoped to this
+  // driver and two concurrent verifies could both pass it.
+  const claim = await claimProcessedPayment({
+    provider: 'razorpay',
+    paymentId,
+    purpose: 'ride_completion',
+    ownerId: String(req.auth.sub),
+    amount: verifiedTotalCharge,
+    reference: rideId,
+  });
+
+  if (!claim.claimed) {
     throw new ApiError(409, 'This ride completion payment was already processed');
   }
 
@@ -627,7 +653,10 @@ export const verifyRazorpayRideCompletion = async (req, res) => {
       data: result.ride,
     });
   } catch (error) {
-    await session.abortTransaction();
+    if (session.inTransaction()) {
+      await session.abortTransaction();
+      await claim.release();
+    }
     throw error;
   } finally {
     session.endSession();
@@ -876,6 +905,16 @@ export const verifyRazorpayRideTip = async (req, res) => {
     throw new ApiError(400, 'Verified tip amount does not match selected tip');
   }
 
+  // A tip order is bound to one ride and rider; otherwise a single tip
+  // payment could be replayed as the tip for any other completed ride.
+  if (
+    String(order?.notes?.rideId || '') !== rideId ||
+    String(order?.notes?.userId || '') !== String(req.auth.sub) ||
+    String(order?.notes?.kind || '') !== 'ride_tip'
+  ) {
+    throw new ApiError(403, 'This payment does not belong to this ride');
+  }
+
   const driver = await Driver.findById(ride.driverId);
   if (!driver) {
     throw new ApiError(404, 'Driver not found');
@@ -889,6 +928,20 @@ export const verifyRazorpayRideTip = async (req, res) => {
     .lean();
 
   if (existingWalletCredit && String(ride.feedback?.tipPaymentId || '') !== paymentId) {
+    throw new ApiError(409, 'This tip payment was already processed');
+  }
+
+  // Global claim so concurrent verifies cannot both credit the driver.
+  const claim = await claimProcessedPayment({
+    provider: 'razorpay',
+    paymentId,
+    purpose: 'ride_tip',
+    ownerId: String(req.auth.sub),
+    amount: verifiedTipAmount,
+    reference: rideId,
+  });
+
+  if (!claim.claimed) {
     throw new ApiError(409, 'This tip payment was already processed');
   }
 
@@ -911,6 +964,10 @@ export const verifyRazorpayRideTip = async (req, res) => {
           rideId: String(ride._id),
           userId: String(req.auth.sub),
         },
+      }).catch(async (error) => {
+        // Nothing was credited, so free the claim for a retry.
+        await claim.release();
+        throw error;
       });
 
   ride.feedback = {
@@ -1026,18 +1083,23 @@ export const listAvailableDrivers = async (req, res) => {
     const distanceMeters = calculateDistanceMeters([longitude, latitude], driver.location?.coordinates || []);
     const etaMinutes = estimateEtaMinutes(distanceMeters);
 
+    // Nearby-driver markers are shown before any ride is assigned, so they
+    // must not identify or precisely locate a driver: no name or plate, and
+    // coordinates rounded to ~100m (plenty for the map pins).
+    const coordinates = Array.isArray(driver.location?.coordinates)
+      ? driver.location.coordinates.map((value) => Math.round(Number(value) * 1000) / 1000)
+      : [];
+
     return {
       id: driver._id,
-      name: driver.name,
       vehicleTypeId: driver.vehicleTypeId,
       vehicleType: driver.vehicleType,
       vehicleIconType: driver.vehicleIconType,
-      vehicleNumber: driver.vehicleNumber,
       vehicleColor: driver.vehicleColor,
       vehicleMake: driver.vehicleMake,
       vehicleModel: driver.vehicleModel,
       rating: driver.rating,
-      location: driver.location,
+      location: driver.location ? { type: driver.location.type || 'Point', coordinates } : driver.location,
       distanceMeters,
       etaMinutes,
     };

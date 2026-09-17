@@ -12,6 +12,12 @@ import {
   razorpayRequest,
   verifyRazorpaySignature,
 } from '../../services/paymentClients.js';
+import {
+  assertPhonePeSessionOwner,
+  claimProcessedPayment,
+  isProcessedByOwner,
+  recordInitiatedPayment,
+} from '../../common/models/ProcessedPayment.js';
 
 const ok = (res, data, message) => res.status(200).json({ success: true, data, message });
 const created = (res, data, message) => res.status(201).json({ success: true, data, message });
@@ -423,6 +429,15 @@ export const createAirwayBookingOrder = asyncHandler(async (req, res) => {
     const redirectUrl = `${frontendBaseUrl}/taxi/user/airways/routes/${encodeURIComponent(String(draft.route._id))}?phonepe_txn=${encodeURIComponent(merchantTransactionId)}`;
     const callbackUrl = `${req.protocol}://${req.get('host')}/api/v1/common/payment-gateway/phonepe/callback`;
 
+    // Remember who opened this session so verify can refuse anyone else.
+    await recordInitiatedPayment({
+      provider: 'phonepe',
+      paymentId: merchantTransactionId,
+      purpose: 'airway_booking',
+      ownerId: userId,
+      amount: draft.totalFare,
+    });
+
     const payload = await phonePeRequest({
       method: 'POST',
       path: '/pg/v1/pay',
@@ -463,10 +478,55 @@ export const createAirwayBookingOrder = asyncHandler(async (req, res) => {
   throw new ApiError(400, `${activeGateway.label} is enabled by admin, but airway checkout is not implemented for it yet.`);
 });
 
+// A signature only proves *some* payment happened. Confirming a booking also
+// needs that payment to be for this user and for exactly the fare we compute
+// now, and to be consumed once globally -- otherwise a cheap order pays for an
+// expensive booking, or one payment confirms many bookings.
+const claimAirwayPayment = async ({ provider, paymentId, userId, draft }) => {
+  const claim = await claimProcessedPayment({
+    provider,
+    paymentId,
+    purpose: 'airway_booking',
+    ownerId: userId,
+    amount: draft.totalFare,
+    reference: String(draft.route._id),
+  });
+
+  if (claim.claimed) {
+    return { claim, existingBooking: null };
+  }
+
+  if (!isProcessedByOwner(claim.record, { ownerId: userId, purpose: 'airway_booking' })) {
+    throw new ApiError(409, 'This payment was already processed');
+  }
+
+  const existingBooking = await AirwayBooking.findOne({
+    userId,
+    $or: [{ gatewayPaymentId: paymentId }, { gatewayTransactionId: paymentId }],
+  });
+  if (!existingBooking) {
+    throw new ApiError(409, 'This payment is already being processed. Please check your bookings shortly.');
+  }
+  return { claim, existingBooking };
+};
+
+const finalizeClaimedAirwayBooking = async ({ claim, existingBooking, ...bookingInput }) => {
+  if (existingBooking) {
+    return existingBooking;
+  }
+  try {
+    return await finalizeBooking(bookingInput);
+  } catch (error) {
+    await claim.release();
+    throw error;
+  }
+};
+
 export const verifyAirwayBookingPayment = asyncHandler(async (req, res) => {
   const userId = getCurrentUserId(req);
   const draft = await resolveBookingDraft(req.body, userId);
   const gateway = toText(req.body?.gateway || req.body?.gatewaySlug).toLowerCase();
+  const expectedAmountPaise = Math.round(draft.totalFare * 100);
 
   if (gateway === 'razor_pay') {
     const orderId = toText(req.body?.razorpay_order_id);
@@ -477,12 +537,30 @@ export const verifyAirwayBookingPayment = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Payment verification fields are required');
     }
 
-    const { keySecret } = await resolveConfiguredGatewayCredentials('razor_pay');
+    const { keyId, keySecret } = await resolveConfiguredGatewayCredentials('razor_pay');
     if (!verifyRazorpaySignature({ orderId, paymentId, signature, keySecret })) {
       throw new ApiError(400, 'Invalid payment signature');
     }
 
-    const booking = await finalizeBooking({
+    const order = await razorpayRequest({
+      method: 'GET',
+      path: `/orders/${encodeURIComponent(orderId)}`,
+      keyId,
+      keySecret,
+    });
+    if (
+      !(expectedAmountPaise > 0) ||
+      Number(order?.amount) !== expectedAmountPaise ||
+      String(order?.notes?.userId || '') !== userId ||
+      String(order?.notes?.routeId || '') !== String(draft.route._id)
+    ) {
+      throw new ApiError(400, 'Payment does not match this airway booking');
+    }
+
+    const { claim, existingBooking } = await claimAirwayPayment({ provider: 'razorpay', paymentId, userId, draft });
+    const booking = await finalizeClaimedAirwayBooking({
+      claim,
+      existingBooking,
       draft,
       paymentMethod: 'online',
       paymentMethodLabel: 'Razorpay',
@@ -515,7 +593,26 @@ export const verifyAirwayBookingPayment = asyncHandler(async (req, res) => {
     const paymentId = toText(payload?.data?.transactionId || merchantTransactionId);
 
     if (paymentState === 'COMPLETED') {
-      const booking = await finalizeBooking({
+      await assertPhonePeSessionOwner({
+        merchantTransactionId,
+        prefix: 'UAIR',
+        ownerId: userId,
+        purpose: 'airway_booking',
+      });
+      if (!(expectedAmountPaise > 0) || Math.round(Number(payload?.data?.amount || 0)) !== expectedAmountPaise) {
+        throw new ApiError(400, 'Payment does not match this airway booking');
+      }
+
+      // Keyed on our merchantTransactionId (always known and unique per session).
+      const { claim, existingBooking } = await claimAirwayPayment({
+        provider: 'phonepe',
+        paymentId: merchantTransactionId,
+        userId,
+        draft,
+      });
+      const booking = await finalizeClaimedAirwayBooking({
+        claim,
+        existingBooking,
         draft,
         paymentMethod: 'online',
         paymentMethodLabel: 'PhonePe',

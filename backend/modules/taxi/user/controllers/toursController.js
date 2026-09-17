@@ -12,6 +12,12 @@ import {
   razorpayRequest,
   verifyRazorpaySignature,
 } from '../../services/paymentClients.js';
+import {
+  assertPhonePeSessionOwner,
+  claimProcessedPayment,
+  isProcessedByOwner,
+  recordInitiatedPayment,
+} from '../../common/models/ProcessedPayment.js';
 
 const ok = (res, data, message) => res.status(200).json({ success: true, data, message });
 const created = (res, data, message) => res.status(201).json({ success: true, data, message });
@@ -275,6 +281,15 @@ export const createUserTourBookingOrder = asyncHandler(async (req, res) => {
     const redirectUrl = `${getFrontendBaseUrl()}/taxi/user/tours/book/${encodeURIComponent(String(draft.tour._id))}?phonepe_txn=${encodeURIComponent(merchantTransactionId)}`;
     const callbackUrl = `${req.protocol}://${req.get('host')}/api/v1/common/payment-gateway/phonepe/callback`;
 
+    // Remember who opened this session so verify can refuse anyone else.
+    await recordInitiatedPayment({
+      provider: 'phonepe',
+      paymentId: merchantTransactionId,
+      purpose: 'tour_booking',
+      ownerId: userId,
+      amount: draft.total,
+    });
+
     const payload = await phonePeRequest({
       method: 'POST',
       path: '/pg/v1/pay',
@@ -313,9 +328,53 @@ export const createUserTourBookingOrder = asyncHandler(async (req, res) => {
   throw new ApiError(400, `${activeGateway.label} is enabled by admin, but tour checkout is not implemented for it yet.`);
 });
 
+// A signature only proves *some* payment happened. The booking also needs it
+// to be this user's, for exactly the fare computed now, and consumed once
+// globally -- finalizeTourBooking's lookup by payment id would otherwise hand
+// another user's booking back, and a cheap order could pay for a big group.
+const claimTourPayment = async ({ provider, paymentId, userId, draft }) => {
+  const claim = await claimProcessedPayment({
+    provider,
+    paymentId,
+    purpose: 'tour_booking',
+    ownerId: userId,
+    amount: draft.total,
+    reference: String(draft.tour._id),
+  });
+
+  if (claim.claimed) {
+    return claim;
+  }
+
+  if (!isProcessedByOwner(claim.record, { ownerId: userId, purpose: 'tour_booking' })) {
+    throw new ApiError(409, 'This payment was already processed');
+  }
+
+  const existingBooking = await TourBooking.exists({
+    userId,
+    $or: [{ gatewayPaymentId: paymentId }, { gatewayTransactionId: paymentId }],
+  });
+  if (!existingBooking) {
+    throw new ApiError(409, 'This payment is already being processed. Please check your bookings shortly.');
+  }
+  // finalizeTourBooking returns the existing booking for this payment.
+  return claim;
+};
+
+const finalizeClaimedTourBooking = async (claim, bookingInput) => {
+  try {
+    return await finalizeTourBooking(bookingInput);
+  } catch (error) {
+    await claim.release();
+    throw error;
+  }
+};
+
 export const verifyUserTourBookingPayment = asyncHandler(async (req, res) => {
-  const draft = await resolveTourBookingDraft(req.body, getCurrentUserId(req));
+  const userId = getCurrentUserId(req);
+  const draft = await resolveTourBookingDraft(req.body, userId);
   const gateway = String(req.body?.gateway || req.body?.gatewaySlug || '').trim().toLowerCase();
+  const expectedAmountPaise = Math.round(draft.total * 100);
 
   if (gateway === 'razor_pay') {
     const orderId = String(req.body?.razorpay_order_id || '').trim();
@@ -326,12 +385,28 @@ export const verifyUserTourBookingPayment = asyncHandler(async (req, res) => {
       throw new ApiError(400, 'Payment verification fields are required');
     }
 
-    const { keySecret } = await resolveConfiguredGatewayCredentials('razor_pay');
+    const { keyId, keySecret } = await resolveConfiguredGatewayCredentials('razor_pay');
     if (!verifyRazorpaySignature({ orderId, paymentId, signature, keySecret })) {
       throw new ApiError(400, 'Invalid payment signature');
     }
 
-    const booking = await finalizeTourBooking({
+    const order = await razorpayRequest({
+      method: 'GET',
+      path: `/orders/${encodeURIComponent(orderId)}`,
+      keyId,
+      keySecret,
+    });
+    if (
+      !(expectedAmountPaise > 0) ||
+      Number(order?.amount) !== expectedAmountPaise ||
+      String(order?.notes?.userId || '') !== userId ||
+      String(order?.notes?.tourId || '') !== String(draft.tour._id)
+    ) {
+      throw new ApiError(400, 'Payment does not match this tour booking');
+    }
+
+    const claim = await claimTourPayment({ provider: 'razorpay', paymentId, userId, draft });
+    const booking = await finalizeClaimedTourBooking(claim, {
       draft,
       paymentMethod: 'online',
       paymentMethodLabel: 'Razorpay',
@@ -364,7 +439,18 @@ export const verifyUserTourBookingPayment = asyncHandler(async (req, res) => {
     const paymentId = String(payload?.data?.transactionId || merchantTransactionId).trim();
 
     if (paymentState === 'COMPLETED') {
-      const booking = await finalizeTourBooking({
+      await assertPhonePeSessionOwner({
+        merchantTransactionId,
+        prefix: 'UTOUR',
+        ownerId: userId,
+        purpose: 'tour_booking',
+      });
+      if (!(expectedAmountPaise > 0) || Math.round(Number(payload?.data?.amount || 0)) !== expectedAmountPaise) {
+        throw new ApiError(400, 'Payment does not match this tour booking');
+      }
+
+      const claim = await claimTourPayment({ provider: 'phonepe', paymentId: merchantTransactionId, userId, draft });
+      const booking = await finalizeClaimedTourBooking(claim, {
         draft,
         paymentMethod: 'online',
         paymentMethodLabel: 'PhonePe',

@@ -630,15 +630,18 @@ export const broadcastSupportMessage = (message) => {
     message,
   });
 
+  // Non-admin updates go to the participant's own room only. They used to go to
+  // chat:role:user / chat:role:driver, which every user/driver socket joins, so
+  // each user and driver received everyone else's support message bodies.
   if (message.sender.role !== 'admin') {
-    chatIo.to(getSupportRoleRoom(message.sender.role)).emit('chat:conversation-updated', {
+    chatIo.to(getSupportParticipantRoom(message.sender.role, message.sender.id)).emit('chat:conversation-updated', {
       conversationKey: message.conversationKey,
       message,
     });
   }
 
   if (message.receiver.role !== 'admin') {
-    chatIo.to(getSupportRoleRoom(message.receiver.role)).emit('chat:conversation-updated', {
+    chatIo.to(getSupportParticipantRoom(message.receiver.role, message.receiver.id)).emit('chat:conversation-updated', {
       conversationKey: message.conversationKey,
       message,
     });
@@ -669,5 +672,6 @@ export const broadcastSupportConversationDeleted = (payload) => {
   chatIo.to(getSupportParticipantRoom('admin', parsed.adminId)).emit('chat:conversation-deleted', nextPayload);
   chatIo.to(getSupportParticipantRoom(parsed.peerRole, parsed.peerId)).emit('chat:conversation-deleted', nextPayload);
   chatIo.to(getSupportRoleRoom('admin')).emit('chat:conversation-deleted', nextPayload);
-  chatIo.to(getSupportRoleRoom(parsed.peerRole)).emit('chat:conversation-deleted', nextPayload);
+  // No peer role-room emit: the participant room above already reaches the
+  // peer, and the role room would tell every user/driver about this thread.
 };

@@ -22,6 +22,7 @@ import {
   setSocketServer,
   startDispatchFlow,
 } from '../services/dispatchService.js';
+import { assertFareMeetsFloor } from '../services/fareFloorService.js';
 import { findZoneByPickup } from '../services/matchingService.js';
 import { acceptRideAssignment, createRideRecord, getRideRoom, submitRideBid } from '../services/rideService.js';
 import { SOCKET_EVENTS } from './events.js';
@@ -120,7 +121,11 @@ export const configureTaxiSocketServer = (httpServer) => {
     addSocketSubscriptions(socket, { role: identity.role, entityId: identity.sub });
 
     socket.join(getSupportParticipantRoom(identity.role, identity.sub));
-    socket.join(getSupportRoleRoom(identity.role));
+    // Only admins share a role room: it carries support traffic for every
+    // conversation, so users/drivers get updates via their participant room.
+    if (identity.role === 'admin') {
+      socket.join(getSupportRoleRoom(identity.role));
+    }
 
     if (identity.role === 'driver') {
       await Driver.findByIdAndUpdate(identity.sub, { socketId: socket.id });
@@ -132,6 +137,16 @@ export const configureTaxiSocketServer = (httpServer) => {
     socket.on('chat:join', ({ conversationKey }) => {
       if (conversationKey) {
         const parsed = parseSupportConversationKey(conversationKey);
+
+        // Any socket could join any conversation room and read its messages.
+        // Mirror buildConversationIdentityQuery: admins may join any thread,
+        // users/drivers only a well-formed key for their own thread.
+        if (
+          identity.role !== 'admin' &&
+          (!parsed || parsed.peerRole !== identity.role || String(parsed.peerId) !== String(identity.sub))
+        ) {
+          return;
+        }
 
         if (parsed) {
           for (const key of parsed.keys) {
@@ -227,11 +242,28 @@ export const configureTaxiSocketServer = (httpServer) => {
           return;
         }
 
+        const pickupCoords = normalizePoint(pickup, 'pickup');
+        const dropCoords = normalizePoint(drop, 'drop');
+
+        // Same fare floor as REST createRide: without it this socket path let a
+        // crafted client book any distance for a token amount.
+        const fareCheck = await assertFareMeetsFloor({
+          fare: Number(fare || 0),
+          pickupCoords,
+          dropCoords,
+          transportType: 'taxi',
+          vehicleTypeId,
+        });
+
+        if (!fareCheck.ok) {
+          throw new Error(`Fare is below the minimum of ${fareCheck.minimum} for this trip`);
+        }
+
         // Ride creation and dispatch share the same service path as the REST controller.
         const ride = await createRideRecord({
           userId: identity.sub,
-          pickupCoords: normalizePoint(pickup, 'pickup'),
-          dropCoords: normalizePoint(drop, 'drop'),
+          pickupCoords,
+          dropCoords,
           fare: Number(fare || 0),
           estimatedDistanceMeters: Number(estimatedDistanceMeters || 0),
           estimatedDurationMinutes: Number(estimatedDurationMinutes || 0),

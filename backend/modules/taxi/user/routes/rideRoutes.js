@@ -26,7 +26,10 @@ export const rideRouter = Router();
 rideRouter.post('/', authenticateOrResolveUser(['user']), asyncHandler(createRide));
 rideRouter.get('/', authenticateOrResolveUser(['user', 'driver']), asyncHandler(listMyRides));
 rideRouter.get('/app-settings/tip', asyncHandler(getRideAppTipSettings));
-rideRouter.get('/available-drivers', asyncHandler(listAvailableDrivers));
+// Was public and leaked live driver positions to anyone. Its only callers
+// (SelectVehicle, IntercityDetails) sit behind UserProtectedRoute and send the
+// user token, so requiring it changes nothing for the app.
+rideRouter.get('/available-drivers', authenticateOrResolveUser(['user']), asyncHandler(listAvailableDrivers));
 rideRouter.get('/active/me', authenticateOrResolveUser(['user', 'driver']), asyncHandler(getMyActiveRide));
 rideRouter.patch('/:rideId/cancel', authenticate(['user']), asyncHandler(cancelRide));
 rideRouter.get('/:rideId/bids', authenticate(['user']), asyncHandler(getRideBids));

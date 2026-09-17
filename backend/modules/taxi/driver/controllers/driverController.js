@@ -67,6 +67,13 @@ import {
   updateRentalVehicleType,
 } from "../../admin/services/adminService.js";
 import { resolveConfiguredGatewayCredentials } from "../../services/paymentGatewayService.js";
+import {
+  assertPhonePeSessionOwner,
+  claimProcessedPayment,
+  isProcessedByOwner,
+  LEGACY_SESSION_MAX_AGE_MS,
+  recordInitiatedPayment,
+} from "../../common/models/ProcessedPayment.js";
 import { assignPushTokenToEntity } from "../../services/pushTokenService.js";
 import {
   completeDriverOnboarding,
@@ -4419,6 +4426,14 @@ export const createDriverPhonePeWalletTopupOrder = async (req, res) => {
   const redirectUrl = `${frontendBaseUrl}/taxi/driver/wallet?phonepe_txn=${encodeURIComponent(merchantTransactionId)}`;
   const callbackUrl = `${backendBaseUrl}/api/v1/common/payment-gateway/phonepe/callback`;
   const driver = driverId ? await Driver.findById(driverId).select("phone").lean() : null;
+  // Remember who opened this session so verify can refuse anyone else.
+  await recordInitiatedPayment({
+    provider: "phonepe",
+    paymentId: merchantTransactionId,
+    purpose: "driver_wallet_topup",
+    ownerId: driverId,
+    amount,
+  });
   const payload = await phonePeRequest({
     method: "POST",
     path: "/pg/v1/pay",
@@ -4494,12 +4509,38 @@ export const verifyDriverWalletTopup = async (req, res) => {
   const amount = Math.round(amountPaise) / 100;
   const driverId = req.auth?.sub;
 
-  const alreadyCredited = await WalletTransaction.findOne({
+  // Bind the signed order to this driver: without it any user's or driver's
+  // Razorpay order (or a booking payment) could top up this wallet.
+  if (String(order?.notes?.driverId || "") !== String(driverId || "") || !String(order?.receipt || "").startsWith("dwal_")) {
+    throw new ApiError(403, "This payment does not belong to your wallet");
+  }
+
+  // Global claim before crediting, so a payment id can never be credited
+  // twice no matter how the per-driver history looks.
+  const claim = await claimProcessedPayment({
+    provider: "razorpay",
+    paymentId,
+    purpose: "driver_wallet_topup",
+    ownerId: driverId,
+    amount,
+    reference: orderId,
+  });
+
+  if (!claim.claimed && !isProcessedByOwner(claim.record, { ownerId: driverId, purpose: "driver_wallet_topup" })) {
+    throw new ApiError(409, "This payment was already processed");
+  }
+
+  const alreadyCredited = !claim.claimed || await WalletTransaction.exists({
     driverId,
     "metadata.providerPaymentId": paymentId,
-  })
-    .select("_id")
-    .lean();
+  });
+
+  // No claim row and no ledger entry for an old order means its history can't
+  // be trusted; refuse rather than risk crediting a replay.
+  if (!alreadyCredited && Date.now() - Number(order?.created_at || 0) * 1000 > LEGACY_SESSION_MAX_AGE_MS) {
+    await claim.release();
+    throw new ApiError(409, "This payment session has expired");
+  }
 
   if (alreadyCredited) {
     const driver = await Driver.findById(driverId);
@@ -4512,16 +4553,22 @@ export const verifyDriverWalletTopup = async (req, res) => {
     return;
   }
 
-  const result = await topUpDriverWallet({
-    driverId,
-    amount,
-    metadata: {
-      source: "razorpay",
-      provider: "razorpay",
-      providerOrderId: orderId,
-      providerPaymentId: paymentId,
-    },
-  });
+  let result;
+  try {
+    result = await topUpDriverWallet({
+      driverId,
+      amount,
+      metadata: {
+        source: "razorpay",
+        provider: "razorpay",
+        providerOrderId: orderId,
+        providerPaymentId: paymentId,
+      },
+    });
+  } catch (error) {
+    await claim.release();
+    throw error;
+  }
 
   const payload = {
     wallet: result.wallet,
@@ -4561,28 +4608,58 @@ export const verifyDriverPhonePeWalletTopup = async (req, res) => {
   const driverId = req.auth?.sub;
 
   if (paymentState === "COMPLETED") {
-    const alreadyCredited = await WalletTransaction.findOne({
+    // The transaction id is visible in redirect URLs; prove this driver
+    // opened the session before crediting it.
+    await assertPhonePeSessionOwner({
+      merchantTransactionId,
+      prefix: "DWAL",
+      ownerId: driverId,
+      purpose: "driver_wallet_topup",
+    });
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      throw new ApiError(400, "Invalid payment amount");
+    }
+
+    const claim = await claimProcessedPayment({
+      provider: "phonepe",
+      paymentId: merchantTransactionId,
+      purpose: "driver_wallet_topup",
+      ownerId: driverId,
+      amount,
+      reference: paymentId,
+    });
+
+    if (!claim.claimed && !isProcessedByOwner(claim.record, { ownerId: driverId, purpose: "driver_wallet_topup" })) {
+      throw new ApiError(409, "This payment was already processed");
+    }
+
+    // Ledger check kept for sessions credited before the global claim existed.
+    const alreadyCredited = !claim.claimed || await WalletTransaction.exists({
       driverId,
       $or: [
         { "metadata.providerPaymentId": paymentId },
         { "metadata.providerOrderId": merchantTransactionId },
       ],
-    })
-      .select("_id")
-      .lean();
+    });
 
     let result = null;
     if (!alreadyCredited) {
-      result = await topUpDriverWallet({
-        driverId,
-        amount,
-        metadata: {
-          source: "phonepe",
-          provider: "phonepe",
-          providerOrderId: merchantTransactionId,
-          providerPaymentId: paymentId,
-        },
-      });
+      try {
+        result = await topUpDriverWallet({
+          driverId,
+          amount,
+          metadata: {
+            source: "phonepe",
+            provider: "phonepe",
+            providerOrderId: merchantTransactionId,
+            providerPaymentId: paymentId,
+          },
+        });
+      } catch (error) {
+        await claim.release();
+        throw error;
+      }
     }
 
     const driver = await Driver.findById(driverId);
