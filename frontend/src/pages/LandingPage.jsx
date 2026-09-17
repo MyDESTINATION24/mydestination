@@ -22,6 +22,7 @@ import toast from 'react-hot-toast';
 import { api } from '../services/apiService';
 import SafeHTML from '../components/common/SafeHTML';
 import { useContentSections, sectionPath, sectionItemPath } from '../services/contentSections';
+import SectionBlock from '../components/sections/SectionBlock';
 
 const DestinationCard = ({ dest, fadeUp }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1254,66 +1255,16 @@ const LandingPage = () => {
         </section>
       ) : null}
 
-      {/* Sections added in CMS Admin -> Homepage Sections, same card layout. */}
+      {/* Sections added in CMS Admin -> Homepage Sections. The CMS preview
+          renders the same SectionBlock. */}
       {customHomeSections.map((section, sectionIndex) => (
-        <section
+        <SectionBlock
           key={section._id}
-          id={`section-${section.slug}`}
-          className={`py-16 md:py-24 border-t border-slate-200 ${sectionIndex % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}
-        >
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-12">
-              {section.subtitle ? (
-                <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#065f46] mb-2">{section.subtitle}</p>
-              ) : null}
-              <h2 className="text-3xl md:text-5xl font-black font-serif text-slate-900 tracking-tight uppercase">
-                {section.title || section.navLabel}
-              </h2>
-              {section.description ? (
-                <p className="text-sm text-slate-600 mt-3">{section.description}</p>
-              ) : null}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-              {section.items.map((item) => (
-                <div
-                  key={item._id}
-                  onClick={() => navigate(sectionItemPath(section, item._id))}
-                  className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col h-full"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
-                    <img src={item.image} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    {item.badge ? (
-                      <span className="absolute top-3 left-3 bg-[#065f46] text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md">{item.badge}</span>
-                    ) : null}
-                  </div>
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
-                      <span className="font-semibold text-[#065f46] uppercase tracking-wider">{item.category || section.navLabel}</span>
-                      {item.readTime ? <span className="flex items-center gap-1"><Clock size={12} /> {item.readTime}</span> : null}
-                    </div>
-                    <SafeHTML html={item.title} as="h3" className="text-base md:text-lg font-bold text-slate-900 mb-2 line-clamp-2 leading-snug group-hover:text-[#065f46] transition-colors" />
-                    <SafeHTML html={item.excerpt} as="p" className="text-xs text-slate-500 line-clamp-3 leading-relaxed mb-4 flex-grow" />
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#065f46] group-hover:translate-x-1 transition-transform">
-                      <span>Read More</span>
-                      <ArrowRight size={14} />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="text-center mt-10">
-              <Link
-                to={sectionPath(section)}
-                className="inline-flex items-center gap-2 bg-[#065f46] text-white px-6 py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-green-700 transition shadow-md"
-              >
-                <span>{section.buttonText || `Explore All ${section.navLabel}`}</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </section>
+          section={section}
+          items={section.items}
+          onItemClick={(item) => navigate(sectionItemPath(section, item._id))}
+          className={sectionIndex % 2 === 0 ? 'bg-slate-50' : 'bg-white'}
+        />
       ))}
 
       {/* 10. Footer (Restructured) */}

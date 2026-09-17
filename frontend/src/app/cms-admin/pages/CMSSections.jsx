@@ -7,6 +7,25 @@ import RichTextEditor from '../../../components/common/RichTextEditor';
 import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
 import { getStoredAdminToken } from '../../admin/store/adminStore';
 import { fetchContentSections } from '../../../services/contentSections';
+import SectionBlock from '../../../components/sections/SectionBlock';
+
+// Live preview of the homepage block, rendered with the same component the
+// landing page uses.
+const LivePreview = ({ section, items, note }) => (
+  <div className="bg-white border border-gray-100 rounded-sm shadow-sm overflow-hidden">
+    <div className="px-5 py-3 border-b border-gray-100 flex flex-wrap items-center justify-between gap-2">
+      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+        <Eye size={14} className="text-emerald-600" /> Live preview (homepage)
+      </span>
+      {note ? <span className="text-[11px] text-gray-400">{note}</span> : null}
+    </div>
+    <div className="bg-slate-50 pointer-events-none select-none">
+      <SectionBlock section={section} items={items} preview className="!border-t-0 !py-10" />
+    </div>
+  </div>
+);
+
+const placeholderCards = (count) => Array.from({ length: Math.max(1, Math.min(Number(count) || 3, 3)) }, () => ({}));
 
 const authHeaders = (extra = {}) => ({ headers: { Authorization: `Bearer ${getStoredAdminToken()}`, ...extra } });
 
@@ -36,6 +55,7 @@ const CMSSections = () => {
   const [editing, setEditing] = useState(null); // null | 'new' | section
   const [form, setForm] = useState(EMPTY_SECTION);
   const [managing, setManaging] = useState(null); // custom section whose cards are open
+  const [editingItems, setEditingItems] = useState([]); // cards of the section being edited, for the preview
 
   const loadSections = useCallback(async () => {
     try {
@@ -52,10 +72,16 @@ const CMSSections = () => {
 
   const refreshPublic = () => fetchContentSections({ force: true });
 
-  const startCreate = () => { setEditing('new'); setForm(EMPTY_SECTION); setManaging(null); };
+  const startCreate = () => { setEditing('new'); setForm(EMPTY_SECTION); setManaging(null); setEditingItems([]); };
   const startEdit = (section) => {
     setEditing(section);
     setManaging(null);
+    setEditingItems([]);
+    if (section.kind === 'custom') {
+      axios.get(`${API_BASE_URL}/content-sections/admin/${section._id}/items`, authHeaders())
+        .then((res) => setEditingItems((res.data?.data || []).filter((item) => item.isActive !== false)))
+        .catch(() => {});
+    }
     setForm({
       navLabel: section.navLabel || '', subtitle: section.subtitle || '', title: section.title || '',
       description: section.description || '', buttonText: section.buttonText || '',
@@ -73,8 +99,14 @@ const CMSSections = () => {
     const t = toast.loading('Saving section...');
     try {
       if (editing === 'new') {
-        await axios.post(`${API_BASE_URL}/content-sections/admin`, payload, authHeaders());
-        toast.success('Section created. Now add cards to it.', { id: t });
+        const res = await axios.post(`${API_BASE_URL}/content-sections/admin`, payload, authHeaders());
+        toast.success('Section created. Now add cards with images.', { id: t });
+        closeForm();
+        await loadSections();
+        refreshPublic();
+        // Straight to the cards screen: that is where images are added.
+        if (res.data?.data) setManaging(res.data.data);
+        return;
       } else {
         await axios.put(`${API_BASE_URL}/content-sections/admin/${editing._id}`, payload, authHeaders());
         toast.success('Section updated', { id: t });
@@ -180,15 +212,52 @@ const CMSSections = () => {
             <Toggle label="Active" checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} hint="Off hides it everywhere" />
           </div>
 
+          {editing === 'new' ? (
+            <div className="flex items-start gap-3 bg-emerald-50 border border-emerald-100 rounded-sm px-4 py-3 text-sm text-emerald-900">
+              <ImageIcon size={18} className="shrink-0 mt-0.5" />
+              <span><b>Images go on the cards.</b> Create the section first and you'll go straight to adding cards with images.</span>
+            </div>
+          ) : editing.kind === 'custom' ? (
+            <button
+              type="button"
+              onClick={() => { const target = editing; closeForm(); setManaging(target); }}
+              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-emerald-300 bg-emerald-50 text-emerald-900 font-bold py-3 rounded-sm hover:bg-emerald-100 transition"
+            >
+              <ImageIcon size={18} /> Add / edit cards &amp; images ({editingItems.length})
+            </button>
+          ) : (
+            <div className="flex items-start gap-3 bg-gray-50 border border-gray-100 rounded-sm px-4 py-3 text-sm text-gray-700">
+              <ImageIcon size={18} className="shrink-0 mt-0.5" />
+              <span>
+                Cards and images for this section are managed in{' '}
+                <Link to={`/cms-admin/${editing.kind}`} className="font-bold text-emerald-800 underline">Manage {editing.navLabel}</Link>.
+              </span>
+            </div>
+          )}
+
           <div className="flex gap-3">
             <button type="submit" className="flex-1 bg-emerald-800 hover:bg-emerald-900 text-white font-bold py-3 rounded-sm transition flex items-center justify-center gap-2">
-              <Save size={18} /> {editing === 'new' ? 'Create Section' : 'Save Changes'}
+              <Save size={18} /> {editing === 'new' ? 'Create Section & Add Cards' : 'Save Changes'}
             </button>
             <button type="button" onClick={closeForm} className="px-5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-sm transition">
               <X size={18} />
             </button>
           </div>
         </form>
+      ) : null}
+
+      {editing ? (
+        <LivePreview
+          section={{ ...form, slug: editing === 'new' ? 'preview' : editing.slug }}
+          items={
+            editing !== 'new' && editing.kind === 'custom' && editingItems.length
+              ? editingItems.slice(0, Number(form.homeLimit) || 3)
+              : placeholderCards(form.homeLimit)
+          }
+          note={editing !== 'new' && editing.kind !== 'custom'
+            ? `Shows your real ${editing.navLabel.toLowerCase()} on the site`
+            : 'Grey boxes are where your cards will appear'}
+        />
       ) : null}
 
       {loading ? (
@@ -268,6 +337,16 @@ const SectionItemsManager = ({ section, onBack }) => {
   useEffect(() => { loadItems(); }, [loadItems]);
 
   const reset = () => { setEditingItem(null); setForm(EMPTY_ITEM); setImageFile(null); setImagePreview(''); };
+
+  // What the homepage would show if this card were saved now.
+  const draftCard = { ...form, image: imagePreview || form.image, _id: editingItem?._id || 'draft' };
+  const draftHasContent = Boolean(stripTags(form.title).trim() || draftCard.image || stripTags(form.excerpt).trim());
+  const liveCards = items.filter((item) => item.isActive !== false);
+  let previewCards = editingItem
+    ? liveCards.map((item) => (item._id === editingItem._id ? draftCard : item))
+    : draftHasContent ? [draftCard, ...liveCards] : liveCards;
+  if (editingItem && form.isActive === false) previewCards = previewCards.filter((item) => item._id !== editingItem._id);
+  previewCards = previewCards.slice(0, section.homeLimit || 3);
 
   const startEdit = (item) => {
     setEditingItem(item);
@@ -428,6 +507,14 @@ const SectionItemsManager = ({ section, onBack }) => {
           </div>
         </form>
       </div>
+
+      <LivePreview
+        section={section}
+        items={previewCards.length ? previewCards : placeholderCards(section.homeLimit)}
+        note={previewCards.length
+          ? `Homepage shows the first ${section.homeLimit || 3} visible card${(section.homeLimit || 3) === 1 ? '' : 's'}`
+          : 'Add a card to see it here'}
+      />
 
       <div>
         <h3 className="text-lg font-bold text-gray-900 mb-6">Existing Cards</h3>
