@@ -265,6 +265,18 @@ export const weddingService = {
     }
   },
 
+  // Word (.docx) -> clean HTML for rich-text fields. Nothing is saved server-side.
+  importWordDocument: async (file) => {
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const response = await api.post('/cms/docx/to-html', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   addDestination: async (data) => {
     try {
       const response = await api.post('/wedding/admin/destinations', data);

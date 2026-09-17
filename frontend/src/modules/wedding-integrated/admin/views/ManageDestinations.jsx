@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { weddingService } from '../../../../services/weddingService';
 import { adminStyles } from '../theme/themeConfig';
+import RichTextEditor from '../../../../components/common/RichTextEditor';
+import RichDescription, { plainTextToHtml } from '../../components/RichDescription';
 import { 
   Plus, 
   Trash2, 
@@ -16,7 +18,9 @@ import {
   Trash,
   Calendar,
   Pencil,
-  ChevronDown
+  ChevronDown,
+  FileText,
+  Eye
 } from 'lucide-react';
 
 const ManageDestinations = () => {
@@ -46,6 +50,38 @@ const ManageDestinations = () => {
     description: '',
     image: ''
   });
+  const [importingDoc, setImportingDoc] = useState(false);
+  const [showDescPreview, setShowDescPreview] = useState(false);
+
+  const handleWordImport = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!/\.docx$/i.test(file.name)) {
+      alert('Please choose a Word .docx file. For an older .doc file, open it in Word and use Save As > .docx.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('The Word file must be under 5MB.');
+      return;
+    }
+    if (newDest.description && newDest.description.replace(/<[^>]*>/g, '').trim()
+      && !window.confirm('Replace the current description with the Word document?')) {
+      return;
+    }
+    try {
+      setImportingDoc(true);
+      const res = await weddingService.importWordDocument(file);
+      const html = res?.data?.html || '';
+      if (!html) throw new Error('No text found in this document');
+      setNewDest((prev) => ({ ...prev, description: html }));
+      setShowDescPreview(true);
+    } catch (error) {
+      alert(error?.message || 'Could not import this Word file');
+    } finally {
+      setImportingDoc(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -113,7 +149,11 @@ const ManageDestinations = () => {
       originalStartingPrice: dest.originalStartingPrice || '',
       avgCost: dest.avgCost || '',
       bestSeason: dest.bestSeason || '',
-      description: dest.description || '',
+      // Old plain-text descriptions open already split into paragraphs and
+      // headings, the same way the public page now shows them.
+      description: dest.description && !/<[a-z][\s\S]*>/i.test(dest.description)
+        ? plainTextToHtml(dest.description)
+        : (dest.description || ''),
       image: dest.image || ''
     });
     setShowAddForm(true);
@@ -121,6 +161,7 @@ const ManageDestinations = () => {
 
   const resetForm = () => {
     setShowAddForm(false);
+    setShowDescPreview(false);
     setEditingDest(null);
     setNewDest({
       name: '',
@@ -422,13 +463,47 @@ const ManageDestinations = () => {
                  </div>
 
                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</label>
-                    <textarea 
-                      value={newDest.description}
-                      onChange={e => setNewDest({...newDest, description: e.target.value})}
-                      placeholder="Tell us about the destination..."
-                      className="w-full h-24 px-5 py-3 bg-white border border-[#B06A6C]/20 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-[#B06A6C]/20"
-                    />
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="dest-docx-import"
+                          type="file"
+                          accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                          className="hidden"
+                          onChange={handleWordImport}
+                        />
+                        <label
+                          htmlFor="dest-docx-import"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border border-[#B06A6C]/30 text-[hsl(353,45%,35%)] bg-white hover:bg-[#B06A6C]/10 cursor-pointer transition ${importingDoc ? 'opacity-60 pointer-events-none' : ''}`}
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          {importingDoc ? 'Importing…' : 'Import Word (.docx)'}
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setShowDescPreview((v) => !v)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition ${showDescPreview ? 'bg-[hsl(353,45%,35%)] text-white border-transparent' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}
+                        >
+                          <Eye className="w-3.5 h-3.5" /> {showDescPreview ? 'Edit' : 'Preview'}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Use headings, bullet points and bold text, or import a Word file: its headings, lists, bold/italic and tables are kept (images are skipped).
+                    </p>
+                    {showDescPreview ? (
+                      <div className="max-h-[420px] overflow-y-auto px-5 py-4 bg-white border border-[#B06A6C]/20 rounded-2xl">
+                        {newDest.description ? <RichDescription value={newDest.description} /> : <p className="text-sm text-slate-400">Nothing to preview yet.</p>}
+                      </div>
+                    ) : (
+                      <RichTextEditor
+                        value={newDest.description}
+                        onChange={(html) => setNewDest((prev) => ({ ...prev, description: html }))}
+                        placeholder="Tell us about the destination..."
+                        minHeight="220px"
+                      />
+                    )}
                  </div>
 
                  <div className="md:col-span-2 pt-4">

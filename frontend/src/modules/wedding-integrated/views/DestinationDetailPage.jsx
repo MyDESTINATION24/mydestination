@@ -11,6 +11,7 @@ import {
   Inbox
 } from "lucide-react";
 import ScrollReveal from "../components/ScrollReveal";
+import RichDescription from "../components/RichDescription";
 import PlannerCard from "../components/PlannerCard";
 import {
   formatPrice,
@@ -164,9 +165,7 @@ const DestinationDetailPage = () => {
       <section className="pt-6 pb-6 md:py-16 px-4">
         <div className="max-w-4xl mx-auto">
           <ScrollReveal>
-            <p className="text-sm md:text-lg leading-relaxed text-muted-foreground">
-              {dest.description}
-            </p>
+            <RichDescription value={dest.description} />
           </ScrollReveal>
         </div>
       </section>
