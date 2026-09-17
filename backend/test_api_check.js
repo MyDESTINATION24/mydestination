@@ -27,7 +27,7 @@ const res = {
   })
 };
 
-const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+const mongoUrl = process.env.MONGODB_URL;
 mongoose.connect(mongoUrl).then(() => {
   console.log('Connected to DB. Calling controller...');
   checkAvailability(req, res);

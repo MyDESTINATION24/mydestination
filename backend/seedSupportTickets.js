@@ -6,7 +6,7 @@ dotenv.config();
 
 const seedSupportTickets = async () => {
   try {
-    const mongoUrl = process.env.MONGO_URI || "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+    const mongoUrl = process.env.MONGO_URI;
     await mongoose.connect(mongoUrl);
     console.log('Connected to DB');
 

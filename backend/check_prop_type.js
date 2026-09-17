@@ -5,7 +5,7 @@ const propertySchema = new mongoose.Schema({ propertyName: String, propertyType:
 const Property = mongoose.model('Property', propertySchema, 'properties');
 
 async function checkPropertyType() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const propertyId = new mongoose.Types.ObjectId('697ccad640037001c1eb2e58');

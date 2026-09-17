@@ -5,7 +5,7 @@ const availabilityLedgerSchema = new mongoose.Schema({}, { strict: false });
 const AvailabilityLedger = mongoose.model('AvailabilityLedger', availabilityLedgerSchema, 'availabilityledgers');
 
 async function checkSpecificDatesLedger() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const propertyId = new mongoose.Types.ObjectId('697ccad640037001c1eb2e58');

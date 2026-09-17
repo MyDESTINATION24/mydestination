@@ -11,7 +11,7 @@ const availabilityLedgerSchema = new mongoose.Schema({
 const AvailabilityLedger = mongoose.model('AvailabilityLedger', availabilityLedgerSchema);
 
 async function checkLedger() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   const ledger = await AvailabilityLedger.find({ propertyId: new mongoose.Types.ObjectId('69b51e64c7a6a54b1d7e8a65') });
   console.log('Ledger Details:');

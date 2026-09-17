@@ -26,7 +26,7 @@ const AvailabilityLedger = mongoose.model('AvailabilityLedger', availabilityLedg
 
 async function checkVilla() {
   try {
-    const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+    const mongoUrl = process.env.MONGODB_URL;
     await mongoose.connect(mongoUrl);
 
     const villa = await Property.findOne({ propertyName: /S S Villa/i });

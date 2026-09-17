@@ -11,7 +11,7 @@ const availabilityLedgerSchema = new mongoose.Schema({
 const AvailabilityLedger = mongoose.model('AvailabilityLedger', availabilityLedgerSchema);
 
 async function checkAllLedgers() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const targetDate = new Date("2026-03-25T10:00:00Z");

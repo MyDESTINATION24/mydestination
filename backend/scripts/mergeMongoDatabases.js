@@ -1,14 +1,12 @@
 import { MongoClient } from 'mongodb';
 
-const SOURCE_URI =
-  process.env.SOURCE_MONGODB_URI ||
-  'mongodb+srv://My Desinationtrawler_db_user:buYM1A4sMoTA4PcZ@cluster0.gy5yjip.mongodb.net/appzeto_taxi?retryWrites=true&w=majority';
+// Credentials come only from the environment; they used to be hardcoded here.
+const SOURCE_URI = process.env.SOURCE_MONGODB_URI;
 const SOURCE_DB_NAME = process.env.SOURCE_MONGODB_DB_NAME || 'appzeto_taxi';
 const TARGET_URI =
   process.env.TARGET_MONGODB_URI ||
   process.env.MONGODB_URI ||
-  process.env.MONGODB_URL ||
-  'mongodb+srv://mayurchadokar14_db_user:sORqnMJxbSjnstzY@cluster0.ueig0du.mongodb.net/myDestination';
+  process.env.MONGODB_URL;
 const TARGET_DB_NAME = process.env.TARGET_MONGODB_DB_NAME || process.env.MONGODB_DB_NAME || 'myDestination';
 const BATCH_SIZE = Number(process.env.MONGO_MERGE_BATCH_SIZE || 250);
 const BACKUP_PREFIX = `backup_source_import_${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`;

@@ -4,7 +4,7 @@ const propertySchema = new mongoose.Schema({ propertyName: String });
 const Property = mongoose.model('Property', propertySchema);
 
 async function checkNames() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   // Search for anything containing "Villa"

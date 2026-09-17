@@ -4,7 +4,7 @@ const propertySchema = new mongoose.Schema({ propertyName: String, "address.full
 const Property = mongoose.model('Property', propertySchema);
 
 async function checkAddress() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const properties = await Property.find({ "address.fullAddress": /113 hare Krishna vihar/i });

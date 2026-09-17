@@ -7,7 +7,7 @@ const roomTypeSchema = new mongoose.Schema({ propertyId: mongoose.Schema.Types.O
 const RoomType = mongoose.model('RoomType', roomTypeSchema);
 
 async function scan() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const properties = await Property.find();

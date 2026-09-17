@@ -4,7 +4,7 @@ const propertySchema = new mongoose.Schema({ propertyName: String, address: Obje
 const Property = mongoose.model('Property', propertySchema);
 
 async function listAll() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   const villas = await Property.find({ propertyName: /Villa/i });
   console.log(`Found ${villas.length} properties with "Villa" in name:`);

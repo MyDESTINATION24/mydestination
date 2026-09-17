@@ -12,7 +12,7 @@ const availabilityLedgerSchema = new mongoose.Schema({}, { strict: false });
 const AvailabilityLedger = mongoose.model('AvailabilityLedger', availabilityLedgerSchema, 'availabilityledgers');
 
 async function reproduce() {
-  const mongoUrl = "mongodb+srv://rukkooin:rukkooin@cluster0.6mzfrnp.mongodb.net/?appName=Cluster0";
+  const mongoUrl = process.env.MONGODB_URL;
   await mongoose.connect(mongoUrl);
   
   const propertyId = "69b51e64c7a6a54b1d7e8a65";
