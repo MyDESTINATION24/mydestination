@@ -47,7 +47,8 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('🛡️ Auth Middleware - Decoded Payload:', decoded);
+    // Decoded tokens and user names were logged on every request, writing
+    // personal data into the server logs; only failures are logged now.
 
     // 1. Check User Collection
     let user = await User.findById(decoded.id);
@@ -59,7 +60,6 @@ export const protect = async (req, res, next) => {
 
     // 3. Check Admin Collection
     if (!user) {
-      console.log('🛡️ Auth Middleware - User/Partner not found, checking Admin collection for ID:', decoded.id);
       user = await Admin.findById(decoded.id);
     }
 
@@ -67,8 +67,6 @@ export const protect = async (req, res, next) => {
       console.warn('🛡️ Auth Middleware - No User/Partner/Admin found for ID:', decoded.id);
       return res.status(401).json({ message: 'The user belonging to this token no longer exists.' });
     }
-
-    console.log(`🛡️ Auth Middleware - Authorized: ${user.name} (${user.role})`);
 
     // 4. Check Blocked Status
     if (user.isBlocked) {
@@ -93,12 +91,10 @@ export const protect = async (req, res, next) => {
 
 export const authorizedRoles = (...roles) => {
   return (req, res, next) => {
-    console.log(`🔐 Role Check - Required: [${roles}], User Has: ${req.user.role}`);
     if (!roles.includes(req.user.role)) {
       console.warn(`🚫 Role Check FAILED for user ${req.user.name}`);
       return res.status(403).json({ message: `User role ${req.user.role} is not authorized to access this route` });
     }
-    console.log(`✅ Role Check PASSED`);
     next();
   };
 };

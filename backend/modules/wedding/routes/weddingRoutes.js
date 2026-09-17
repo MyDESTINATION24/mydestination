@@ -14,6 +14,17 @@ const publicFormLimiter = rateLimit({
   keyGenerator: (req) => ipKeyGenerator(req.ip),
   handler: (req, res) => res.status(429).json({ success: false, message: 'Too many submissions. Please try again in a few minutes.' }),
 });
+
+const makeVendorAuthLimiter = (limit) => rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(req.ip),
+  handler: (req, res) => res.status(429).json({ success: false, message: 'Too many attempts. Please try again in a few minutes.' }),
+});
+const vendorOtpSendLimiter = makeVendorAuthLimiter(12);
+const vendorLoginLimiter = makeVendorAuthLimiter(20);
 import { 
   registerVendor, 
   sendVendorOtp,
@@ -189,9 +200,10 @@ router.get('/my-enquiries', protect, getMyEnquiries);
 router.post('/enquiries/:id/pay-and-book', protect, confirmBooking);
 
 // Auth Routes (Vendor)
-router.post('/vendor/register', optionalProtect, registerVendor);
-router.post('/vendor/send-otp', sendVendorOtp);
-router.post('/vendor/login', loginVendor);
+router.post('/vendor/register', publicFormLimiter, optionalProtect, registerVendor);
+// Per-IP caps on top of the per-account guess limit in loginVendor.
+router.post('/vendor/send-otp', vendorOtpSendLimiter, sendVendorOtp);
+router.post('/vendor/login', vendorLoginLimiter, loginVendor);
 
 // Vendor Profile Routes (Protected)
 router.get('/vendor/dashboard/stats', protect, authorizedRoles('vendor'), getVendorDashboardStats);

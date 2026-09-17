@@ -135,6 +135,7 @@ export const sendVendorOtp = async (req, res) => {
 
     user.otp = otp;
     user.otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins expiry
+    user.otpAttempts = 0;
     await user.save();
 
     // Send SMS
@@ -169,7 +170,7 @@ export const loginVendor = async (req, res) => {
           { phone: `+91${cleanPhone}` },
           { phone: `91${cleanPhone}` }
         ]
-      }).select('+otp +otpExpires');
+      }).select('+otp +otpExpires +otpAttempts');
 
       if (!user) {
         return res.status(401).json({ success: false, message: 'Vendor not found with this phone number' });
@@ -186,8 +187,24 @@ export const loginVendor = async (req, res) => {
         });
       }
 
-      // Verify OTP
+      // Verify OTP. Guesses were unlimited, so a vendor account could be
+      // brute-forced; after 5 wrong codes the OTP is discarded (same cap as the
+      // hotel login) and a new one must be requested.
+      const MAX_OTP_ATTEMPTS = 5;
       if (!user.otp || user.otp !== String(otp).trim()) {
+        if (user.otp) {
+          user.otpAttempts = Number(user.otpAttempts || 0) + 1;
+          if (user.otpAttempts >= MAX_OTP_ATTEMPTS) {
+            user.otp = undefined;
+            user.otpExpires = undefined;
+            user.otpAttempts = 0;
+            await user.save();
+            return res.status(400).json({ success: false, message: 'Too many wrong attempts. Please request a new OTP.' });
+          }
+          await user.save();
+          const left = MAX_OTP_ATTEMPTS - user.otpAttempts;
+          return res.status(400).json({ success: false, message: `Invalid OTP. ${left} attempt${left === 1 ? '' : 's'} left.` });
+        }
         return res.status(400).json({ success: false, message: 'Invalid OTP' });
       }
 
@@ -198,6 +215,7 @@ export const loginVendor = async (req, res) => {
       // Clear OTP
       user.otp = undefined;
       user.otpExpires = undefined;
+      user.otpAttempts = 0;
       await user.save();
 
       const token = generateToken(user._id, user.role);

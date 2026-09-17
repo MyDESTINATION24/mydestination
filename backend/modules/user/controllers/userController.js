@@ -73,9 +73,9 @@ export const updateUserProfile = async (req, res) => {
       if (req.body.email) user.email = req.body.email;
       if (req.body.phone) user.phone = req.body.phone;
 
-      if (req.body.password) {
-        user.password = await bcrypt.hash(req.body.password, 10);
-      }
+      // Passwords are not changed here: this accepted a new password with no
+      // current-password check, so anyone holding a token could set one. No
+      // screen sends it; vendors use PATCH /wedding/vendor/password.
 
       if (req.body.profileImage !== undefined) user.profileImage = req.body.profileImage;
       if (req.body.profileImagePublicId !== undefined) user.profileImagePublicId = req.body.profileImagePublicId;

@@ -63,11 +63,12 @@ const normalizeRole = (role) => {
 const hashOtp = (otp) => crypto.createHash('sha256').update(String(otp)).digest('hex');
 const getVisibleOtp = (otp) => (process.env.NODE_ENV !== 'production' ? String(otp) : null);
 const isTruthy = (value) => ['1', 'true', 'yes', 'on'].includes(String(value || '').trim().toLowerCase());
-const TEST_LOGIN_OTP_PHONE = '6268423925';
-const TEST_LOGIN_OTP_CODE = '0000';
 const getStaticDriverOtpConfig = () => ({
-  phone: normalizePhone(env.sms?.staticOtpPhone || TEST_LOGIN_OTP_PHONE),
-  otp: String(env.sms?.staticOtpCode || TEST_LOGIN_OTP_CODE).trim(),
+  // No built-in fallback: when STATIC_OTP_PHONE/CODE were unset this used to
+  // accept '0000' for a hardcoded number in production. A static test login
+  // now exists only if both are explicitly configured.
+  phone: env.sms?.staticOtpPhone ? normalizePhone(env.sms.staticOtpPhone) : '',
+  otp: String(env.sms?.staticOtpCode || '').trim(),
 });
 const resolveDriverLoginOtpForPhone = (phone) => {
   const normalizedPhone = normalizePhone(phone);
