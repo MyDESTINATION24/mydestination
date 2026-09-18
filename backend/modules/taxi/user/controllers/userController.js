@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { phonePeV1Compat } from '../../../../services/phonepeCheckout.js';
 import mongoose from 'mongoose';
 import { ApiError } from '../../../../utils/ApiError.js';
 import User from '../../../user/models/User.js';
@@ -206,6 +207,16 @@ const phonePeRequest = async ({
   saltIndex,
   environment,
 }) => {
+  // PhonePe v2 ("SU..." merchants) rejects the v1 salt-key API; go through the
+  // shared Standard Checkout connector, which answers in the v1 shape used here.
+  if (!process.env.PHONEPE_FORCE_V1) {
+    try {
+      return await phonePeV1Compat({ method, path, body });
+    } catch (error) {
+      throw new ApiError(error.statusCode || 502, error.message || 'PhonePe request failed');
+    }
+  }
+
   const normalizedMethod = String(method || 'GET').trim().toUpperCase();
   const encodedPayload =
     body && normalizedMethod !== 'GET'
