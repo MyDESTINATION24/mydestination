@@ -39,6 +39,7 @@ import partnerRoutes from './modules/partner/routes/partnerRoutes.js';
 import blogRoutes from './modules/marketing/routes/blogRoutes.js';
 import articleRoutes from './modules/marketing/routes/articleRoutes.js';
 import contentSectionRoutes from './modules/marketing/routes/contentSectionRoutes.js';
+import { phonePeWebhookHandler } from './services/phonepeWebhook.js';
 import vendorRoutes from './modules/vendor/routes/vendorRoutes.js';
 import { taxiRouter } from './modules/taxi/routes/index.js';
 import { configureTaxiSocketServer } from './modules/taxi/socket/index.js';
@@ -192,6 +193,9 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reviews', reviewRoutes);
+// PhonePe webhook for every app (hotel, wedding, taxi wallets). Set the same
+// username/password in the PhonePe dashboard and PHONEPE_WEBHOOK_USERNAME/PASSWORD.
+app.post('/api/payments/phonepe/webhook', phonePeWebhookHandler);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/availability', availabilityRoutes);
 app.use('/api/hotels', hotelRoutes);
