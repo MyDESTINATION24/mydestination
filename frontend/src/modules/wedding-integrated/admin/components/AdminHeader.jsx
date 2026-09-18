@@ -17,6 +17,11 @@ import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 
 const AdminHeader = ({ title = "Dashboard" }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  // The signed-in admin, not a hardcoded address.
+  const adminUser = (() => {
+    try { return JSON.parse(localStorage.getItem('admin_user') || '{}') || {}; } catch { return {}; }
+  })();
+  const adminName = adminUser.name || 'Admin';
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -87,13 +92,15 @@ const AdminHeader = ({ title = "Dashboard" }) => {
             <div className={`absolute right-0 mt-3 w-72 bg-white/95 backdrop-blur-xl border border-white/50 rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50`}>
               <div className="flex flex-col items-center mb-6">
                 <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[hsl(353,45%,35%)] to-[hsl(353,45%,45%)] flex items-center justify-center text-white text-3xl font-serif mb-3 shadow-xl">
-                  A
+                  {adminName.charAt(0).toUpperCase()}
                 </div>
-                <h4 className="text-lg font-bold text-[hsl(353,20%,15%)] leading-none">Admin User</h4>
-                <div className="flex items-center gap-1.5 mt-2 text-gray-500">
-                  <Mail size={12} />
-                  <span className="text-xs">admin@mydestination.com</span>
-                </div>
+                <h4 className="text-lg font-bold text-[hsl(353,20%,15%)] leading-none">{adminName}</h4>
+                {adminUser.email ? (
+                  <div className="flex items-center gap-1.5 mt-2 text-gray-500">
+                    <Mail size={12} />
+                    <span className="text-xs">{adminUser.email}</span>
+                  </div>
+                ) : null}
               </div>
 
               <div className="space-y-1">

@@ -89,7 +89,6 @@ const CMSSections = React.lazy(() => import('./app/cms-admin/pages/CMSSections')
 
 // Lazy Imports - Admin Pages
 const AdminLogin = React.lazy(() => import('./modules/admin/pages/auth/AdminLogin'));
-const AdminSignup = React.lazy(() => import('./app/admin/pages/AdminSignup'));
 const AdminDashboard = React.lazy(() => import('./app/admin/pages/AdminDashboard'));
 const AdminHotelDetail = React.lazy(() => import('./app/admin/pages/AdminHotelDetail'));
 const AdminUsers = React.lazy(() => import('./app/admin/pages/AdminUsers'));
@@ -980,7 +979,8 @@ function App() {
 
             {/* Admin Auth Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/signup" element={<AdminSignup />} />
+            {/* Admins are created by a superadmin; the old page here only faked a signup. */}
+            <Route path="/admin/signup" element={<Navigate to="/admin/login" replace />} />
 
             {/* Admin App Routes */}
             <Route element={<AdminProtectedRoute />}>

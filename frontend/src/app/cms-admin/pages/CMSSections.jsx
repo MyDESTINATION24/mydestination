@@ -25,7 +25,7 @@ const LivePreview = ({ section, items, note }) => (
   </div>
 );
 
-const placeholderCards = (count) => Array.from({ length: Math.max(1, Math.min(Number(count) || 3, 3)) }, () => ({}));
+const placeholderCards = (count) => Array.from({ length: Math.max(1, Math.min(Number(count) || 3, 6)) }, () => ({}));
 
 const authHeaders = (extra = {}) => ({ headers: { Authorization: `Bearer ${getStoredAdminToken()}`, ...extra } });
 

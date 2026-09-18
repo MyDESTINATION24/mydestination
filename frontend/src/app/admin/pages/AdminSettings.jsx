@@ -195,7 +195,7 @@ const AdminSettings = () => {
                             value={profile.email}
                             onChange={(e) => handleProfileChange('email', e.target.value)}
                             className="w-full p-2.5 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-black text-sm"
-                            placeholder="admin@example.com"
+                            placeholder="Email address"
                         />
                     </div>
                     <div>

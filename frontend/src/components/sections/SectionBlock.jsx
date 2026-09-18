@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, Image as ImageIcon } from 'lucide-react';
 import SafeHTML from '../common/SafeHTML';
 import { sectionPath } from '../../services/contentSections';
+import CardRow from './CardRow';
 
 // The homepage block for a CMS-created section. The landing page and the CMS
 // preview both render this, so what the admin previews is what visitors get.
@@ -66,7 +67,7 @@ const SectionBlock = ({ section, items, onItemClick, preview = false, className 
           ) : null}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <CardRow count={items.length}>
           {items.map((item, index) => (
             <SectionCard
               key={item._id || `preview-${index}`}
@@ -75,7 +76,7 @@ const SectionBlock = ({ section, items, onItemClick, preview = false, className 
               onClick={onItemClick ? () => onItemClick(item) : undefined}
             />
           ))}
-        </div>
+        </CardRow>
 
         <div className="text-center mt-10">
           {preview ? (

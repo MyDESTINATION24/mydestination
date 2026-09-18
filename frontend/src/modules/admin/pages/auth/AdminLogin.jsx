@@ -254,7 +254,7 @@ const AdminLogin = () => {
                 <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 text-xs bg-white/50 border border-gray-200/60 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:border-transparent transition-all backdrop-blur-sm"
                   style={{ '--tw-ring-color': currentPanel.color }}
-                  placeholder="admin@mydestination.com" />
+                  placeholder="Email address" />
               </div>
             </div>
 
@@ -427,7 +427,7 @@ const AdminLogin = () => {
                   <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 text-xs bg-white/60 border border-gray-200/60 rounded-xl text-gray-800 font-medium placeholder-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all backdrop-blur-sm shadow-inner"
                     style={{ '--tw-ring-color': currentPanel.color }}
-                    placeholder="admin@mydestination.com" />
+                    placeholder="Email address" />
                 </div>
               </div>
 

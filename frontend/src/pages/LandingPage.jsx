@@ -23,6 +23,7 @@ import { api } from '../services/apiService';
 import SafeHTML from '../components/common/SafeHTML';
 import { useContentSections, sectionPath, sectionItemPath } from '../services/contentSections';
 import SectionBlock from '../components/sections/SectionBlock';
+import CardRow from '../components/sections/CardRow';
 
 const DestinationCard = ({ dest, fadeUp }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1142,7 +1143,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <CardRow count={Math.min(blogs.length, blogsSection.homeLimit || 3)}>
             {blogs.slice(0, blogsSection.homeLimit || 3).map((blog) => (
               <div 
                 key={blog._id} 
@@ -1175,7 +1176,7 @@ const LandingPage = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </CardRow>
 
           <div className="text-center mt-10">
             <Link 
@@ -1207,7 +1208,7 @@ const LandingPage = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <CardRow count={Math.min(articles.length, articlesSection.homeLimit || 3)}>
               {articles.slice(0, articlesSection.homeLimit || 3).map((article) => (
                 <div
                   key={article._id}
@@ -1240,7 +1241,7 @@ const LandingPage = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </CardRow>
 
             <div className="text-center mt-10">
               <Link

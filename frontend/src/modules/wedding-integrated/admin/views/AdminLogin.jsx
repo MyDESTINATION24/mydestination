@@ -105,7 +105,7 @@ const AdminLogin = () => {
                   <input
                     type="email"
                     name="email"
-                    placeholder="name@example.com"
+                    placeholder="Email address"
                     value={formData.email}
                     onChange={handleChange}
                     className={`${inputClass} pl-14`}

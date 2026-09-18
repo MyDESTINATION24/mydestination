@@ -48,7 +48,7 @@ const CMSLogin = () => {
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@example.com" 
+                placeholder="Email address" 
                 className="w-full border border-gray-200 pl-10 pr-4 py-3 text-sm focus:outline-none focus:border-emerald-500 transition"
               />
             </div>

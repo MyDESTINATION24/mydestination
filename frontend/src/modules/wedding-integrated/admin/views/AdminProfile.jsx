@@ -181,7 +181,7 @@ const AdminProfile = () => {
                       value={profileData.email}
                       onChange={handleInputChange}
                       className="w-full h-14 bg-gray-50 border border-transparent focus:border-[hsl(353,45%,35%)] focus:bg-white rounded-2xl pl-12 pr-6 text-sm font-bold text-gray-700 outline-none transition-all"
-                      placeholder="admin@mydestination.com"
+                      placeholder="Email address"
                     />
                   </div>
                 </div>
