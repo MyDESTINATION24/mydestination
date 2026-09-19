@@ -45,11 +45,16 @@ const WebsiteHeader = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-10 text-[13px] font-medium tracking-widest uppercase text-slate-700">
+          <div className="hidden lg:flex items-center gap-5 xl:gap-10 whitespace-nowrap text-[12px] xl:text-[13px] font-medium tracking-widest uppercase text-slate-700">
             <a onClick={(e) => handleScrollTo(e, 'home')} className="relative pb-1 transition-colors hover:text-[#065f46] group cursor-pointer">
               HOME
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
             </a>
+            {/* Destination weddings: the wedding app's destinations list. */}
+            <Link to="/wedding/destinations" className="relative pb-1 transition-colors hover:text-[#065f46] group whitespace-nowrap">
+              MY DESTINATION
+              <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
+            </Link>
             <a onClick={(e) => handleScrollTo(e, 'feature')} className="relative pb-1 transition-colors hover:text-[#065f46] group cursor-pointer">
               SERVICES
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
@@ -70,7 +75,7 @@ const WebsiteHeader = () => {
             ))}
 
             {/* Auth Buttons */}
-            <div className="flex items-center gap-6 ml-4 border-l pl-8 border-slate-200">
+            <div className="flex items-center gap-5 xl:gap-6 ml-2 xl:ml-4 border-l pl-5 xl:pl-8 border-slate-200">
               <Link to="/login" className="transition-colors font-bold hover:text-black">LOGIN</Link>
               <Link to="/signup" className="transition-colors font-bold hover:text-[#065f46]">
                 REGISTER
@@ -95,6 +100,10 @@ const WebsiteHeader = () => {
                 <span>HOME</span>
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
+              <Link to="/wedding/destinations" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors">
+                <span>MY DESTINATION</span>
+                <ChevronRight size={16} className="text-gray-400" />
+              </Link>
               <a onClick={(e) => handleScrollTo(e, 'feature')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
                 <span>SERVICES</span>
                 <ChevronRight size={16} className="text-gray-400" />
