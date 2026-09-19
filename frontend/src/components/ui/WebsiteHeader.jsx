@@ -52,7 +52,7 @@ const WebsiteHeader = () => {
             </a>
             {/* Destination weddings: the wedding app's destinations list. */}
             <Link to="/wedding/destinations" className="relative pb-1 transition-colors hover:text-[#065f46] group whitespace-nowrap">
-              MY DESTINATION
+              DESTINATION
               <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#065f46] transition-all duration-300 group-hover:w-full"></span>
             </Link>
             <a onClick={(e) => handleScrollTo(e, 'feature')} className="relative pb-1 transition-colors hover:text-[#065f46] group cursor-pointer">
@@ -101,7 +101,7 @@ const WebsiteHeader = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
               <Link to="/wedding/destinations" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors">
-                <span>MY DESTINATION</span>
+                <span>DESTINATION</span>
                 <ChevronRight size={16} className="text-gray-400" />
               </Link>
               <a onClick={(e) => handleScrollTo(e, 'feature')} className="px-6 py-3.5 flex items-center justify-between hover:bg-emerald-50/60 hover:text-[#065f46] transition-colors cursor-pointer">
