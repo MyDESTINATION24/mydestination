@@ -10,3 +10,6 @@ temp_interactive_push.bat
 backend/check_prices.js
 backend/test_api_prices.js
 backend/ssh_deploy.js
+
+# Private working notes (server access, overview) - never commit
+PROJECT-NOTES.md
