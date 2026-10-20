@@ -109,6 +109,14 @@ export const authenticate = (allowedRoles = [], options = {}) => async (req, _re
 
     if (!entity && normalizedRole === 'admin') {
       entity = await MainAdmin.findById(payload.sub || payload.id);
+      if (entity && entity.isActive === false) {
+        throw new ApiError(403, 'Admin account is inactive');
+      }
+    }
+
+    // Older main-admin tokens carry no exp and never expired.
+    if (normalizedRole === 'admin' && !payload.exp) {
+      throw new ApiError(401, 'Admin session expired. Please sign in again.');
     }
 
     if (!entity) {

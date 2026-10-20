@@ -18,28 +18,36 @@ export const loginWeddingAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
     const admin = await Admin.findOne({ email: email.trim().toLowerCase() }).select('+password');
-    
+
     if (!admin) {
       return res.status(401).json({ message: 'Invalid admin credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.password);
+    const isMatch = await bcrypt.compare(password, admin.password || '');
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+
+    // Same check as the main admin login: a deactivated admin could still sign
+    // in through this endpoint.
+    if (admin.isActive === false) {
+      return res.status(403).json({ message: 'Admin account is deactivated' });
     }
 
     // Update last login
     admin.lastLogin = new Date();
     await admin.save();
 
+    // Admin sessions expire; a leaked admin token used to be valid forever.
     const token = jwt.sign(
-      { id: admin._id, role: admin.role }, 
-      process.env.JWT_SECRET
+      { id: admin._id, sub: String(admin._id), role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || '7d' }
     );
 
     res.status(200).json({

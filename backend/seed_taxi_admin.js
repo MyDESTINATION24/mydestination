@@ -4,12 +4,20 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 dotenv.config({ path: './.env' });
 
+// Password comes from ADMIN_SEED_PASSWORD; it used to be the public default
+// 'admin123'.
 const seedTaxiAdmin = async () => {
+  const password = process.env.ADMIN_SEED_PASSWORD;
+  if (!password || password.length < 12) {
+    console.error('❌ Set ADMIN_SEED_PASSWORD (at least 12 characters) to seed the taxi admin.');
+    process.exit(1);
+  }
+
   try {
     await mongoose.connect(process.env.MONGODB_URL);
     console.log('✅ Connected to MongoDB');
 
-    const email = 'admin@mydestination.com';
+    const email = (process.env.ADMIN_SEED_EMAIL || 'admin@mydestination.com').trim().toLowerCase();
     const existingAdmin = await Admin.findOne({ email });
     
     if (existingAdmin) {
@@ -17,7 +25,7 @@ const seedTaxiAdmin = async () => {
       process.exit(0);
     }
 
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
     await Admin.create({
       name: 'My Destination Taxi Admin',
       email,
@@ -30,7 +38,7 @@ const seedTaxiAdmin = async () => {
     });
 
     console.log('✅ TaxiAdmin seeded successfully!');
-    console.log('Credentials: admin@mydestination.com / admin123');
+    console.log(`Admin: ${email} (password from ADMIN_SEED_PASSWORD)`);
   } catch (err) {
     console.error('❌ Seeding failed:', err.message);
   } finally {

@@ -5,15 +5,117 @@ import Admin from '../../admin/models/Admin.js';
 import User from '../../user/models/User.js';
 import Partner from '../../partner/models/Partner.js';
 import Otp from '../models/Otp.js';
+import PropertyDocument from '../../hotel/models/PropertyDocument.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import smsService from '../../../utils/smsService.js';
 import referralService from '../../../services/referralService.js';
 import { uploadToCloudinary, deleteFromCloudinary, uploadBase64ToCloudinary } from '../../../utils/cloudinary.js';
 import fs from 'fs';
 
+// Opt-in test logins, e.g. for app-store review:
+//   HOTEL_TEST_OTP_PHONES=9000000001,9000000002  HOTEL_TEST_OTP_CODE=482913
+// Both must be set, and the code must be 6 digits that are not all one digit
+// or a plain run like 123456.
+const getTestOtpFor = (phone) => {
+  const code = String(process.env.HOTEL_TEST_OTP_CODE || '').trim();
+  if (!/^\d{6}$/.test(code) || /^(\d)\1{5}$/.test(code) || ['123456', '654321'].includes(code)) return null;
+  const phones = String(process.env.HOTEL_TEST_OTP_PHONES || '')
+    .split(',')
+    .map((p) => p.replace(/\D/g, '').slice(-10))
+    .filter(Boolean);
+  return phones.includes(String(phone || '').replace(/\D/g, '').slice(-10)) ? code : null;
+};
+
+const MAX_OTP_ATTEMPTS = 5;
+
+// Checks and consumes a code stored in the Otp collection for `phone`, issued
+// for `purpose` (tempData.role). Wrong guesses count toward the same 5-attempt
+// cap verifyOtp uses.
+const consumeRegistrationOtp = async (phone, otp, purpose) => {
+  if (typeof otp !== 'string' || !/^\d{6}$/.test(otp)) {
+    return { ok: false, status: 400, message: 'Please enter the 6-digit OTP sent to your phone' };
+  }
+  const record = await Otp.findOne({ phone });
+  if (!record || record.expiresAt < Date.now() || record.tempData?.role !== purpose) {
+    return { ok: false, status: 400, message: 'OTP has expired. Please request a new one.' };
+  }
+  const expected = Buffer.from(String(record.otp));
+  const given = Buffer.from(otp);
+  if (expected.length !== given.length || !crypto.timingSafeEqual(expected, given)) {
+    const attempts = Number(record.attempts || 0) + 1;
+    if (attempts >= MAX_OTP_ATTEMPTS) {
+      await Otp.deleteOne({ _id: record._id });
+      return { ok: false, status: 400, message: 'Too many wrong attempts. Please request a new OTP.' };
+    }
+    await Otp.updateOne({ _id: record._id }, { $set: { attempts } });
+    return { ok: false, status: 400, message: `Invalid OTP. ${MAX_OTP_ATTEMPTS - attempts} attempt(s) left.` };
+  }
+  // Single use: only the request that deletes it may proceed.
+  const deleted = await Otp.deleteOne({ _id: record._id });
+  if (deleted.deletedCount !== 1) {
+    return { ok: false, status: 400, message: 'OTP has already been used. Please request a new one.' };
+  }
+  return { ok: true, tempData: record.tempData };
+};
+
+/**
+ * @desc    Send an OTP to a new phone number before it replaces the account's
+ * @route   POST /api/auth/phone-change/send-otp
+ * @access  Private
+ */
+export const sendPhoneChangeOtp = async (req, res) => {
+  try {
+    const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+    if (!/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ message: 'Valid 10-digit phone number is required' });
+    }
+    if (phone === req.user.phone) {
+      return res.status(400).json({ message: 'This is already your phone number' });
+    }
+    const Model = req.user.role === 'partner' ? Partner : User;
+    if (await Model.exists({ phone, _id: { $ne: req.user._id } })) {
+      return res.status(409).json({ message: 'Phone number already in use' });
+    }
+
+    const otp = getTestOtpFor(phone) || crypto.randomInt(100000, 1000000).toString();
+    await Otp.findOneAndUpdate(
+      { phone },
+      { phone, otp, attempts: 0, expiresAt: Date.now() + 10 * 60 * 1000, tempData: { role: 'phone_change', accountId: String(req.user._id) } },
+      { upsert: true, new: true }
+    );
+    logOtpForDebug(phone, otp, 'auth/phone-change');
+    if (!getTestOtpFor(phone)) {
+      await smsService.sendOTP(phone, otp);
+    }
+    res.json({ success: true, message: 'OTP sent to the new number', expiresIn: 600 });
+  } catch (error) {
+    console.error('Phone Change OTP Error:', error);
+    res.status(500).json({ message: 'Could not send OTP' });
+  }
+};
+
+// Shared by every profile update that can change the phone number: the new
+// number must be proven with an OTP sent to it, or anyone signed in could take
+// over a number they don't own (and block its owner from registering).
+export const verifyPhoneChange = async (account, newPhone, phoneOtp) => {
+  const check = await consumeRegistrationOtp(newPhone, phoneOtp, 'phone_change');
+  if (!check.ok) return check;
+  if (check.tempData?.accountId !== String(account._id)) {
+    return { ok: false, status: 400, message: 'OTP was not issued for this account' };
+  }
+  return { ok: true };
+};
+
 const generateToken = (id, role) => {
-  // No expiresIn: tokens never expire; users only get logged out manually
+  // Customer/partner tokens never expire (users only get logged out manually),
+  // but admin tokens do: a leaked admin token used to be valid forever.
+  if (['admin', 'superadmin'].includes(String(role || '').toLowerCase())) {
+    return jwt.sign({ id, sub: id, role }, process.env.JWT_SECRET, {
+      expiresIn: process.env.ADMIN_JWT_EXPIRES_IN || '7d',
+    });
+  }
   return jwt.sign({ id, sub: id, role }, process.env.JWT_SECRET);
 };
 
@@ -124,12 +226,14 @@ export const sendOtp = async (req, res) => {
       }
     }
 
-    // TEST NUMBERS - Bypass OTP with default 123456
-    const testNumbers = ['6268455485', '9685974247', '9009925021', '6261096283', '9752275626', '8889948896', '7047716600', '6263322405', '6260491554', '8817921168', '1234567890', '9876543210'];
-    const isTestNumber = testNumbers.includes(phone) || (role === 'partner' && (phone === '9589814119' || phone === '8817921168' || phone === '6268455485'));
+    // A hardcoded list of real numbers used to accept 123456 here, in
+    // production, so anyone who knew a number could sign in as its owner --
+    // partners included. Test numbers are now opt-in from the environment
+    // (HOTEL_TEST_OTP_PHONES + HOTEL_TEST_OTP_CODE) and off unless both are set.
+    const testOtp = getTestOtpFor(phone);
+    const isTestNumber = Boolean(testOtp);
 
-    // Generate OTP - Use 123456 for test numbers, random for others
-    const otp = isTestNumber ? '123456' : Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = testOtp || crypto.randomInt(100000, 1000000).toString();
     const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     logOtpForDebug(phone, otp, 'auth/send-otp');
 
@@ -150,7 +254,7 @@ export const sendOtp = async (req, res) => {
     if (!isTestNumber) {
       await smsService.sendOTP(phone, otp);
     } else {
-      console.log(`🧪 Test Number Detected: ${phone} - Using default OTP: 123456`);
+      console.log(`🧪 Test Number Detected: ${phone} - using the configured test OTP`);
     }
 
     res.status(200).json({
@@ -203,16 +307,34 @@ export const registerPartner = async (req, res) => {
       return res.status(400).json({ message: 'You must accept terms and conditions' });
     }
 
+    if (typeof phone !== 'string' || !/^\d{10}$/.test(phone)) {
+      return res.status(400).json({ message: 'Valid 10-digit phone number is required' });
+    }
+
+    // Registration used to need no proof of the phone at all, and it restored
+    // a deleted partner account (wallet, properties) to whoever re-registered
+    // its number or email. The number must now be verified with the OTP sent
+    // by /send-otp (type 'register', role 'partner').
+    const otpCheck = await consumeRegistrationOtp(phone, req.body?.otp, 'partner');
+    if (!otpCheck.ok) {
+      return res.status(otpCheck.status).json({ message: otpCheck.message, requiresOtp: true });
+    }
+
     // Check if partner already exists
-    let partner = await Partner.findOne({ $or: [{ email }, { phone }] });
-    if (partner && !partner.isDeleted) {
+    const existingPartners = await Partner.find({ $or: [{ email }, { phone }] });
+    if (existingPartners.some((p) => !p.isDeleted)) {
+      return res.status(409).json({ message: 'Partner with this email or phone already exists' });
+    }
+    // Only the owner of the account's own phone number may restore it.
+    let partner = existingPartners.find((p) => p.isDeleted && p.phone === phone) || null;
+    if (!partner && existingPartners.length > 0) {
       return res.status(409).json({ message: 'Partner with this email or phone already exists' });
     }
 
     const isRestoration = !!(partner && partner.isDeleted);
 
     // Generate random password for partner
-    const randomPassword = Math.random().toString(36).slice(-8);
+    const randomPassword = crypto.randomBytes(18).toString('base64url');
     const passwordHash = await bcrypt.hash(randomPassword, 10);
 
     if (isRestoration) {
@@ -753,9 +875,19 @@ export const updateProfile = async (req, res) => {
     }
     if (phone) {
       if (phone !== user.phone) {
+        if (typeof phone !== 'string' || !/^\d{10}$/.test(phone)) {
+          return res.status(400).json({ message: 'Valid 10-digit phone number is required' });
+        }
         const existingUser = await Model.findOne({ phone, _id: { $ne: user._id } });
         if (existingUser) {
           return res.status(409).json({ message: 'Phone number already in use' });
+        }
+        // Admins change their own number from the admin panel without OTP.
+        if (Model !== Admin) {
+          const phoneCheck = await verifyPhoneChange(user, phone, req.body.phoneOtp);
+          if (!phoneCheck.ok) {
+            return res.status(phoneCheck.status).json({ message: phoneCheck.message, requiresPhoneOtp: true });
+          }
         }
         user.phone = phone;
       }
@@ -991,8 +1123,32 @@ export const deleteDoc = async (req, res) => {
     // to the folder partner uploads actually land in.
     const PARTNER_DOCS_PREFIX = 'rukkoin/partner-documents/';
 
-    if (!String(publicId).startsWith(PARTNER_DOCS_PREFIX)) {
+    if (typeof publicId !== 'string' || !publicId.startsWith(PARTNER_DOCS_PREFIX) || publicId.includes('..')) {
       return res.status(403).json({ message: 'Only partner documents can be removed here' });
+    }
+
+    // Even inside that folder, anyone could delete a registered partner's
+    // KYC documents (or a profile photo, which uses the same upload). A file
+    // still referenced by an account is not a mid-registration upload, so it
+    // is left alone; replacing it goes through the account's own profile.
+    const escaped = publicId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const ref = { $regex: escaped };
+    // Only query fields the schema has: strictQuery would drop unknown ones and
+    // leave {} conditions that match every document.
+    const referencedBy = (Model) => {
+      const conditions = ['aadhaarFront', 'aadhaarBack', 'panCardImage', 'profileImage']
+        .filter((field) => Model.schema.path(field))
+        .map((field) => ({ [field]: ref }));
+      if (Model.schema.path('profileImagePublicId')) conditions.push({ profileImagePublicId: publicId });
+      return conditions.length ? Model.exists({ $or: conditions }) : null;
+    };
+    const referenced = await Promise.all([
+      referencedBy(Partner),
+      referencedBy(User),
+      PropertyDocument.exists({ 'documents.fileUrl': ref }),
+    ]);
+    if (referenced.some(Boolean)) {
+      return res.status(403).json({ message: 'This document is in use and cannot be removed here' });
     }
 
     const result = await deleteFromCloudinary(publicId);
@@ -1021,6 +1177,18 @@ export const uploadDocsBase64 = async (req, res) => {
 
     if (!images || images.length === 0) {
       return res.status(400).json({ message: 'No images provided' });
+    }
+    // Public endpoint: bound what one request can push to Cloudinary.
+    const MAX_IMAGES = 10;
+    const MAX_BASE64_CHARS = 14 * 1024 * 1024; // ~10MB decoded
+    if (images.length > MAX_IMAGES) {
+      return res.status(400).json({ message: `At most ${MAX_IMAGES} images per upload` });
+    }
+    if (images.some((img) => {
+      const data = typeof img === 'object' && img !== null ? img.base64 : img;
+      return typeof data !== 'string' || data.length > MAX_BASE64_CHARS;
+    })) {
+      return res.status(400).json({ message: 'Each image must be under 10MB' });
     }
 
     const uploadPromises = images.map(async (img, index) => {

@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import leafBg from '../../assets/leaf_background.png';
 import logo from '../../assets/rokologin-removebg-preview.png';
 import toast from 'react-hot-toast';
+import OtpPromptModal from '../../components/modals/OtpPromptModal';
 
 // Updated Steps Components
 import StepUserRegistration from '../../app/partner/steps/StepUserRegistration';
@@ -26,6 +27,7 @@ const HotelSignup = () => {
     const { currentStep, nextStep, prevStep, formData, setStep, updateFormData } = usePartnerStore();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [otpOpen, setOtpOpen] = useState(false);
 
     useEffect(() => {
         if (error) {
@@ -110,22 +112,50 @@ const HotelSignup = () => {
                     navigate('/hotel/pending-approval', { replace: true });
                     return;
                 } else {
-                    const response = await authService.registerPartner({ ...formData, role: 'partner' });
-                    if (response?.token) {
-                        localStorage.setItem('token', response.token);
-                    }
-                    if (response?.user) {
-                        localStorage.setItem('user', JSON.stringify(response.user));
-                    }
+                    // The server only registers a number proven with an OTP.
+                    await sendSignupOtp();
+                    return;
                 }
-                updateFormData({ isEditing: false });
-                setStep(1);
-                navigate('/hotel/pending-approval', { replace: true });
             } catch (err) {
                 setError(err.message || 'Submission failed');
             } finally {
                 setLoading(false);
             }
+        }
+    };
+
+    const sendSignupOtp = async () => {
+        try {
+            await authService.sendOtp(formData.phone, 'register', 'partner', formData.email);
+            setOtpOpen(true);
+            toast.success(`OTP sent to ${formData.phone}`);
+        } catch (err) {
+            setError(err.message || 'Could not send OTP');
+        }
+    };
+
+    const submitRegistration = async (otp) => {
+        setLoading(true);
+        try {
+            const response = await authService.registerPartner({ ...formData, role: 'partner', otp });
+            if (response?.token) {
+                localStorage.setItem('token', response.token);
+            }
+            if (response?.user) {
+                localStorage.setItem('user', JSON.stringify(response.user));
+            }
+            setOtpOpen(false);
+            updateFormData({ isEditing: false });
+            setStep(1);
+            navigate('/hotel/pending-approval', { replace: true });
+        } catch (err) {
+            toast.error(err.message || 'Submission failed');
+            if (!err?.requiresOtp) {
+                setOtpOpen(false);
+                setError(err.message || 'Submission failed');
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -183,6 +213,15 @@ const HotelSignup = () => {
                     {loading ? <Loader2 className="animate-spin mx-auto" /> : 'Continue'}
                 </button>
             </footer>
+            <OtpPromptModal
+                open={otpOpen}
+                phone={formData.phone}
+                title="Verify your mobile number"
+                loading={loading}
+                onSubmit={submitRegistration}
+                onResend={sendSignupOtp}
+                onClose={() => setOtpOpen(false)}
+            />
         </div>
     );
 };

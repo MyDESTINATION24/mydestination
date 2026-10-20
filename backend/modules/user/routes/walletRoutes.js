@@ -11,6 +11,7 @@ import {
   deleteBankDetails
 } from '../controllers/walletController.js';
 import { protect } from '../../../middlewares/authMiddleware.js';
+import { paymentLimiter, withdrawalLimiter } from '../../../middlewares/rateLimiters.js';
 
 const router = express.Router();
 
@@ -24,21 +25,21 @@ router.get('/', getWallet);
 router.get('/stats', getWalletStats);
 
 // Add Money (Razorpay)
-router.post('/add-money', createAddMoneyOrder);
-router.post('/verify-add-money', verifyAddMoneyPayment);
+router.post('/add-money', paymentLimiter, createAddMoneyOrder);
+router.post('/verify-add-money', paymentLimiter, verifyAddMoneyPayment);
 
 // Get transaction history
 router.get('/transactions', getTransactions);
 
 // Request withdrawal
-router.post('/withdraw', requestWithdrawal);
+router.post('/withdraw', withdrawalLimiter, requestWithdrawal);
 
 // Get withdrawal history
 router.get('/withdrawals', getWithdrawals);
 
-// Update/Delete bank details
-router.put('/bank-details', updateBankDetails);
-router.delete('/bank-details', deleteBankDetails);
+// Update/Delete bank details (where payouts go, so changes are capped too)
+router.put('/bank-details', withdrawalLimiter, updateBankDetails);
+router.delete('/bank-details', withdrawalLimiter, deleteBankDetails);
 
 export default router;
 

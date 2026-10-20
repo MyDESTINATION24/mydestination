@@ -1,5 +1,6 @@
 import { sanitizeMongo } from './middlewares/sanitizeMongo.js';
 import { noStoreForAuthed } from './middlewares/noStoreForAuthed.js';
+import { globalApiLimiter } from './middlewares/rateLimiters.js';
 import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
@@ -167,6 +168,19 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
 }));
+
+// Basic hardening headers (the API serves JSON only).
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  next();
+});
+
+// Per-IP flood guard for every API route (after CORS so a 429 still carries
+// CORS headers the browser can read). Webhooks are exempt inside the limiter.
+app.use('/api', globalApiLimiter);
 
 // Routes
 app.get('/', (req, res) => {

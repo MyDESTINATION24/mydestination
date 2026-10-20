@@ -25,6 +25,14 @@ const makeVendorAuthLimiter = (limit) => rateLimit({
 });
 const vendorOtpSendLimiter = makeVendorAuthLimiter(12);
 const vendorLoginLimiter = makeVendorAuthLimiter(20);
+import {
+  adminLoginIpLimiter,
+  adminLoginEmailLimiter,
+  otpSendPhoneLimiter,
+  otpVerifyPhoneLimiter,
+  paymentLimiter,
+  paymentStatusLimiter,
+} from '../../../middlewares/rateLimiters.js';
 import { 
   registerVendor, 
   sendVendorOtp,
@@ -202,8 +210,8 @@ router.post('/enquiries/:id/pay-and-book', protect, confirmBooking);
 // Auth Routes (Vendor)
 router.post('/vendor/register', publicFormLimiter, optionalProtect, registerVendor);
 // Per-IP caps on top of the per-account guess limit in loginVendor.
-router.post('/vendor/send-otp', vendorOtpSendLimiter, sendVendorOtp);
-router.post('/vendor/login', vendorLoginLimiter, loginVendor);
+router.post('/vendor/send-otp', vendorOtpSendLimiter, otpSendPhoneLimiter, sendVendorOtp);
+router.post('/vendor/login', vendorLoginLimiter, otpVerifyPhoneLimiter, loginVendor);
 
 // Vendor Profile Routes (Protected)
 router.get('/vendor/dashboard/stats', protect, authorizedRoles('vendor'), getVendorDashboardStats);
@@ -238,7 +246,9 @@ router.patch('/vendor/reviews/:id/reply', protect, authorizedRoles('vendor'), re
 router.get('/vendor/wallet', protect, authorizedRoles('vendor'), getWallet);
 
 // Admin Auth Routes (Public)
-router.post('/admin/login', loginWeddingAdmin);
+// Same admin accounts as /api/auth/admin/login, so the same caps: this one had
+// none, which allowed unlimited password guessing against the superadmin.
+router.post('/admin/login', adminLoginIpLimiter, adminLoginEmailLimiter, loginWeddingAdmin);
 
 // Admin Routes (Protected)
 router.get('/admin/stats', protect, authorizedRoles('admin', 'superadmin'), getAdminStats);
@@ -301,12 +311,12 @@ router.patch('/admin/subscriptions/:id', protect, authorizedRoles('admin', 'supe
 router.delete('/admin/subscriptions/:id', protect, authorizedRoles('admin', 'superadmin'), deletePlan);
 
 // Payment Routes
-router.post('/payment/booking/:id', protect, initiateBookingPayment); // User Booking Payment
-router.post('/payment/subscription', protect, authorizedRoles('vendor'), initiateSubscriptionPayment); // Vendor Subscription
-router.post('/payment/wallet-topup', protect, authorizedRoles('vendor'), initiateWalletTopup); // Vendor Wallet Topup
+router.post('/payment/booking/:id', protect, paymentLimiter, initiateBookingPayment); // User Booking Payment
+router.post('/payment/subscription', protect, authorizedRoles('vendor'), paymentLimiter, initiateSubscriptionPayment); // Vendor Subscription
+router.post('/payment/wallet-topup', protect, authorizedRoles('vendor'), paymentLimiter, initiateWalletTopup); // Vendor Wallet Topup
 
 // Webhook & Verification (Public & Secure)
 router.post('/payment/callback', paymentCallback);
-router.get('/payment/status/:orderId', verifyPaymentStatus);
+router.get('/payment/status/:orderId', paymentStatusLimiter, verifyPaymentStatus);
 
 export default router;

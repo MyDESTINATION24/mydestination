@@ -156,12 +156,40 @@ export const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Invalid payment method' });
     }
 
+    // Guest and room counts drive the price, so they must be whole numbers in a
+    // sane range. rooms: 0.01 used to charge 1% of the price, and rooms: -1 made
+    // the total negative, which the gateway branch below then read as "fully
+    // paid" and confirmed the booking for nothing.
+    const MAX_ROOMS = 20;
+    const MAX_GUESTS = 50;
+    const isCount = (value, min, max) => Number.isInteger(value) && value >= min && value <= max;
+    const safeGuests = guests && typeof guests === 'object' ? guests : {};
+    const roomsRequested = safeGuests.rooms === undefined ? 1 : Number(safeGuests.rooms);
+    const adultsCount = safeGuests.adults === undefined ? 1 : Number(safeGuests.adults);
+    const childrenCount = safeGuests.children === undefined ? 0 : Number(safeGuests.children);
+    const extraAdultsCount = safeGuests.extraAdults === undefined ? 0 : Number(safeGuests.extraAdults);
+    const extraChildrenCount = safeGuests.extraChildren === undefined ? 0 : Number(safeGuests.extraChildren);
+    if (
+      !isCount(roomsRequested, 1, MAX_ROOMS) ||
+      !isCount(adultsCount, 1, MAX_GUESTS) ||
+      !isCount(childrenCount, 0, MAX_GUESTS) ||
+      !isCount(extraAdultsCount, 0, MAX_GUESTS) ||
+      !isCount(extraChildrenCount, 0, MAX_GUESTS)
+    ) {
+      return res.status(400).json({ message: 'Invalid room or guest count' });
+    }
+
     // Fetch Property and RoomType
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: 'Property not found' });
 
     const roomType = await RoomType.findById(roomTypeId);
     if (!roomType) return res.status(404).json({ message: 'Room type not found' });
+    // The price comes from the room type, so it has to be one of this
+    // property's rooms -- otherwise a cheap room elsewhere priced this booking.
+    if (String(roomType.propertyId) !== String(property._id)) {
+      return res.status(400).json({ message: 'Room type does not belong to this property' });
+    }
 
     // Fetch Settings
     const settings = await PlatformSettings.getSettings();
@@ -178,7 +206,7 @@ export const createBooking = async (req, res) => {
     }
 
     // Check Availability
-    const requiredUnits = guests.rooms || 1;
+    const requiredUnits = roomsRequested;
     const ledgerEntries = await AvailabilityLedger.aggregate([
       {
         $match: {
@@ -212,8 +240,8 @@ export const createBooking = async (req, res) => {
     const baseAmount = pricePerNight * totalNights * units;
 
     // Calculate Extra Charges
-    const extraAdults = guests.extraAdults || 0;
-    const extraChildren = guests.extraChildren || 0;
+    const extraAdults = extraAdultsCount;
+    const extraChildren = extraChildrenCount;
     const extraAdultPrice = (roomType.extraAdultPrice || 0) * extraAdults * totalNights;
     const extraChildPrice = (roomType.extraChildPrice || 0) * extraChildren * totalNights;
     const extraCharges = extraAdultPrice + extraChildPrice;
@@ -289,6 +317,10 @@ export const createBooking = async (req, res) => {
     // Verification: TotalAmount - Tax - Commission = ((Gross - Discount) + Tax) - Tax - Commission = Gross - Discount - Commission.
     const partnerPayout = Math.floor(totalAmount - taxes - adminCommission);
 
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+      return res.status(400).json({ message: 'This room cannot be booked at the selected price' });
+    }
+
     const bookingId = generateBookingId();
 
     // Determine User Model based on mongoose document model name
@@ -307,8 +339,8 @@ export const createBooking = async (req, res) => {
       checkOutDate,
       totalNights,
       guests: {
-        adults: guests.adults || 1,
-        children: guests.children || 0
+        adults: adultsCount,
+        children: childrenCount
       },
       pricePerNight,
       baseAmount,
@@ -454,6 +486,9 @@ export const createBooking = async (req, res) => {
             const response = await phonepeClient.pay(request);
             phonepeOrder = merchantOrderId;
             phonepeUrl = response.redirectUrl;
+            // Verify only accepts this exact order, for at least this amount.
+            booking.gatewayOrderId = merchantOrderId;
+            booking.gatewayAmountDue = Math.round(amountToPay * 100) / 100;
 
             // Set status to awaiting_payment so it doesn't show in user's list until paid
             booking.bookingStatus = 'awaiting_payment';
@@ -462,10 +497,14 @@ export const createBooking = async (req, res) => {
             console.error("PhonePe Order Creation Failed:", error);
             return res.status(500).json({ message: "Failed to initiate payment gateway" });
           }
-        } else {
+        } else if (walletDebitAmount > 0 && walletDebitAmount >= payableViaGateway) {
           // Fully paid by wallet (Covered by loop above, but double check status)
           booking.paymentStatus = paymentMethod === 'prepaid' ? 'partial' : 'paid';
           booking.bookingStatus = 'confirmed';
+        } else {
+          // Nothing owed and nothing paid can only mean a bad amount; never
+          // confirm a booking that no payment covers.
+          return res.status(400).json({ message: 'Invalid booking amount' });
         }
       }
     }
@@ -698,10 +737,24 @@ export const cancelBooking = async (req, res) => {
       });
     }
 
+    // Claim the cancellation atomically. The check above and the refunds below
+    // used to run unguarded, so N parallel cancel requests all passed it and
+    // each credited the full refund to the wallet.
+    const cancellationReason = String(req.body?.reason || 'User cancelled').slice(0, 500);
+    const cancelledAt = new Date();
+    const claimedCancel = await Booking.findOneAndUpdate(
+      { _id: booking._id, bookingStatus: { $ne: 'cancelled' } },
+      { $set: { bookingStatus: 'cancelled', cancellationReason, cancelledAt } },
+      { new: false }
+    );
+    if (!claimedCancel) {
+      return res.status(400).json({ message: 'Booking already cancelled' });
+    }
+
     // Update Status
     booking.bookingStatus = 'cancelled';
-    booking.cancellationReason = req.body.reason || 'User cancelled';
-    booking.cancelledAt = new Date();
+    booking.cancellationReason = cancellationReason;
+    booking.cancelledAt = cancelledAt;
 
     // Will update paymentStatus after refund processing if needed
 
@@ -749,7 +802,12 @@ export const cancelBooking = async (req, res) => {
     // --- WALLET REVERSAL LOGIC ---
     // Pay at Hotel: Reverse Commission Deduction (Refund Partner, Debit Admin)
     if (booking.paymentMethod === 'pay_at_hotel') {
-      const refundAmount = (booking.taxes || 0) + (booking.adminCommission || 0);
+      // The commission is only taken from the partner when the booking is
+      // marked paid; reversing it on an unpaid booking handed the partner money
+      // that was never deducted.
+      const refundAmount = booking.paymentStatus === 'paid'
+        ? (booking.taxes || 0) + (booking.adminCommission || 0)
+        : 0;
 
       // Fetch full booking for partnerId
       const fullBooking = await Booking.findById(booking._id).populate('propertyId').populate('userId');
@@ -975,6 +1033,19 @@ export const markBookingAsPaid = async (req, res) => {
     if (booking.paymentStatus === 'paid') {
       return res.status(200).json({ success: true, message: 'Booking is already marked as paid.', booking });
     }
+    if (['cancelled', 'no_show', 'rejected'].includes(booking.bookingStatus)) {
+      return res.status(400).json({ message: `A ${booking.bookingStatus} booking cannot be marked as paid` });
+    }
+
+    // Claim atomically so parallel requests cannot each run the settlement.
+    const claimedPaid = await Booking.findOneAndUpdate(
+      { _id: booking._id, paymentStatus: { $ne: 'paid' }, bookingStatus: { $nin: ['cancelled', 'no_show', 'rejected'] } },
+      { $set: { paymentStatus: 'paid' } },
+      { new: false }
+    );
+    if (!claimedPaid) {
+      return res.status(200).json({ success: true, message: 'Booking is already marked as paid.', booking: await Booking.findById(booking._id) });
+    }
 
     // Update Status and Payment tracking
     booking.paymentStatus = 'paid';
@@ -1084,6 +1155,19 @@ export const markBookingNoShow = async (req, res) => {
 
     if (booking.bookingStatus === 'no_show') {
       return res.status(200).json({ success: true, message: 'Booking is already marked as No Show.', booking });
+    }
+    if (!['confirmed', 'pending'].includes(booking.bookingStatus)) {
+      return res.status(400).json({ message: `A ${booking.bookingStatus} booking cannot be marked as No Show` });
+    }
+
+    // Claim atomically: parallel requests each reversed the commission before.
+    const claimedNoShow = await Booking.findOneAndUpdate(
+      { _id: booking._id, bookingStatus: { $in: ['confirmed', 'pending'] } },
+      { $set: { bookingStatus: 'no_show' } },
+      { new: false }
+    );
+    if (!claimedNoShow) {
+      return res.status(200).json({ success: true, message: 'Booking is already marked as No Show.', booking: await Booking.findById(booking._id) });
     }
 
     booking.bookingStatus = 'no_show';

@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import PartnerHeader from '../components/PartnerHeader';
 import { isFlutterApp, openFlutterCamera, uploadBase64Image } from '../../../utils/flutterBridge';
+import OtpPromptModal from '../../../components/modals/OtpPromptModal';
 
 const Field = ({ label, value, icon: Icon, isEditing, onChange }) => (
     <div className="mb-6 group">
@@ -35,6 +36,8 @@ const Field = ({ label, value, icon: Icon, isEditing, onChange }) => (
 const PartnerProfile = () => {
     const { formData } = usePartnerStore();
     const [isEditing, setIsEditing] = useState(false);
+    const [phoneOtpOpen, setPhoneOtpOpen] = useState(false);
+    const [savingProfile, setSavingProfile] = useState(false);
     const containerRef = useRef(null);
     const [loading, setLoading] = useState(true);
 
@@ -131,16 +134,29 @@ const PartnerProfile = () => {
         };
     };
 
-    const handleToggleEdit = async () => {
+    const sendPhoneOtp = async () => {
+        try {
+            await authService.sendPhoneChangeOtp(profile.phone);
+            setPhoneOtpOpen(true);
+            toast.success(`OTP sent to ${profile.phone}`);
+        } catch (err) {
+            toast.error(err?.message || 'Could not send OTP');
+        }
+    };
+
+    const handleToggleEdit = async (phoneOtp) => {
         if (isEditing) {
             const addressObj = parseAddress(profile.address);
             try {
+                setSavingProfile(true);
                 const res = await authService.updateProfile({
                     name: profile.name,
                     email: profile.email,
                     phone: profile.phone,
-                    address: addressObj
+                    address: addressObj,
+                    ...(typeof phoneOtp === 'string' ? { phoneOtp } : {})
                 });
+                setPhoneOtpOpen(false);
                 const updated = res.user || {};
                 const addr = updated.address || addressObj;
                 const addrStr = [addr.street, addr.city, addr.state].filter(Boolean).join(', ');
@@ -161,8 +177,18 @@ const PartnerProfile = () => {
                 localStorage.setItem('partner_user', JSON.stringify(updatedUser));
 
                 setIsEditing(false);
-            } catch {
-                setIsEditing(false);
+            } catch (err) {
+                // A new phone number has to be confirmed with an OTP first.
+                if (err?.requiresPhoneOtp && typeof phoneOtp !== 'string') {
+                    await sendPhoneOtp();
+                } else if (err?.requiresPhoneOtp) {
+                    toast.error(err.message || 'Invalid OTP');
+                } else {
+                    if (err?.message) toast.error(err.message);
+                    setIsEditing(false);
+                }
+            } finally {
+                setSavingProfile(false);
             }
         } else {
             setIsEditing(true);
@@ -442,6 +468,15 @@ const PartnerProfile = () => {
                     )}
                 </AnimatePresence>
             </main >
+            <OtpPromptModal
+                open={phoneOtpOpen}
+                phone={profile.phone}
+                title="Verify your new number"
+                loading={savingProfile}
+                onSubmit={(otp) => handleToggleEdit(otp)}
+                onResend={sendPhoneOtp}
+                onClose={() => setPhoneOtpOpen(false)}
+            />
         </div >
     );
 };

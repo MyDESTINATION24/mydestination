@@ -119,6 +119,7 @@ export const verifyPayment = async (req, res) => {
     let paymentIdToUpdate = razorpay_payment_id;
     let paymentVerified = false;
     let merchantOrderId = null;
+    let phonepePaidPaise = 0;
 
     if (phonepe_txn_id) {
       // --- PHONEPE VERIFICATION ---
@@ -133,6 +134,7 @@ export const verifyPayment = async (req, res) => {
       if (response && response.state === 'COMPLETED') {
         paymentVerified = true;
         paymentMethodToUpdate = 'phonepe';
+        phonepePaidPaise = Math.round(Number(response.amount) || 0);
         const paymentDetail = response.paymentDetails && response.paymentDetails[0];
         const phonepeTxnId = paymentDetail?.transactionId;
         
@@ -190,6 +192,26 @@ export const verifyPayment = async (req, res) => {
         // merchantOrderId is minted as BK_<bookingId>_<timestamp> at checkout.
         if (!String(phonepe_txn_id).startsWith(`BK_${bookingId}_`)) {
           return res.status(400).json({ message: 'Payment does not belong to this booking' });
+        }
+        if (booking.gatewayOrderId && String(phonepe_txn_id) !== booking.gatewayOrderId) {
+          return res.status(400).json({ message: 'Payment does not belong to this booking' });
+        }
+        // A completed order only proves something was paid. It has to cover
+        // what this booking owes the gateway, or a cheaper order could settle it.
+        let duePaise;
+        if (Number.isFinite(booking.gatewayAmountDue)) {
+          duePaise = Math.round(booking.gatewayAmountDue * 100);
+        } else if (booking.paymentMethod === 'prepaid') {
+          // Bookings made before gatewayAmountDue existed: advance minus the
+          // wallet share, where amountPaid = advance + wallet share.
+          const advance = Math.floor(booking.totalAmount * 0.30);
+          duePaise = Math.round((2 * advance - (booking.amountPaid || 0)) * 100);
+        } else {
+          duePaise = Math.round((booking.totalAmount - (booking.amountPaid || 0)) * 100);
+        }
+        if (!(duePaise > 0) || phonepePaidPaise < duePaise) {
+          console.error(`[Payment] Underpaid booking ${bookingId}: paid ${phonepePaidPaise} paise, due ${duePaise}`);
+          return res.status(400).json({ message: 'Paid amount does not match this booking' });
         }
       } else {
         const paidOrder = await razorpay.orders.fetch(razorpay_order_id);
@@ -474,8 +496,13 @@ export const verifyPayment = async (req, res) => {
  */
 export const handleWebhook = async (req, res) => {
   try {
-    const secret = PaymentConfig.razorpayKeySecret;
-    const signature = req.headers['x-razorpay-signature'];
+    // Razorpay signs webhooks with the webhook secret set in its dashboard,
+    // which is separate from the API key secret.
+    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || PaymentConfig.razorpayKeySecret;
+    const signature = String(req.headers['x-razorpay-signature'] || '');
+    if (!secret) {
+      return res.status(503).json({ message: 'Webhook not configured' });
+    }
 
     // Verify webhook signature
     const expectedSignature = crypto
@@ -483,7 +510,9 @@ export const handleWebhook = async (req, res) => {
       .update(JSON.stringify(req.body))
       .digest('hex');
 
-    if (signature !== expectedSignature) {
+    const signatureValid = signature.length === expectedSignature.length &&
+      crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+    if (!signatureValid) {
       return res.status(400).json({ message: 'Invalid webhook signature' });
     }
 

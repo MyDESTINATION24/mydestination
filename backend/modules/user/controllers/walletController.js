@@ -13,6 +13,7 @@ import notificationService from '../../../services/notificationService.js';
 import emailService from '../../../services/emailService.js';
 import { phonepeClient } from '../../wedding/services/phonepeClient.js';
 import { StandardCheckoutPayRequest } from '@phonepe-pg/pg-sdk-node';
+import { claimProcessedPayment } from '../../taxi/common/models/ProcessedPayment.js';
 
 // Initialize Razorpay (keep for backwards compat if needed for other endpoints)
 let razorpay;
@@ -71,10 +72,11 @@ const getWalletRole = (req, viewAs) => {
   // 1. Explicit preference from query (Admins/Partners can switch)
   if (viewAs === 'user') return 'user';
   if (viewAs === 'partner') return 'partner';
-  if (viewAs === 'admin') return 'admin';
+  const userRole = req.user?.role?.toLowerCase();
+  // Only admins may act on an admin-role wallet; anyone could create one before.
+  if (viewAs === 'admin' && (userRole === 'admin' || userRole === 'superadmin')) return 'admin';
 
   // 2. Default based on authenticated user role
-  const userRole = req.user?.role?.toLowerCase();
   if (userRole === 'admin' || userRole === 'superadmin') return 'admin';
   return userRole || 'user';
 };
@@ -248,11 +250,11 @@ export const getTransactions = async (req, res) => {
  */
 export const requestWithdrawal = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const amount = Number(req.body.amount);
     const role = getWalletRole(req, 'partner');
 
     // Validation
-    if (!amount || amount < PaymentConfig.minWithdrawalAmount) {
+    if (!Number.isFinite(amount) || amount < PaymentConfig.minWithdrawalAmount) {
       return res.status(400).json({
         message: `Minimum withdrawal amount is ₹${PaymentConfig.minWithdrawalAmount}`
       });
@@ -782,10 +784,14 @@ export const getWalletStats = async (req, res) => {
  */
 export const createAddMoneyOrder = async (req, res) => {
   try {
-    const { amount, viewAs, redirectPath } = req.body;
+    const { viewAs, redirectPath } = req.body;
+    const amount = Number(req.body.amount);
 
-    if (!amount || amount < 10) { // Minimum 10rs
+    if (!Number.isFinite(amount) || amount < 10) { // Minimum 10rs
       return res.status(400).json({ message: 'Minimum amount is ₹10' });
+    }
+    if (amount > 100000) {
+      return res.status(400).json({ message: 'Maximum top-up is ₹1,00,000' });
     }
 
     if (!phonepeClient) {
@@ -794,7 +800,8 @@ export const createAddMoneyOrder = async (req, res) => {
 
     const merchantOrderId = `WALLET_${req.user._id.toString()}_${Date.now()}`;
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const path = redirectPath || (viewAs === 'partner' ? '/hotel/wallet' : '/wallet');
+    const safeRedirectPath = typeof redirectPath === 'string' && /^\/(?![/\\])[\w\-/]*$/.test(redirectPath) ? redirectPath : null;
+    const path = safeRedirectPath || (viewAs === 'partner' ? '/hotel/wallet' : '/wallet');
     const redirectUrl = `${baseUrl}${path}?phonepe_wallet_txn=${merchantOrderId}&amount=${amount}&viewAs=${viewAs || 'user'}`;
 
     const request = StandardCheckoutPayRequest.builder()
@@ -834,6 +841,21 @@ export const verifyAddMoneyPayment = async (req, res) => {
        return res.status(400).json({ message: 'Missing phonepe transaction ID' });
     }
 
+    // Only orders minted by createAddMoneyOrder (WALLET_<ownerId>_<ms>) can top
+    // up this wallet. The owner check used to be skipped for ids without an
+    // underscore, so a taxi wallet, flight or tour payment (UWAL/UAIR/UTOUR...)
+    // -- anyone's -- could be credited here a second time, and a wedding
+    // vendor's WALLET_/SUBSCRIPTION_ order passed it too.
+    const orderMatch = String(phonepe_txn_id).match(/^WALLET_([a-f0-9]{24})_(\d{13})$/i);
+    if (!orderMatch) {
+      return res.status(400).json({ message: 'This is not a wallet top-up payment' });
+    }
+    const callerIsAdmin = ['admin', 'superadmin'].includes(String(req.user.role || '').toLowerCase());
+    const orderOwnerId = orderMatch[1];
+    if (!callerIsAdmin && orderOwnerId !== String(req.user._id)) {
+      return res.status(403).json({ message: 'This payment belongs to a different account' });
+    }
+
     if (activeTopups.has(phonepe_txn_id)) {
       return res.json({ success: true, message: 'Payment already processing' });
     }
@@ -854,15 +876,6 @@ export const verifyAddMoneyPayment = async (req, res) => {
     if (!verifiedAmount) {
       activeTopups.delete(phonepe_txn_id);
       return res.status(400).json({ message: 'Could not read the paid amount from the gateway' });
-    }
-
-    // WALLET_{userId}_{timestamp}: the order has to belong to the caller, or
-    // any signed-in user could settle someone else's payment into their wallet.
-    const callerIsAdmin = ['admin', 'superadmin'].includes(String(req.user.role || '').toLowerCase());
-    const orderOwnerId = String(phonepe_txn_id).split('_')[1];
-    if (!callerIsAdmin && orderOwnerId && orderOwnerId !== String(req.user._id)) {
-      activeTopups.delete(phonepe_txn_id);
-      return res.status(403).json({ message: 'This payment belongs to a different account' });
     }
 
     const paymentDetail = response.paymentDetails && response.paymentDetails[0];
@@ -896,13 +909,24 @@ export const verifyAddMoneyPayment = async (req, res) => {
     console.log("==========================================");
 
     // Determine whose wallet to credit: ownerId (if admin) or current user
-    const userRole = req.user.role?.toLowerCase();
-    const isAdmin = userRole === 'admin' || userRole === 'superadmin';
-    const targetUserId = (isAdmin && req.body.ownerId) ? req.body.ownerId : req.user._id;
+    // The order id names the owner; an admin settling it credits that owner.
+    const targetUserId = orderOwnerId;
 
-    // Idempotency Check: Prevent duplicate credit
+    // Idempotency: one global claim per merchant order id (shared with the taxi
+    // wallets' ledger, so an order can move money once across every module),
+    // plus the old per-reference check for top-ups credited before the claim.
     const existingTransaction = await Transaction.findOne({ reference: razorpay_payment_id });
-    if (existingTransaction) {
+    const claim = existingTransaction
+      ? { claimed: false, release: async () => {} }
+      : await claimProcessedPayment({
+          provider: 'phonepe',
+          paymentId: phonepe_txn_id,
+          purpose: 'hotel_wallet_topup',
+          ownerId: targetUserId,
+          amount: verifiedAmount,
+          reference: razorpay_payment_id,
+        });
+    if (!claim.claimed) {
       activeTopups.delete(phonepe_txn_id);
       let wallet = await Wallet.findOne({ partnerId: targetUserId, role });
       return res.json({
@@ -930,13 +954,18 @@ export const verifyAddMoneyPayment = async (req, res) => {
     };
 
     // Credit wallet
-    await wallet.credit(
-      verifiedAmount,
-      `Wallet Top-up`,
-      razorpay_payment_id,
-      'topup',
-      txnMetadata
-    );
+    try {
+      await wallet.credit(
+        verifiedAmount,
+        `Wallet Top-up`,
+        razorpay_payment_id,
+        'topup',
+        txnMetadata
+      );
+    } catch (creditError) {
+      await claim.release();
+      throw creditError;
+    }
 
     // NOTIFICATION: Notify User/Partner/Admin
     const notificationTargetId = targetUserId;

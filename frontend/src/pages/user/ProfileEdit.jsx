@@ -5,6 +5,7 @@ import { User, Phone, Mail, ArrowLeft, Save, Loader2, MapPin, Navigation, Home, 
 import { authService, userService } from '../../services/apiService';
 import toast from 'react-hot-toast';
 import { isFlutterApp, openFlutterCamera, uploadBase64Image } from '../../utils/flutterBridge';
+import OtpPromptModal from '../../components/modals/OtpPromptModal';
 
 const ProfileEdit = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const ProfileEdit = () => {
   const [fetchingLocation, setFetchingLocation] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [phoneOtpOpen, setPhoneOtpOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -226,19 +228,39 @@ const ProfileEdit = () => {
       return;
     }
 
+    await saveProfile();
+  };
+
+  // The server asks for an OTP on the new number when the phone changes.
+  const saveProfile = async (phoneOtp) => {
     try {
       setLoading(true);
-      const response = await authService.updateProfile(formData);
+      const response = await authService.updateProfile(phoneOtp ? { ...formData, phoneOtp } : formData);
 
       // Update localStorage with new user data
       localStorage.setItem('user', JSON.stringify(response.user));
 
+      setPhoneOtpOpen(false);
       toast.success('Profile updated successfully!');
       navigate(-1);
     } catch (error) {
-      toast.error(error.message || 'Failed to update profile');
+      if (error?.requiresPhoneOtp && !phoneOtp) {
+        await sendPhoneOtp();
+      } else {
+        toast.error(error.message || 'Failed to update profile');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sendPhoneOtp = async () => {
+    try {
+      await authService.sendPhoneChangeOtp(formData.phone);
+      setPhoneOtpOpen(true);
+      toast.success(`OTP sent to ${formData.phone}`);
+    } catch (error) {
+      toast.error(error.message || 'Could not send OTP');
     }
   };
 
@@ -537,6 +559,15 @@ const ProfileEdit = () => {
           </div>
         )}
       </motion.div>
+      <OtpPromptModal
+        open={phoneOtpOpen}
+        phone={formData.phone}
+        title="Verify your new number"
+        loading={loading}
+        onSubmit={(otp) => saveProfile(otp)}
+        onResend={sendPhoneOtp}
+        onClose={() => setPhoneOtpOpen(false)}
+      />
     </div>
   );
 };

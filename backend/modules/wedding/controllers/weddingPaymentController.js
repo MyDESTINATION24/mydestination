@@ -126,15 +126,15 @@ export const initiateSubscriptionPayment = async (req, res) => {
 // --- VENDOR WALLET TOPUP ---
 export const initiateWalletTopup = async (req, res) => {
   try {
-    const { amount: reqAmount } = req.body;
+    const reqAmount = Number(req.body.amount);
     const vendorId = req.user.id || req.user._id;
 
-    if (!reqAmount || reqAmount <= 0) {
-      return res.status(400).json({ success: false, message: 'Valid amount is required' });
+    if (!Number.isFinite(reqAmount) || reqAmount < 1 || reqAmount > 100000) {
+      return res.status(400).json({ success: false, message: 'Amount must be between ₹1 and ₹1,00,000' });
     }
 
     const merchantOrderId = `WALLET_${vendorId}_${randomUUID().substring(0, 8)}`;
-    const amount = reqAmount * 100; // in paise
+    const amount = Math.round(reqAmount * 100); // in paise
     const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/wedding/vendor/payment/status`;
 
     const request = StandardCheckoutPayRequest.builder()
@@ -303,6 +303,12 @@ const applySubscriptionOnce = async (orderId, paidRupees) => {
   return true;
 };
 
+// Wedding orders are minted as <TYPE>_<24-hex id>_<8-hex uuid>. Anything else
+// -- notably the hotel wallet's WALLET_<userId>_<13-digit ms> -- is not ours:
+// accepting it on the public status endpoint credited one hotel top-up into
+// the vendor wallet as well.
+const WEDDING_ORDER_PATTERN = /^(BOOKING|SUBSCRIPTION|WALLET)_([a-f0-9]{24})_([a-f0-9]{8})$/i;
+
 // --- WEBHOOK CALLBACK ---
 export const paymentCallback = async (req, res) => {
   try {
@@ -331,6 +337,10 @@ export const paymentCallback = async (req, res) => {
     originalMerchantOrderId = payload.originalMerchantOrderId;
 
     console.log('[PhonePe Webhook] orderId:', originalMerchantOrderId, '| state:', state);
+
+    if (!WEDDING_ORDER_PATTERN.test(String(originalMerchantOrderId || ''))) {
+      return res.status(200).send('OK');
+    }
 
     if (state === 'COMPLETED') {
       if (originalMerchantOrderId?.startsWith('BOOKING_')) {
@@ -412,7 +422,11 @@ const activateVendorSubscription = async (vendorId, planId, validityMonths, vali
 export const verifyPaymentStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    
+
+    if (!WEDDING_ORDER_PATTERN.test(String(orderId || ''))) {
+      return res.status(400).json({ success: false, message: 'Not a wedding payment order' });
+    }
+
     const response = await getClient().getOrderStatus(orderId);
     
     // DB updates on redirect (since webhook may fail in localhost/dev)

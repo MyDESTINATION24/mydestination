@@ -87,7 +87,10 @@ const bookingSchema = new mongoose.Schema({
 
   paymentId: String,
   paymentMethod: String,
-  
+  // The gateway order minted for this booking and the amount it must cover.
+  gatewayOrderId: String,
+  gatewayAmountDue: Number,
+
   // PREPAID FEATURE
   prepaidDiscount: { type: Number, default: 0 },
   amountPaid: { type: Number, default: 0 },

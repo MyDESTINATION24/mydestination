@@ -3,6 +3,7 @@ import Partner from '../../partner/models/Partner.js';
 import Admin from '../../admin/models/Admin.js';
 import bcrypt from 'bcryptjs';
 import { assignPushTokenToEntity } from '../../taxi/services/pushTokenService.js';
+import { verifyPhoneChange } from '../../auth/controllers/authController.js';
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -71,7 +72,23 @@ export const updateUserProfile = async (req, res) => {
     if (user) {
       user.name = req.body.name || user.name;
       if (req.body.email) user.email = req.body.email;
-      if (req.body.phone) user.phone = req.body.phone;
+      if (req.body.phone && req.body.phone !== user.phone) {
+        // Same rule as /auth/update-profile: a new number has to be proven with
+        // an OTP sent to it, and cannot belong to another account.
+        const phone = req.body.phone;
+        if (typeof phone !== 'string' || !/^\d{10}$/.test(phone)) {
+          return res.status(400).json({ message: 'Valid 10-digit phone number is required' });
+        }
+        const Model = isPartner ? Partner : User;
+        if (await Model.exists({ phone, _id: { $ne: user._id } })) {
+          return res.status(409).json({ message: 'Phone number already in use' });
+        }
+        const phoneCheck = await verifyPhoneChange(user, phone, req.body.phoneOtp);
+        if (!phoneCheck.ok) {
+          return res.status(phoneCheck.status).json({ message: phoneCheck.message, requiresPhoneOtp: true });
+        }
+        user.phone = phone;
+      }
 
       // Passwords are not changed here: this accepted a new password with no
       // current-password check, so anyone holding a token could set one. No

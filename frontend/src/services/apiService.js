@@ -171,6 +171,16 @@ export const authService = {
     }
   },
 
+  // OTP to a new phone number, required before the profile phone can change
+  sendPhoneChangeOtp: async (phone) => {
+    try {
+      const response = await api.post('/auth/phone-change/send-otp', { phone });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
+
   // Verify Partner OTP & Register
   verifyPartnerOtp: async (data) => {
     try {

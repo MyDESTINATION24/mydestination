@@ -61,6 +61,14 @@ export const protect = async (req, res, next) => {
     // 3. Check Admin Collection
     if (!user) {
       user = await Admin.findById(decoded.id);
+      // Admin tokens issued before admin sessions expired carry no exp and
+      // would stay valid forever; make those admins sign in again.
+      if (user && !decoded.exp) {
+        return res.status(401).json({ message: 'Admin session expired. Please sign in again.' });
+      }
+      if (user && user.isActive === false) {
+        return res.status(403).json({ message: 'Admin account is deactivated' });
+      }
     }
 
     if (!user) {
@@ -80,6 +88,9 @@ export const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Session expired. Please sign in again.' });
+    }
     if (error.name === 'JsonWebTokenError') {
       console.error('🛡️ Auth Middleware - Invalid Token:', error.message);
       return res.status(401).json({ message: 'Invalid token' });
