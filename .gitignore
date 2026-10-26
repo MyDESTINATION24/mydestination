@@ -1,8 +1,4 @@
-.env
-.env.*
 !.env.example
-**/.env
-**/.env.*
 !**/.env.example
 branch_structure.json
 temp_auto_push.bat
@@ -13,3 +9,5 @@ backend/ssh_deploy.js
 
 # Private working notes (server access, overview) - never commit
 PROJECT-NOTES.md
+config.bat
+node_modules
