@@ -1,75 +1,13 @@
 import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Car, Heart, ChevronRight, Compass, LogOut, Helicopter, MapPin, Sparkles } from 'lucide-react';
+import { ChevronRight, Compass, LogOut, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
-import chardhamImg from '@/assets/airways/kedarnath.png';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import BirdFlock from '@/components/common/BirdFlock';
+import { useAppServices } from '@/services/appServices';
 
-const services = [
-  {
-    id: 'hotel',
-    title: 'Hotels & Stays',
-    description: 'Book luxury hotels, resorts, and homestays at the best prices.',
-    icon: Building2,
-    accent: '#059669',
-    glow: 'rgba(5,150,105,0.22)',
-    chip: 'from-emerald-500 to-green-600',
-    textColor: 'text-emerald-600',
-    path: '/hotels',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'taxi',
-    title: 'Cab Booking',
-    description: 'Ride safely with our verified drivers. Outstation & local cabs.',
-    icon: Car,
-    accent: '#d97706',
-    glow: 'rgba(217,119,6,0.22)',
-    chip: 'from-amber-400 to-orange-500',
-    textColor: 'text-amber-600',
-    path: '/taxi/user',
-    image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'wedding',
-    title: 'Wedding Planner',
-    description: 'Plan your dream destination wedding with top vendors & venues.',
-    icon: Heart,
-    accent: '#e11d48',
-    glow: 'rgba(225,29,72,0.20)',
-    chip: 'from-pink-500 to-rose-500',
-    textColor: 'text-rose-600',
-    path: '/wedding',
-    image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'helicopter',
-    title: 'Helicopter Booking',
-    description: 'Book premium helicopter travel & spiritual tours to holy shrines.',
-    icon: Helicopter,
-    accent: '#0284c7',
-    glow: 'rgba(2,132,199,0.22)',
-    chip: 'from-sky-500 to-cyan-600',
-    textColor: 'text-sky-600',
-    path: '/taxi/user/airways',
-    image: 'https://images.unsplash.com/photo-1540962351504-03099e0a754b?auto=format&fit=crop&q=80&w=800'
-  },
-  {
-    id: 'chardham',
-    title: 'Char Dham Yatra',
-    description: 'Spiritual pilgrim tour packages to Yamunotri, Gangotri, Kedarnath, and Badrinath.',
-    icon: MapPin,
-    accent: '#ea580c',
-    glow: 'rgba(234,88,12,0.22)',
-    chip: 'from-orange-500 to-amber-600',
-    textColor: 'text-orange-600',
-    path: '/taxi/user/tours',
-    image: chardhamImg,
-    imagePos: 'object-bottom'
-  }
-];
+// Cards come from CMS Admin -> App Services (see services/appServices.js).
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -96,7 +34,7 @@ const cardVariants = {
 // Cursor-tracked 3D tilt + spotlight. Tilt is springed so it glides rather
 // than snaps, and everything collapses to a plain card when the user prefers
 // reduced motion.
-const ServiceCard = ({ service, onClick, reduceMotion }) => {
+export const ServiceCard = ({ service, onClick, reduceMotion }) => {
   const ref = useRef(null);
   const rotateX = useSpring(useMotionValue(0), { stiffness: 180, damping: 20 });
   const rotateY = useSpring(useMotionValue(0), { stiffness: 180, damping: 20 });
@@ -151,12 +89,16 @@ const ServiceCard = ({ service, onClick, reduceMotion }) => {
       >
         {/* Image */}
         <div className="relative h-[120px] w-[38%] shrink-0 overflow-hidden md:h-52 md:w-full lg:h-56">
-          <img
-            src={service.image}
-            alt={service.title}
-            loading="lazy"
-            className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${service.imagePos || 'object-center'}`}
-          />
+          {service.image ? (
+            <img
+              src={service.image}
+              alt={service.title}
+              loading="lazy"
+              className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${service.imagePos || 'object-center'}`}
+            />
+          ) : (
+            <div className={`h-full w-full bg-gradient-to-br ${service.chip} opacity-80`} />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
 
           {/* Icon chip */}
@@ -174,7 +116,7 @@ const ServiceCard = ({ service, onClick, reduceMotion }) => {
             </p>
           </div>
           <div className={`mt-3 flex items-center gap-1 text-xs font-black md:mt-4 md:text-sm ${service.textColor}`}>
-            Explore
+            {service.ctaText || 'Explore'}
             <ChevronRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1.5 md:h-4 md:w-4" />
           </div>
         </div>
@@ -199,6 +141,7 @@ const ServiceCard = ({ service, onClick, reduceMotion }) => {
 const SuperAppDashboard = () => {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
+  const { services, settings: homeText } = useAppServices();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // pointer parallax for the aurora blobs -- each layer drifts a different
@@ -295,7 +238,7 @@ const SuperAppDashboard = () => {
               <h1 className="mt-0.5 text-2xl font-black tracking-tight text-slate-900 md:text-[2rem]">
                 Hi, {firstName}! <span className="inline-block origin-[70%_70%] animate-[wave_2.4s_ease-in-out_1]">👋</span>
               </h1>
-              <p className="text-[13px] font-medium text-slate-500 md:text-sm">What are you looking for today?</p>
+              <p className="text-[13px] font-medium text-slate-500 md:text-sm">{homeText.greetingSubtitle}</p>
             </div>
           </div>
 
@@ -317,7 +260,7 @@ const SuperAppDashboard = () => {
           className="mb-5 flex items-center gap-2.5 md:mb-7"
         >
           <Compass className="text-surface" size={26} />
-          <h2 className="text-xl font-black tracking-tight text-slate-900 md:text-[1.45rem]">Explore Services</h2>
+          <h2 className="text-xl font-black tracking-tight text-slate-900 md:text-[1.45rem]">{homeText.sectionTitle}</h2>
           <div className="ml-2 hidden h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent md:block" />
         </motion.div>
 
@@ -326,14 +269,15 @@ const SuperAppDashboard = () => {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 xl:grid-cols-5"
+          style={{ '--svc-cols': Math.min(Math.max(services.length, 1), 5) }}
+          className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 xl:[grid-template-columns:repeat(var(--svc-cols),minmax(0,1fr))]"
         >
           {services.map((service) => (
             <ServiceCard
               key={service.id}
               service={service}
               reduceMotion={reduceMotion}
-              onClick={() => navigate(service.path)}
+              onClick={() => (/^https?:\/\//i.test(service.path) ? window.location.assign(service.path) : navigate(service.path))}
             />
           ))}
         </motion.div>

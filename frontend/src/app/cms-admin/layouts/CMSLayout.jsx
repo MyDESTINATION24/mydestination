@@ -127,6 +127,12 @@ const CMSLayout = () => {
               </Link>
             </li>
             <li>
+              <Link to="/cms-admin/app-services" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
+                <Edit3 size={18} className="text-emerald-400" />
+                <span className="text-sm font-medium">App Services</span>
+              </Link>
+            </li>
+            <li>
               <Link to="/cms-admin/blogs" className="flex items-center gap-3 px-3 py-2.5 rounded-sm hover:bg-emerald-900/50 transition">
                 <Edit3 size={18} className="text-emerald-400" />
                 <span className="text-sm font-medium">Manage Blogs</span>
