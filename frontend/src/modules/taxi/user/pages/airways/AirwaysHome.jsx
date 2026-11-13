@@ -22,9 +22,7 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 import { getUserTourBanner } from '../../services/toursService';
 import BottomNavbar from '../../components/BottomNavbar';
-import MobileServiceShell from '../../../../../components/services/MobileServiceShell';
-import useIsMobile from '../../../../../hooks/useIsMobile';
-import { Wallet as WalletIcon, Bell as BellIcon } from 'lucide-react';
+import { useServiceShellActive } from '../../../../../components/services/MobileServiceShell';
 import SkyTraffic from '../../../../../components/common/SkyTraffic';
 
 // Asset Imports (Using the generated image for consistency)
@@ -65,7 +63,7 @@ const formatTimeLabel = (value = '') => {
 
 const AirwaysHome = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useServiceShellActive(); // shared tabs showing: hide the back/label row
   const [loading, setLoading] = useState(true);
   const [routes, setRoutes] = useState([]);
   const [allRoutes, setAllRoutes] = useState([]);
@@ -186,16 +184,6 @@ const AirwaysHome = () => {
           to { transform: translateX(-50%); }
         }
       `}</style>
-      {/* Phones: shared service tabs on top; the back/label row below is
-          replaced by them (switching service is a tab tap now). */}
-      <MobileServiceShell
-        serviceKey="helicopter"
-        profilePath="/taxi/user/profile"
-        actions={[
-          { icon: WalletIcon, label: 'My Wallet', onClick: () => navigate('/taxi/wallet') },
-          { icon: BellIcon, label: 'Notifications', onClick: () => navigate('/taxi/notifications') },
-        ]}
-      />
       {/* Immersive Header */}
       <div className="relative h-[40vh] w-full overflow-hidden">
         {heroBanners.length > 0 ? (

@@ -4,6 +4,7 @@ import AppErrorBoundary from './components/common/AppErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Clock, Loader2 } from 'lucide-react';
+import MobileServiceShell, { ServiceContentSkeleton, ServiceContentTransition, useServiceShellActive } from './components/services/MobileServiceShell';
 
 // Eager Imports (Critical UI)
 import BottomNavbar from './components/ui/BottomNavbar';
@@ -223,7 +224,15 @@ const WeddingPaymentStatus = React.lazy(() => import('./modules/wedding-integrat
 const TaxiApp = React.lazy(() => import('./modules/taxi/TaxiApp'));
 
 // Loading Fallback Component
-const PageLoader = () => (
+// Under the phone service tabs a full-page spinner would blank the screen on
+// every first visit to a service, so the tabs stay and a light placeholder
+// fills the space below them instead.
+const PageLoader = () => {
+  const shellActive = useServiceShellActive();
+  return shellActive ? <ServiceContentSkeleton /> : <DefaultPageLoader />;
+};
+
+const DefaultPageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <div className="flex flex-col items-center gap-4">
       <Loader2 className="w-10 h-10 animate-spin text-surface" />
@@ -889,7 +898,11 @@ function App() {
           zIndex: 10000
         }}
       />
+      {/* Phone service tabs: rendered once here, above every route, so they
+          stay on screen while switching services. */}
+      <MobileServiceShell />
       <Layout>
+        <ServiceContentTransition>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* ── User Auth Routes — UserPublicRoute isolates user panel ── */}
@@ -1167,6 +1180,7 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
+        </ServiceContentTransition>
       </Layout>
     </AppErrorBoundary>
   );

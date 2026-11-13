@@ -6,9 +6,7 @@ import BottomNavbar from '../components/BottomNavbar';
 import { TrekArt } from '../components/CardArt';
 import SkyTraffic from '../../../../components/common/SkyTraffic';
 import HeaderGreeting from '../components/HeaderGreeting';
-import MobileServiceShell from '../../../../components/services/MobileServiceShell';
-import useIsMobile from '../../../../hooks/useIsMobile';
-import { Menu, Wallet, Bell } from 'lucide-react';
+import { useServiceShellActive } from '../../../../components/services/MobileServiceShell';
 import { getClosestEVStations } from '../services/evStationService';
 import { useAppGoogleMapsLoader, HAS_VALID_GOOGLE_MAPS_KEY } from '../../admin/utils/googleMaps';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
@@ -221,7 +219,7 @@ const normalizeRentalCurrentRideSnapshot = (ride = {}, previousRide = {}) => {
 
 const Home = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const shellActive = useServiceShellActive();
   const location = useLocation();
   const isDesktop = useIsDesktop();
   const { settings } = useSettings();
@@ -629,21 +627,9 @@ const Home = () => {
       `}</style>
 
       <div className="relative z-10 pb-6">
-        {/* Phones: shared service tabs replace the yellow header (same menu,
-            wallet and notifications). Desktop keeps HeaderGreeting. */}
-        {isMobile ? (
-          <MobileServiceShell
-            serviceKey="taxi"
-            profilePath="/taxi/user/profile"
-            actions={[
-              { icon: Menu, label: 'Menu', onClick: () => window.dispatchEvent(new CustomEvent('openTaxiSidebar')) },
-              { icon: Wallet, label: 'My Wallet', onClick: () => navigate('/taxi/wallet') },
-              { icon: Bell, label: 'Notifications', onClick: () => navigate('/taxi/notifications') },
-            ]}
-          />
-        ) : (
-          <HeaderGreeting />
-        )}
+        {/* Phones: the shared service tabs (App.jsx) replace the yellow header,
+            with the same menu, wallet and notifications. */}
+        {shellActive ? null : <HeaderGreeting />}
         {/* Top Banner Skeleton / Carousel */}
         {bannersLoading ? (
           <div className="mt-3 w-full aspect-[2/1] sm:aspect-[5/2] md:aspect-[3/1] lg:aspect-[1000/260] rounded-[24px] lg:rounded-none bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse flex items-center justify-center md:mt-4 lg:mt-0">

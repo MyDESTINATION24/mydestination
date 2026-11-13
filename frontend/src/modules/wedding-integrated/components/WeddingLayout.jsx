@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import useIsMobile from '../../../hooks/useIsMobile';
+import { useServiceShellActive } from '../../../components/services/MobileServiceShell';
 import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid, Wallet, Edit3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -112,8 +112,7 @@ const WeddingLayout = () => {
   const hideNav = isGallery || isBookingDetail;
   // Phones: on the wedding home the shared service tabs (MobileServiceShell)
   // take the place of this top bar; inner wedding pages keep it.
-  const isMobileWidth = useIsMobile();
-  const shellHome = isMobileWidth && (location.pathname === '/wedding' || location.pathname === '/wedding/');
+  const shellHome = useServiceShellActive();
 
   const [dynamicMegaMenu, setDynamicMegaMenu] = useState([[], [], [], []]);
 

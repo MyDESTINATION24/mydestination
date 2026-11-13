@@ -17,9 +17,8 @@ import {
   Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import MobileServiceShell from '../../../../../components/services/MobileServiceShell';
-import useIsMobile from '../../../../../hooks/useIsMobile';
-import { Wallet as WalletIcon, Bell as BellIcon } from 'lucide-react';
+import { useServiceShellActive } from '../../../../../components/services/MobileServiceShell';
+import BottomNavbar from '../../components/BottomNavbar';
 import { getUserTourBanner, getUserTours } from '../../services/toursService';
 
 const CATEGORIES = [
@@ -98,7 +97,7 @@ const Dropdown = ({ icon: Icon, label, value, options, onChange }) => (
 
 const ToursHome = () => {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useServiceShellActive(); // shared tabs showing: hide Back
   const [searchParams, setSearchParams] = useSearchParams();
   const [tours, setTours] = useState([]);
   const [banner, setBanner] = useState(null);
@@ -163,19 +162,10 @@ const ToursHome = () => {
 
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] font-sans pb-24 md:pb-0">
       {/* Hero: the uploaded banner and nothing else. No banner, no hero.
           No header bar -- back is a floating control so the banner starts at
           the top of the page. */}
-      {/* Phones: shared service tabs on top replace the Back button. */}
-      <MobileServiceShell
-        serviceKey="chardham"
-        profilePath="/taxi/user/profile"
-        actions={[
-          { icon: WalletIcon, label: 'My Wallet', onClick: () => navigate('/taxi/wallet') },
-          { icon: BellIcon, label: 'Notifications', onClick: () => navigate('/taxi/notifications') },
-        ]}
-      />
       <div className="relative">
         {isMobile ? null : <button
           onClick={() => navigate('/taxi/user')}
@@ -355,6 +345,8 @@ const ToursHome = () => {
           </div>
         )}
       </div>
+      {/* Same bottom menu as the other Rides screens (phones only). */}
+      <BottomNavbar />
     </div>
   );
 };
