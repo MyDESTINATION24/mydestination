@@ -19,10 +19,10 @@ router.get('/', listAppServices);
 
 // Admin
 router.get('/admin/all', ...adminOnly, adminListAppServices);
-router.post('/admin', ...adminOnly, upload.single('image'), createAppService);
+router.post('/admin', ...adminOnly, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'tabIcon', maxCount: 1 }, { name: 'bannerImage', maxCount: 1 }]), createAppService);
 router.put('/admin/reorder', ...adminOnly, reorderAppServices);
 router.put('/admin/settings', ...adminOnly, updateHomeSettings);
-router.put('/admin/:id', ...adminOnly, upload.single('image'), updateAppService);
+router.put('/admin/:id', ...adminOnly, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'tabIcon', maxCount: 1 }, { name: 'bannerImage', maxCount: 1 }]), updateAppService);
 router.delete('/admin/:id', ...adminOnly, deleteAppService);
 
 export default router;

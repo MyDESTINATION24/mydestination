@@ -19,17 +19,32 @@ const DEFAULT_SERVICES = [
   { key: 'chardham', title: 'Char Dham Yatra', description: 'Spiritual pilgrim tour packages to Yamunotri, Gangotri, Kedarnath, and Badrinath.', theme: 'orange', icon: 'mappin', path: '/taxi/user/tours', image: '', imagePos: 'bottom', order: 50 },
 ];
 
+// Short names for the mobile tab strip. Filled in once for the built-in cards
+// while their tab label is still blank, so an admin's own text is never
+// overwritten.
+const DEFAULT_TABS = {
+  hotel: { tabLabel: 'Hotels', tagline: 'Stays & resorts' },
+  taxi: { tabLabel: 'Rides', tagline: 'Cabs & outstation' },
+  wedding: { tabLabel: 'Wedding', tagline: 'Venues & vendors' },
+  helicopter: { tabLabel: 'Helicopter', tagline: 'Shrine flights' },
+  chardham: { tabLabel: 'Char Dham', tagline: 'Yatra packages' },
+};
+
 let seeded = false;
 const ensureSeeded = async () => {
   if (seeded) return;
   // Only when the collection is empty: deleting a default must stay deleted.
   if ((await AppService.estimatedDocumentCount()) === 0) {
-    await AppService.insertMany(DEFAULT_SERVICES, { ordered: false }).catch(() => {});
+    await AppService.insertMany(DEFAULT_SERVICES.map((s) => ({ ...s, ...DEFAULT_TABS[s.key] })), { ordered: false }).catch(() => {});
   }
+  await Promise.all(Object.entries(DEFAULT_TABS).map(([key, tab]) =>
+    AppService.updateOne({ key, $or: [{ tabLabel: '' }, { tabLabel: { $exists: false } }] }, { $set: tab })
+  ));
   seeded = true;
 };
 
-const FIELDS = ['title', 'description', 'image', 'imagePos', 'path', 'ctaText', 'theme', 'icon', 'isActive', 'order'];
+const FIELDS = ['title', 'description', 'image', 'imagePos', 'path', 'ctaText', 'theme', 'icon', 'isActive', 'order',
+  'tabLabel', 'tagline', 'tabIcon', 'bannerImage', 'bannerTitle'];
 
 const pick = (body) => {
   const out = {};
@@ -51,10 +66,15 @@ const isSafePath = (value) => /^\/(?!\/)[^\s]*$/.test(value) || /^https:\/\/[^\s
 const slugify = (value) => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const fail = (res, status, message) => res.status(status).json({ success: false, message });
 
+// Card picture, small tab icon and mobile banner can each be uploaded.
+const UPLOAD_FIELDS = ['image', 'tabIcon', 'bannerImage'];
 const withImage = async (req, data) => {
-  if (req.file) {
-    const uploaded = await uploadToCloudinary(req.file.path, 'app-services');
-    data.image = uploaded.url;
+  for (const field of UPLOAD_FIELDS) {
+    const file = req.files?.[field]?.[0];
+    if (file) {
+      const uploaded = await uploadToCloudinary(file.path, 'app-services');
+      data[field] = uploaded.url;
+    }
   }
   return data;
 };
