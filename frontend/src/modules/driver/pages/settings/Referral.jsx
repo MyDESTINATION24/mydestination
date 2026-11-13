@@ -15,6 +15,7 @@ import {
   getStoredReferralLanguageCode,
 } from '../../../shared/utils/referralTranslationFields';
 import { useSettings } from '../../../../shared/context/SettingsContext';
+import { sanitizeHtml } from '../../../../utils/sanitizeHtml';
 
 const readStoredDriverInfo = () => {
   try {
@@ -280,7 +281,7 @@ const DriverReferral = () => {
                   <div
                     key={block.key}
                     className="text-[14px] leading-6 text-gray-800 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: block.html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(block.html) }}
                   />
                 ))
               )}

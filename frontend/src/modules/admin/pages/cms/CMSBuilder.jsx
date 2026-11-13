@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import AdminDocxTypographyCMS from '../../../../components/admin/AdminDocxTypographyCMS';
 import RichTextEditor from '../../../../components/common/RichTextEditor';
+import { sanitizeHtml } from '../../../../utils/sanitizeHtml';
 
 const CMS_SECTIONS = [
   { id: 'hero', name: 'Hero Section', placeholder: '<h1 style="color:#1e293b;">Explore World-Class Destinations</h1><p>Book premium luxury villas and hotels with seamless instant reservations.</p>' },
@@ -165,7 +166,7 @@ const CMSBuilder = () => {
                   <h4 className="text-xs font-bold text-gray-700 uppercase tracking-widest">Saved HTML Preview</h4>
                   <div
                     className="prose max-w-none text-sm text-slate-800 p-3 bg-white border rounded"
-                    dangerouslySetInnerHTML={{ __html: sectionContents[selectedSection] || '<p class="text-gray-400 italic">No content set</p>' }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(sectionContents[selectedSection]) || '<p class="text-gray-400 italic">No content set</p>' }}
                   />
                 </div>
               </div>

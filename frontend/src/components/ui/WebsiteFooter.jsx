@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { MapPin, Phone, MessageCircle, Mail, Facebook, Twitter, Instagram } from 'lucide-react';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 const WebsiteFooter = () => {
   const [cmsData, setCmsData] = useState(null);
@@ -46,7 +47,7 @@ const WebsiteFooter = () => {
               <MapPin size={18} className="text-emerald-400 mt-1 flex-shrink-0" />
               <span 
                 className="leading-relaxed [&_*]:!text-gray-300"
-                dangerouslySetInnerHTML={{ __html: cmsData?.footer?.address || '1 My Address, My Street, New York City, NY, USA' }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(cmsData?.footer?.address || '1 My Address, My Street, New York City, NY, USA') }}
               />
             </li>
             <li className="flex items-center gap-3">
@@ -124,7 +125,7 @@ const WebsiteFooter = () => {
             })()}
             <div 
               className="text-xs text-gray-300 leading-relaxed mb-6 [&_*]:!text-gray-300"
-              dangerouslySetInnerHTML={{ __html: cmsData?.footer?.companyDescription || 'My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services.' }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(cmsData?.footer?.companyDescription || 'My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services.') }}
             />
           </div>
           <div>

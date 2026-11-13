@@ -87,10 +87,20 @@ export const deleteFromCloudinary = async (publicId) => {
 export const uploadBase64ToCloudinary = async (base64String, folder = 'general', publicId = null) => {
   try {
     // Ensure base64 string has proper data URI prefix
-    let dataUri = base64String;
-    if (!base64String.startsWith('data:')) {
+    let dataUri = String(base64String || '');
+    if (!dataUri.startsWith('data:')) {
       // If no prefix, assume it's JPEG
-      dataUri = `data:image/jpeg;base64,${base64String}`;
+      dataUri = `data:image/jpeg;base64,${dataUri}`;
+    }
+
+    // Uploads go up with resource_type 'auto', which happily hosts any file:
+    // a data:text/html or an SVG carrying script (several callers, e.g. wedding
+    // testimonials, are public) would be served from our Cloudinary account.
+    // Only raster images and PDFs are accepted.
+    const mime = (dataUri.match(/^data:([^;,]+)[;,]/) || [])[1]?.toLowerCase() || '';
+    const ALLOWED_UPLOAD_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif', 'image/avif', 'image/bmp', 'application/pdf'];
+    if (!ALLOWED_UPLOAD_TYPES.includes(mime)) {
+      throw new Error('Only image or PDF files can be uploaded');
     }
 
     const uploadOptions = {

@@ -24,6 +24,7 @@ import SafeHTML from '../components/common/SafeHTML';
 import { useContentSections, sectionPath, sectionItemPath } from '../services/contentSections';
 import SectionBlock from '../components/sections/SectionBlock';
 import CardRow from '../components/sections/CardRow';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 
 const DestinationCard = ({ dest, fadeUp }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1279,7 +1280,7 @@ const LandingPage = () => {
                 <MapPin size={18} className="text-emerald-400 mt-1 flex-shrink-0" />
                 <span 
                   className="leading-relaxed [&_*]:!text-gray-300"
-                  dangerouslySetInnerHTML={{ __html: cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA" }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(cmsData?.footer?.address || "1 My Address, My Street, New York City, NY, USA") }}
                 />
               </li>
               <li className="flex items-center gap-3">
@@ -1349,7 +1350,7 @@ const LandingPage = () => {
               })()}
               <div 
                 className="text-xs text-gray-300 leading-relaxed mb-6 [&_*]:!text-gray-300"
-                dangerouslySetInnerHTML={{ __html: cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services." }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(cmsData?.footer?.companyDescription || "My DESTINATION - Wed in India | Event Planners. We make your special moments unforgettable with customized details and premium services.") }}
               />
             </div>
             <div>

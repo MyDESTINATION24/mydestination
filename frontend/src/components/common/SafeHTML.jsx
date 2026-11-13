@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHtml } from '../../utils/sanitizeHtml';
 
 /**
  * Universal Safe HTML Renderer Component
@@ -78,7 +79,7 @@ const SafeHTML = ({ html = '', fallback = null, className = '', as: Component = 
       <Component
         className={`rich-text-content focus:outline-none ${className}`}
         style={style}
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
       />
     </>
   );
