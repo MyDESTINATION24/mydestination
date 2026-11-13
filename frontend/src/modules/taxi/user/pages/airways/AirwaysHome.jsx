@@ -22,6 +22,9 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService';
 import { getUserTourBanner } from '../../services/toursService';
 import BottomNavbar from '../../components/BottomNavbar';
+import MobileServiceShell from '../../../../../components/services/MobileServiceShell';
+import useIsMobile from '../../../../../hooks/useIsMobile';
+import { Wallet as WalletIcon, Bell as BellIcon } from 'lucide-react';
 import SkyTraffic from '../../../../../components/common/SkyTraffic';
 
 // Asset Imports (Using the generated image for consistency)
@@ -62,6 +65,7 @@ const formatTimeLabel = (value = '') => {
 
 const AirwaysHome = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [routes, setRoutes] = useState([]);
   const [allRoutes, setAllRoutes] = useState([]);
@@ -182,6 +186,16 @@ const AirwaysHome = () => {
           to { transform: translateX(-50%); }
         }
       `}</style>
+      {/* Phones: shared service tabs on top; the back/label row below is
+          replaced by them (switching service is a tab tap now). */}
+      <MobileServiceShell
+        serviceKey="helicopter"
+        profilePath="/taxi/user/profile"
+        actions={[
+          { icon: WalletIcon, label: 'My Wallet', onClick: () => navigate('/taxi/wallet') },
+          { icon: BellIcon, label: 'Notifications', onClick: () => navigate('/taxi/notifications') },
+        ]}
+      />
       {/* Immersive Header */}
       <div className="relative h-[40vh] w-full overflow-hidden">
         {heroBanners.length > 0 ? (
@@ -203,7 +217,7 @@ const AirwaysHome = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-[#F8FAFC]" />
         <SkyTraffic />
         
-        <div className="absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center gap-3 z-50">
+        <div className={`${isMobile ? 'hidden' : 'flex'} absolute top-12 md:top-0 left-0 right-0 p-4 sm:p-6 justify-between items-center gap-3 z-50`}>
            <div className="h-11 sm:h-12 min-w-0 px-3.5 sm:px-5 rounded-2xl bg-white/20 backdrop-blur-xl border border-white/20 flex items-center gap-2 sm:gap-3">
               <Sparkles size={16} className="text-sky-300" />
               <span className="text-[10px] sm:text-[11px] font-black text-white uppercase tracking-wider sm:tracking-widest truncate">My Destination Airways</span>

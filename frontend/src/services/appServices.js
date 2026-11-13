@@ -60,6 +60,13 @@ export const toServiceCard = (service) => {
     chip: theme.chip,
     textColor: theme.textColor,
     glow: theme.glow,
+    // Mobile tab strip + banner
+    key: service.key || '',
+    tabLabel: service.tabLabel || service.title || '',
+    tagline: service.tagline || '',
+    tabIcon: service.tabIcon || '',
+    bannerImage: service.bannerImage || service.image || BUILTIN_IMAGES[service.key] || '',
+    bannerTitle: service.bannerTitle || service.title || '',
   };
 };
 
@@ -68,21 +75,54 @@ export const DEFAULT_HOME_SETTINGS = {
   sectionTitle: 'Explore Services',
 };
 
-/** Returns { services, settings } for the app home screen. */
+// One request shared by every screen: the mobile tabs re-mount on each tab
+// switch, so they read this cache instead of fetching (and flickering) again.
+// The last good answer is also kept in localStorage for an instant first paint.
+const CACHE_KEY = 'md_app_services_v1';
+const readCache = () => {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); } catch { return null; }
+};
+let memoryCache = null;
+let pending = null;
+
+const fetchAppServices = () => {
+  if (!pending) {
+    pending = axios.get(`${API_BASE_URL}/app-services`)
+      .then((res) => {
+        if (!res.data?.success || !Array.isArray(res.data.data)) throw new Error('bad response');
+        memoryCache = { services: res.data.data, settings: { ...DEFAULT_HOME_SETTINGS, ...(res.data.settings || {}) } };
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(memoryCache)); } catch { /* storage full or blocked */ }
+        return memoryCache;
+      })
+      .catch(() => {
+        pending = null; // try again on the next screen
+        return null;
+      });
+  }
+  return pending;
+};
+
+/** Returns { services, settings, loaded } for the app home screen and mobile tabs. */
 export const useAppServices = () => {
-  const [state, setState] = useState({ services: DEFAULT_APP_SERVICES, settings: DEFAULT_HOME_SETTINGS });
+  const [state, setState] = useState(() => memoryCache || readCache() || { services: DEFAULT_APP_SERVICES, settings: DEFAULT_HOME_SETTINGS });
+  const [loaded, setLoaded] = useState(Boolean(memoryCache));
   useEffect(() => {
     let alive = true;
-    axios.get(`${API_BASE_URL}/app-services`)
-      .then((res) => {
-        if (!alive || !res.data?.success || !Array.isArray(res.data.data)) return;
-        setState({
-          services: res.data.data,
-          settings: { ...DEFAULT_HOME_SETTINGS, ...(res.data.settings || {}) },
-        });
-      })
-      .catch(() => {});
+    fetchAppServices().then((data) => {
+      if (!alive) return;
+      if (data) setState(data);
+      setLoaded(true);
+    });
     return () => { alive = false; };
   }, []);
-  return { services: state.services.map(toServiceCard), settings: state.settings };
+  return { services: state.services.map(toServiceCard), settings: state.settings, loaded };
+};
+
+// Remembers the last service tab opened on a phone, for /home to reopen it.
+export const LAST_SERVICE_KEY = 'md_last_service_tab';
+export const rememberServiceTab = (key) => {
+  try { localStorage.setItem(LAST_SERVICE_KEY, key); } catch { /* ignore */ }
+};
+export const lastServiceTab = () => {
+  try { return localStorage.getItem(LAST_SERVICE_KEY) || ''; } catch { return ''; }
 };

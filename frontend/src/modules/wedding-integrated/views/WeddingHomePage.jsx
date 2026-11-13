@@ -12,6 +12,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import HeroSection from "../components/HeroSection";
+import MobileServiceShell from "../../../components/services/MobileServiceShell";
 import DestinationCard from "../components/DestinationCard";
 import TestimonialSlider from "../components/TestimonialSlider";
 import ScrollReveal from "../components/ScrollReveal";
@@ -119,6 +120,8 @@ const WeddingHomePage = () => {
   }, []);
   return (
     <div className="overflow-x-hidden">
+      {/* Phones: shared service tabs on top (replaces the wedding top bar here). */}
+      <MobileServiceShell serviceKey="wedding" profilePath="/wedding/account" />
       <HeroSection />
 
       {/* How It Works */}

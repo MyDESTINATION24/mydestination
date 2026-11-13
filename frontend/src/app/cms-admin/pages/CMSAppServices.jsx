@@ -27,7 +27,75 @@ const LINK_PRESETS = [
 const EMPTY = {
   title: '', description: '', path: '/hotels', ctaText: 'Explore',
   theme: 'emerald', icon: 'building', image: '', imagePos: 'center', isActive: true,
+  tabLabel: '', tagline: '', tabIcon: '', bannerImage: '', bannerTitle: '',
 };
+
+// What the phone top section looks like for this service: its banner and the
+// tab strip with this service highlighted. Mirrors MobileServiceShell.
+const MobileTopPreview = ({ card, tabs }) => (
+  <div className="bg-white border border-gray-100 rounded-sm shadow-sm overflow-hidden">
+    <div className="px-5 py-3 border-b border-gray-100 flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+      <Smartphone size={14} className="text-emerald-600" /> Phone top section (tabs)
+    </div>
+    <div className="p-5 bg-[#F7F9FB] flex justify-center">
+      <div className="w-full max-w-[380px] overflow-hidden rounded-b-[28px] rounded-t-xl relative bg-slate-900 pb-4 select-none">
+        {card.bannerImage
+          ? <img src={card.bannerImage} alt="" className={`absolute inset-0 h-full w-full object-cover ${card.imagePos}`} />
+          : <div className={`absolute inset-0 bg-gradient-to-br ${card.chip}`} />}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/70" />
+        <div className="relative px-4 pt-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/75">Good morning</p>
+          <p className="text-[15px] font-black text-white">Hi, Customer!</p>
+          <h3 className="pt-6 pb-4 text-[24px] font-black leading-tight text-white">{card.bannerTitle || 'Banner headline'}</h3>
+        </div>
+        <div className="relative flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+          {tabs.map((tab, index) => {
+            const Icon = tab.icon;
+            return (
+              <div key={tab.id || index} className={`relative flex min-w-[80px] shrink-0 flex-col items-center gap-1 rounded-2xl border px-2.5 pb-2 pt-2 ${tab.isCurrent ? 'border-white/70 bg-white/25' : 'border-white/10 bg-black/25'}`}>
+                {tab.tabIcon
+                  ? <img src={tab.tabIcon} alt="" className="h-7 w-7 object-contain" />
+                  : <span className={`flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white`}><Icon size={14} /></span>}
+                <span className="text-[12px] font-black leading-none text-white">{tab.tabLabel || 'Tab'}</span>
+                {tab.tagline ? <span className="text-[9px] font-semibold leading-none text-white/75">{tab.tagline}</span> : null}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Small file picker + URL box used for the tab icon and the banner.
+const ImageField = ({ label, hint, value, preview, onFile, onUrl }) => (
+  <div>
+    <label className={labelClass}>{label}</label>
+    <div className="flex items-center gap-3">
+      <div className="h-12 w-12 shrink-0 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+        {preview ? <img src={preview} alt="" className="h-full w-full object-cover" /> : <ImageIcon size={16} className="text-gray-300" />}
+      </div>
+      <div className="relative">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5MB'); return; }
+            onFile(file);
+          }}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+        />
+        <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-sm border border-dashed border-gray-300 text-gray-600 bg-white">
+          <Plus size={14} /> Upload
+        </span>
+      </div>
+      <input className={`${inputClass} flex-1`} value={value} onChange={(e) => onUrl(e.target.value)} placeholder="…or image URL" />
+    </div>
+    {hint ? <p className="text-[11px] text-gray-400 mt-1">{hint}</p> : null}
+  </div>
+);
 
 const inputClass = 'w-full bg-gray-50 border border-gray-200 rounded-sm px-4 py-2.5 outline-none focus:border-emerald-800 transition text-sm text-gray-900 font-medium';
 const labelClass = 'text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block';
@@ -54,6 +122,23 @@ const CMSAppServices = () => {
   const [form, setForm] = useState(EMPTY);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  // Separate uploads for the mobile tab icon and banner.
+  const [extraFiles, setExtraFiles] = useState({ tabIcon: null, bannerImage: null });
+  const [extraPreviews, setExtraPreviews] = useState({ tabIcon: '', bannerImage: '' });
+  const setExtraFile = (field, file) => {
+    setExtraFiles((prev) => ({ ...prev, [field]: file }));
+    setExtraPreviews((prev) => ({ ...prev, [field]: URL.createObjectURL(file) }));
+    setForm((prev) => ({ ...prev, [field]: '' }));
+  };
+  const setExtraUrl = (field, url) => {
+    setExtraFiles((prev) => ({ ...prev, [field]: null }));
+    setExtraPreviews((prev) => ({ ...prev, [field]: url }));
+    setForm((prev) => ({ ...prev, [field]: url }));
+  };
+  const resetExtras = (service) => {
+    setExtraFiles({ tabIcon: null, bannerImage: null });
+    setExtraPreviews({ tabIcon: service?.tabIcon || '', bannerImage: service?.bannerImage || '' });
+  };
   const [saving, setSaving] = useState(false);
   const [homeText, setHomeText] = useState({ greetingSubtitle: '', sectionTitle: '' });
   const [savingText, setSavingText] = useState(false);
@@ -88,7 +173,7 @@ const CMSAppServices = () => {
   useEffect(() => { load(); }, [load]);
 
   const openNew = () => {
-    setEditing('new'); setForm(EMPTY); setImageFile(null); setImagePreview('');
+    setEditing('new'); setForm(EMPTY); setImageFile(null); setImagePreview(''); resetExtras(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const openEdit = (service) => {
@@ -97,12 +182,15 @@ const CMSAppServices = () => {
       title: service.title || '', description: service.description || '', path: service.path || '/',
       ctaText: service.ctaText || 'Explore', theme: service.theme || 'emerald', icon: service.icon || 'compass',
       image: service.image || '', imagePos: service.imagePos || 'center', isActive: service.isActive !== false,
+      tabLabel: service.tabLabel || '', tagline: service.tagline || '', tabIcon: service.tabIcon || '',
+      bannerImage: service.bannerImage || '', bannerTitle: service.bannerTitle || '',
     });
+    resetExtras(service);
     setImageFile(null);
     setImagePreview(toServiceCard(service).image);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const close = () => { setEditing(null); setForm(EMPTY); setImageFile(null); setImagePreview(''); };
+  const close = () => { setEditing(null); setForm(EMPTY); setImageFile(null); setImagePreview(''); resetExtras(null); };
 
   const save = async (e) => {
     e.preventDefault();
@@ -113,9 +201,12 @@ const CMSAppServices = () => {
     const data = new FormData();
     Object.entries(form).forEach(([key, value]) => {
       if (key === 'image' && imageFile) return;
+      if ((key === 'tabIcon' || key === 'bannerImage') && extraFiles[key]) return;
       data.append(key, value);
     });
     if (imageFile) data.append('image', imageFile);
+    if (extraFiles.tabIcon) data.append('tabIcon', extraFiles.tabIcon);
+    if (extraFiles.bannerImage) data.append('bannerImage', extraFiles.bannerImage);
     setSaving(true);
     const t = toast.loading('Saving...');
     try {
@@ -171,7 +262,16 @@ const CMSAppServices = () => {
     ...form,
     key: editing && editing !== 'new' ? editing.key : 'preview',
     image: imagePreview || form.image,
+    tabIcon: extraPreviews.tabIcon || form.tabIcon,
+    bannerImage: extraPreviews.bannerImage || form.bannerImage,
   });
+  // The tab strip as phones will show it, with this service's draft in place.
+  const previewTabs = (() => {
+    const draft = { ...previewCard, isCurrent: true };
+    const others = services.filter((s) => s.isActive !== false).map((s) => toServiceCard(s));
+    if (editing && editing !== 'new') return others.map((t) => (t.id === editing._id ? draft : t)).filter((t) => t.isCurrent || t.tabLabel);
+    return [...others.filter((t) => t.tabLabel), draft];
+  })();
 
   return (
     <div className="space-y-8">
@@ -301,6 +401,42 @@ const CMSAppServices = () => {
                 </div>
               </div>
 
+              <div className="md:col-span-2 border-t border-gray-100 pt-5">
+                <p className="text-sm font-black text-gray-900 mb-1">Phone tab & banner</p>
+                <p className="text-xs text-gray-500 mb-4">How this service appears in the tab strip at the top of the app on phones.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className={labelClass}>Tab name</label>
+                    <input className={inputClass} maxLength={14} value={form.tabLabel} onChange={(e) => setForm({ ...form, tabLabel: e.target.value })} placeholder="e.g. Hotels" />
+                    <p className="text-[11px] text-gray-400 mt-1">Short. Leave empty to hide this service from the phone tabs.</p>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Tab tagline</label>
+                    <input className={inputClass} maxLength={22} value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="e.g. Stays & resorts" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className={labelClass}>Banner headline</label>
+                    <input className={inputClass} maxLength={60} value={form.bannerTitle} onChange={(e) => setForm({ ...form, bannerTitle: e.target.value })} placeholder="Defaults to the title" />
+                  </div>
+                  <ImageField
+                    label="Tab icon"
+                    hint="Optional small picture (square, transparent PNG works best). Otherwise the icon above is used."
+                    value={form.tabIcon}
+                    preview={extraPreviews.tabIcon}
+                    onFile={(file) => setExtraFile('tabIcon', file)}
+                    onUrl={(url) => setExtraUrl('tabIcon', url)}
+                  />
+                  <ImageField
+                    label="Banner image"
+                    hint="Large picture behind the tabs. Otherwise the card image is used."
+                    value={form.bannerImage}
+                    preview={extraPreviews.bannerImage}
+                    onFile={(file) => setExtraFile('bannerImage', file)}
+                    onUrl={(url) => setExtraUrl('bannerImage', url)}
+                  />
+                </div>
+              </div>
+
               <label className="flex items-center gap-3 cursor-pointer select-none">
                 <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="h-4 w-4 accent-emerald-800" />
                 <span className="text-sm font-semibold text-gray-800">Show in the app</span>
@@ -317,7 +453,10 @@ const CMSAppServices = () => {
             </div>
           </form>
 
-          <PhonePreview card={previewCard} />
+          <div className="space-y-6">
+            <PhonePreview card={previewCard} />
+            <MobileTopPreview card={previewCard} tabs={previewTabs} />
+          </div>
         </div>
       ) : null}
 

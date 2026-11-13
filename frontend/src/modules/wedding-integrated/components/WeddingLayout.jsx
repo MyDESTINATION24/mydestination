@@ -1,4 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import useIsMobile from '../../../hooks/useIsMobile';
 import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid, Wallet, Edit3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -109,6 +110,10 @@ const WeddingLayout = () => {
   const isGallery = location.pathname.includes('/real-weddings/gallery');
   const isBookingDetail = location.pathname.match(/\/wedding\/bookings\/bk-\d+/);
   const hideNav = isGallery || isBookingDetail;
+  // Phones: on the wedding home the shared service tabs (MobileServiceShell)
+  // take the place of this top bar; inner wedding pages keep it.
+  const isMobileWidth = useIsMobile();
+  const shellHome = isMobileWidth && (location.pathname === '/wedding' || location.pathname === '/wedding/');
 
   const [dynamicMegaMenu, setDynamicMegaMenu] = useState([[], [], [], []]);
 
@@ -195,7 +200,7 @@ const WeddingLayout = () => {
   return (
     <div className="wedding-module min-h-screen" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FFF0F3 100%)', backgroundAttachment: 'fixed' }}>
       {/* Navbar */}
-      {!hideNav && (
+      {!hideNav && !shellHome && (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between pt-8 md:pt-0 h-[88px] md:h-16">
@@ -542,7 +547,7 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-14 md:pb-16" : ""}`}>
+      <main className={`${!hideNav && !shellHome ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-14 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 

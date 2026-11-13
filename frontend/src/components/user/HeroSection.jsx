@@ -7,7 +7,9 @@ import walletService from '../../services/walletService';
 import BirdFlock from '../common/BirdFlock';
 import resortHero from '../../assets/hotels/resort-hero.jpg';
 
-const HeroSection = () => {
+// shellMode: on phones the shared service tabs (MobileServiceShell) replace
+// this section's fixed header and search, so it renders nothing there.
+const HeroSection = ({ shellMode = false }) => {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -79,7 +81,7 @@ const HeroSection = () => {
         : { backgroundColor: uiSettings?.theme?.primaryColor || '#FFD000' };
 
     return (
-        <section className="relative w-full px-5 pt-4 pb-2 flex flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300">
+        <section className={`${shellMode ? 'hidden md:flex' : 'flex'} relative w-full px-5 pt-4 pb-2 flex-col gap-4 md:gap-6 md:pt-8 md:pb-10 bg-transparent transition-all duration-300`}>
 
             {/* Fixed Sticky Header & Search Bar block on mobile, relative on desktop */}
             <div className="fixed top-0 left-0 right-0 z-[60] bg-[var(--color-hotel-bg)] flex flex-col shadow-sm md:shadow-none md:relative md:top-auto md:left-auto md:right-auto md:z-auto md:bg-transparent">
