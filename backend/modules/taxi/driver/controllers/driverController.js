@@ -1963,6 +1963,13 @@ const serializeDriverScheduledRide = (ride = {}, currentDriverId = "") => ({
 });
 
 export const registerDriver = async (req, res) => {
+  // Disabled: this created an already-approved driver with a login token for
+  // any phone, with no OTP, documents or admin review -- an instant driver
+  // account receiving customers' names, numbers and pickup points. Nothing in
+  // the app calls it; drivers sign up through /drivers/onboarding/*.
+  if (!process.env.ALLOW_LEGACY_DRIVER_REGISTER) {
+    throw new ApiError(410, 'Driver sign-up has moved. Please register through the driver app onboarding.');
+  }
   const { name, phone, password, vehicleType, location } = req.body;
 
   if (!name || !phone || !password || !vehicleType || !location) {

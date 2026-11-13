@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { asyncHandler } from '../../../../utils/asyncHandler.js';
 import { ApiError } from '../../../../utils/ApiError.js';
-import { otpSendLimiter, otpVerifyLimiter, publicUploadLimiter } from '../../middlewares/rateLimit.js';
+import { otpSendLimiter, otpVerifyLimiter, publicUploadLimiter, credentialLoginLimiter } from '../../middlewares/rateLimit.js';
 import { refreshAccessToken, revokeRefresh } from '../../services/refreshTokenController.js';
 import {
   authenticateOrResolveUser,
@@ -100,7 +100,8 @@ userRouter.get('/vehicle-types', asyncHandler(getPublicVehicleTypeCatalog));
 userRouter.get('/rental-vehicles', asyncHandler(getPublicRentalVehicleCatalog));
 userRouter.get('/service-locations', asyncHandler(listPublicServiceLocations));
 userRouter.get('/service-stores', asyncHandler(listPublicServiceStores));
-userRouter.post('/rental-quote-requests', asyncHandler(createRentalQuoteRequest));
+// Public form: rate limited so it cannot be used to flood the admins' queue.
+userRouter.post('/rental-quote-requests', publicUploadLimiter, asyncHandler(createRentalQuoteRequest));
 userRouter.post('/rental-bookings', authenticateOrResolveUser(['user']), asyncHandler(createRentalBookingRequest));
 userRouter.get('/rental-bookings', authenticateOrResolveUser(['user']), asyncHandler(listMyRentalBookings));
 userRouter.get('/rental-bookings/active', authenticateOrResolveUser(['user']), asyncHandler(getMyActiveRentalBooking));
@@ -116,9 +117,10 @@ userRouter.post(
   authenticateOrResolveUser(['user']),
   asyncHandler(updateMyActiveRentalLocation),
 );
-userRouter.post('/register', asyncHandler(registerUser));
-userRouter.post('/signup', asyncHandler(signupUser));
-userRouter.post('/login', asyncHandler(loginUser));
+userRouter.post('/register', credentialLoginLimiter, asyncHandler(registerUser));
+userRouter.post('/signup', credentialLoginLimiter, asyncHandler(signupUser));
+// Password login had no attempt limit, so passwords could be guessed freely.
+userRouter.post('/login', credentialLoginLimiter, asyncHandler(loginUser));
 // Stays public: Signup uploads the photo before the account (and token) exists.
 // Rate limited and restricted to image data URLs so it is not free hosting.
 userRouter.post(

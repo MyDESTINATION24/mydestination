@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../../../../utils/asyncHandler.js";
 import { authenticate } from "../../middlewares/authMiddleware.js";
-import { otpSendLimiter, otpVerifyLimiter } from "../../middlewares/rateLimit.js";
+import { otpSendLimiter, otpVerifyLimiter, credentialLoginLimiter } from "../../middlewares/rateLimit.js";
 import { refreshAccessToken, revokeRefresh } from "../../services/refreshTokenController.js";
 import {
   addDriverEmergencyContact,
@@ -89,8 +89,9 @@ import { triggerDriverSosAlert } from '../../safety/controllers/safetyController
 
 export const driverRouter = Router();
 
-driverRouter.post("/register", asyncHandler(registerDriver));
-driverRouter.post("/login", asyncHandler(loginDriver));
+driverRouter.post("/register", credentialLoginLimiter, asyncHandler(registerDriver));
+// Password login had no attempt limit, so passwords could be guessed freely.
+driverRouter.post("/login", credentialLoginLimiter, asyncHandler(loginDriver));
 driverRouter.post("/auth/send-otp", otpSendLimiter, asyncHandler(startDriverLoginOtpRequest));
 driverRouter.post("/auth/refresh", otpVerifyLimiter, refreshAccessToken);
 driverRouter.post("/auth/revoke", otpVerifyLimiter, revokeRefresh);

@@ -1229,6 +1229,12 @@ export const registerUser = async (req, res) => {
   validatePhone(phone);
   validateEmail(email);
 
+  // This legacy route created (or reactivated) an account for any phone with
+  // no OTP and returned a session: anyone could claim other people's numbers,
+  // take over a deleted account, or mint referral rewards with fake accounts.
+  // It now needs the same verified OTP as /signup.
+  const signupSession = await requireVerifiedUserSignupSession(phone);
+
   const existingUser = await User.findOne({ phone });
 
   // Accept any code the platform knows about -- another user's, a driver's or
@@ -1275,6 +1281,8 @@ export const registerUser = async (req, res) => {
     await User.updateOne({ _id: referrer._id }, { $inc: { referralCount: 1 } });
     await processSignupReferralRewards({ user, referrer });
   }
+
+  await consumeUserSignupSession(signupSession);
 
   res.status(201).json({
     success: true,
