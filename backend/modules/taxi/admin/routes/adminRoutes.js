@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { adminPermissionGuard, requireAdminPermission } from '../middlewares/adminPermissionGuard.js';
 import { authenticate } from '../../middlewares/authMiddleware.js';
 import { credentialLoginLimiter } from '../../middlewares/rateLimit.js';
 import {
@@ -265,7 +266,8 @@ adminRouter.post('/admin/forgot-password', credentialLoginLimiter, forgotPasswor
 adminRouter.post('/admin/verify-reset-otp', credentialLoginLimiter, verifyResetOtp);
 adminRouter.post('/admin/reset-password', credentialLoginLimiter, resetPassword);
 adminRouter.get('/admin/general-settings/:category', getGeneralSettingsCategory);
-adminRouter.use('/admin', authenticate(['admin']));
+// Sub-admin permissions for every /admin route (see adminPermissionGuard).
+adminRouter.use('/admin', authenticate(['admin']), adminPermissionGuard);
 
 adminRouter.get('/admin/permissions', getAdminPermissions);
 adminRouter.get('/admin/admin-management/admins', getAdmins);
@@ -526,9 +528,11 @@ adminRouter.patch('/admin/integration-settings/mail', updateMailSettings);
 adminRouter.patch('/admin/general-settings/:category', updateGeneralSettingsCategory);
 
 adminRouter.get('/on-boarding', getUserOnboarding);
-adminRouter.post('/on-boarding', createOnboardingScreen);
-adminRouter.patch('/on-boarding/:id', updateOnboardingScreen);
-adminRouter.delete('/on-boarding/:id', deleteOnboardingScreen);
+// These sit outside '/admin', so they had no authentication at all: anyone
+// could create, edit or delete the app's onboarding screens.
+adminRouter.post('/on-boarding', authenticate(['admin']), requireAdminPermission('settings.view'), createOnboardingScreen);
+adminRouter.patch('/on-boarding/:id', authenticate(['admin']), requireAdminPermission('settings.view'), updateOnboardingScreen);
+adminRouter.delete('/on-boarding/:id', authenticate(['admin']), requireAdminPermission('settings.view'), deleteOnboardingScreen);
 adminRouter.get('/on-boarding-driver', getDriverOnboarding);
 adminRouter.get('/on-boarding-owner', getOwnerOnboarding);
 
