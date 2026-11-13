@@ -11,13 +11,22 @@
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 
 // A minified vendor file can legitimately have long lines; hand-written source
 // and config in this repo does not.
 const MAX_LINE_LENGTH = 2000;
-const SCAN_EXTENSIONS = /\.(js|mjs|cjs|jsx|ts|tsx)$/;
+// Every tracked text file is checked for long lines, whatever its extension:
+// db14add hid its payload in files named plain `init`, which an extension list
+// let straight through. Binaries are detected by content (a NUL byte).
 const SKIP_PATH = /(^|\/)(node_modules|dist|build|coverage)\//;
+const SKIP_LONG_LINES = /(\.min\.(js|css)|package-lock\.json|\.svg|\.map)$/i;
+
+// npm runs these on install, before any check of ours can.
+const LIFECYCLE_HOOKS = ['preinstall', 'install', 'postinstall', 'prepare', 'prepublish', 'prepack', 'postpack'];
+// The only files package scripts may hand to `node`. db14add rewired start,
+// dev and build to run `node init` first; 6d68826 did the same with api.js.
+const ALLOWED_NODE_TARGETS = /^(server\.js|seed[A-Za-z]*\.js|scripts\/check-injected-code\.mjs)$/;
 
 // Hidden loaders reach for these to pull and run a remote payload.
 const SUSPICIOUS_PATTERNS = [
@@ -59,17 +68,48 @@ const listTrackedFiles = () => {
 
 const findings = [];
 
+const checkPackageScripts = (file, contents) => {
+  let scripts;
+  try { scripts = JSON.parse(contents).scripts || {}; } catch { return; }
+  for (const [name, command] of Object.entries(scripts)) {
+    if (LIFECYCLE_HOOKS.includes(name)) {
+      findings.push(`${file} — "${name}" script runs on npm install: ${command}`);
+    }
+    for (const match of String(command).matchAll(/\bnode(?:mon)?\s+(?:-\S+\s+)*([^\s&|;]+)/g)) {
+      if (!ALLOWED_NODE_TARGETS.test(match[1])) {
+        findings.push(`${file} — "${name}" script runs an unexpected file: node ${match[1]}`);
+      }
+    }
+  }
+};
+
+// db14add also deleted the .env rules, so a routine `git add` would publish
+// every server secret.
+const checkGitignore = (file, contents) => {
+  const lines = contents.split(/\r?\n/).map((line) => line.trim());
+  if (!lines.includes('.env') || !lines.some((line) => line === '**/.env' || line === '**/.env.*')) {
+    findings.push(`${file} — the .env ignore rules are missing; secrets could be committed`);
+  }
+};
+
 for (const file of listTrackedFiles()) {
-  if (!SCAN_EXTENSIONS.test(file) || SKIP_PATH.test(file)) continue;
+  if (SKIP_PATH.test(file)) continue;
 
   let contents;
   try {
     if (statSync(file).size > 8 * 1024 * 1024) continue;
-    contents = readFileSync(file, 'utf8');
+    const raw = readFileSync(file);
+    if (raw.includes(0)) continue; // binary: images, audio, fonts
+    contents = raw.toString('utf8');
   } catch {
     continue;
   }
 
+  if (/(^|\/)package\.json$/.test(file)) checkPackageScripts(file, contents);
+  // Only the repository root's .gitignore; frontend/.gitignore is Vite's own.
+  if (file === '.gitignore' && existsSync('backend') && existsSync('frontend')) checkGitignore(file, contents);
+
+  if (SKIP_LONG_LINES.test(file)) continue;
   const lines = contents.split('\n');
   lines.forEach((line, index) => {
     if (line.length > MAX_LINE_LENGTH) {
