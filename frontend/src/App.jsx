@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
+import useIsMobile from './hooks/useIsMobile';
 import AppErrorBoundary from './components/common/AppErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
@@ -222,6 +223,22 @@ const WeddingVendorAuthSignup = React.lazy(() => import('./modules/wedding-integ
 const WeddingVendorSubscription = React.lazy(() => import('./modules/wedding-integrated/vendor/panel/views/VendorSubscription'));
 const WeddingPaymentStatus = React.lazy(() => import('./modules/wedding-integrated/views/PaymentStatusPage'));
 const TaxiApp = React.lazy(() => import('./modules/taxi/TaxiApp'));
+
+// On a phone the site opens straight into the service tabs (/home, which
+// reopens the last service, Hotels by default) instead of the desktop landing
+// page. Links to a landing section (#about...) or ?site=1 still show it.
+// Search engines crawl as a phone, so bots keep the landing page (the service
+// tabs sit behind login and would get the site indexed as a login screen).
+const IS_BOT = typeof navigator !== 'undefined'
+  && /bot|crawl|spider|slurp|lighthouse|facebookexternalhit|whatsapp|preview/i.test(navigator.userAgent || '');
+const RootRoute = () => {
+  const isMobile = useIsMobile();
+  const { search, hash } = useLocation();
+  if (isMobile && !IS_BOT && !hash && !new URLSearchParams(search).has('site')) {
+    return <Navigate to={{ pathname: '/home', search }} replace />;
+  }
+  return <LandingPage />;
+};
 
 // Loading Fallback Component
 // Under the phone service tabs a full-page spinner would blank the screen on
@@ -906,7 +923,7 @@ function App() {
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* ── User Auth Routes — UserPublicRoute isolates user panel ── */}
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/taxi/*" element={<TaxiApp />} />
             <Route path="/login" element={<UserPublicRoute redirectTo="/home"><UserLogin /></UserPublicRoute>} />
             <Route path="/wedding/login" element={<UserPublicRoute redirectTo="/wedding"><UserLogin theme="wedding" /></UserPublicRoute>} />
