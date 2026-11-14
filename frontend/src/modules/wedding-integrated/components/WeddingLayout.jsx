@@ -12,7 +12,9 @@ import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
 
 const navLinks = [
-  { to: "/home", label: "Services", icon: LayoutGrid },
+  // ?services=1 shows the services list; plain /home on a phone reopens the
+  // last service, which made this button do nothing.
+  { to: "/home?services=1", label: "Services", icon: LayoutGrid },
   { to: "/wedding", label: "Home", icon: Home },
   { to: "/wedding/destinations", label: "Destinations", icon: MapPin },
   { to: "/wedding/vendors", label: "Vendors", icon: Users },
@@ -546,13 +548,14 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav && !shellHome ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-14 md:pb-16" : ""}`}>
+      <main className={`${!hideNav && !shellHome ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-[76px] md:pb-16" : ""}`}>
         <Outlet />
       </main>
 
       {/* Bottom Navbar for Mobile */}
       {!hideNav && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
             {navLinks.map((link) => {
               const Icon = link.icon;

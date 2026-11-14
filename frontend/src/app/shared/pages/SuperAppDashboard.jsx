@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronRight, Compass, LogOut, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
@@ -162,7 +162,9 @@ const SuperAppDashboard = () => {
       return Boolean(last && last.to === mobileTarget && Date.now() - last.at < 8000);
     } catch { return false; }
   })();
-  const autoOpen = isMobile && Boolean(mobileTarget) && !bounced;
+  // The bottom menus' Services button asks for the list explicitly.
+  const wantsServices = new URLSearchParams(useLocation().search).has('services');
+  const autoOpen = isMobile && Boolean(mobileTarget) && !bounced && !wantsServices;
   useEffect(() => {
     if (!autoOpen || !loaded) return;
     try { sessionStorage.setItem('md_home_redirect', JSON.stringify({ to: mobileTarget, at: Date.now() })); } catch { /* ignore */ }

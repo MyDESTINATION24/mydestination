@@ -397,3 +397,13 @@ body:has(#hotel-root) {
     scrollbar-width: none !important;
   }
 }
+
+/* Phones with a home-indicator / gesture strip: the fixed bottom menus add
+   env(safe-area-inset-bottom) below their buttons, so pages need the same
+   extra room at the end or their last content would sit under the menu.
+   (viewport-fit=cover makes the page draw edge to edge.) */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

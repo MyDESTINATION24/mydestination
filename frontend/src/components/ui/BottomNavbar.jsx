@@ -17,7 +17,9 @@ const BottomNavbar = () => {
     ];
 
     const hotelNavItems = [
-        { name: 'Services', icon: LayoutGrid, route: '/home' },
+        // ?services=1 shows the services list; plain /home on a phone reopens
+        // the last service, which made this button do nothing.
+        { name: 'Services', icon: LayoutGrid, route: '/home?services=1' },
         { name: 'Home', icon: Home, route: '/hotels' },
         { name: 'Bookings', icon: Briefcase, route: '/bookings' },
         { name: 'Near By', icon: Navigation, route: '/search' },
@@ -50,7 +52,8 @@ const BottomNavbar = () => {
     };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden">
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
             <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
                 {navItems.map((item) => {
                     const Icon = item.icon;
