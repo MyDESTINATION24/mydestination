@@ -52,7 +52,7 @@ const MobileTopPreview = ({ card, tabs }) => (
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
             return (
-              <div key={tab.id || index} title={tab.tabLabel || 'Tab'} className={`relative flex h-[52px] w-[56px] shrink-0 items-center justify-center rounded-2xl border ${tab.isCurrent ? 'border-white/70 bg-white/25' : 'border-white/10 bg-black/25'}`}>
+              <div key={tab.id || index} title={tab.tabLabel || 'Tab'} className={`relative flex h-[52px] min-w-[48px] flex-1 items-center justify-center rounded-2xl border ${tab.isCurrent ? 'border-white/70 bg-white/25' : 'border-white/10 bg-black/25'}`}>
                 {tab.tabIcon
                   ? <img src={tab.tabIcon} alt="" className="h-9 w-9 object-contain" />
                   : <span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white`}><Icon size={18} /></span>}

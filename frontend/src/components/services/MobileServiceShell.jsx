@@ -248,7 +248,7 @@ const MobileServiceShell = () => {
                 title={tab.tabLabel}
                 data-active={isActive}
                 onClick={() => openTab(tab)}
-                className="relative flex h-[60px] w-[64px] shrink-0 snap-start items-center justify-center rounded-2xl border border-white/10 bg-black/25 backdrop-blur-sm transition-transform active:scale-95"
+                className="relative flex h-[60px] min-w-[56px] flex-1 snap-start items-center justify-center rounded-2xl border border-white/10 bg-black/25 backdrop-blur-sm transition-transform active:scale-95"
               >
                 {/* The highlight slides from the old tab to the new one. */}
                 {isActive ? (
