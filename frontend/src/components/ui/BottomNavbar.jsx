@@ -18,9 +18,10 @@ const BottomNavbar = () => {
 
     const hotelNavItems = [
         // ?services=1 shows the services list; plain /home on a phone reopens
-        // the last service, which made this button do nothing.
+        // the last service, which made this button do nothing. There is no
+        // separate Home button: the service tabs at the top already switch
+        // services, and it did the same job as this one.
         { name: 'Services', icon: LayoutGrid, route: '/home?services=1' },
-        { name: 'Home', icon: Home, route: '/hotels' },
         { name: 'Bookings', icon: Briefcase, route: '/bookings' },
         { name: 'Near By', icon: Navigation, route: '/search' },
         { name: 'Profile', icon: User, route: '/profile' },
@@ -37,11 +38,11 @@ const BottomNavbar = () => {
             if (path.includes('profile') || path.includes('bookings') || path.includes('wallet') || path.includes('settings')) return 'Profile';
             return 'Home';
         } else {
-            if (path === '/' || path === '/home' || path.startsWith('/hotels')) return 'Home';
+            if (path === '/' || path === '/home' || path.startsWith('/hotels')) return 'Services';
             if (path.startsWith('/bookings')) return 'Bookings';
             if (path.includes('search') || path.includes('property')) return 'Near By';
             if (path.includes('profile') || path.includes('wallet') || path.includes('settings')) return 'Profile';
-            return 'Home';
+            return 'Services';
         }
     };
 

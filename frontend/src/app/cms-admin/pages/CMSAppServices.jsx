@@ -52,12 +52,10 @@ const MobileTopPreview = ({ card, tabs }) => (
           {tabs.map((tab, index) => {
             const Icon = tab.icon;
             return (
-              <div key={tab.id || index} className={`relative flex min-w-[80px] shrink-0 flex-col items-center gap-1 rounded-2xl border px-2.5 pb-2 pt-2 ${tab.isCurrent ? 'border-white/70 bg-white/25' : 'border-white/10 bg-black/25'}`}>
+              <div key={tab.id || index} title={tab.tabLabel || 'Tab'} className={`relative flex h-[52px] w-[56px] shrink-0 items-center justify-center rounded-2xl border ${tab.isCurrent ? 'border-white/70 bg-white/25' : 'border-white/10 bg-black/25'}`}>
                 {tab.tabIcon
-                  ? <img src={tab.tabIcon} alt="" className="h-7 w-7 object-contain" />
-                  : <span className={`flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white`}><Icon size={14} /></span>}
-                <span className="text-[12px] font-black leading-none text-white">{tab.tabLabel || 'Tab'}</span>
-                {tab.tagline ? <span className="text-[9px] font-semibold leading-none text-white/75">{tab.tagline}</span> : null}
+                  ? <img src={tab.tabIcon} alt="" className="h-9 w-9 object-contain" />
+                  : <span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white`}><Icon size={18} /></span>}
               </div>
             );
           })}
@@ -408,10 +406,10 @@ const CMSAppServices = () => {
                   <div>
                     <label className={labelClass}>Tab name</label>
                     <input className={inputClass} maxLength={14} value={form.tabLabel} onChange={(e) => setForm({ ...form, tabLabel: e.target.value })} placeholder="e.g. Hotels" />
-                    <p className="text-[11px] text-gray-400 mt-1">Short. Leave empty to hide this service from the phone tabs.</p>
+                    <p className="text-[11px] text-gray-400 mt-1">Tabs show only the icon; the name is used for screen readers. Leave empty to hide this service from the phone tabs.</p>
                   </div>
                   <div>
-                    <label className={labelClass}>Tab tagline</label>
+                    <label className={labelClass}>Tab tagline (not shown on the tabs)</label>
                     <input className={inputClass} maxLength={22} value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="e.g. Stays & resorts" />
                   </div>
                   <div className="md:col-span-2">

@@ -557,9 +557,14 @@ const WeddingLayout = () => {
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
             style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
-            {navLinks.map((link) => {
+            {/* No Home button on the phone bar: it did the same job as
+                Services (the service tabs at the top switch services), so
+                Services is highlighted on the wedding home screen. */}
+            {navLinks.filter((link) => link.to !== '/wedding').map((link) => {
               const Icon = link.icon;
-              const isActive = location.pathname === link.to || (link.to !== '/wedding' && location.pathname.startsWith(link.to));
+              const isActive = link.label === 'Services'
+                ? location.pathname.replace(/\/+$/, '') === '/wedding'
+                : location.pathname === link.to || location.pathname.startsWith(link.to);
 
               return (
                 <Link

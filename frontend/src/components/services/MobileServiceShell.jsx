@@ -71,12 +71,12 @@ const greeting = () => {
 
 const TabIcon = ({ tab }) => {
   if (tab.tabIcon) {
-    return <img src={tab.tabIcon} alt="" className="h-8 w-8 object-contain drop-shadow" loading="lazy" />;
+    return <img src={tab.tabIcon} alt="" className="h-10 w-10 object-contain drop-shadow" loading="lazy" />;
   }
   const Icon = tab.icon;
   return (
-    <span className={`flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white shadow-md`}>
-      <Icon size={16} />
+    <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${tab.chip} text-white shadow-md`}>
+      <Icon size={20} />
     </span>
   );
 };
@@ -244,9 +244,11 @@ const MobileServiceShell = () => {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
+                aria-label={tab.tabLabel}
+                title={tab.tabLabel}
                 data-active={isActive}
                 onClick={() => openTab(tab)}
-                className="relative flex w-[92px] shrink-0 snap-start flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/25 px-2 pb-2.5 pt-2 backdrop-blur-sm transition-transform active:scale-95"
+                className="relative flex h-[60px] w-[64px] shrink-0 snap-start items-center justify-center rounded-2xl border border-white/10 bg-black/25 backdrop-blur-sm transition-transform active:scale-95"
               >
                 {/* The highlight slides from the old tab to the new one. */}
                 {isActive ? (
@@ -256,9 +258,8 @@ const MobileServiceShell = () => {
                     transition={{ type: 'spring', stiffness: 420, damping: 36 }}
                   />
                 ) : null}
+                {/* Icons only: the banner headline below already names the service. */}
                 <span className="relative"><TabIcon tab={tab} /></span>
-                <span className="relative w-full truncate text-center text-[13px] font-black leading-none text-white">{tab.tabLabel}</span>
-                {tab.tagline ? <span className="relative w-full truncate text-center text-[10px] font-semibold leading-none text-white/75">{tab.tagline}</span> : null}
                 {isActive ? (
                   <motion.span
                     layoutId="svc-active-underline"

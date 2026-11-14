@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Clock, Map, User, BusFront, LayoutGrid } from 'lucide-react';
+import { Clock, Map, User, BusFront, LayoutGrid } from 'lucide-react';
 import { useSettings } from '../../../shared/context/SettingsContext';
 
 const BottomNavbar = () => {
@@ -9,20 +9,16 @@ const BottomNavbar = () => {
   const { settings } = useSettings();
   const showBusService = String(settings.transportRide?.enable_bus_service || '0') === '1';
 
-  // Helicopter and Char Dham reuse this menu. Its home button used to send
-  // them to Cab Booking and nothing was highlighted there; it now returns to
-  // the service you are in.
-  const serviceHome = pathname.startsWith('/taxi/user/airways')
-    ? { label: 'Home', path: '/taxi/user/airways' }
-    : pathname.startsWith('/taxi/user/tours')
-      ? { label: 'Home', path: '/taxi/user/tours' }
-      : { label: 'Ride', path: '/taxi/user' };
+  // Cab, Helicopter and Char Dham home screens: the service tabs at the top do
+  // the switching there, so Services is the highlighted button.
+  const SERVICE_HOMES = ['/taxi/user', '/taxi/user/airways', '/taxi/user/tours'];
+  const onServiceHome = SERVICE_HOMES.includes(pathname.replace(/\/+$/, ''));
 
   const navItems = [
     // ?services=1 shows the services list; plain /home on a phone reopens the
-    // last service, which made this button do nothing.
-    { icon: LayoutGrid, label: 'Services', path: '/home?services=1' },
-    { icon: Home, label: serviceHome.label, path: serviceHome.path, exact: true },
+    // last service, which made this button do nothing. The separate Home/Ride
+    // button was removed: it did the same job as this one.
+    { icon: LayoutGrid, label: 'Services', path: '/home?services=1', activeHere: onServiceHome },
     { icon: Clock, label: 'Rides', path: '/taxi/user/activity' },
     ...(showBusService ? [{ icon: BusFront, label: 'Bus', path: '/taxi/user/bus' }] : []),
     { icon: Map, label: 'Support', path: '/taxi/user/support' },
@@ -33,10 +29,8 @@ const BottomNavbar = () => {
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
-        {navItems.map(({ icon: Icon, label, path, exact }) => {
-          const isActive = exact
-            ? pathname === path
-            : pathname === path || pathname.startsWith(`${path}/`);
+        {navItems.map(({ icon: Icon, label, path, activeHere }) => {
+          const isActive = activeHere || pathname === path || pathname.startsWith(`${path}/`);
 
           return (
             <button
