@@ -17,7 +17,7 @@ export const submitApplication = async (req, res) => {
       }
       if (req.files.resume && req.files.resume[0]) {
         const file = req.files.resume[0];
-        const uploadResult = await uploadToCloudinary(file.path, 'career/resumes');
+        const uploadResult = await uploadToCloudinary(file.path, 'career/resumes', null, { allowWord: true });
         resume = uploadResult.url;
       }
     }

@@ -13,3 +13,6 @@ backend/ssh_deploy.js
 
 # Private working notes (server access, overview) - never commit
 PROJECT-NOTES.md
+
+# Uploaded media stored on the server (services/mediaStorage.js)
+backend/media/

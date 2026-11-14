@@ -1,141 +1,68 @@
-import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { saveMedia, deleteMedia, bufferFromBase64 } from '../services/mediaStorage.js';
 
 /**
- * Upload image to Cloudinary
- * @param {string} filePath - Path to the file on local filesystem
- * @param {string} folder - Cloudinary folder name (default: 'rukkoin')
- * @param {string} publicId - Custom public_id (optional)
- * @returns {Promise<Object>} - Upload result
+ * Upload helpers used across the hotel, partner, CMS and wedding modules.
+ *
+ * The names are historical: files are no longer sent to Cloudinary. They are
+ * re-encoded to WebP and stored on our own server (services/mediaStorage.js),
+ * and the returned URL points at https://api.mydestination.in/media/...
+ * The return shapes are unchanged, so callers did not need to change.
  */
-export const uploadToCloudinary = async (filePath, folder = 'general', publicId = null) => {
+
+const removeTemp = (filePath) => {
   try {
-    const uploadOptions = {
-      folder: `rukkoin/${folder}`,
-      resource_type: 'auto',
-      transformation: [
-        { width: 1920, height: 1920, crop: 'limit' },
-        { quality: 'auto' },
-        { fetch_format: 'auto' }
-      ]
-    };
-
-    if (publicId) {
-      uploadOptions.public_id = publicId;
-    }
-
-    const result = await cloudinary.uploader.upload(filePath, uploadOptions);
-
-    // Delete local file after successful upload
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    return {
-      success: true,
-      url: result.secure_url,
-      publicId: result.public_id,
-      format: result.format,
-      width: result.width,
-      height: result.height,
-      bytes: result.bytes
-    };
+    if (filePath && fs.existsSync(filePath)) fs.unlinkSync(filePath);
   } catch (error) {
-    console.error('Cloudinary upload error:', error);
-
-    // Clean up local file even on error
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-
-    throw new Error('Failed to upload file to Cloudinary');
+    console.error('[media] could not remove temp upload:', error.message);
   }
 };
 
 /**
- * Delete image from Cloudinary
- * @param {string} publicId - Public ID of the image
- * @returns {Promise<Object>} - Deletion result
+ * Store a multer temp file and delete the temp copy.
+ * @param {string} filePath multer disk path
+ * @param {string} folder e.g. 'properties' (stored under rukkoin/<folder>)
+ * @param {string|null} _publicId ignored -- names are always random now
+ * @param {{ allowWord?: boolean }} options allowWord for resumes (.doc/.docx)
  */
+export const uploadToCloudinary = async (filePath, folder = 'general', _publicId = null, options = {}) => {
+  try {
+    const buffer = await fs.promises.readFile(filePath);
+    const result = await saveMedia(buffer, { folder: `rukkoin/${folder}`, allowWord: Boolean(options.allowWord) });
+    return { success: true, ...result };
+  } catch (error) {
+    console.error('Media upload error:', error.message);
+    throw new Error(error.message?.startsWith('Unsupported') ? error.message : 'Failed to upload file');
+  } finally {
+    removeTemp(filePath);
+  }
+};
+
+/** Delete a stored file. Old Cloudinary ids are left alone (kept as backup). */
 export const deleteFromCloudinary = async (publicId) => {
   try {
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await deleteMedia(publicId);
     return {
-      success: result.result === 'ok',
-      message: result.result === 'ok' ? 'Image deleted successfully' : 'Image not found'
+      success: result.success,
+      message: result.success ? 'Image deleted successfully' : result.message,
     };
   } catch (error) {
-    console.error('Cloudinary delete error:', error);
-    throw new Error('Failed to delete image from Cloudinary');
+    console.error('Media delete error:', error.message);
+    throw new Error('Failed to delete file');
   }
 };
 
 /**
- * Upload base64 image to Cloudinary (for Flutter camera/mobile)
- * @param {string} base64String - Base64 encoded image data
- * @param {string} folder - Cloudinary folder name
- * @param {string} publicId - Custom public_id (optional)
- * @returns {Promise<Object>} - Upload result
+ * Store a base64 / data-URL upload (Flutter camera, admin forms).
+ * A bare base64 string is accepted; its content decides the type.
  */
-export const uploadBase64ToCloudinary = async (base64String, folder = 'general', publicId = null) => {
+export const uploadBase64ToCloudinary = async (base64String, folder = 'general', _publicId = null) => {
   try {
-    // Ensure base64 string has proper data URI prefix
-    let dataUri = String(base64String || '');
-    if (!dataUri.startsWith('data:')) {
-      // If no prefix, assume it's JPEG
-      dataUri = `data:image/jpeg;base64,${dataUri}`;
-    }
-
-    // Uploads go up with resource_type 'auto', which happily hosts any file:
-    // a data:text/html or an SVG carrying script (several callers, e.g. wedding
-    // testimonials, are public) would be served from our Cloudinary account.
-    // Only raster images and PDFs are accepted.
-    const mime = (dataUri.match(/^data:([^;,]+)[;,]/) || [])[1]?.toLowerCase() || '';
-    const ALLOWED_UPLOAD_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif', 'image/avif', 'image/bmp', 'application/pdf'];
-    if (!ALLOWED_UPLOAD_TYPES.includes(mime)) {
-      throw new Error('Only image or PDF files can be uploaded');
-    }
-
-    const uploadOptions = {
-      folder: `rukkoin/${folder}`,
-      resource_type: 'auto',
-      transformation: [
-        { width: 1920, height: 1920, crop: 'limit' },
-        { quality: 'auto' },
-        { fetch_format: 'auto' }
-      ]
-    };
-
-    if (publicId) {
-      uploadOptions.public_id = publicId;
-    }
-
-    console.log(`[Cloudinary] Uploading base64 image to folder: ${folder}`);
-
-    const result = await cloudinary.uploader.upload(dataUri, uploadOptions);
-
-    console.log(`[Cloudinary] Upload success: ${result.secure_url}`);
-
-    return {
-      success: true,
-      url: result.secure_url,
-      publicId: result.public_id,
-      format: result.format,
-      width: result.width,
-      height: result.height,
-      bytes: result.bytes
-    };
+    const buffer = bufferFromBase64(base64String);
+    const result = await saveMedia(buffer, { folder: `rukkoin/${folder}` });
+    return { success: true, ...result };
   } catch (error) {
-    console.error('Cloudinary base64 upload error:', error);
-    throw new Error('Failed to upload base64 image to Cloudinary');
+    console.error('Media base64 upload error:', error.message);
+    throw new Error(error.message?.startsWith('Unsupported') ? error.message : 'Failed to upload image');
   }
 };
-
-export default cloudinary;

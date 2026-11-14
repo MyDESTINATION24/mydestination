@@ -1,37 +1,22 @@
-import crypto from 'node:crypto';
-import { Blob } from 'node:buffer';
 import { env } from '../config/env.js';
 import { ApiError } from './ApiError.js';
+import { saveMedia, bufferFromBase64 } from '../../../services/mediaStorage.js';
 
-const DATA_URL_PATTERN = /^data:([^;]+);base64,(.+)$/;
+/**
+ * Taxi uploads (driver documents, profile photos, banners, vehicle images).
+ *
+ * The name is historical: files are no longer sent to Cloudinary. They are
+ * re-encoded to WebP and stored on our own server (services/mediaStorage.js);
+ * the returned object keeps the shape callers already store.
+ */
 
-const parseDataUrl = (dataUrl) => {
-  const match = String(dataUrl || '').match(DATA_URL_PATTERN);
+const DATA_URL_PATTERN = /^data:([^;,]+);base64,/;
 
-  if (!match) {
-    throw new ApiError(400, 'A valid base64 image data URL is required');
-  }
-
-  const mimeType = match[1];
-  const base64 = match[2];
-  const extension = mimeType.split('/')[1] || 'jpg';
-
-  return {
-    mimeType,
-    base64,
-    extension,
-  };
-};
-
-const buildSignature = (params, apiSecret) => {
-  const payload = Object.entries(params)
-    .filter(([, value]) => value !== undefined && value !== null && value !== '')
-    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('&');
-
-  return crypto.createHash('sha1').update(`${payload}${apiSecret}`).digest('hex');
-};
+const safeFolder = (folder) => String(folder || env.cloudinary.folder || 'appzeto-taxi')
+  .split('/')
+  .map((part) => part.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 60))
+  .filter(Boolean)
+  .join('/') || 'general';
 
 export const uploadDataUrlToCloudinary = async ({
   dataUrl,
@@ -39,55 +24,30 @@ export const uploadDataUrlToCloudinary = async ({
   publicIdPrefix = 'driver-document',
   publicIdSuffix = '',
 }) => {
-  if (!env.cloudinary.cloudName || !env.cloudinary.apiKey || !env.cloudinary.apiSecret) {
-    throw new ApiError(500, 'Cloudinary credentials are not configured');
+  if (!DATA_URL_PATTERN.test(String(dataUrl || ''))) {
+    throw new ApiError(400, 'A valid base64 image data URL is required');
   }
 
-  const { mimeType, base64, extension } = parseDataUrl(dataUrl);
-  const buffer = Buffer.from(base64, 'base64');
-  const timestamp = Math.floor(Date.now() / 1000).toString();
-  const publicId = `${publicIdPrefix}-${Date.now()}${publicIdSuffix ? `-${publicIdSuffix}` : ''}`;
-
-  const signature = buildSignature(
-    {
-      folder,
-      format: 'webp',
-      public_id: publicId,
-      timestamp,
-    },
-    env.cloudinary.apiSecret,
-  );
-
-  const formData = new FormData();
-  formData.append('file', new Blob([buffer], { type: mimeType }), `upload.${extension}`);
-  formData.append('api_key', env.cloudinary.apiKey);
-  formData.append('timestamp', timestamp);
-  formData.append('folder', folder);
-  formData.append('public_id', publicId);
-  formData.append('format', 'webp');
-  formData.append('signature', signature);
-
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${env.cloudinary.cloudName}/image/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  const payload = await response.json().catch(() => null);
-
-  if (!response.ok) {
-    throw new ApiError(response.status || 502, payload?.error?.message || 'Cloudinary upload failed');
+  let stored;
+  try {
+    stored = await saveMedia(bufferFromBase64(dataUrl), {
+      folder: `taxi/${safeFolder(folder)}`,
+      name: [publicIdPrefix, publicIdSuffix].filter(Boolean).join('-'),
+    });
+  } catch (error) {
+    throw new ApiError(400, error.message || 'Upload failed');
   }
 
   return {
-    secureUrl: payload.secure_url,
-    publicId: payload.public_id,
-    resourceType: payload.resource_type,
-    format: payload.format,
-    bytes: payload.bytes,
-    width: payload.width,
-    height: payload.height,
-    originalFilename: payload.original_filename,
-    createdAt: payload.created_at,
-    raw: payload,
+    secureUrl: stored.url,
+    publicId: stored.publicId,
+    resourceType: stored.format === 'pdf' ? 'raw' : 'image',
+    format: stored.format,
+    bytes: stored.bytes,
+    width: stored.width,
+    height: stored.height,
+    originalFilename: publicIdSuffix || publicIdPrefix,
+    createdAt: new Date().toISOString(),
+    raw: null,
   };
 };

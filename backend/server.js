@@ -42,6 +42,7 @@ import articleRoutes from './modules/marketing/routes/articleRoutes.js';
 import contentSectionRoutes from './modules/marketing/routes/contentSectionRoutes.js';
 import appServiceRoutes from './modules/marketing/routes/appServiceRoutes.js';
 import { phonePeWebhookHandler } from './services/phonepeWebhook.js';
+import { mediaRequestHandlers } from './services/mediaStorage.js';
 import vendorRoutes from './modules/vendor/routes/vendorRoutes.js';
 import { taxiRouter } from './modules/taxi/routes/index.js';
 import { configureTaxiSocketServer } from './modules/taxi/socket/index.js';
@@ -109,6 +110,10 @@ app.use(noStoreForAuthed);
 // to anyone with the URL, and let an .html uploaded under an image mime type be
 // served as HTML from the API origin. Cloudinary URLs are what the app uses.
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Uploaded media (services/mediaStorage.js): re-encoded WebP images, checked
+// PDFs / Word resumes, served with headers that stop them running as pages.
+app.use('/media', ...mediaRequestHandlers(express));
 
 // Robust CORS Middleware
 app.use(cors({
