@@ -4,7 +4,7 @@ import { Clock, RefreshCw, LogOut, CheckCircle, AlertTriangle, MessageSquare, Ed
 import { authService } from '../../../services/apiService';
 import usePartnerStore from '../store/partnerStore';
 import toast from 'react-hot-toast';
-import logo from '../../../assets/rokologin-removebg-preview.png';
+import logo from '../../../assets/rokologin-removebg-preview.webp';
 
 const PartnerPendingApproval = () => {
     const navigate = useNavigate();

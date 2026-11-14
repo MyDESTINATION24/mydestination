@@ -11,7 +11,7 @@ import useAdminStore from '../../../../app/admin/store/adminStore';
 import { adminService } from '../../services/adminService';
 import { adminService as taxiAdminService } from '../../../taxi/admin/services/adminService';
 import { setTaxiAdminSession } from '../../../taxi/shared/authStorage';
-import adminBg from '../../../../assets/admin_bg.png'; // Premium background image
+import adminBg from '../../../../assets/admin_bg.webp'; // Premium background image
 
 // ─── Shared unified admin login via main API ────────────────────────────────────
 const unifiedAdminLogin = (email, password) => api.post('/auth/admin/login', { email, password });

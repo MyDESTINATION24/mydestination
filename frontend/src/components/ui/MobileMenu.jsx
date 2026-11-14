@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Wallet, Heart, Gift, HelpCircle, FileText, Shield, ChevronRight, LogOut, Settings, BookOpen, Building, Briefcase, Bell, Edit3 } from 'lucide-react';
-import logo from '../../assets/rokologin-removebg-preview.png';
+import logo from '../../assets/rokologin-removebg-preview.webp';
 import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
 const taxiLogo = '/taxi/WhatsApp_Image_2026-06-23_at_3.32.53_PM-removebg-preview.png';
 import { userService } from '../../services/apiService';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import indiaGateImg from '@/assets/india_gate_real.png';
+import indiaGateImg from '@/assets/india_gate_real.webp';
 import jaipurImg from '@/assets/jaipur.avif';
 import tajMahalImg from '@/assets/taj mahal.jpeg';
 
@@ -10,7 +10,7 @@ const ExplorerSection = () => {
   const cities = [
     {
       title: 'Airport Indore',
-      image: '/Gemini_Generated_Image_ob17d1ob17d1ob17.png',
+      image: '/Gemini_Generated_Image_ob17d1ob17d1ob17.webp',
       label: '10 min',
       code: 'IDR',
       drop: 'Devi Ahilya Bai Holkar Airport, Indore',
@@ -24,7 +24,7 @@ const ExplorerSection = () => {
     },
     {
       title: 'Rajwada',
-      image: '/Gemini_Generated_Image_17lko817lko817lk.png',
+      image: '/Gemini_Generated_Image_17lko817lko817lk.webp',
       label: '15 min',
       code: 'RAJ',
       drop: 'Rajwada Palace, Indore',

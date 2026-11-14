@@ -40,7 +40,7 @@ import {
   Wind
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import logo from '../../../assets/rokologin-removebg-preview.png';
+import logo from '../../../assets/rokologin-removebg-preview.webp';
 import { getLogoFilterStyle } from '../../../utils/themeUtils';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';

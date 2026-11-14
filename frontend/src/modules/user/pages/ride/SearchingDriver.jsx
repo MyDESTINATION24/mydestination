@@ -35,9 +35,9 @@ const MAP_OPTIONS = {
 };
 
 const unwrap = (response) => response?.data?.data || response?.data || response;
-import LuxuryIcon from '@/assets/icons/Luxury.png';
-import PremiumIcon from '@/assets/icons/Premium.png';
-import SuvIcon from '@/assets/icons/SUV.png';
+import LuxuryIcon from '@/assets/icons/Luxury.webp';
+import PremiumIcon from '@/assets/icons/Premium.webp';
+import SuvIcon from '@/assets/icons/SUV.webp';
 import BikeIcon from '@/assets/icons/bike.png';
 import CarIcon from '@/assets/icons/car.png';
 import AutoIcon from '@/assets/icons/auto.png';

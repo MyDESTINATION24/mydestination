@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import DestinationCard from "../components/DestinationCard";
 import ScrollReveal from "../components/ScrollReveal";
 import { weddingDestinationService } from "../../../services/apiService";
-import heroImg from "../assets/wedding-hero.jpg";
+import heroImg from "../assets/wedding-hero.webp";
 
 const DestinationsPage = () => {
   const [active, setActive] = useState("All");

@@ -19,7 +19,7 @@ import { useLenis } from './app/shared/hooks/useLenis';
 import api, { legalService, userService, hotelService } from './services/apiService';
 import adminService from './services/adminService';
 import { requestNotificationPermission, onMessageListener } from './utils/firebase';
-import logo from './assets/rokologin-removebg-preview.png';
+import logo from './assets/rokologin-removebg-preview.webp';
 import weddingLogo from './modules/wedding-integrated/assets/logo.png';
 import { AuthProvider as WeddingVendorAuthProvider } from "./modules/wedding-integrated/vendor/context/AuthContext";
 import { VendorProvider as WeddingVendorProvider } from "./modules/wedding-integrated/vendor/context/VendorContext";

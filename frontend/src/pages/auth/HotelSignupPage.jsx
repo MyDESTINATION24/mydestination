@@ -6,8 +6,8 @@ import { ArrowLeft, ArrowRight, X, Loader2, Shield, AlertCircle } from 'lucide-r
 import { useLenis } from '../../app/shared/hooks/useLenis';
 import { authService } from '../../services/apiService';
 import { motion, AnimatePresence } from 'framer-motion';
-import leafBg from '../../assets/leaf_background.png';
-import logo from '../../assets/rokologin-removebg-preview.png';
+import leafBg from '../../assets/leaf_background.webp';
+import logo from '../../assets/rokologin-removebg-preview.webp';
 import toast from 'react-hot-toast';
 import OtpPromptModal from '../../components/modals/OtpPromptModal';
 

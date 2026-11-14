@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import leafBg from '../../assets/leaf_background.png';
-import weddingBg from '../../assets/wedding_login_bg.png';
+import leafBg from '../../assets/leaf_background.webp';
+import weddingBg from '../../assets/wedding_login_bg.webp';
 import hotelWebp from '../../assets/landing/hotel.webp';
-import destLisbon from '../../assets/landing/dest_lisbon.png';
+import destLisbon from '../../assets/landing/dest_lisbon.webp';
 import wedding2 from '../../assets/landing/wedding.jpg';
-import destExuma from '../../assets/landing/dest_exuma.png';
+import destExuma from '../../assets/landing/dest_exuma.webp';
 import { authService } from '../../services/apiService';
 import toast from 'react-hot-toast';
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import heroImg from "../assets/bgimage.png";
+import heroImg from "../assets/bgimage.webp";
 
 const HeroSection = () => {
   const [loaded, setLoaded] = useState(false);

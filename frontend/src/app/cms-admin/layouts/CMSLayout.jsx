@@ -4,7 +4,7 @@ import {
   LayoutDashboard, LogOut, Settings, Image, Globe, Edit3, Type, Users, AlignJustify, Briefcase, Info,
   ChevronDown, ShieldCheck, Building2, Palette, ArrowRightLeft 
 } from 'lucide-react';
-import logo from '../../../assets/rokologin-removebg-preview.png';
+import logo from '../../../assets/rokologin-removebg-preview.webp';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 

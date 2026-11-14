@@ -28,7 +28,7 @@ import toast from 'react-hot-toast';
 import LowBalanceModal from './LowBalanceModal';
 
 
-import MapGrid from '@/assets/premium_grid_map.png';
+import MapGrid from '@/assets/premium_grid_map.webp';
 import DriverBottomNav from '../../shared/components/DriverBottomNav';
 import IncomingRideRequest from './IncomingRideRequest';
 import api from '../../../shared/api/axiosInstance';
@@ -45,9 +45,9 @@ import EhcvIcon from '@/assets/icons/ehcv.png';
 import HcvIcon from '@/assets/icons/hcv.png';
 import LcvIcon from '@/assets/icons/LCV.png';
 import McvIcon from '@/assets/icons/mcv.png';
-import LuxuryIcon from '@/assets/icons/Luxury.png';
-import PremiumIcon from '@/assets/icons/Premium.png';
-import SuvIcon from '@/assets/icons/SUV.png';
+import LuxuryIcon from '@/assets/icons/Luxury.webp';
+import PremiumIcon from '@/assets/icons/Premium.webp';
+import SuvIcon from '@/assets/icons/SUV.webp';
 
 import { socketService } from '../../../shared/api/socket';
 import { HAS_VALID_GOOGLE_MAPS_KEY, useAppGoogleMapsLoader } from '../../admin/utils/googleMaps';

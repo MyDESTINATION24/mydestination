@@ -5,11 +5,11 @@ import './LandingPage.css';
 import { useSettings } from '../../../shared/context/SettingsContext';
 
 // Using the existing project images
-import heroImg from '@/assets/landing/hero.png';
-import rideImg from '@/assets/landing/ride.png';
-import parcelImg from '@/assets/landing/parcel.png';
-import bikeImg from '@/assets/landing/bike.png';
-import heroBgImg from '@/assets/landing/hero-bg.png';
+import heroImg from '@/assets/landing/hero.webp';
+import rideImg from '@/assets/landing/ride.webp';
+import parcelImg from '@/assets/landing/parcel.webp';
+import bikeImg from '@/assets/landing/bike.webp';
+import heroBgImg from '@/assets/landing/hero-bg.webp';
 import newHeroTaxiImg from '@/assets/ride-removebg-preview.png';
 
 function LandingPage() {

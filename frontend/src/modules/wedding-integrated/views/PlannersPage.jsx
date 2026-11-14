@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Search, Loader2 } from "lucide-react";
 import PlannerCard from "../components/PlannerCard";
 import ScrollReveal from "../components/ScrollReveal";
-import bgImg from "../assets/bgimage.png";
+import bgImg from "../assets/bgimage.webp";
 import { weddingVendorService } from "../../../services/apiService";
 
 const PlannersPage = () => {

@@ -13,7 +13,7 @@ import {
 } from '../../services/registrationService';
 
 import { useSettings } from '../../../../shared/context/SettingsContext';
-import loginBg from '../../../../assets/images/driver-login-bg.png';
+import loginBg from '../../../../assets/images/driver-login-bg.webp';
 
 const PhoneRegistration = () => {
     const navigate = useNavigate();

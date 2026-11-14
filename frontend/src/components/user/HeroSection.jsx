@@ -5,7 +5,7 @@ import MobileMenu from '../../components/ui/MobileMenu';
 import { useNavigate } from 'react-router-dom';
 import walletService from '../../services/walletService';
 import BirdFlock from '../common/BirdFlock';
-import resortHero from '../../assets/hotels/resort-hero.jpg';
+import resortHero from '../../assets/hotels/resort-hero.webp';
 
 // shellMode: on phones the shared service tabs (MobileServiceShell) replace
 // this section's fixed header and search, so it renders nothing there.

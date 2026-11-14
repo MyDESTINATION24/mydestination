@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
 // Premium assets imported from the airways folder
-import premiumHeliHero from '@/assets/airways/premium_heli_hero.png';
-import kedarnathImg from '@/assets/airways/kedarnath.png';
-import heliHeaderImg from '@/assets/airways/heli_header.png';
+import premiumHeliHero from '@/assets/airways/premium_heli_hero.webp';
+import kedarnathImg from '@/assets/airways/kedarnath.webp';
+import heliHeaderImg from '@/assets/airways/heli_header.webp';
 
 const slides = [
   {

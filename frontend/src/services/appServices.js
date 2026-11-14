@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Building2, Car, Heart, Helicopter, MapPin, Compass, Sparkles, Plane, Mountain, Bus } from 'lucide-react';
-import chardhamImg from '@/assets/airways/kedarnath.png';
+import chardhamImg from '@/assets/airways/kedarnath.webp';
 import { API_BASE_URL } from '../shared/api/runtimeConfig';
 
 // "Explore Services" cards on the app home screen, managed in

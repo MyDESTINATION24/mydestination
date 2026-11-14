@@ -3,9 +3,9 @@ import { useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 // Assets from the wedding module
-import hotelImg from '../modules/wedding-integrated/assets/welcomePageHotelImage.jpg';
-import weddingImg from '../modules/wedding-integrated/assets/welcomePageWeddingIamge.jpg';
-import taxiImg from '../modules/wedding-integrated/assets/taxi_straight.png';
+import hotelImg from '../modules/wedding-integrated/assets/welcomePageHotelImage.webp';
+import weddingImg from '../modules/wedding-integrated/assets/welcomePageWeddingIamge.webp';
+import taxiImg from '../modules/wedding-integrated/assets/taxi_straight.webp';
 
 const slides = [
   {

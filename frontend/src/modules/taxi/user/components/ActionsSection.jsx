@@ -75,7 +75,7 @@ const ActionsSection = () => {
         <ActionCard
           title="Delivery"
           description="Send parcels across the city."
-          image="/5_Parcel.png"
+          image="/5_Parcel.webp"
           surfaceClass="bg-gradient-to-br from-indigo-50/80 via-white/80 to-indigo-100/60"
           titleClass="text-slate-900"
           buttonClass="bg-indigo-500"

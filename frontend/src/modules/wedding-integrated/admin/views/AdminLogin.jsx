@@ -4,7 +4,7 @@ import { Loader2, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import toast from 'react-hot-toast';
 import { api } from "../../../../services/apiService";
 import logoImg from "../../assets/logo.png";
-import weddingImg from "../../assets/wedding_pink.png";
+import weddingImg from "../../assets/wedding_pink.webp";
 
 const AdminLogin = () => {
   const [loadingSubmit, setLoadingSubmit] = useState(false);

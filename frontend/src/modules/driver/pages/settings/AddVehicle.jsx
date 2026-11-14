@@ -31,10 +31,10 @@ import EhcvIcon from "../../../../assets/icons/ehcv.png";
 import HcvIcon from "../../../../assets/icons/hcv.png";
 import LcvIcon from "../../../../assets/icons/LCV.png";
 import McvIcon from "../../../../assets/icons/mcv.png";
-import LuxuryIcon from "../../../../assets/icons/Luxury.png";
-import PremiumIcon from "../../../../assets/icons/Premium.png";
-import SuvIcon from "../../../../assets/icons/SUV.png";
-import MapBackground from "../../../../assets/map_image.png";
+import LuxuryIcon from "../../../../assets/icons/Luxury.webp";
+import PremiumIcon from "../../../../assets/icons/Premium.webp";
+import SuvIcon from "../../../../assets/icons/SUV.webp";
+import MapBackground from "../../../../assets/map_image.webp";
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all focus:border-orange-300 focus:ring-2 focus:ring-orange-100";

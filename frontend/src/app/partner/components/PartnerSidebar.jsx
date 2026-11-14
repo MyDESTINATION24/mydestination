@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import usePartnerStore from '../store/partnerStore';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
-import logo from '../../../assets/rokologin-removebg-preview.png';
+import logo from '../../../assets/rokologin-removebg-preview.webp';
 import AdminPanelSwitcherDropdown from '@/components/common/AdminPanelSwitcherDropdown';
 
 const PartnerSidebar = ({ isOpen, onClose }) => {

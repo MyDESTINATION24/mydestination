@@ -23,9 +23,9 @@ import EhcvIcon from '@/assets/icons/ehcv.png';
 import HcvIcon from '@/assets/icons/hcv.png';
 import LcvIcon from '@/assets/icons/LCV.png';
 import McvIcon from '@/assets/icons/mcv.png';
-import LuxuryIcon from '@/assets/icons/Luxury.png';
-import PremiumIcon from '@/assets/icons/Premium.png';
-import SuvIcon from '@/assets/icons/SUV.png';
+import LuxuryIcon from '@/assets/icons/Luxury.webp';
+import PremiumIcon from '@/assets/icons/Premium.webp';
+import SuvIcon from '@/assets/icons/SUV.webp';
 
 const mapContainerStyle = { width: '100%', height: '100%' };
 

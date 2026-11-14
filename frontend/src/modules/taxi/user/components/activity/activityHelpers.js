@@ -1,10 +1,10 @@
 import carIcon from '../../../../assets/icons/car.png';
 import bikeIcon from '../../../../assets/icons/bike.png';
 import autoIcon from '../../../../assets/icons/auto.png';
-import LuxuryIcon from '../../../../assets/icons/Luxury.png';
-import PremiumIcon from '../../../../assets/icons/Premium.png';
-import SuvIcon from '../../../../assets/icons/SUV.png';
-import busIcon from '../../../../assets/3d images/AutoCab/bus.png';
+import LuxuryIcon from '../../../../assets/icons/Luxury.webp';
+import PremiumIcon from '../../../../assets/icons/Premium.webp';
+import SuvIcon from '../../../../assets/icons/SUV.webp';
+import busIcon from '../../../../assets/3d images/AutoCab/bus.webp';
 
 export const PAGE_SIZE = 4;
 export const TABS = ['All', 'Rides', 'Parcels', 'Rental', 'Bus', 'Pooling', 'Airways', 'Tours', 'Outstation', 'Scheduled', 'Support'];
@@ -118,7 +118,7 @@ export const coordLabel = (location, fallback) => {
 
 export const getVehicleVisual = (ride, type) => {
   if (type === 'parcel') {
-    return '/5_Parcel.png';
+    return '/5_Parcel.webp';
   }
 
   if (type === 'bus') {

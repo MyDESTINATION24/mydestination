@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import heroImg from '@/assets/landing/hero.png';
+import heroImg from '@/assets/landing/hero.webp';
 import { useSettings } from '../../../shared/context/SettingsContext';
 
 const AuthLayout = ({ children, title, subtitle }) => {

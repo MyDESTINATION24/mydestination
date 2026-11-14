@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Globe, Navigation, Menu } from 'lucide-react';
-import logo from '../../assets/rokologin-removebg-preview.png';
+import logo from '../../assets/rokologin-removebg-preview.webp';
 import weddingLogo from '../../modules/wedding-integrated/assets/logo.png';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { propertyService } from '../../services/propertyService';

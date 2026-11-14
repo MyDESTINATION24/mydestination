@@ -26,8 +26,8 @@ import { useServiceShellActive } from '../../../../../components/services/Mobile
 import SkyTraffic from '../../../../../components/common/SkyTraffic';
 
 // Asset Imports (Using the generated image for consistency)
-import premiumHeliHero from '@/assets/airways/premium_heli_hero.png';
-import kedarnathImg from '@/assets/airways/kedarnath.png';
+import premiumHeliHero from '@/assets/airways/premium_heli_hero.webp';
+import kedarnathImg from '@/assets/airways/kedarnath.webp';
 
 const CheckCircleIcon = ({ size = 16, className = '' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>

@@ -28,7 +28,7 @@ import { useSettings } from '../../../shared/context/SettingsContext';
 import { userService } from '../../services/userService';
 
 // Asset Imports (Using the generated image)
-import premiumHeliHero from '@/assets/airways/premium_heli_hero.png';
+import premiumHeliHero from '@/assets/airways/premium_heli_hero.webp';
 
 const PHONEPE_PENDING_BOOKING_KEY = 'taxi-airway-phonepe-booking';
 

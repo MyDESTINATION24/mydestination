@@ -11,7 +11,7 @@ import ExplorerSection from '../components/ExplorerSection';
 import BottomNavbar from '../components/BottomNavbar';
 import carIcon from '../../../assets/icons/car.png';
 import bikeIcon from '../../../assets/icons/bike.png';
-import indiaGateRealImg from '@/assets/india_gate_real.png';
+import indiaGateRealImg from '@/assets/india_gate_real.webp';
 import autoIcon from '../../../assets/icons/auto.png';
 import deliveryIcon from '../../../assets/icons/Delivery.png';
 import api from '../../../shared/api/axiosInstance';

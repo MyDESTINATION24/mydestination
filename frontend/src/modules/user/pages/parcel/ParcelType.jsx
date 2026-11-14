@@ -16,9 +16,9 @@ import {
 } from 'lucide-react';
 import api from '../../../../shared/api/axiosInstance';
 
-import trucksImg from '@/assets/images/delivery/trucks.png';
-import bikeImg from '@/assets/images/delivery/bike.png';
-import moversImg from '@/assets/images/delivery/movers.png';
+import trucksImg from '@/assets/images/delivery/trucks.webp';
+import bikeImg from '@/assets/images/delivery/bike.webp';
+import moversImg from '@/assets/images/delivery/movers.webp';
 
 const Motion = motion;
 const PARCEL_BOOKING_DRAFT_KEY = 'parcelBookingDraft';
