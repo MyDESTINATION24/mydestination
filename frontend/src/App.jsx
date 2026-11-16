@@ -1,11 +1,9 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
-import useIsMobile from './hooks/useIsMobile';
 import AppErrorBoundary from './components/common/AppErrorBoundary';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import { Clock, Loader2 } from 'lucide-react';
-import MobileServiceShell, { ServiceContentSkeleton, ServiceContentTransition, useServiceShellActive } from './components/services/MobileServiceShell';
 
 // Eager Imports (Critical UI)
 import BottomNavbar from './components/ui/BottomNavbar';
@@ -224,32 +222,8 @@ const WeddingVendorSubscription = React.lazy(() => import('./modules/wedding-int
 const WeddingPaymentStatus = React.lazy(() => import('./modules/wedding-integrated/views/PaymentStatusPage'));
 const TaxiApp = React.lazy(() => import('./modules/taxi/TaxiApp'));
 
-// On a phone the site opens straight into the service tabs (/home, which
-// reopens the last service, Hotels by default) instead of the desktop landing
-// page. Links to a landing section (#about...) or ?site=1 still show it.
-// Search engines crawl as a phone, so bots keep the landing page (the service
-// tabs sit behind login and would get the site indexed as a login screen).
-const IS_BOT = typeof navigator !== 'undefined'
-  && /bot|crawl|spider|slurp|lighthouse|facebookexternalhit|whatsapp|preview/i.test(navigator.userAgent || '');
-const RootRoute = () => {
-  const isMobile = useIsMobile();
-  const { search, hash } = useLocation();
-  if (isMobile && !IS_BOT && !hash && !new URLSearchParams(search).has('site')) {
-    return <Navigate to={{ pathname: '/home', search }} replace />;
-  }
-  return <LandingPage />;
-};
-
 // Loading Fallback Component
-// Under the phone service tabs a full-page spinner would blank the screen on
-// every first visit to a service, so the tabs stay and a light placeholder
-// fills the space below them instead.
-const PageLoader = () => {
-  const shellActive = useServiceShellActive();
-  return shellActive ? <ServiceContentSkeleton /> : <DefaultPageLoader />;
-};
-
-const DefaultPageLoader = () => (
+const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[60vh]">
     <div className="flex flex-col items-center gap-4">
       <Loader2 className="w-10 h-10 animate-spin text-surface" />
@@ -915,15 +889,11 @@ function App() {
           zIndex: 10000
         }}
       />
-      {/* Phone service tabs: rendered once here, above every route, so they
-          stay on screen while switching services. */}
-      <MobileServiceShell />
       <Layout>
-        <ServiceContentTransition>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* ── User Auth Routes — UserPublicRoute isolates user panel ── */}
-            <Route path="/" element={<RootRoute />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/taxi/*" element={<TaxiApp />} />
             <Route path="/login" element={<UserPublicRoute redirectTo="/home"><UserLogin /></UserPublicRoute>} />
             <Route path="/wedding/login" element={<UserPublicRoute redirectTo="/wedding"><UserLogin theme="wedding" /></UserPublicRoute>} />
@@ -1197,7 +1167,6 @@ function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
-        </ServiceContentTransition>
       </Layout>
     </AppErrorBoundary>
   );

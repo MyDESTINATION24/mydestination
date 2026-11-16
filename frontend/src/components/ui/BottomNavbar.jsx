@@ -1,30 +1,46 @@
 import React from 'react';
-import { Briefcase, Navigation, User, LayoutGrid } from 'lucide-react';
+import { Home, Briefcase, Navigation, User, Building2, Car, Heart, LayoutGrid } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const BottomNavbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // One menu everywhere on phones. The services page (/home) used to swap in
-    // a different bar -- Home, Hotels, Taxi, Wedding, Profile -- so tapping
-    // Services landed on a highlighted "Home" tab: the same duplicate again.
-    // Switching services is done by the tabs at the top of each service.
-    const navItems = [
-        // ?services=1 shows the services list; plain /home on a phone reopens
-        // the last service, which made this button do nothing.
-        { name: 'Services', icon: LayoutGrid, route: '/home?services=1' },
+    const isSuperApp = location.pathname === '/' || location.pathname === '/home';
+
+    const superAppNavItems = [
+        { name: 'Home', icon: Home, route: '/home' },
+        { name: 'Hotels', icon: Building2, route: '/hotels' },
+        { name: 'Taxi', icon: Car, route: '/taxi' },
+        { name: 'Wedding', icon: Heart, route: '/wedding' },
+        { name: 'Profile', icon: User, route: '/profile' },
+    ];
+
+    const hotelNavItems = [
+        { name: 'Services', icon: LayoutGrid, route: '/home' },
+        { name: 'Home', icon: Home, route: '/hotels' },
         { name: 'Bookings', icon: Briefcase, route: '/bookings' },
         { name: 'Near By', icon: Navigation, route: '/search' },
         { name: 'Profile', icon: User, route: '/profile' },
     ];
 
+    const navItems = isSuperApp ? superAppNavItems : hotelNavItems;
+
     const getActiveTab = (path) => {
-        if (path === '/' || path === '/home' || path.startsWith('/hotels')) return 'Services';
-        if (path.startsWith('/bookings')) return 'Bookings';
-        if (path.includes('search') || path.includes('property')) return 'Near By';
-        if (path.includes('profile') || path.includes('wallet') || path.includes('settings')) return 'Profile';
-        return 'Services';
+        if (isSuperApp) {
+            if (path === '/' || path === '/home') return 'Home';
+            if (path.startsWith('/hotels') || path.includes('property')) return 'Hotels';
+            if (path.startsWith('/taxi')) return 'Taxi';
+            if (path.startsWith('/wedding')) return 'Wedding';
+            if (path.includes('profile') || path.includes('bookings') || path.includes('wallet') || path.includes('settings')) return 'Profile';
+            return 'Home';
+        } else {
+            if (path === '/' || path === '/home' || path.startsWith('/hotels')) return 'Home';
+            if (path.startsWith('/bookings')) return 'Bookings';
+            if (path.includes('search') || path.includes('property')) return 'Near By';
+            if (path.includes('profile') || path.includes('wallet') || path.includes('settings')) return 'Profile';
+            return 'Home';
+        }
     };
 
     const activeTab = getActiveTab(location.pathname);
@@ -34,8 +50,7 @@ const BottomNavbar = () => {
     };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden">
             <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
                 {navItems.map((item) => {
                     const Icon = item.icon;

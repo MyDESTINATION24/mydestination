@@ -24,13 +24,7 @@ const appServiceSchema = new mongoose.Schema({
   theme: { type: String, enum: SERVICE_THEMES, default: 'emerald' },
   icon: { type: String, enum: SERVICE_ICONS, default: 'compass' },
   isActive: { type: Boolean, default: true },
-  order: { type: Number, default: 0 },
-  // Mobile tab strip + banner (the app's per-service top section).
-  tabLabel: { type: String, default: '', trim: true },
-  tagline: { type: String, default: '', trim: true },
-  tabIcon: { type: String, default: '' },
-  bannerImage: { type: String, default: '' },
-  bannerTitle: { type: String, default: '', trim: true },
+  order: { type: Number, default: 0 }
 }, { timestamps: true });
 
 export default mongoose.model('AppService', appServiceSchema);

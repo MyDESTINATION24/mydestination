@@ -1,5 +1,4 @@
 import { Suspense, lazy, useEffect } from 'react';
-import { ServiceContentSkeleton, useServiceShellActive } from '../../components/services/MobileServiceShell';
 import { Routes, Route, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import AppErrorBoundary from '../../components/common/AppErrorBoundary';
 import { MapPin, FileText } from 'lucide-react';
@@ -470,19 +469,6 @@ const UserProtectedRoute = () => {
   return <Outlet />;
 };
 
-// Under the phone service tabs (Rides, Helicopter, Char Dham) a white
-// full-height spinner would blank the screen; show a light placeholder below
-// the tabs instead.
-const TaxiPageLoader = () => (
-  useServiceShellActive()
-    ? <ServiceContentSkeleton />
-    : (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <span className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
-      </div>
-    )
-);
-
 const UserHomeRoute = () => (
   getLocalUserToken()
     ? <UserHome />
@@ -748,7 +734,12 @@ function App() {
         {!isUserAuthRoute ? <UserUpcomingRideReminderBootstrap /> : null}
         <TaxiSidebar />
         <MainLayout>
-          <Suspense fallback={<TaxiPageLoader />}>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center min-h-screen bg-white">
+                <span className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
+              </div>
+            }>
             <Toaster position="top-right" />
             <Routes>
               {/* Static / Public routes */}

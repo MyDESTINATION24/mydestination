@@ -1,5 +1,4 @@
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
-import { useServiceShellActive } from '../../../components/services/MobileServiceShell';
 import { Heart, Home, MapPin, Users, MessageSquare, Menu, X, User, Bell, HelpCircle, Calendar, Settings, LogOut, ChevronRight, LogIn, Clock, LayoutGrid, Wallet, Edit3 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -12,9 +11,7 @@ import { clearAllAuth } from "@/shared/auth/clearAllAuth";
 
 
 const navLinks = [
-  // ?services=1 shows the services list; plain /home on a phone reopens the
-  // last service, which made this button do nothing.
-  { to: "/home?services=1", label: "Services", icon: LayoutGrid },
+  { to: "/home", label: "Services", icon: LayoutGrid },
   { to: "/wedding", label: "Home", icon: Home },
   { to: "/wedding/destinations", label: "Destinations", icon: MapPin },
   { to: "/wedding/vendors", label: "Vendors", icon: Users },
@@ -112,9 +109,6 @@ const WeddingLayout = () => {
   const isGallery = location.pathname.includes('/real-weddings/gallery');
   const isBookingDetail = location.pathname.match(/\/wedding\/bookings\/bk-\d+/);
   const hideNav = isGallery || isBookingDetail;
-  // Phones: on the wedding home the shared service tabs (MobileServiceShell)
-  // take the place of this top bar; inner wedding pages keep it.
-  const shellHome = useServiceShellActive();
 
   const [dynamicMegaMenu, setDynamicMegaMenu] = useState([[], [], [], []]);
 
@@ -201,7 +195,7 @@ const WeddingLayout = () => {
   return (
     <div className="wedding-module min-h-screen" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #FFF0F3 100%)', backgroundAttachment: 'fixed' }}>
       {/* Navbar */}
-      {!hideNav && !shellHome && (
+      {!hideNav && (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between pt-8 md:pt-0 h-[88px] md:h-16">
@@ -548,23 +542,17 @@ const WeddingLayout = () => {
 
 
       {/* Content */}
-      <main className={`${!hideNav && !shellHome ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-[76px] md:pb-16" : ""}`}>
+      <main className={`${!hideNav ? 'pt-[88px] md:pt-0' : ''} ${!hideNav ? "pb-14 md:pb-16" : ""}`}>
         <Outlet />
       </main>
 
       {/* Bottom Navbar for Mobile */}
       {!hideNav && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-100 shadow-[0_-8px_30px_rgba(0,0,0,0.04)] print:hidden">
           <div className="flex items-center justify-around pt-1.5 pb-1 px-1">
-            {/* No Home button on the phone bar: it did the same job as
-                Services (the service tabs at the top switch services), so
-                Services is highlighted on the wedding home screen. */}
-            {navLinks.filter((link) => link.to !== '/wedding').map((link) => {
+            {navLinks.map((link) => {
               const Icon = link.icon;
-              const isActive = link.label === 'Services'
-                ? location.pathname.replace(/\/+$/, '') === '/wedding'
-                : location.pathname === link.to || location.pathname.startsWith(link.to);
+              const isActive = location.pathname === link.to || (link.to !== '/wedding' && location.pathname.startsWith(link.to));
 
               return (
                 <Link

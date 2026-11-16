@@ -17,9 +17,8 @@ import {
   Users,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useServiceShellActive } from '../../../../../components/services/MobileServiceShell';
-import BottomNavbar from '../../components/BottomNavbar';
 import { getUserTourBanner, getUserTours } from '../../services/toursService';
+import BottomNavbar from '../../components/BottomNavbar';
 
 const CATEGORIES = [
   {
@@ -97,7 +96,6 @@ const Dropdown = ({ icon: Icon, label, value, options, onChange }) => (
 
 const ToursHome = () => {
   const navigate = useNavigate();
-  const isMobile = useServiceShellActive(); // shared tabs showing: hide Back
   const [searchParams, setSearchParams] = useSearchParams();
   const [tours, setTours] = useState([]);
   const [banner, setBanner] = useState(null);
@@ -167,14 +165,14 @@ const ToursHome = () => {
           No header bar -- back is a floating control so the banner starts at
           the top of the page. */}
       <div className="relative">
-        {isMobile ? null : <button
+        <button
           onClick={() => navigate('/taxi/user')}
           aria-label="Back"
           className="absolute left-5 top-5 z-30 flex h-10 items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/90 px-4 text-[13px] font-bold text-slate-800 shadow-md backdrop-blur-md transition hover:bg-white active:scale-95 lg:left-8"
         >
           <ChevronLeft size={17} />
           Back
-        </button>}
+        </button>
 
         {banner?.imageUrl ? (
           <div className="w-full overflow-hidden bg-slate-100">
@@ -188,7 +186,7 @@ const ToursHome = () => {
 
         {/* Filter bar overlapping the hero */}
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : (isMobile ? 'mt-4' : 'mt-20')}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
+          <div className={`relative z-10 flex flex-col divide-y ${banner?.imageUrl ? '-mt-8' : 'mt-20'}  divide-slate-100 rounded-2xl border border-slate-100 bg-white shadow-[0_16px_40px_-12px_rgba(15,23,42,0.15)] lg:flex-row lg:divide-x lg:divide-y-0`}>
             <Dropdown
               icon={Layers}
               label="Package Type"
@@ -345,6 +343,7 @@ const ToursHome = () => {
           </div>
         )}
       </div>
+
       {/* Same bottom menu as the other Rides screens (phones only). */}
       <BottomNavbar />
     </div>

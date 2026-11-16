@@ -1,12 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Compass, LogOut, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import BirdFlock from '@/components/common/BirdFlock';
-import { useAppServices, lastServiceTab } from '@/services/appServices';
-import useIsMobile from '@/hooks/useIsMobile';
+import { useAppServices } from '@/services/appServices';
 
 // Cards come from CMS Admin -> App Services (see services/appServices.js).
 
@@ -142,34 +141,7 @@ export const ServiceCard = ({ service, onClick, reduceMotion }) => {
 const SuperAppDashboard = () => {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
-  const { services, settings: homeText, loaded } = useAppServices();
-  const isMobile = useIsMobile();
-
-  // Phones skip this card grid and open a service directly; its tab strip lets
-  // the user switch between services from there. The last tab used is
-  // reopened, otherwise the first one. replace keeps /home out of history so
-  // the back button does not bounce back here.
-  const mobileTarget = (() => {
-    const inApp = services.filter((s) => s.tabLabel && !/^https?:\/\//i.test(s.path));
-    return (inApp.find((s) => s.key === lastServiceTab()) || inApp[0])?.path || '';
-  })();
-  // Loop guard: if we sent the user to this same screen moments ago and are
-  // back here, that screen bounced (e.g. to login, which returns to /home), so
-  // show the service cards instead of redirecting again.
-  const bounced = (() => {
-    try {
-      const last = JSON.parse(sessionStorage.getItem('md_home_redirect') || 'null');
-      return Boolean(last && last.to === mobileTarget && Date.now() - last.at < 8000);
-    } catch { return false; }
-  })();
-  // The bottom menus' Services button asks for the list explicitly.
-  const wantsServices = new URLSearchParams(useLocation().search).has('services');
-  const autoOpen = isMobile && Boolean(mobileTarget) && !bounced && !wantsServices;
-  useEffect(() => {
-    if (!autoOpen || !loaded) return;
-    try { sessionStorage.setItem('md_home_redirect', JSON.stringify({ to: mobileTarget, at: Date.now() })); } catch { /* ignore */ }
-    navigate(mobileTarget, { replace: true });
-  }, [autoOpen, loaded, mobileTarget, navigate]);
+  const { services, settings: homeText } = useAppServices();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // pointer parallax for the aurora blobs -- each layer drifts a different
@@ -190,10 +162,6 @@ const SuperAppDashboard = () => {
   };
 
   const firstName = user?.name?.split(' ')[0] || 'User';
-
-  if (autoOpen) {
-    return <div className="fixed inset-0 bg-[#F7F9FB]" />;
-  }
 
   return (
     <div
