@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { propertyService, legalService, reviewService, offerService, availabilityService, userService } from '../../services/apiService';
@@ -34,6 +34,10 @@ const PropertyDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [dates, setDates] = useState({ checkIn: '', checkOut: '' });
+  // Book Now without dates takes the guest to the date pickers instead of
+  // only flashing a message at the top of the screen.
+  const tripDetailsRef = useRef(null);
+  const [highlightTrip, setHighlightTrip] = useState(false);
   const [guests, setGuests] = useState({ rooms: 1, adults: 2, children: 0 });
   const [bookingLoading, setBookingLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -562,6 +566,9 @@ const PropertyDetailsPage = () => {
   const handleBook = async () => {
     if (!dates.checkIn || !dates.checkOut) {
       toast.error("Please select check-in and check-out dates");
+      tripDetailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setHighlightTrip(true);
+      setTimeout(() => setHighlightTrip(false), 1800);
       return;
     }
 
@@ -670,7 +677,7 @@ const PropertyDetailsPage = () => {
 
   return (
     <div 
-      className="min-h-screen bg-[var(--color-hotel-bg)]"
+      className="min-h-screen bg-[var(--color-hotel-bg)] pb-40"
       style={hotelUiConfig?.theme?.backgroundColor ? { backgroundColor: hotelUiConfig.theme.backgroundColor } : {}}
     >
       {/* Custom Announcement Banner from Theme Studio */}
@@ -1155,7 +1162,11 @@ const PropertyDetailsPage = () => {
           )}
 
           {/* Booking Inputs (Date & Guest) */}
-          <div className="mb-4 p-4 rounded-xl border border-gray-100" style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}>
+          <div
+            ref={tripDetailsRef}
+            className={`mb-4 p-4 rounded-xl border scroll-mt-24 transition-shadow duration-300 ${highlightTrip ? 'border-red-300 ring-2 ring-red-300' : 'border-gray-100'}`}
+            style={{ backgroundColor: hotelUiConfig?.theme?.cardBgColor || 'var(--color-hotel-bg)' }}
+          >
             <h3 className="font-bold text-textDark mb-3">Trip Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="col-span-1">
@@ -1437,16 +1448,16 @@ const PropertyDetailsPage = () => {
                     } else {
                       // Special handling for Suitability field
                       if (rule.label === 'Suitability' && rule.value === 'Both') {
-                        displayValue = 'Family Friendly, Couple Friendly';
+                        displayValue = 'Family & Couple Friendly';
                       } else {
                         displayValue = typeof rule.value === 'boolean' ? (rule.value ? 'Yes' : 'No') : rule.value;
                       }
                     }
 
                     return (
-                      <div key={idx} className="flex items-center gap-1.5 bg-white px-2 py-1.5 rounded-md border border-gray-200 shadow-sm">
-                        <Shield size={12} className="text-gray-400 shrink-0" />
-                        <span className="text-[10px] sm:text-xs text-gray-600 leading-tight">
+                      <div key={idx} className={`flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm ${String(displayValue).length > 14 ? 'col-span-2 md:col-span-1' : ''}`}>
+                        <Shield size={14} className="text-gray-400 shrink-0" />
+                        <span className="text-xs text-gray-600 leading-snug">
                           {rule.label}: <span className="font-bold text-textDark">{displayValue}</span>
                         </span>
                       </div>
@@ -1567,11 +1578,14 @@ const PropertyDetailsPage = () => {
 
       {/* Sticky Bottom Booking Bar */}
       <div 
-        className="fixed bottom-4 left-4 right-4 rounded-[32px] p-5 shadow-2xl z-50 transition-all active:scale-[0.99]"
-        style={hotelUiConfig?.theme?.useGradient 
-          ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#5F8575'} 0%, ${hotelUiConfig.theme.gradientEnd || '#3d5a4e'} 100%)` }
-          : { backgroundColor: hotelUiConfig?.theme?.primaryColor || '#5F8575' }
-        }
+        className="fixed left-4 right-4 rounded-[32px] p-5 shadow-2xl z-50 transition-all active:scale-[0.99]"
+        style={{
+          // clear of the phone's gesture bar
+          bottom: 'calc(1rem + env(safe-area-inset-bottom))',
+          ...(hotelUiConfig?.theme?.useGradient
+            ? { background: `linear-gradient(135deg, ${hotelUiConfig.theme.gradientStart || '#5F8575'} 0%, ${hotelUiConfig.theme.gradientEnd || '#3d5a4e'} 100%)` }
+            : { backgroundColor: hotelUiConfig?.theme?.primaryColor || '#5F8575' }),
+        }}
       >
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-6">
           <div className="flex-shrink-0">

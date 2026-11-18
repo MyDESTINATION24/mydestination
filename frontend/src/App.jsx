@@ -23,10 +23,13 @@ import weddingLogo from './modules/wedding-integrated/assets/logo.png';
 import { AuthProvider as WeddingVendorAuthProvider } from "./modules/wedding-integrated/vendor/context/AuthContext";
 import { VendorProvider as WeddingVendorProvider } from "./modules/wedding-integrated/vendor/context/VendorContext";
 import { initAppMode, isWebView } from './utils/deviceDetect';
+import { applyAppInsets } from './utils/appInsets';
 import { getLogoFilterStyle } from './utils/themeUtils';
 
 // Init app mode from URL params on very first load
 initAppMode();
+// Keep pages clear of the Android app status bar (see utils/appInsets.js).
+applyAppInsets();
 
 // Lazy Imports - User Pages
 const SuperAppDashboard = React.lazy(() => import('./app/shared/pages/SuperAppDashboard'));
@@ -886,7 +889,9 @@ function App() {
         position="top-center"
         reverseOrder={false}
         containerStyle={{
-          zIndex: 10000
+          zIndex: 10000,
+          // below the Android app status bar (utils/appInsets.js)
+          top: 'calc(var(--app-top, 0px) + 16px)'
         }}
       />
       <Layout>

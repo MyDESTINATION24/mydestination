@@ -740,7 +740,7 @@ function App() {
                 <span className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></span>
               </div>
             }>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" containerStyle={{ top: 'calc(var(--app-top, 0px) + 16px)' }} />
             <Routes>
               {/* Static / Public routes */}
               <Route index element={<Navigate to="/taxi/user" replace />} />

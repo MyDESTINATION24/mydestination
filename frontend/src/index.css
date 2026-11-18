@@ -397,3 +397,34 @@ body:has(#hotel-root) {
     scrollbar-width: none !important;
   }
 }
+
+/* ── Android app: keep pages below the status bar ─────────────────────────
+   utils/appInsets.js sets data-app-inset and --app-top only inside the app,
+   when its WebView draws behind the status bar but reports no inset. Outside
+   any @layer so it wins over the Tailwind utilities it adjusts. */
+html[data-app-inset] body {
+  padding-top: var(--app-top);
+}
+/* Solid strip behind the status bar so scrolled content never shows under
+   the clock and icons. */
+html[data-app-inset] body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--app-top);
+  background: #ffffff;
+  z-index: 2147483000;
+  pointer-events: none;
+}
+/* Top bars and full-screen sheets pinned to the top of the screen. */
+html[data-app-inset] .fixed.top-0,
+html[data-app-inset] .sticky.top-0,
+html[data-app-inset] .fixed.inset-0,
+html[data-app-inset] .fixed.inset-y-0 {
+  top: var(--app-top) !important;
+}
+html[data-app-inset] .fixed.top-4 {
+  top: calc(var(--app-top) + 1rem) !important;
+}
