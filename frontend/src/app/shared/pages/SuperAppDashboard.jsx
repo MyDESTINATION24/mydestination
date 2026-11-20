@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
+import React, { useEffect, useRef, useState } from 'react';
+import { animate, motion, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Compass, LogOut, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -138,6 +138,211 @@ export const ServiceCard = ({ service, onClick, reduceMotion }) => {
   );
 };
 
+// ---------------------------------------------------------------------------
+// Phone: swipeable card stack. The top card can be flung left or right; it
+// flies off and goes to the back of the deck, so the deck loops forever.
+// ---------------------------------------------------------------------------
+
+const DECK_CARD_H = 360;
+const DECK_STEP_Y = 14; // how far each card behind peeks out
+const DECK_VISIBLE = 3;
+const SWIPE_DIST = 100;
+const SWIPE_VEL = 500;
+const NUDGE_KEY = 'svcDeckNudgeSeen';
+
+const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotion, throwSignal, nudge }) => {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-220, 220], reduceMotion ? [0, 0] : [-12, 12]);
+  const fade = useTransform(x, [-300, -140, 0, 140, 300], [0, 1, 1, 1, 0]);
+  const didDrag = useRef(false);
+  const throwing = useRef(false);
+
+  // a card that went to the back of the deck comes back centred
+  useEffect(() => {
+    if (!isTop) {
+      x.set(0);
+      throwing.current = false;
+    }
+  }, [isTop, x]);
+
+  const throwCard = async (dir) => {
+    if (throwing.current) return;
+    throwing.current = true;
+    try { navigator.vibrate?.(10); } catch { /* not supported */ }
+    await animate(x, dir * (window.innerWidth + 120), reduceMotion
+      ? { duration: 0.15 }
+      : { duration: 0.28, ease: [0.4, 0, 1, 1] });
+    onThrown();
+  };
+
+  // keyboard / external throws
+  useEffect(() => {
+    if (isTop && throwSignal) throwCard(throwSignal.dir);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [throwSignal]);
+
+  // one-time "you can swipe this" wiggle
+  useEffect(() => {
+    if (!isTop || !nudge || reduceMotion) return undefined;
+    const t = setTimeout(async () => {
+      await animate(x, -36, { duration: 0.35, ease: 'easeOut' });
+      await animate(x, 0, { type: 'spring', stiffness: 300, damping: 14 });
+    }, 900);
+    return () => clearTimeout(t);
+  }, [isTop, nudge, reduceMotion, x]);
+
+  const handleDragEnd = (_e, info) => {
+    const { offset, velocity } = info;
+    if (Math.abs(offset.x) > SWIPE_DIST || Math.abs(velocity.x) > SWIPE_VEL) {
+      throwCard(Math.sign(offset.x || velocity.x) || 1);
+    } else {
+      animate(x, 0, { type: 'spring', stiffness: 400, damping: 30 });
+    }
+  };
+
+  return (
+    <motion.div
+      className="absolute inset-x-0 top-0 touch-pan-y select-none"
+      style={{ x, rotate, opacity: isTop ? fade : 1, zIndex: DECK_VISIBLE - depth, height: DECK_CARD_H }}
+      initial={false}
+      animate={{ scale: 1 - depth * 0.05, y: depth * DECK_STEP_Y }}
+      transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+      drag={isTop && !locked ? 'x' : false}
+      dragMomentum={false}
+      onPointerDown={() => { didDrag.current = false; }}
+      onDragStart={() => { didDrag.current = true; }}
+      onDragEnd={handleDragEnd}
+      onClick={() => { if (isTop && !didDrag.current) onOpen(); }}
+      aria-hidden={!isTop}
+    >
+      <div className={`flex h-full flex-col overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_12px_36px_-10px_rgba(15,23,42,0.18)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}>
+        <div className="relative h-[210px] shrink-0 overflow-hidden">
+          {service.image ? (
+            <img
+              src={service.image}
+              alt={service.title}
+              draggable={false}
+              className={`pointer-events-none h-full w-full object-cover ${service.imagePos || 'object-center'}`}
+            />
+          ) : (
+            <div className={`h-full w-full bg-gradient-to-br ${service.chip} opacity-80`} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
+          <div className={`absolute right-3 top-3 rounded-xl bg-gradient-to-br ${service.chip} p-2.5 text-white shadow-lg`}>
+            <service.icon className="h-5 w-5" />
+          </div>
+        </div>
+        <div className="flex flex-1 flex-col justify-between p-4">
+          <div>
+            <h3 className="text-lg font-black tracking-tight text-slate-900">{service.title}</h3>
+            <p className="mt-1.5 line-clamp-2 text-[13px] font-medium leading-relaxed text-slate-500">{service.description}</p>
+          </div>
+          <div className={`flex items-center gap-1 text-sm font-black ${service.textColor}`}>
+            {service.ctaText || 'Explore'}
+            <ChevronRight className="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
+  const [order, setOrder] = useState(() => services.map((_, i) => i));
+  const [throwSignal, setThrowSignal] = useState(null);
+  const [nudge, setNudge] = useState(() => {
+    try { return !localStorage.getItem(NUDGE_KEY); } catch { return false; }
+  });
+
+  // CMS data loads async -- reset the deck when the list changes
+  const idsKey = services.map((s) => s.id).join('|');
+  useEffect(() => {
+    setOrder(services.map((_, i) => i));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsKey]);
+
+  useEffect(() => {
+    try { localStorage.setItem(NUDGE_KEY, '1'); } catch { /* storage blocked */ }
+  }, []);
+
+  if (!services.length) return null;
+
+  const single = services.length === 1;
+  const activeIdx = order[0] ?? 0;
+  const advance = () => {
+    setThrowSignal(null); // don't let the next top card inherit the throw
+    setNudge(false);
+    setOrder((o) => [...o.slice(1), o[0]]);
+  };
+  const jumpTo = (idx) => {
+    setNudge(false);
+    setOrder(services.map((_, i) => (idx + i) % services.length));
+  };
+
+  const handleKeyDown = (e) => {
+    if (single) return;
+    if (e.key === 'ArrowLeft') setThrowSignal({ dir: -1, n: Date.now() });
+    if (e.key === 'ArrowRight') setThrowSignal({ dir: 1, n: Date.now() });
+    if (e.key === 'Enter') onOpen(services[activeIdx]);
+  };
+
+  const visible = order.slice(0, DECK_VISIBLE);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15, type: 'spring', stiffness: 90, damping: 16 }}
+    >
+      <div
+        tabIndex={0}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={`${services[activeIdx]?.title}, ${activeIdx + 1} of ${services.length}. Use arrow keys to browse.`}
+        onKeyDown={handleKeyDown}
+        className="relative mx-1 outline-none"
+        style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) }}
+      >
+        {/* render back-to-front so the top card is last in the DOM */}
+        {[...visible].reverse().map((idx) => {
+          const depth = visible.indexOf(idx);
+          return (
+            <DeckCard
+              key={services[idx].id}
+              service={services[idx]}
+              depth={depth}
+              isTop={depth === 0}
+              locked={single}
+              onThrown={advance}
+              onOpen={() => onOpen(services[idx])}
+              reduceMotion={reduceMotion}
+              throwSignal={depth === 0 ? throwSignal : null}
+              nudge={nudge && !single}
+            />
+          );
+        })}
+      </div>
+
+      {!single && (
+        <div className="mt-4 flex flex-col items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {services.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-label={`Show ${s.title}`}
+                onClick={() => jumpTo(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-slate-800' : 'w-2 bg-slate-300'}`}
+              />
+            ))}
+          </div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">← Swipe to explore →</p>
+        </div>
+      )}
+    </motion.div>
+  );
+};
+
 const SuperAppDashboard = () => {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
@@ -160,6 +365,10 @@ const SuperAppDashboard = () => {
     toast.success('Logged out successfully');
     navigate('/login');
   };
+
+  const openService = (service) => (
+    /^https?:\/\//i.test(service.path) ? window.location.assign(service.path) : navigate(service.path)
+  );
 
   const firstName = user?.name?.split(' ')[0] || 'User';
 
@@ -264,20 +473,23 @@ const SuperAppDashboard = () => {
           <div className="ml-2 hidden h-px flex-1 bg-gradient-to-r from-slate-200 to-transparent md:block" />
         </motion.div>
 
-        {/* Cards */}
+        {/* Cards: swipe deck on phones, grid from md up */}
+        <div className="md:hidden">
+          <SwipeDeck services={services} onOpen={openService} reduceMotion={reduceMotion} />
+        </div>
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
           style={{ '--svc-cols': Math.min(Math.max(services.length, 1), 5) }}
-          className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6 xl:[grid-template-columns:repeat(var(--svc-cols),minmax(0,1fr))]"
+          className="hidden md:grid md:grid-cols-2 md:gap-6 xl:[grid-template-columns:repeat(var(--svc-cols),minmax(0,1fr))]"
         >
           {services.map((service) => (
             <ServiceCard
               key={service.id}
               service={service}
               reduceMotion={reduceMotion}
-              onClick={() => (/^https?:\/\//i.test(service.path) ? window.location.assign(service.path) : navigate(service.path))}
+              onClick={() => openService(service)}
             />
           ))}
         </motion.div>
