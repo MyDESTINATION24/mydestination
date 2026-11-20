@@ -6,6 +6,7 @@ const getHomeSettings = async () => {
   return { greetingSubtitle: doc.greetingSubtitle, sectionTitle: doc.sectionTitle };
 };
 import { uploadToCloudinary } from '../../../utils/cloudinary.js';
+import { getLiveBanners } from './appBannerController.js';
 
 // The five cards that were hardcoded in SuperAppDashboard.jsx, seeded once so
 // the home screen looks unchanged until an admin edits it. The Char Dham card
@@ -62,8 +63,12 @@ const withImage = async (req, data) => {
 export const listAppServices = async (req, res) => {
   try {
     await ensureSeeded();
-    const services = await AppService.find({ isActive: true }).sort({ order: 1, createdAt: 1 }).lean();
-    res.json({ success: true, data: services, settings: await getHomeSettings() });
+    const [services, settings, banners] = await Promise.all([
+      AppService.find({ isActive: true }).sort({ order: 1, createdAt: 1 }).lean(),
+      getHomeSettings(),
+      getLiveBanners().catch(() => []), // banners must never break the home screen
+    ]);
+    res.json({ success: true, data: services, settings, banners });
   } catch (error) {
     fail(res, 500, error.message);
   }

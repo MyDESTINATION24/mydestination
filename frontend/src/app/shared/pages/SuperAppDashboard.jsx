@@ -7,6 +7,7 @@ import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import BirdFlock from '@/components/common/BirdFlock';
 import { useAppServices } from '@/services/appServices';
 import { preloadRoute } from '@/app/shared/routePreload';
+import PromoBanners from '@/app/shared/components/PromoBanners';
 
 // Cards come from CMS Admin -> App Services (see services/appServices.js).
 
@@ -144,8 +145,8 @@ export const ServiceCard = ({ service, onClick, reduceMotion }) => {
 // flies off and goes to the back of the deck, so the deck loops forever.
 // ---------------------------------------------------------------------------
 
-const DECK_CARD_H = 350;
-const DECK_STEP_Y = 26; // how far each card behind peeks out
+const DECK_CARD_H = 298;
+const DECK_STEP_Y = 20; // how far each card behind peeks out
 const DECK_FAN = [0, -4, 4]; // cards behind fan out like a held hand of cards
 const DECK_VISIBLE = 3;
 const SWIPE_DIST = 100;
@@ -254,7 +255,7 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
         className={`flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100/60 bg-white shadow-[0_15px_40px_-10px_rgba(0,0,0,0.12)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}
       >
         {/* Image, melting into the white card body */}
-        <div className="relative h-[200px] w-full shrink-0 overflow-hidden">
+        <div className="relative h-[152px] w-full shrink-0 overflow-hidden">
           {service.image ? (
             <img
               src={service.image}
@@ -275,7 +276,7 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
         </div>
 
         {/* Body */}
-        <div className="flex flex-grow flex-col px-6 pb-6 pt-1 text-left">
+        <div className="flex flex-grow flex-col px-6 pb-5 pt-1 text-left">
           <h3 className="mb-3 text-2xl font-black tracking-tight text-slate-800">{service.title}</h3>
           <div className="mb-3 w-full border-t border-slate-100" />
           <div className="flex items-start gap-3 text-sm font-medium text-slate-500">
@@ -291,7 +292,7 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
   );
 };
 
-export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
+export const SwipeDeck = ({ services, onOpen, reduceMotion, banners = [] }) => {
   const [order, setOrder] = useState(() => services.map((_, i) => i));
   const [throwSignal, setThrowSignal] = useState(null);
   const [nudge, setNudge] = useState(() => {
@@ -368,9 +369,9 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
         aria-roledescription="carousel"
         aria-label={`${services[activeIdx]?.title}, ${activeIdx + 1} of ${services.length}. Use arrow keys to browse.`}
         onKeyDown={handleKeyDown}
-        className="relative mx-3 mt-6 outline-none"
-        // + a little extra so the fanned (rotated) back cards don't touch the dots
-        style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) + 12 }}
+        className="relative mx-3 mt-3 outline-none"
+        // + a little extra so the fanned (rotated) back cards don't touch the slider
+        style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) + 8 }}
       >
         {/* render back-to-front so the top card is last in the DOM */}
         {[...visible].reverse().map((idx) => {
@@ -398,10 +399,10 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduceMotion ? 0 : dealDone, duration: 0.4 }}
-          className="mt-4"
+          className="mt-2"
         >
           {/* Thumbnail slider: scroll sideways, tap one to bring that card to the top */}
-          <div ref={stripRef} className="no-scrollbar overflow-x-auto py-1.5">
+          <div ref={stripRef} className="no-scrollbar overflow-x-auto py-1">
             <div className="mx-auto flex w-max items-start gap-3.5 px-3">
               {services.map((s, i) => {
                 const active = i === activeIdx;
@@ -438,6 +439,17 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
           </div>
         </motion.div>
       )}
+
+      {banners.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: reduceMotion ? 0 : dealDone + 0.15, duration: 0.4 }}
+          className="mx-3 mt-2"
+        >
+          <PromoBanners banners={banners} reduceMotion={reduceMotion} onOpen={(b) => onOpen({ path: b.link })} />
+        </motion.div>
+      )}
     </div>
   );
 };
@@ -445,7 +457,7 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
 const SuperAppDashboard = () => {
   const navigate = useNavigate();
   const reduceMotion = useReducedMotion();
-  const { services, settings: homeText } = useAppServices();
+  const { services, settings: homeText, banners } = useAppServices();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // pointer parallax for the aurora blobs -- each layer drifts a different
@@ -574,8 +586,13 @@ const SuperAppDashboard = () => {
 
         {/* Cards: swipe deck on phones, grid from md up */}
         <div className="md:hidden">
-          <SwipeDeck services={services} onOpen={openService} reduceMotion={reduceMotion} />
+          <SwipeDeck services={services} onOpen={openService} reduceMotion={reduceMotion} banners={banners} />
         </div>
+        {banners.length > 0 && (
+          <div className="mb-6 hidden w-full max-w-3xl md:block">
+            <PromoBanners banners={banners} reduceMotion={reduceMotion} onOpen={(b) => openService({ path: b.link })} />
+          </div>
+        )}
         <motion.div
           variants={containerVariants}
           initial="hidden"

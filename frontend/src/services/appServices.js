@@ -68,9 +68,9 @@ export const DEFAULT_HOME_SETTINGS = {
   sectionTitle: 'Explore Services',
 };
 
-/** Returns { services, settings } for the app home screen. */
+/** Returns { services, settings, banners } for the app home screen. */
 export const useAppServices = () => {
-  const [state, setState] = useState({ services: DEFAULT_APP_SERVICES, settings: DEFAULT_HOME_SETTINGS });
+  const [state, setState] = useState({ services: DEFAULT_APP_SERVICES, settings: DEFAULT_HOME_SETTINGS, banners: [] });
   useEffect(() => {
     let alive = true;
     axios.get(`${API_BASE_URL}/app-services`)
@@ -79,10 +79,11 @@ export const useAppServices = () => {
         setState({
           services: res.data.data,
           settings: { ...DEFAULT_HOME_SETTINGS, ...(res.data.settings || {}) },
+          banners: Array.isArray(res.data.banners) ? res.data.banners.filter((b) => b?.image) : [],
         });
       })
       .catch(() => {});
     return () => { alive = false; };
   }, []);
-  return { services: state.services.map(toServiceCard), settings: state.settings };
+  return { services: state.services.map(toServiceCard), settings: state.settings, banners: state.banners };
 };

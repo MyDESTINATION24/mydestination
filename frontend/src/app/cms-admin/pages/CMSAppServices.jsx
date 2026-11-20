@@ -7,6 +7,7 @@ import { API_BASE_URL } from '../../../shared/api/runtimeConfig';
 import { getStoredAdminToken } from '../../admin/store/adminStore';
 import { SERVICE_THEMES, SERVICE_ICONS, toServiceCard } from '../../../services/appServices';
 import { ServiceCard } from '../../shared/pages/SuperAppDashboard';
+import AppBannersSection from './AppBannersSection';
 
 // CMS Admin -> App Services: the "Explore Services" cards on the app home screen.
 
@@ -161,7 +162,7 @@ const CMSAppServices = () => {
     setServices(next);
     try {
       await axios.put(`${API_BASE_URL}/app-services/admin/reorder`, { ids: next.map((s) => s._id) }, authHeaders());
-    } catch (error) {
+    } catch {
       toast.error('Could not save the new order');
       load();
     }
@@ -366,6 +367,8 @@ const CMSAppServices = () => {
           </ul>
         )}
       </div>
+
+      <AppBannersSection linkPresets={LINK_PRESETS} />
     </div>
   );
 };

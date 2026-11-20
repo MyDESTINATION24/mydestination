@@ -8,6 +8,13 @@ import {
   reorderAppServices,
   updateHomeSettings
 } from '../controllers/appServiceController.js';
+import {
+  adminListBanners,
+  createBanner,
+  updateBanner,
+  deleteBanner,
+  reorderBanners
+} from '../controllers/appBannerController.js';
 import { protect, authorizedRoles } from '../../../middlewares/authMiddleware.js';
 import upload from '../../../utils/multer.js';
 
@@ -16,6 +23,13 @@ const adminOnly = [protect, authorizedRoles('admin', 'superadmin')];
 
 // Public: the app home screen's "Explore Services" cards.
 router.get('/', listAppServices);
+
+// Admin: banners (registered before /admin/:id)
+router.get('/admin/banners', ...adminOnly, adminListBanners);
+router.post('/admin/banners', ...adminOnly, upload.single('image'), createBanner);
+router.put('/admin/banners/reorder', ...adminOnly, reorderBanners);
+router.put('/admin/banners/:id', ...adminOnly, upload.single('image'), updateBanner);
+router.delete('/admin/banners/:id', ...adminOnly, deleteBanner);
 
 // Admin
 router.get('/admin/all', ...adminOnly, adminListAppServices);
