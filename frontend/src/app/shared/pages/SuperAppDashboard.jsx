@@ -327,6 +327,16 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idsKey]);
 
+  // keep the active thumbnail centred in the slider below the stack
+  const stripRef = useRef(null);
+  useEffect(() => {
+    const strip = stripRef.current;
+    const thumb = strip?.querySelector(`[data-thumb="${order[0]}"]`);
+    if (!strip || !thumb) return;
+    const left = thumb.offsetLeft - (strip.clientWidth - thumb.offsetWidth) / 2;
+    strip.scrollTo({ left: Math.max(0, left), behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [order, reduceMotion]);
+
   if (!services.length) return null;
 
   const single = services.length === 1;
@@ -388,20 +398,44 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduceMotion ? 0 : dealDone, duration: 0.4 }}
-          className="mt-5 flex flex-col items-center gap-2"
+          className="mt-4"
         >
-          <div className="flex items-center gap-1.5">
-            {services.map((s, i) => (
-              <button
-                key={s.id}
-                type="button"
-                aria-label={`Show ${s.title}`}
-                onClick={() => jumpTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${i === activeIdx ? 'w-6 bg-slate-800' : 'w-2 bg-slate-300'}`}
-              />
-            ))}
+          {/* Thumbnail slider: scroll sideways, tap one to bring that card to the top */}
+          <div ref={stripRef} className="no-scrollbar overflow-x-auto py-1.5">
+            <div className="mx-auto flex w-max items-start gap-3.5 px-3">
+              {services.map((s, i) => {
+                const active = i === activeIdx;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    data-thumb={i}
+                    aria-label={`Show ${s.title}`}
+                    aria-current={active}
+                    onClick={() => jumpTo(i)}
+                    className={`flex w-14 flex-col items-center gap-1 ${s.textColor}`}
+                  >
+                    <motion.span
+                      animate={{ scale: active ? 1.08 : 1, opacity: active ? 1 : 0.65 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 22 }}
+                      className={`relative block h-11 w-11 overflow-hidden rounded-full ring-offset-2 ring-offset-[#F7F9FB] ${active ? 'ring-2 ring-current shadow-md' : 'ring-1 ring-slate-200'}`}
+                    >
+                      {s.image ? (
+                        <img src={s.image} alt="" loading="lazy" className={`h-full w-full object-cover ${s.imagePos || 'object-center'}`} />
+                      ) : (
+                        <span className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${s.chip} text-white`}>
+                          <s.icon className="h-5 w-5" />
+                        </span>
+                      )}
+                    </motion.span>
+                    <span className={`w-full truncate text-center text-[10px] font-bold ${active ? '' : 'text-slate-400'}`}>
+                      {s.title}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">← Swipe to explore →</p>
         </motion.div>
       )}
     </div>
