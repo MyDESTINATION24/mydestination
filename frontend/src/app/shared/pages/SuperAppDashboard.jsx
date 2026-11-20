@@ -150,7 +150,37 @@ const SWIPE_DIST = 100;
 const SWIPE_VEL = 500;
 const NUDGE_KEY = 'svcDeckNudgeSeen';
 
-const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotion, throwSignal, nudge }) => {
+// Entrance: on first load the cards are "dealt" in one by one, back card
+// first, each dropping in from below with a little tilt and settling with a
+// springy bounce. Cards that join the back of the deck later just fade in.
+const DEAL_TILT = [-7, 6, -4];
+const DEAL_START = 0.25;
+const DEAL_GAP = 0.16;
+
+const entranceFor = (dealIndex, depth, reduceMotion) => {
+  if (reduceMotion) return { initial: { opacity: 0 }, transition: { duration: 0.3, delay: dealIndex == null ? 0 : 0.1 } };
+  if (dealIndex == null) {
+    return {
+      initial: { opacity: 0, scale: 0.92, y: 10 },
+      transition: { type: 'spring', stiffness: 220, damping: 24 },
+    };
+  }
+  return {
+    initial: { opacity: 0, y: 320, scale: 0.86, rotate: DEAL_TILT[depth] ?? 0 },
+    transition: {
+      delay: DEAL_START + dealIndex * DEAL_GAP,
+      type: 'spring',
+      stiffness: 170,
+      damping: 15,
+      mass: 0.9,
+      opacity: { duration: 0.25, delay: DEAL_START + dealIndex * DEAL_GAP },
+    },
+  };
+};
+
+const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotion, throwSignal, nudge, dealIndex }) => {
+  // captured once at mount -- later renders must not replay the entrance
+  const [entrance] = useState(() => entranceFor(dealIndex, depth, reduceMotion));
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 220], reduceMotion ? [0, 0] : [-12, 12]);
   const fade = useTransform(x, [-300, -140, 0, 140, 300], [0, 1, 1, 1, 0]);
@@ -187,7 +217,7 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
     const t = setTimeout(async () => {
       await animate(x, -36, { duration: 0.35, ease: 'easeOut' });
       await animate(x, 0, { type: 'spring', stiffness: 300, damping: 14 });
-    }, 900);
+    }, 1900); // after the deck has finished dealing in
     return () => clearTimeout(t);
   }, [isTop, nudge, reduceMotion, x]);
 
@@ -215,7 +245,12 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
       onClick={() => { if (isTop && !didDrag.current) onOpen(); }}
       aria-hidden={!isTop}
     >
-      <div className={`flex h-full flex-col overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_12px_36px_-10px_rgba(15,23,42,0.18)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}>
+      <motion.div
+        initial={entrance.initial}
+        animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+        transition={entrance.transition}
+        className={`flex h-full flex-col overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_12px_36px_-10px_rgba(15,23,42,0.18)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}
+      >
         <div className="relative h-[210px] shrink-0 overflow-hidden">
           {service.image ? (
             <img
@@ -242,7 +277,7 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
             <ChevronRight className="h-4 w-4" />
           </div>
         </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
@@ -264,6 +299,14 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
   useEffect(() => {
     try { localStorage.setItem(NUDGE_KEY, '1'); } catch { /* storage blocked */ }
   }, []);
+
+  // while true, newly mounted cards are dealt in; afterwards they just fade in
+  const [dealing, setDealing] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setDealing(false), (DEAL_START + DECK_VISIBLE * DEAL_GAP + 0.9) * 1000);
+    return () => clearTimeout(t);
+  }, []);
+  const dealDone = DEAL_START + (DECK_VISIBLE - 1) * DEAL_GAP + 0.35;
 
   if (!services.length) return null;
 
@@ -289,11 +332,7 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
   const visible = order.slice(0, DECK_VISIBLE);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.15, type: 'spring', stiffness: 90, damping: 16 }}
-    >
+    <div>
       <div
         tabIndex={0}
         role="region"
@@ -318,13 +357,19 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
               reduceMotion={reduceMotion}
               throwSignal={depth === 0 ? throwSignal : null}
               nudge={nudge && !single}
+              dealIndex={dealing ? visible.length - 1 - depth : null}
             />
           );
         })}
       </div>
 
       {!single && (
-        <div className="mt-4 flex flex-col items-center gap-2">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: reduceMotion ? 0 : dealDone, duration: 0.4 }}
+          className="mt-4 flex flex-col items-center gap-2"
+        >
           <div className="flex items-center gap-1.5">
             {services.map((s, i) => (
               <button
@@ -337,9 +382,9 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
             ))}
           </div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">← Swipe to explore →</p>
-        </div>
+        </motion.div>
       )}
-    </motion.div>
+    </div>
   );
 };
 
