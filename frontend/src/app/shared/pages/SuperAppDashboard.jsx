@@ -358,7 +358,7 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
         aria-roledescription="carousel"
         aria-label={`${services[activeIdx]?.title}, ${activeIdx + 1} of ${services.length}. Use arrow keys to browse.`}
         onKeyDown={handleKeyDown}
-        className="relative mx-3 mt-4 outline-none"
+        className="relative mx-3 mt-12 outline-none"
         // + a little extra so the fanned (rotated) back cards don't touch the dots
         style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) + 12 }}
       >
