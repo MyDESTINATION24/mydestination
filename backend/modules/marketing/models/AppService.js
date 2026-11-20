@@ -36,3 +36,18 @@ const appHomeSettingsSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export const AppHomeSettings = mongoose.model('AppHomeSettings', appHomeSettingsSchema);
+
+// Small promo / ad banners under the service cards on the app home screen.
+// startsAt / endsAt are optional; when set, the banner only shows inside that window.
+const appBannerSchema = new mongoose.Schema({
+  title: { type: String, required: true, trim: true }, // admin-facing name + image alt text
+  image: { type: String, required: true },
+  link: { type: String, default: '', trim: true },     // '' = not tappable
+  isAd: { type: Boolean, default: false },             // shows a small "Ad" tag
+  isActive: { type: Boolean, default: true },
+  startsAt: { type: Date, default: null },
+  endsAt: { type: Date, default: null },
+  order: { type: Number, default: 0 }
+}, { timestamps: true });
+
+export const AppBanner = mongoose.model('AppBanner', appBannerSchema);

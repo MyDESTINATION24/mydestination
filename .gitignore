@@ -1,8 +1,4 @@
-.env
-.env.*
 !.env.example
-**/.env
-**/.env.*
 !**/.env.example
 branch_structure.json
 temp_auto_push.bat
@@ -16,3 +12,5 @@ PROJECT-NOTES.md
 
 # Uploaded media stored on the server (services/mediaStorage.js)
 backend/media/
+config.bat
+node_modules
