@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import BirdFlock from '@/components/common/BirdFlock';
 import { useAppServices } from '@/services/appServices';
+import { preloadRoute } from '@/app/shared/routePreload';
 
 // Cards come from CMS Admin -> App Services (see services/appServices.js).
 
@@ -143,8 +144,9 @@ export const ServiceCard = ({ service, onClick, reduceMotion }) => {
 // flies off and goes to the back of the deck, so the deck loops forever.
 // ---------------------------------------------------------------------------
 
-const DECK_CARD_H = 360;
-const DECK_STEP_Y = 14; // how far each card behind peeks out
+const DECK_CARD_H = 350;
+const DECK_STEP_Y = 26; // how far each card behind peeks out
+const DECK_FAN = [0, -4, 4]; // cards behind fan out like a held hand of cards
 const DECK_VISIBLE = 3;
 const SWIPE_DIST = 100;
 const SWIPE_VEL = 500;
@@ -235,11 +237,11 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
       className="absolute inset-x-0 top-0 touch-pan-y select-none"
       style={{ x, rotate, opacity: isTop ? fade : 1, zIndex: DECK_VISIBLE - depth, height: DECK_CARD_H }}
       initial={false}
-      animate={{ scale: 1 - depth * 0.05, y: depth * DECK_STEP_Y }}
+      animate={{ scale: 1 - depth * 0.06, y: depth * DECK_STEP_Y, rotateZ: reduceMotion ? 0 : DECK_FAN[depth] ?? 0 }}
       transition={{ type: 'spring', stiffness: 260, damping: 26 }}
       drag={isTop && !locked ? 'x' : false}
       dragMomentum={false}
-      onPointerDown={() => { didDrag.current = false; }}
+      onPointerDown={() => { didDrag.current = false; if (isTop) preloadRoute(service.path); }}
       onDragStart={() => { didDrag.current = true; }}
       onDragEnd={handleDragEnd}
       onClick={() => { if (isTop && !didDrag.current) onOpen(); }}
@@ -249,9 +251,10 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
         initial={entrance.initial}
         animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
         transition={entrance.transition}
-        className={`flex h-full flex-col overflow-hidden rounded-[24px] border border-white/70 bg-white shadow-[0_12px_36px_-10px_rgba(15,23,42,0.18)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}
+        className={`flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100/60 bg-white shadow-[0_15px_40px_-10px_rgba(0,0,0,0.12)] ${isTop ? 'cursor-grab active:cursor-grabbing' : ''}`}
       >
-        <div className="relative h-[210px] shrink-0 overflow-hidden">
+        {/* Image, melting into the white card body */}
+        <div className="relative h-[200px] w-full shrink-0 overflow-hidden">
           {service.image ? (
             <img
               src={service.image}
@@ -262,19 +265,25 @@ const DeckCard = ({ service, depth, isTop, locked, onThrown, onOpen, reduceMotio
           ) : (
             <div className={`h-full w-full bg-gradient-to-br ${service.chip} opacity-80`} />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent" />
-          <div className={`absolute right-3 top-3 rounded-xl bg-gradient-to-br ${service.chip} p-2.5 text-white shadow-lg`}>
-            <service.icon className="h-5 w-5" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white via-white/80 to-transparent" />
+
+          {/* Pill, top right */}
+          <div className={`absolute right-4 top-4 flex items-center gap-1 rounded-full border border-slate-900/5 bg-white/95 px-3.5 py-1.5 text-xs font-extrabold uppercase tracking-wide shadow-sm backdrop-blur-md ${service.textColor}`}>
+            {service.ctaText || 'Explore'}
+            <ChevronRight className="h-3.5 w-3.5" />
           </div>
         </div>
-        <div className="flex flex-1 flex-col justify-between p-4">
-          <div>
-            <h3 className="text-lg font-black tracking-tight text-slate-900">{service.title}</h3>
-            <p className="mt-1.5 line-clamp-2 text-[13px] font-medium leading-relaxed text-slate-500">{service.description}</p>
-          </div>
-          <div className={`flex items-center gap-1 text-sm font-black ${service.textColor}`}>
-            {service.ctaText || 'Explore'}
-            <ChevronRight className="h-4 w-4" />
+
+        {/* Body */}
+        <div className="flex flex-grow flex-col px-6 pb-6 pt-1 text-left">
+          <h3 className="mb-3 text-2xl font-black tracking-tight text-slate-800">{service.title}</h3>
+          <div className="mb-3 w-full border-t border-slate-100" />
+          <div className="flex items-start gap-3 text-sm font-medium text-slate-500">
+            <div className={`relative mt-[-2px] shrink-0 rounded-xl p-2 ${service.textColor}`}>
+              <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${service.chip} opacity-[0.14]`} />
+              <service.icon className="relative h-4 w-4" />
+            </div>
+            <p className="line-clamp-2 leading-relaxed">{service.description}</p>
           </div>
         </div>
       </motion.div>
@@ -308,6 +317,16 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
   }, []);
   const dealDone = DEAL_START + (DECK_VISIBLE - 1) * DEAL_GAP + 0.35;
 
+  // Preload page code so a tap opens instantly: the top card's page as soon
+  // as it is on top, everything else once the home screen has settled.
+  const topPath = services[order[0]]?.path;
+  useEffect(() => { preloadRoute(topPath); }, [topPath]);
+  useEffect(() => {
+    const t = setTimeout(() => services.forEach((s) => preloadRoute(s.path)), 2500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsKey]);
+
   if (!services.length) return null;
 
   const single = services.length === 1;
@@ -339,8 +358,9 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
         aria-roledescription="carousel"
         aria-label={`${services[activeIdx]?.title}, ${activeIdx + 1} of ${services.length}. Use arrow keys to browse.`}
         onKeyDown={handleKeyDown}
-        className="relative mx-1 outline-none"
-        style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) }}
+        className="relative mx-3 mt-4 outline-none"
+        // + a little extra so the fanned (rotated) back cards don't touch the dots
+        style={{ height: DECK_CARD_H + DECK_STEP_Y * (Math.min(services.length, DECK_VISIBLE) - 1) + 12 }}
       >
         {/* render back-to-front so the top card is last in the DOM */}
         {[...visible].reverse().map((idx) => {
@@ -368,7 +388,7 @@ export const SwipeDeck = ({ services, onOpen, reduceMotion }) => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reduceMotion ? 0 : dealDone, duration: 0.4 }}
-          className="mt-4 flex flex-col items-center gap-2"
+          className="mt-5 flex flex-col items-center gap-2"
         >
           <div className="flex items-center gap-1.5">
             {services.map((s, i) => (
