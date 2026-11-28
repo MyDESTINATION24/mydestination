@@ -9,6 +9,7 @@ import destLisbon from '../../assets/landing/dest_lisbon.webp';
 import wedding2 from '../../assets/landing/wedding.jpg';
 import destExuma from '../../assets/landing/dest_exuma.webp';
 import { authService } from '../../services/apiService';
+import { getStoredReferralCode, clearStoredReferralCode } from '../../utils/referral';
 import toast from 'react-hot-toast';
 
 const UserLogin = ({ theme = 'hotel' }) => {
@@ -145,7 +146,11 @@ const UserLogin = ({ theme = 'hotel' }) => {
         try {
             setLoading(true);
             // Directly call API to get and store a real JWT token
-            await authService.verifyOtp({ phone, otp: otpString });
+            // A code picked up from a /r/ link or the Play Store install referrer.
+            // The backend only applies it when this OTP creates a new account.
+            const referralCode = getStoredReferralCode();
+            await authService.verifyOtp({ phone, otp: otpString, ...(referralCode ? { referralCode } : {}) });
+            if (referralCode) clearStoredReferralCode();
 
             try {
                 window.dispatchEvent(new CustomEvent('fcm:register'));

@@ -596,10 +596,14 @@ export const verifyOtp = async (req, res) => {
         console.log(`[REFERRAL_DEBUG] User signup with code: ${referralCode}`);
         const { resolveReferralCode } = await import('../../../services/referralRegistry.js');
         const validCode = await resolveReferralCode(referralCode);
-        if (!validCode) {
-          return res.status(400).json({ message: 'Invalid referral code provided' });
+        // The account already exists at this point, so a bad code must not fail
+        // the request (that left people registered but without a token). The
+        // code may come from a stale Play Store install referrer -- just skip it.
+        if (validCode) {
+          referralService.processReferralSignup(user, referralCode).catch(err => console.error('[REFERRAL_DEBUG] Referral Signup Error:', err));
+        } else {
+          console.warn(`[REFERRAL_DEBUG] Ignoring invalid referral code on signup: ${referralCode}`);
         }
-        referralService.processReferralSignup(user, referralCode).catch(err => console.error('[REFERRAL_DEBUG] Referral Signup Error:', err));
       }
 
       // REFERRAL: Auto-generate code for new user

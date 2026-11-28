@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
+import { ArrowLeft, Mail, MessageCircle, MapPin } from 'lucide-react';
 import { api } from '../../services/apiService';
 
 // These were hardcoded, so nothing edited under CMS -> Footer ever reached this
@@ -9,6 +9,7 @@ const FALLBACK_CONTACT = {
   address: 'Flat No. 68, Chotti Gwal Toli, Sarwate Bus Stand, Indore, Madhya Pradesh - 452001',
   email: 'care@mydestination.in',
   phone: '+91-8006787878',
+  whatsapp: '+91-8006787878',
 };
 
 const ContactPage = () => {
@@ -28,6 +29,7 @@ const ContactPage = () => {
           address: String(footer.address || '').trim() || current.address,
           email: String(footer.email || '').trim() || current.email,
           phone: String(footer.phone || '').trim() || current.phone,
+          whatsapp: String(footer.whatsapp || footer.phone || '').trim() || current.whatsapp,
         }));
       })
       .catch(() => {
@@ -37,8 +39,9 @@ const ContactPage = () => {
     return () => { active = false; };
   }, []);
 
-  // tel: links cannot contain spaces or dashes.
-  const dialablePhone = String(contact.phone || '').replace(/[^\d+]/g, '');
+  // wa.me wants bare digits with the country code (no +, spaces or dashes).
+  const whatsappDigits = String(contact.whatsapp || contact.phone || '').replace(/\D/g, '');
+  const whatsappLink = `https://wa.me/${whatsappDigits}`;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,15 +86,17 @@ const ContactPage = () => {
           </a>
 
           <a
-            href={`tel:${dialablePhone}`}
+            href={whatsappLink}
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex items-center gap-5 no-underline text-inherit hover:border-surface hover:shadow-md transition-all group"
           >
             <div className="w-12 h-12 rounded-2xl bg-surface/5 flex items-center justify-center text-surface group-hover:bg-surface group-hover:text-white transition-colors">
-              <Phone size={24} />
+              <MessageCircle size={24} />
             </div>
             <div>
-              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Call Us</p>
-              <p className="text-lg font-bold text-gray-800">{contact.phone}</p>
+              <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">WhatsApp Us</p>
+              <p className="text-lg font-bold text-gray-800">{contact.whatsapp || contact.phone}</p>
             </div>
           </a>
         </div>

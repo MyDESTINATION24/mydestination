@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { buildReferralLink } from '../../utils/referral';
+import { buildPlayStoreLink } from '../../utils/referral';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -8,7 +8,7 @@ import {
   ChevronRight, Check, CheckCircle2, X, XCircle, RotateCcw, Copy, Plus, Trash2,
   ExternalLink, Moon, Sun, Laptop, ArrowRight
 } from 'lucide-react';
-import { authService, bookingService } from '../../services/apiService';
+import { authService, bookingService, referralService } from '../../services/apiService';
 import toast from 'react-hot-toast';
 import { clearAllAuth } from '@/shared/auth/clearAllAuth';
 import { formatUserId } from '../../utils/publicIds';
@@ -16,6 +16,7 @@ import { formatUserId } from '../../utils/publicIds';
 const ProfilePage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [referralCode, setReferralCode] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [couponsCount, setCouponsCount] = useState(3);
@@ -72,6 +73,16 @@ const ProfilePage = () => {
             setUser(profileRes.user);
             localStorage.setItem('user', JSON.stringify(profileRes.user));
           }
+        } catch {
+          // ignore
+        }
+
+        // /auth/me does not carry the referral code -- it lives in the
+        // referral module, so the card used to show "—".
+        try {
+          const statsRes = await referralService.getMyStats();
+          const code = statsRes?.data?.code;
+          if (code) setReferralCode(code);
         } catch {
           // ignore
         }
@@ -169,44 +180,41 @@ const ProfilePage = () => {
     toast.success(msg || 'Copied to clipboard!');
   };
 
-  const handleShareApp = async () => {
-    const shareData = {
-      title: 'MyDestination - Hotels, Tours & Stays',
-      text: 'Explore premium hotels, wedding destinations, and tours on MyDestination!',
-      url: window.location.origin
-    };
+  const myReferralCode = referralCode || user?.referralCode || '';
 
+  // Both buttons share the Play Store link. When the user has a code it rides
+  // along as the install referrer, so the invitee is credited after installing.
+  const shareText = async (text, link) => {
     if (navigator.share) {
       try {
-        await navigator.share(shareData);
+        // Link only inside `text`: passing `url` too makes some apps
+        // (WhatsApp) append it twice.
+        await navigator.share({ title: 'My DESTINATION', text });
+        return;
       } catch (err) {
-        if (err.name !== 'AbortError') {
-          copyToClipboard(window.location.origin, 'App link copied to clipboard!');
-        }
+        if (err?.name === 'AbortError') return;
       }
-    } else {
-      copyToClipboard(window.location.origin, 'App link copied to clipboard!');
     }
+    copyToClipboard(text, 'Link copied to clipboard!');
+    if (!navigator.share && link) window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handleShareReferral = async () => {
-    const code = user?.referralCode || 'MYDEST100';
-    const referLink = buildReferralLink(code);
-    const text = `Use my referral code ${code} to sign up on MyDestination and get ₹100 cashback! ${referLink}`;
+  const handleShareApp = () => {
+    const link = buildPlayStoreLink(myReferralCode);
+    shareText(`Explore premium hotels, wedding destinations & tours on My DESTINATION! Install now: ${link}`, link);
+  };
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Join MyDestination',
-          text,
-          url: referLink
-        });
-      } catch {
-        copyToClipboard(code, 'Referral code copied!');
-      }
-    } else {
-      copyToClipboard(code, 'Referral code copied!');
+  const handleShareReferral = () => {
+    if (!isLoggedIn) {
+      navigate('/login');
+      return;
     }
+    if (!myReferralCode) {
+      toast.error('Your referral code is still loading, please try again.');
+      return;
+    }
+    const link = buildPlayStoreLink(myReferralCode);
+    shareText(`Hey! Use my referral code ${myReferralCode} to get rewards on My DESTINATION. Install now: ${link}`, link);
   };
 
   const availableCoupons = [
@@ -562,7 +570,7 @@ const ProfilePage = () => {
               <div>
                 <p className="text-sm font-bold text-gray-900">Refer & Earn</p>
                 <p className="text-xs text-gray-400 font-medium">
-                  Code: {user?.referralCode || '—'} • Share & earn ₹100
+                  Code: {myReferralCode || '—'} • Share & earn ₹100
                 </p>
               </div>
             </div>

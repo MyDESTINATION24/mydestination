@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+// Registers window.applyReferralCode for the Flutter app's install-referrer hand-off.
+import './utils/referral'
 
 // Safely monkeypatch Node.prototype.removeChild and insertBefore to prevent GSAP/React DOM conflicts
 if (typeof window !== 'undefined') {
